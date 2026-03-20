@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  postgres:
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    container_name: postgres
+    volumes:
+      - pg-akkai-api-data:/var/lib/postgresql/data
+    build:
+      context: .
+      dockerfile: ./Dockerfile.pg
+    restart: always
+
+volumes:
+  # redis:
+  pg-akkai-api-data:

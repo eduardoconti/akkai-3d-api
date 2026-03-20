@@ -1,0 +1,27 @@
+# Use a imagem oficial do PostgreSQL como base
+FROM postgres:12.14-alpine
+
+# RUN mkdir sql
+
+# COPY ./sql/01-init.sql /docker-entrypoint-initdb.d/
+# COPY ./sql/02-table.sql ./sql
+# COPY ./sql/03-sequence.sql ./sql
+# COPY ./sql/04-insert.sql ./sql
+# COPY ./sql/05-insert-e2e.sql ./sql
+# COPY ./sql/06-fk.sql ./sql
+# COPY ./sql/07-idx.sql ./sql
+# COPY ./sql/08-grant.sql ./sql
+
+# COPY init.sh ./
+# Exponha a porta padrão do PostgreSQL
+EXPOSE 5432
+
+# Defina variáveis de ambiente para configurar o PostgreSQL
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Crie um volume para persistência de dados
+VOLUME /var/lib/postgresql/data
+
+# Instrução para executar o PostgreSQL durante a inicialização do contêiner
+CMD ["postgres"]
