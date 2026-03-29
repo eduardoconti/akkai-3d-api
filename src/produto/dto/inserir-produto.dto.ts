@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsString, IsInt, Min, MinLength, IsNotEmpty } from 'class-validator';
 
 export class InserirProdutoDto {

@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -7,27 +8,59 @@ import {
 } from 'typeorm';
 import { Produto } from '@produto/entities';
 
-@Entity()
+export enum TipoMovimentacaoEstoque {
+  ENTRADA = 'E',
+  SAIDA = 'S',
+}
+
+export enum OrigemMovimentacaoEstoque {
+  COMPRA = 'COMPRA',
+  VENDA = 'VENDA',
+  AJUSTE = 'AJUSTE',
+  PERDA = 'PERDA',
+  PRODUCAO = 'PRODUCAO',
+}
+
+@Entity('movimentacao_estoque')
+@Check('ck_movimentacao_estoque_quantidade_positiva', '"quantidade" > 0')
 export class MovimentacaoEstoque {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    primaryKeyConstraintName: 'pk_movimentacao_estoque',
+  })
   id!: number;
-  @Column({ name: 'id_produto' })
+
+  @Column({ type: 'integer', name: 'id_produto' })
   idProduto!: number;
-  @Column()
+
+  @Column({ type: 'integer' })
   quantidade!: number;
-  @Column()
-  tipo!: 'E' | 'S';
+
+  @Column({
+    type: 'enum',
+    enum: TipoMovimentacaoEstoque,
+    enumName: 'tipo_movimentacao_estoque_enum',
+  })
+  tipo!: TipoMovimentacaoEstoque;
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     name: 'data_inclusao',
   })
   dataInclusao!: Date;
-  @Column()
-  origem!: 'COMPRA' | 'VENDA' | 'AJUSTE' | 'PERDA' | 'PRODUCAO';
+
+  @Column({
+    type: 'enum',
+    enum: OrigemMovimentacaoEstoque,
+    enumName: 'origem_movimentacao_estoque_enum',
+  })
+  origem!: OrigemMovimentacaoEstoque;
 
   @ManyToOne(() => Produto, (produto) => produto.movimentacoesEstoque)
-  @JoinColumn({ name: 'id_produto' })
+  @JoinColumn({
+    name: 'id_produto',
+    foreignKeyConstraintName: 'fk_movimentacao_estoque_produto',
+  })
   produto!: Produto;
 
   constructor() {}

@@ -7,7 +7,9 @@ import {
 import {
   CategoriaProduto,
   MovimentacaoEstoque,
+  OrigemMovimentacaoEstoque,
   Produto,
+  TipoMovimentacaoEstoque,
 } from '@produto/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -85,7 +87,10 @@ export class ProdutoService {
   async entradaEstoque(
     id: number,
     quantidade: number,
-    origem: 'COMPRA' | 'AJUSTE' | 'PRODUCAO',
+    origem:
+      | OrigemMovimentacaoEstoque.COMPRA
+      | OrigemMovimentacaoEstoque.AJUSTE
+      | OrigemMovimentacaoEstoque.PRODUCAO,
   ): Promise<void> {
     const produto = await this.produtoRepository.findOne({ where: { id } });
 
@@ -96,7 +101,7 @@ export class ProdutoService {
     const movimentacaoStoque = new MovimentacaoEstoque();
     movimentacaoStoque.idProduto = id;
     movimentacaoStoque.quantidade = quantidade;
-    movimentacaoStoque.tipo = 'E';
+    movimentacaoStoque.tipo = TipoMovimentacaoEstoque.ENTRADA;
     movimentacaoStoque.origem = origem;
 
     await this.movimentacaoEstoqueRepository.save(movimentacaoStoque);

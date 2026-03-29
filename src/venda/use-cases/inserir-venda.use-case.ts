@@ -1,4 +1,8 @@
-import { MovimentacaoEstoque } from '@produto/entities';
+import {
+  MovimentacaoEstoque,
+  OrigemMovimentacaoEstoque,
+  TipoMovimentacaoEstoque,
+} from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as CriarVendaInput,
@@ -45,8 +49,8 @@ export class InserirVendaUseCase {
       const movimentoEstoque = new MovimentacaoEstoque();
       movimentoEstoque.idProduto = item.idProduto;
       movimentoEstoque.quantidade = item.quantidade;
-      movimentoEstoque.tipo = 'S';
-      movimentoEstoque.origem = 'VENDA';
+      movimentoEstoque.tipo = TipoMovimentacaoEstoque.SAIDA;
+      movimentoEstoque.origem = OrigemMovimentacaoEstoque.VENDA;
       movimentoEstoque.dataInclusao = new Date();
 
       movimentacoesEstoque.push(movimentoEstoque);

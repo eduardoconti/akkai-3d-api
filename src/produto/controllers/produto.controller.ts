@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { InserirProdutoUseCase } from '@produto/use-cases';
 import { DetalheProdutoDto, InserirProdutoDto } from '@produto/dto';
-import { Produto } from '@produto/entities';
+import { OrigemMovimentacaoEstoque, Produto } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 
 @Controller('produto')
@@ -38,7 +38,13 @@ export class ProdutoController {
     {
       quantidade,
       origem,
-    }: { quantidade: number; origem: 'COMPRA' | 'AJUSTE' | 'PRODUCAO' },
+    }: {
+      quantidade: number;
+      origem:
+        | OrigemMovimentacaoEstoque.COMPRA
+        | OrigemMovimentacaoEstoque.AJUSTE
+        | OrigemMovimentacaoEstoque.PRODUCAO;
+    },
   ) {
     return await this.produtoService.entradaEstoque(id, quantidade, origem);
   }

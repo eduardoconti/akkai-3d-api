@@ -17,31 +17,41 @@ export interface ItemVendaInput {
   idProduto: number;
 }
 
-@Entity()
-@Unique('uk_venda_produto', ['idVenda', 'idProduto'])
-@Check('chk_quantidade', 'quantidade > 0')
-@Check('chk_valor_unitario', '"valor_unitario" >= 0')
-@Check('chk_desconto', 'desconto >= 0')
+@Entity('item_venda')
+@Unique('uk_item_venda_venda_produto', ['idVenda', 'idProduto'])
+@Check('ck_item_venda_quantidade_positiva', '"quantidade" > 0')
+@Check('ck_item_venda_valor_unitario_nao_negativo', '"valor_unitario" >= 0')
+@Check('ck_item_venda_desconto_nao_negativo', '"desconto" >= 0')
+@Check(
+  'ck_item_venda_desconto_nao_excede_bruto',
+  '"desconto" <= ("quantidade" * "valor_unitario")',
+)
+@Check(
+  'ck_item_venda_valor_total_consistente',
+  '"valor_total" = (("quantidade" * "valor_unitario") - "desconto")',
+)
 export class ItemVenda {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    primaryKeyConstraintName: 'pk_item_venda',
+  })
   id!: number;
 
-  @Column({ name: 'id_venda' })
+  @Column({ type: 'integer', name: 'id_venda' })
   idVenda!: number;
 
-  @Column({ name: 'id_produto' })
+  @Column({ type: 'integer', name: 'id_produto' })
   idProduto!: number;
 
-  @Column()
+  @Column({ type: 'integer' })
   quantidade!: number;
 
-  @Column({ name: 'valor_unitario' })
+  @Column({ type: 'integer', name: 'valor_unitario' })
   valorUnitario!: number;
 
-  @Column({ name: 'valor_total' })
+  @Column({ type: 'integer', name: 'valor_total' })
   valorTotal!: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
   desconto!: number;
 
   @ManyToOne(() => Venda, (venda) => venda.itens)

@@ -1,36 +1,29 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProdutoModule } from '@produto/produto.module';
 import { VendaModule } from '@venda/venda.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ItemVenda, Venda } from '@venda/entities';
-import {
-  CategoriaProduto,
-  MovimentacaoEstoque,
-  Produto,
-} from '@produto/entities';
+import { envValidationSchema } from './config/env.validation';
+import { getDatabaseConfigFromConfigService } from './config/database.config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      validationSchema: envValidationSchema,
+      validationOptions: {
+        abortEarly: false,
+      },
+    }),
     ProdutoModule,
     VendaModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
-      entities: [
-        Venda,
-        ItemVenda,
-        Produto,
-        MovimentacaoEstoque,
-        CategoriaProduto,
-      ],
-      synchronize: true,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        getDatabaseConfigFromConfigService(configService),
     }),
   ],
   controllers: [AppController],

@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -8,17 +9,28 @@ import {
 } from 'typeorm';
 import { Produto } from '@produto/entities';
 
-@Entity()
+@Entity('categoria_produto')
+@Check(
+  'ck_categoria_produto_sem_auto_relacao',
+  '"id_ascendente" IS NULL OR "id_ascendente" <> "id"',
+)
 export class CategoriaProduto {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    primaryKeyConstraintName: 'pk_categoria_produto',
+  })
   id!: number;
-  @Column()
+
+  @Column({ type: 'varchar', length: 80 })
   nome!: string;
-  @Column({ nullable: true, name: 'id_ascendente' })
+
+  @Column({ type: 'integer', nullable: true, name: 'id_ascendente' })
   idAscendente?: number;
 
   @ManyToOne(() => CategoriaProduto, (categoria) => categoria.filhos)
-  @JoinColumn({ name: 'id_ascendente' })
+  @JoinColumn({
+    name: 'id_ascendente',
+    foreignKeyConstraintName: 'fk_categoria_produto_categoria_pai',
+  })
   ascendente?: CategoriaProduto;
 
   @OneToMany(() => CategoriaProduto, (categoria) => categoria.ascendente)

@@ -25,25 +25,37 @@ export interface InserirVendaInput {
   desconto?: number;
   itens: ItemVendaInput[];
 }
-@Entity()
-@Check('chk_valor_desconto', '"desconto" >= 0')
-@Check('chk_valor_total', '"valor_total" >= 0')
+@Entity('venda')
+@Check('ck_venda_desconto_nao_negativo', '"desconto" >= 0')
+@Check('ck_venda_valor_total_nao_negativo', '"valor_total" >= 0')
 export class Venda {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    primaryKeyConstraintName: 'pk_venda',
+  })
   id!: number;
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     name: 'data_inclusao',
   })
   dataInclusao!: Date;
-  @Column({ name: 'valor_total' })
+
+  @Column({ type: 'integer', name: 'valor_total' })
   valorTotal!: number;
-  @Column({ type: 'enum', enum: TipoVenda })
+
+  @Column({ type: 'enum', enum: TipoVenda, enumName: 'tipo_venda_enum' })
   tipo!: TipoVenda;
-  @Column({ type: 'enum', enum: MeioPagamento, name: 'meio_pagamento' })
+
+  @Column({
+    type: 'enum',
+    enum: MeioPagamento,
+    enumName: 'meio_pagamento_venda_enum',
+    name: 'meio_pagamento',
+  })
   meioPagamento!: MeioPagamento;
-  @Column({ default: 0 })
+
+  @Column({ type: 'integer', default: 0 })
   desconto!: number;
   @OneToMany(() => ItemVenda, (itemVenda) => itemVenda.venda, {
     cascade: true,
