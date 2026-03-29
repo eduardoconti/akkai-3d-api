@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -10,37 +11,68 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { MeioPagamento, TipoVenda } from '@venda/entities';
-import { Type } from 'class-transformer';
 
 export class InserirVendaDto {
-  @IsEnum(TipoVenda)
+  @IsEnum(TipoVenda, {
+    message: 'O tipo da venda deve ser FEIRA, LOJA ou ONLINE.',
+  })
   tipo!: TipoVenda;
-  @IsEnum(MeioPagamento)
+
+  @IsEnum(MeioPagamento, {
+    message: 'O meio de pagamento deve ser DIN, DEB, CRE ou PIX.',
+  })
   meioPagamento!: MeioPagamento;
-  @IsInt()
+
   @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'A feira da venda deve ser um número inteiro.' })
+  @Min(1, { message: 'A feira da venda deve ser maior que zero.' })
+  @Max(2147483647, {
+    message: 'A feira da venda ultrapassa o limite permitido.',
+  })
   idFeira?: number;
-  @IsInt()
+
   @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'O desconto da venda deve ser informado em centavos.' })
+  @Min(0, { message: 'O desconto da venda não pode ser negativo.' })
+  @Max(1000000, {
+    message: 'O desconto da venda deve ser de no máximo R$ 10.000,00.',
+  })
   desconto?: number;
+
+  @IsArray({ message: 'Os itens da venda devem ser enviados em uma lista.' })
+  @ArrayMinSize(1, {
+    message: 'A venda deve possuir ao menos 1 item.',
+  })
+  @ArrayMaxSize(12, {
+    message: 'A venda deve possuir no máximo 12 itens.',
+  })
   @ValidateNested({ each: true })
   @Type(() => InserirItemVendaDto)
-  @IsArray()
-  @ArrayMinSize(1)
-  @ArrayMaxSize(12)
   itens!: InserirItemVendaDto[];
 }
 
 export class InserirItemVendaDto {
-  @IsInt()
+  @Type(() => Number)
+  @IsInt({ message: 'O produto do item deve ser um número inteiro.' })
+  @Min(1, { message: 'O produto do item deve ser maior que zero.' })
   idProduto!: number;
-  @IsInt()
-  @Min(1)
-  @Max(500)
+
+  @Type(() => Number)
+  @IsInt({ message: 'A quantidade do item deve ser um número inteiro.' })
+  @Min(1, { message: 'A quantidade do item deve ser de no mínimo 1 unidade.' })
+  @Max(500, {
+    message: 'A quantidade do item deve ser de no máximo 500 unidades.',
+  })
   quantidade!: number;
+
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(8000)
+  @Type(() => Number)
+  @IsInt({ message: 'O desconto do item deve ser informado em centavos.' })
+  @Min(0, { message: 'O desconto do item não pode ser negativo.' })
+  @Max(1000000, {
+    message: 'O desconto do item deve ser de no máximo R$ 10.000,00.',
+  })
   desconto?: number;
 }

@@ -1,15 +1,24 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { ProblemDetailsExceptionFilter } from './common/filters/problem-details-exception.filter';
+import { criarExcecaoValidacao } from './common/validation.exception-factory';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.useGlobalFilters(new ProblemDetailsExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strips properties not defined in the DTO
-      transform: true, // Automatically transforms payload to DTO instance types
-      forbidNonWhitelisted: true, // Throws an error if non-whitelisted properties are present
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+      validationError: {
+        target: false,
+        value: false,
+      },
+      exceptionFactory: criarExcecaoValidacao,
     }),
   );
   await app.listen(process.env['PORT'] ?? 3000);

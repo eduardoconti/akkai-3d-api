@@ -1,5 +1,8 @@
+import { Transform } from 'class-transformer';
+import { trimStringValue } from '../../common/transforms/trim-string.transform';
 import {
   IsBoolean,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -7,22 +10,34 @@ import {
 } from 'class-validator';
 
 export class InserirFeiraDto {
-  @IsString()
-  @MinLength(2)
-  @MaxLength(120)
+  @Transform(trimStringValue)
+  @IsString({ message: 'O nome da feira deve ser um texto.' })
+  @IsNotEmpty({ message: 'O nome da feira é obrigatório.' })
+  @MinLength(2, {
+    message: 'O nome da feira deve ter pelo menos 2 caracteres.',
+  })
+  @MaxLength(120, {
+    message: 'O nome da feira deve ter no máximo 120 caracteres.',
+  })
   nome!: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(120)
+  @Transform(trimStringValue)
+  @IsString({ message: 'O local da feira deve ser um texto.' })
+  @MaxLength(120, {
+    message: 'O local da feira deve ter no máximo 120 caracteres.',
+  })
   local?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(500)
+  @Transform(trimStringValue)
+  @IsString({ message: 'A descrição da feira deve ser um texto.' })
+  @MaxLength(500, {
+    message: 'A descrição da feira deve ter no máximo 500 caracteres.',
+  })
   descricao?: string;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'O campo ativa deve ser verdadeiro ou falso.' })
   ativa?: boolean;
 }

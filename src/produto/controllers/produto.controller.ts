@@ -5,14 +5,11 @@ import {
 } from '@produto/use-cases';
 import {
   DetalheProdutoDto,
+  EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
 } from '@produto/dto';
-import {
-  CategoriaProduto,
-  OrigemMovimentacaoEstoque,
-  Produto,
-} from '@produto/entities';
+import { CategoriaProduto, Produto } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 
 @Controller('produto')
@@ -53,17 +50,7 @@ export class ProdutoController {
   @Post(':id/estoque/entrada')
   async entradaEstoque(
     @Param('id') id: number,
-    @Body()
-    {
-      quantidade,
-      origem,
-    }: {
-      quantidade: number;
-      origem:
-        | OrigemMovimentacaoEstoque.COMPRA
-        | OrigemMovimentacaoEstoque.AJUSTE
-        | OrigemMovimentacaoEstoque.PRODUCAO;
-    },
+    @Body() { quantidade, origem }: EntradaEstoqueDto,
   ) {
     return await this.produtoService.entradaEstoque(id, quantidade, origem);
   }

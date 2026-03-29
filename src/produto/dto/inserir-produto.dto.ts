@@ -1,22 +1,57 @@
-import { IsString, IsInt, Min, MinLength, IsNotEmpty } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class InserirProdutoDto {
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
+  @Transform(trimStringValue)
+  @IsString({ message: 'O nome do produto deve ser um texto.' })
+  @IsNotEmpty({ message: 'O nome do produto é obrigatório.' })
+  @MinLength(2, {
+    message: 'O nome do produto deve ter pelo menos 2 caracteres.',
+  })
+  @MaxLength(120, {
+    message: 'O nome do produto deve ter no máximo 120 caracteres.',
+  })
   nome!: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'O código do produto é obrigatório' })
+  @Transform(trimStringValue)
+  @IsString({ message: 'O código do produto deve ser um texto.' })
+  @IsNotEmpty({ message: 'O código do produto é obrigatório.' })
+  @MinLength(2, {
+    message: 'O código do produto deve ter pelo menos 2 caracteres.',
+  })
+  @MaxLength(40, {
+    message: 'O código do produto deve ter no máximo 40 caracteres.',
+  })
   codigo!: string;
 
-  @IsString()
+  @IsOptional()
+  @Transform(trimStringValue)
+  @IsString({ message: 'A descrição do produto deve ser um texto.' })
+  @MaxLength(500, {
+    message: 'A descrição do produto deve ter no máximo 500 caracteres.',
+  })
   descricao?: string;
 
-  @IsInt({ message: 'idCategoria deve ser um número inteiro' })
+  @Type(() => Number)
+  @IsInt({ message: 'A categoria do produto deve ser um número inteiro.' })
+  @Min(1, { message: 'A categoria do produto deve ser maior que zero.' })
   idCategoria!: number;
 
-  @IsInt({ message: 'O valor deve ser um número inteiro' })
-  @Min(50, { message: 'O valor deve ser maior que R$ 0,50' })
+  @Type(() => Number)
+  @IsInt({ message: 'O valor do produto deve ser informado em centavos.' })
+  @Min(50, { message: 'O valor do produto deve ser de no mínimo R$ 0,50.' })
+  @Max(1000000, {
+    message: 'O valor do produto deve ser de no máximo R$ 10.000,00.',
+  })
   valor!: number;
 }
