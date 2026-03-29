@@ -52,8 +52,9 @@ export function getDatabaseConfigFromConfigService(
     DATABASE_USERNAME: configService.getOrThrow<string>('DATABASE_USERNAME'),
     DATABASE_PASSWORD: configService.getOrThrow<string>('DATABASE_PASSWORD'),
     DATABASE_NAME: configService.getOrThrow<string>('DATABASE_NAME'),
-    DATABASE_SYNCHRONIZE:
-      configService.getOrThrow<boolean>('DATABASE_SYNCHRONIZE'),
+    DATABASE_SYNCHRONIZE: configService.getOrThrow<boolean>(
+      'DATABASE_SYNCHRONIZE',
+    ),
     DATABASE_LOGGING: configService.getOrThrow<boolean>('DATABASE_LOGGING'),
   });
 }
