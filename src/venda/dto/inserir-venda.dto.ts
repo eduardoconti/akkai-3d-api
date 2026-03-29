@@ -19,6 +19,9 @@ export class InserirVendaDto {
   meioPagamento!: MeioPagamento;
   @IsInt()
   @IsOptional()
+  idFeira?: number;
+  @IsInt()
+  @IsOptional()
   desconto?: number;
   @ValidateNested({ each: true })
   @Type(() => InserirItemVendaDto)

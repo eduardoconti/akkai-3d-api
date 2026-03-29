@@ -6,7 +6,7 @@ import {
   MovimentacaoEstoque,
   Produto,
 } from '@produto/entities';
-import { ItemVenda, Venda } from '@venda/entities';
+import { Feira, ItemVenda, Venda } from '@venda/entities';
 import { DataSourceOptions } from 'typeorm';
 
 type DatabaseEnv = {
@@ -22,6 +22,7 @@ type DatabaseEnv = {
 const entities = [
   Venda,
   ItemVenda,
+  Feira,
   Produto,
   MovimentacaoEstoque,
   CategoriaProduto,

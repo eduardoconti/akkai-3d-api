@@ -17,6 +17,9 @@ describe('InserirVendaUseCase', () => {
   let inserirVendaMock: jest.MockedFunction<
     (venda: Venda, movimentacoes: MovimentacaoEstoque[]) => Promise<Venda>
   >;
+  let existeFeiraMock: jest.MockedFunction<
+    (idFeira: number) => Promise<boolean>
+  >;
   let getProdutoByIdMock: jest.MockedFunction<
     (id: number) => Promise<DetalheProdutoDto>
   >;
@@ -26,10 +29,12 @@ describe('InserirVendaUseCase', () => {
       Promise<Venda>,
       [Venda, MovimentacaoEstoque[]]
     >();
+    existeFeiraMock = jest.fn<Promise<boolean>, [number]>();
     getProdutoByIdMock = jest.fn<Promise<DetalheProdutoDto>, [number]>();
 
-    const vendaService: Pick<VendaService, 'inserirVenda'> = {
+    const vendaService: Pick<VendaService, 'inserirVenda' | 'existeFeira'> = {
       inserirVenda: inserirVendaMock,
+      existeFeira: existeFeiraMock,
     };
     const produtoService: Pick<ProdutoService, 'getProdutoById'> = {
       getProdutoById: getProdutoByIdMock,
@@ -68,6 +73,7 @@ describe('InserirVendaUseCase', () => {
       valor: 2500,
       quantidadeEstoque: 10,
     });
+    existeFeiraMock.mockResolvedValue(true);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute(input);
@@ -77,6 +83,7 @@ describe('InserirVendaUseCase', () => {
       expect.objectContaining({
         tipo: TipoVenda.LOJA,
         meioPagamento: MeioPagamento.PIX,
+        idFeira: undefined,
         desconto: 300,
         valorTotal: 4700,
         itens: [
@@ -113,6 +120,7 @@ describe('InserirVendaUseCase', () => {
       valor: 1000,
       quantidadeEstoque: 10,
     });
+    existeFeiraMock.mockResolvedValue(true);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
@@ -123,9 +131,41 @@ describe('InserirVendaUseCase', () => {
 
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        idFeira: undefined,
         desconto: 0,
         valorTotal: 1000,
         itens: [expect.objectContaining({ desconto: 0, valorTotal: 1000 })],
+      }),
+      expect.any(Array),
+    );
+  });
+
+  it('deve validar a existência da feira quando idFeira for informado', async () => {
+    getProdutoByIdMock.mockResolvedValue({
+      id: 1,
+      nome: 'Caneca',
+      codigo: 'CN001',
+      categoria: {
+        id: 1,
+        nome: 'Canecas',
+      },
+      valor: 1000,
+      quantidadeEstoque: 10,
+    });
+    existeFeiraMock.mockResolvedValue(true);
+    inserirVendaMock.mockResolvedValue(new Venda());
+
+    await useCase.execute({
+      meioPagamento: MeioPagamento.DIN,
+      tipo: TipoVenda.FEIRA,
+      idFeira: 3,
+      itens: [{ idProduto: 1, quantidade: 1 }],
+    });
+
+    expect(existeFeiraMock).toHaveBeenCalledWith(3);
+    expect(inserirVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        idFeira: 3,
       }),
       expect.any(Array),
     );

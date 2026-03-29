@@ -2,15 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { VendaController } from '@venda/controllers';
 import { Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
-import { InserirVendaUseCase } from '@venda/use-cases';
+import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
 
 describe('VendaController', () => {
   let controller: VendaController;
   let vendaService: { listarVendas: jest.Mock };
+  let inserirFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     vendaService = { listarVendas: jest.fn() };
+    inserirFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -19,6 +21,10 @@ describe('VendaController', () => {
         {
           provide: VendaService,
           useValue: vendaService,
+        },
+        {
+          provide: InserirFeiraUseCase,
+          useValue: inserirFeiraUseCase,
         },
         {
           provide: InserirVendaUseCase,
@@ -32,6 +38,20 @@ describe('VendaController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('deve delegar inserção de feira', async () => {
+    inserirFeiraUseCase.execute.mockResolvedValue({ id: 1 });
+
+    const input = {
+      nome: 'Teatro Reviver',
+      local: 'Niteroi',
+    };
+
+    const result = await controller.inserirFeira(input);
+
+    expect(inserirFeiraUseCase.execute).toHaveBeenCalledWith(input);
+    expect(result).toEqual({ id: 1 });
   });
 
   it('deve delegar inserção de venda', async () => {

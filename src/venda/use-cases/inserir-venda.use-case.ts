@@ -12,11 +12,12 @@ import {
   ItemVenda,
 } from '@venda/entities';
 import { VendaService } from '@venda/services';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;
   tipo: TipoVenda;
+  idFeira?: number;
   desconto?: number;
   itens: {
     quantidade: number;
@@ -32,6 +33,18 @@ export class InserirVendaUseCase {
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
+    if (inserirVendaInput.idFeira !== undefined) {
+      const feiraExiste = await this.vendaService.existeFeira(
+        inserirVendaInput.idFeira,
+      );
+
+      if (!feiraExiste) {
+        throw new NotFoundException(
+          `Feira com ID ${inserirVendaInput.idFeira} não encontrada.`,
+        );
+      }
+    }
+
     const itensVenda: ItemVenda[] = [];
     const movimentacoesEstoque: MovimentacaoEstoque[] = [];
 
@@ -59,6 +72,7 @@ export class InserirVendaUseCase {
     const vendaInput: CriarVendaInput = {
       meioPagamento: inserirVendaInput.meioPagamento,
       tipo: inserirVendaInput.tipo,
+      idFeira: inserirVendaInput.idFeira,
       desconto: inserirVendaInput.desconto,
       itens: itensVenda,
     };

@@ -1,12 +1,16 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Venda } from '@venda/entities';
+import { Feira, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('VendaService', () => {
   let service: VendaService;
 
+  let feiraRepository: {
+    save: jest.Mock;
+    exists: jest.Mock;
+  };
   let vendaRepository: {
     find: jest.Mock;
   };
@@ -23,6 +27,10 @@ describe('VendaService', () => {
   };
 
   beforeEach(async () => {
+    feiraRepository = {
+      save: jest.fn(),
+      exists: jest.fn(),
+    };
     vendaRepository = {
       find: jest.fn(),
     };
@@ -42,6 +50,10 @@ describe('VendaService', () => {
       providers: [
         VendaService,
         {
+          provide: getRepositoryToken(Feira),
+          useValue: feiraRepository,
+        },
+        {
           provide: getRepositoryToken(Venda),
           useValue: vendaRepository,
         },
@@ -57,6 +69,41 @@ describe('VendaService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('deve inserir feira com sucesso', async () => {
+    const feira = Object.assign(new Feira(), {
+      id: 1,
+      nome: 'Teatro Reviver',
+    });
+    feiraRepository.save.mockResolvedValue(feira);
+
+    const result = await service.inserirFeira(feira);
+
+    expect(feiraRepository.save).toHaveBeenCalledWith(feira);
+    expect(result).toBe(feira);
+  });
+
+  it('deve lançar erro ao falhar inserção da feira', async () => {
+    const feira = Object.assign(new Feira(), {
+      nome: 'Teatro Reviver',
+    });
+    feiraRepository.save.mockRejectedValue(new Error('falha'));
+
+    await expect(service.inserirFeira(feira)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao inserir feira'),
+    );
+  });
+
+  it('deve verificar existência de feira', async () => {
+    feiraRepository.exists.mockResolvedValue(true);
+
+    const result = await service.existeFeira(5);
+
+    expect(feiraRepository.exists).toHaveBeenCalledWith({
+      where: { id: 5 },
+    });
+    expect(result).toBe(true);
   });
 
   it('deve inserir venda dentro de transação', async () => {
@@ -94,7 +141,7 @@ describe('VendaService', () => {
     const result = await service.listarVendas();
 
     expect(vendaRepository.find).toHaveBeenCalledWith({
-      relations: { itens: { produto: true } },
+      relations: { itens: { produto: true }, feira: true },
       order: { id: 'DESC' },
       take: 10,
     });
