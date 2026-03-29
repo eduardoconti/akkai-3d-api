@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ProdutoController } from './produto.controller';
-import { ProdutoService } from './produto.service';
+import { ProdutoService } from './services/produto.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Produto } from './model/produto.model';
-import { InserirProdutoUseCase } from './use-case/inserir-produto.use-case';
-import { CategoriaProduto } from './model/categoria-produto.model';
-import { MovimentacaoEstoque } from './model/movimentacao-estoque.model';
+import { Produto } from './entities/produto.entity';
+import { InserirProdutoUseCase } from './use-cases/inserir-produto.use-case';
+import { CategoriaProduto } from './entities/categoria-produto.entity';
+import { MovimentacaoEstoque } from './entities/movimentacao-estoque.entity';
 
 @Module({
   imports: [

@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Produto } from './produto.model';
+import { Produto } from './produto.entity';
 
 @Entity()
 export class MovimentacaoEstoque {

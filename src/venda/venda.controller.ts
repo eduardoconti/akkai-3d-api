@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Venda } from './venda.model';
-import { VendaService } from './venda.service';
+import { Venda } from './entities/venda.entity';
+import { VendaService } from './services/venda.service';
 import { InserirVendaDto } from './dto/inserir-venda.dto';
-import { InserirVendaUseCase } from './use-case/inserir-venda.use-case';
+import { InserirVendaUseCase } from './use-cases/inserir-venda.use-case';
 
 @Controller('venda')
 export class VendaController {

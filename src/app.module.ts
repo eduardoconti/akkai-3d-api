@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { ProdutoModule } from './produto/produto.module';
 import { VendaModule } from './venda/venda.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ItemVenda, Venda } from './venda/venda.model';
-import { Produto } from './produto/model/produto.model';
-import { CategoriaProduto } from './produto/model/categoria-produto.model';
-import { MovimentacaoEstoque } from './produto/model/movimentacao-estoque.model';
+import { Venda } from './venda/entities/venda.entity';
+import { ItemVenda } from './venda/entities/item-venda.entity';
+import { Produto } from './produto/entities/produto.entity';
+import { CategoriaProduto } from './produto/entities/categoria-produto.entity';
+import { MovimentacaoEstoque } from './produto/entities/movimentacao-estoque.entity';
 
 @Module({
   imports: [

@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { InserirProdutoUseCase } from './use-case/inserir-produto.use-case';
+import { InserirProdutoUseCase } from './use-cases/inserir-produto.use-case';
 import { InserirProdutoDto } from './dto/inserir-produto.dto';
-import { Produto } from './model/produto.model';
-import { ProdutoService } from './produto.service';
+import { Produto } from './entities/produto.entity';
+import { ProdutoService } from './services/produto.service';
 import { DetalheProdutoDto } from './dto/detalhe-produto.dto';
 
 @Controller('produto')

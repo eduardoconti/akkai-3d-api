@@ -1,8 +1,9 @@
-import { ProdutoService } from 'src/produto/produto.service';
-import { ItemVenda, MeioPagamento, TipoVenda, Venda } from '../venda.model';
-import { VendaService } from '../venda.service';
+import { ProdutoService } from 'src/produto/services/produto.service';
+import { MeioPagamento, TipoVenda, Venda } from '../entities/venda.entity';
+import { ItemVenda } from '../entities/item-venda.entity';
+import { VendaService } from '../services/venda.service';
 import { Injectable } from '@nestjs/common';
-import { MovimentacaoEstoque } from 'src/produto/model/movimentacao-estoque.model';
+import { MovimentacaoEstoque } from 'src/produto/entities/movimentacao-estoque.entity';
 
 export interface InserirVendaInput {
   meioPagamento: MeioPagamento;

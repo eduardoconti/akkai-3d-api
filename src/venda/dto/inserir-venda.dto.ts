@@ -10,7 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { MeioPagamento, TipoVenda } from '../venda.model';
+import { MeioPagamento, TipoVenda } from '../entities/venda.entity';
 import { Type } from 'class-transformer';
 
 export class InserirVendaDto {
