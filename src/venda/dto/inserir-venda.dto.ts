@@ -10,14 +10,14 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { MeioPagamento, TipoVenda } from '@venda/entities/venda.entity';
+import { MeioPagamento, TipoVenda } from '@venda/entities';
 import { Type } from 'class-transformer';
 
 export class InserirVendaDto {
   @IsEnum(TipoVenda)
-  tipo: TipoVenda;
+  tipo!: TipoVenda;
   @IsEnum(MeioPagamento)
-  meioPagamento: MeioPagamento;
+  meioPagamento!: MeioPagamento;
   @IsInt()
   @IsOptional()
   desconto?: number;
@@ -26,16 +26,16 @@ export class InserirVendaDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(12)
-  itens: InserirItemVendaDto[];
+  itens!: InserirItemVendaDto[];
 }
 
 export class InserirItemVendaDto {
   @IsInt()
-  idProduto: number;
+  idProduto!: number;
   @IsInt()
   @Min(1)
   @Max(500)
-  quantidade: number;
+  quantidade!: number;
   @IsOptional()
   @IsInt()
   @Min(0)

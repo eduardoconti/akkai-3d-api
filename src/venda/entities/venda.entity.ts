@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ItemVenda, ItemVendaInput } from '@venda/entities/item-venda.entity';
+import { ItemVenda, ItemVendaInput } from '@venda/entities';
 
 export enum MeioPagamento {
   DIN = 'DIN',
@@ -30,37 +30,30 @@ export interface InserirVendaInput {
 @Check('chk_valor_total', '"valor_total" >= 0')
 export class Venda {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     name: 'data_inclusao',
   })
-  dataInclusao: Date;
+  dataInclusao!: Date;
   @Column({ name: 'valor_total' })
-  valorTotal: number;
+  valorTotal!: number;
   @Column({ type: 'enum', enum: TipoVenda })
-  tipo: TipoVenda;
+  tipo!: TipoVenda;
   @Column({ type: 'enum', enum: MeioPagamento, name: 'meio_pagamento' })
-  meioPagamento: MeioPagamento;
+  meioPagamento!: MeioPagamento;
   @Column({ default: 0 })
-  desconto: number;
+  desconto!: number;
   @OneToMany(() => ItemVenda, (itemVenda) => itemVenda.venda, {
     cascade: true,
   })
-  itens: ItemVenda[];
+  itens!: ItemVenda[];
 
   constructor() {}
 
   static criar(inserirVendaInput: InserirVendaInput): Venda {
-    const itens = inserirVendaInput.itens.map((item) =>
-      ItemVenda.criar({
-        quantidade: item.quantidade,
-        valorUnitario: item.valorUnitario,
-        desconto: item.desconto,
-        idProduto: item.idProduto,
-      }),
-    );
+    const itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 
     const venda = new Venda();
     venda.dataInclusao = new Date();

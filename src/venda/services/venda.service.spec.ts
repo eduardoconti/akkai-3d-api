@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { VendaService } from '@venda/services/venda.service';
+import { VendaService } from '@venda/services';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Venda } from '@venda/entities/venda.entity';
+import { Venda } from '@venda/entities';
 
 describe('VendaService', () => {
   let service: VendaService;

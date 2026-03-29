@@ -16,10 +16,19 @@
     },
     "incremental": true,
     "skipLibCheck": true,
+    "strict": true,
     "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
     "strictBindCallApply": true,
+    "useUnknownInCatchVariables": true,
     "noFallthroughCasesInSwitch": true
   }
 }

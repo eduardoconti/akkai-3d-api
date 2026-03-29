@@ -1,11 +1,16 @@
-import { ProdutoService } from '@produto/services/produto.service';
-import { MeioPagamento, TipoVenda, Venda } from '@venda/entities/venda.entity';
-import { ItemVenda } from '@venda/entities/item-venda.entity';
-import { VendaService } from '@venda/services/venda.service';
+import { MovimentacaoEstoque } from '@produto/entities';
+import { ProdutoService } from '@produto/services';
+import {
+  InserirVendaInput as CriarVendaInput,
+  MeioPagamento,
+  TipoVenda,
+  Venda,
+  ItemVenda,
+} from '@venda/entities';
+import { VendaService } from '@venda/services';
 import { Injectable } from '@nestjs/common';
-import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
 
-export interface InserirVendaInput {
+export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;
   tipo: TipoVenda;
   desconto?: number;
@@ -22,7 +27,7 @@ export class InserirVendaUseCase {
     private readonly produtoService: ProdutoService,
   ) {}
 
-  async execute(inserirVendaInput: InserirVendaInput): Promise<Venda> {
+  async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
     const itensVenda: ItemVenda[] = [];
     const movimentacoesEstoque: MovimentacaoEstoque[] = [];
 
@@ -47,12 +52,14 @@ export class InserirVendaUseCase {
       movimentacoesEstoque.push(movimentoEstoque);
     }
 
-    const venda = Venda.criar({
+    const vendaInput: CriarVendaInput = {
       meioPagamento: inserirVendaInput.meioPagamento,
       tipo: inserirVendaInput.tipo,
       desconto: inserirVendaInput.desconto,
       itens: itensVenda,
-    });
+    };
+
+    const venda = Venda.criar(vendaInput);
 
     return await this.vendaService.inserirVenda(venda, movimentacoesEstoque);
   }

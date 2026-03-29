@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProdutoService } from '@produto/services/produto.service';
-import { Produto } from '@produto/entities/produto.entity';
+import { Produto } from '@produto/entities';
+import { ProdutoService } from '@produto/services';
 
 export interface InserirProdutoInput {
   nome: string;

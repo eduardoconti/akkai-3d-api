@@ -1,4 +1,4 @@
-import { Produto } from '@produto/entities/produto.entity';
+import { Produto } from '@produto/entities';
 import {
   Check,
   Column,
@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { Venda } from '@venda/entities/venda.entity';
+import { Venda } from '@venda/entities';
 
 export interface ItemVendaInput {
   quantidade: number;
@@ -24,39 +24,39 @@ export interface ItemVendaInput {
 @Check('chk_desconto', 'desconto >= 0')
 export class ItemVenda {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ name: 'id_venda' })
-  idVenda: number;
+  idVenda!: number;
 
   @Column({ name: 'id_produto' })
-  idProduto: number;
+  idProduto!: number;
 
   @Column()
-  quantidade: number;
+  quantidade!: number;
 
   @Column({ name: 'valor_unitario' })
-  valorUnitario: number;
+  valorUnitario!: number;
 
   @Column({ name: 'valor_total' })
-  valorTotal: number;
+  valorTotal!: number;
 
   @Column({ default: 0 })
-  desconto: number;
+  desconto!: number;
 
   @ManyToOne(() => Venda, (venda) => venda.itens)
   @JoinColumn({
     name: 'id_venda',
     foreignKeyConstraintName: 'fk_item_venda_venda',
   })
-  venda: Venda;
+  venda!: Venda;
 
   @ManyToOne(() => Produto, (produto) => produto.itensVenda)
   @JoinColumn({
     name: 'id_produto',
     foreignKeyConstraintName: 'fk_item_venda_produto',
   })
-  produto: Produto;
+  produto!: Produto;
 
   constructor() {}
 

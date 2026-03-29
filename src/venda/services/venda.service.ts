@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Venda } from '@venda/entities/venda.entity';
+import { Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
+import { MovimentacaoEstoque } from '@produto/entities';
 
 @Injectable()
 export class VendaService {
@@ -24,8 +24,9 @@ export class VendaService {
       await queryRunner.manager.save(movimentacaoEstoque);
       await queryRunner.commitTransaction();
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      console.error('Erro ao inserir venda:', error.message);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido';
+      console.error('Erro ao inserir venda:', errorMessage);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('Erro ao inserir venda');
     } finally {

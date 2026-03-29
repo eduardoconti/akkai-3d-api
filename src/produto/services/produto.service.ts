@@ -4,12 +4,14 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Produto } from '@produto/entities/produto.entity';
+import {
+  CategoriaProduto,
+  MovimentacaoEstoque,
+  Produto,
+} from '@produto/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { CategoriaProduto } from '@produto/entities/categoria-produto.entity';
-import { DetalheProdutoDto } from '@produto/dto/detalhe-produto.dto';
-import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
+import { DetalheProdutoDto } from '@produto/dto';
 
 @Injectable()
 export class ProdutoService {

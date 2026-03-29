@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProdutoService } from '@produto/services/produto.service';
+import { ProdutoService } from '@produto/services';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Produto } from '@produto/entities/produto.entity';
-import { CategoriaProduto } from '@produto/entities/categoria-produto.entity';
-import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
+import {
+  CategoriaProduto,
+  MovimentacaoEstoque,
+  Produto,
+} from '@produto/entities';
 
 describe('ProdutoService', () => {
   let service: ProdutoService;

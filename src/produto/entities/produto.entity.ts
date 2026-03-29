@@ -1,4 +1,4 @@
-import { ItemVenda } from '@venda/entities/item-venda.entity';
+import { ItemVenda } from '@venda/entities';
 import {
   Column,
   Entity,
@@ -8,36 +8,35 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { CategoriaProduto } from '@produto/entities/categoria-produto.entity';
-import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
+import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
 
 @Entity()
 @Unique('uq_produto_codigo', ['codigo'])
 export class Produto {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  nome: string;
+  nome!: string;
   @Column()
-  codigo: string;
+  codigo!: string;
   @Column({ nullable: true })
   descricao?: string;
   @Column({ nullable: true, name: 'estoque_minimo' })
   estoqueMinimo?: number;
   @Column({ name: 'id_categoria' })
-  idCategoria: number;
+  idCategoria!: number;
   @Column()
-  valor: number;
+  valor!: number;
 
   @ManyToOne(() => CategoriaProduto, (categoria) => categoria.produtos)
   @JoinColumn({ name: 'id_categoria' })
-  categoria: CategoriaProduto;
+  categoria!: CategoriaProduto;
 
   @OneToMany(() => MovimentacaoEstoque, (movimentacao) => movimentacao.produto)
-  movimentacoesEstoque: MovimentacaoEstoque[];
+  movimentacoesEstoque!: MovimentacaoEstoque[];
 
   @OneToMany(() => ItemVenda, (itemVenda) => itemVenda.produto)
-  itensVenda: ItemVenda[];
+  itensVenda!: ItemVenda[];
 
   constructor() {}
 }

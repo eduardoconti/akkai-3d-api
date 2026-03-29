@@ -6,26 +6,26 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Produto } from '@produto/entities/produto.entity';
+import { Produto } from '@produto/entities';
 
 @Entity()
 export class CategoriaProduto {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  nome: string;
+  nome!: string;
   @Column({ nullable: true, name: 'id_ascendente' })
   idAscendente?: number;
 
   @ManyToOne(() => CategoriaProduto, (categoria) => categoria.filhos)
   @JoinColumn({ name: 'id_ascendente' })
-  ascendente: CategoriaProduto;
+  ascendente?: CategoriaProduto;
 
   @OneToMany(() => CategoriaProduto, (categoria) => categoria.ascendente)
-  filhos: CategoriaProduto[];
+  filhos!: CategoriaProduto[];
 
   @OneToMany(() => Produto, (produto) => produto.categoria)
-  produtos: Produto[];
+  produtos!: Produto[];
 
   constructor() {}
 }
