@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProdutoController } from './produto.controller';
-import { InserirProdutoUseCase } from './use-cases/inserir-produto.use-case';
-import { ProdutoService } from './services/produto.service';
+import { ProdutoController } from '@produto/produto.controller';
+import { InserirProdutoUseCase } from '@produto/use-cases/inserir-produto.use-case';
+import { ProdutoService } from '@produto/services/produto.service';
 
 describe('ProdutoController', () => {
   let controller: ProdutoController;

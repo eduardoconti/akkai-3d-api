@@ -1,5 +1,5 @@
-import { MeioPagamento, TipoVenda, Venda } from './venda.entity';
-import { ItemVenda } from './item-venda.entity';
+import { MeioPagamento, TipoVenda, Venda } from '@venda/entities/venda.entity';
+import { ItemVenda } from '@venda/entities/item-venda.entity';
 
 describe('Venda', () => {
   it('deve calcular o valor total corretamente com desconto no item e na venda', () => {

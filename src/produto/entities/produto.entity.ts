@@ -1,4 +1,4 @@
-import { ItemVenda } from 'src/venda/entities/item-venda.entity';
+import { ItemVenda } from '@venda/entities/item-venda.entity';
 import {
   Column,
   Entity,
@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { CategoriaProduto } from './categoria-produto.entity';
-import { MovimentacaoEstoque } from './movimentacao-estoque.entity';
+import { CategoriaProduto } from '@produto/entities/categoria-produto.entity';
+import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
 
 @Entity()
 @Unique('uq_produto_codigo', ['codigo'])

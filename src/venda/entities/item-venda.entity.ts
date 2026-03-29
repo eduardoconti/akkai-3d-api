@@ -1,4 +1,4 @@
-import { Produto } from 'src/produto/entities/produto.entity';
+import { Produto } from '@produto/entities/produto.entity';
 import {
   Check,
   Column,
@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { Venda } from './venda.entity';
+import { Venda } from '@venda/entities/venda.entity';
 
 export interface ItemVendaInput {
   quantidade: number;

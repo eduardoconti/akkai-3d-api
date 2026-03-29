@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ItemVenda, ItemVendaInput } from './item-venda.entity';
+import { ItemVenda, ItemVendaInput } from '@venda/entities/item-venda.entity';
 
 export enum MeioPagamento {
   DIN = 'DIN',

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProdutoService } from './produto.service';
+import { ProdutoService } from '@produto/services/produto.service';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Produto } from '../entities/produto.entity';
-import { CategoriaProduto } from '../entities/categoria-produto.entity';
-import { MovimentacaoEstoque } from '../entities/movimentacao-estoque.entity';
+import { Produto } from '@produto/entities/produto.entity';
+import { CategoriaProduto } from '@produto/entities/categoria-produto.entity';
+import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
 
 describe('ProdutoService', () => {
   let service: ProdutoService;

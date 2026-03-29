@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Venda } from '../entities/venda.entity';
+import { Venda } from '@venda/entities/venda.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MovimentacaoEstoque } from 'src/produto/entities/movimentacao-estoque.entity';
+import { MovimentacaoEstoque } from '@produto/entities/movimentacao-estoque.entity';
 
 @Injectable()
 export class VendaService {

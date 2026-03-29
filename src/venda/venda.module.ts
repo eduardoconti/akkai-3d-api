@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { VendaController } from './venda.controller';
-import { VendaService } from './services/venda.service';
+import { VendaController } from '@venda/venda.controller';
+import { VendaService } from '@venda/services/venda.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Venda } from './entities/venda.entity';
-import { ItemVenda } from './entities/item-venda.entity';
-import { ProdutoModule } from 'src/produto/produto.module';
-import { InserirVendaUseCase } from './use-cases/inserir-venda.use-case';
+import { Venda } from '@venda/entities/venda.entity';
+import { ItemVenda } from '@venda/entities/item-venda.entity';
+import { ProdutoModule } from '@produto/produto.module';
+import { InserirVendaUseCase } from '@venda/use-cases/inserir-venda.use-case';
 
 @Module({
   controllers: [VendaController],
