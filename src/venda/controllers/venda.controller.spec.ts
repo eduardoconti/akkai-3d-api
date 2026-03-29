@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VendaController } from '@venda/controllers';
-import { Venda } from '@venda/entities';
+import { Feira, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
 
 describe('VendaController', () => {
   let controller: VendaController;
-  let vendaService: { listarVendas: jest.Mock };
+  let vendaService: { listarVendas: jest.Mock; listarFeiras: jest.Mock };
   let inserirFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
-    vendaService = { listarVendas: jest.fn() };
+    vendaService = { listarVendas: jest.fn(), listarFeiras: jest.fn() };
     inserirFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
 
@@ -77,5 +77,15 @@ describe('VendaController', () => {
 
     expect(vendaService.listarVendas).toHaveBeenCalled();
     expect(result).toBe(vendas);
+  });
+
+  it('deve listar feiras', async () => {
+    const feiras = [Object.assign(new Feira(), { id: 1 })];
+    vendaService.listarFeiras.mockResolvedValue(feiras);
+
+    const result = await controller.listarFeiras();
+
+    expect(vendaService.listarFeiras).toHaveBeenCalled();
+    expect(result).toBe(feiras);
   });
 });

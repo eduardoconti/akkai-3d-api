@@ -10,6 +10,7 @@ describe('VendaService', () => {
   let feiraRepository: {
     save: jest.Mock;
     exists: jest.Mock;
+    find: jest.Mock;
   };
   let vendaRepository: {
     find: jest.Mock;
@@ -30,6 +31,7 @@ describe('VendaService', () => {
     feiraRepository = {
       save: jest.fn(),
       exists: jest.fn(),
+      find: jest.fn(),
     };
     vendaRepository = {
       find: jest.fn(),
@@ -104,6 +106,18 @@ describe('VendaService', () => {
       where: { id: 5 },
     });
     expect(result).toBe(true);
+  });
+
+  it('deve listar feiras ordenadas por nome', async () => {
+    const feiras = [Object.assign(new Feira(), { id: 1 })];
+    feiraRepository.find = jest.fn().mockResolvedValue(feiras);
+
+    const result = await service.listarFeiras();
+
+    expect(feiraRepository.find).toHaveBeenCalledWith({
+      order: { nome: 'ASC' },
+    });
+    expect(result).toBe(feiras);
   });
 
   it('deve inserir venda dentro de transação', async () => {

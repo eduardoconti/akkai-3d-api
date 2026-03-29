@@ -23,6 +23,11 @@ export class VendaController {
     return venda;
   }
 
+  @Get('feiras')
+  async listarFeiras(): Promise<Feira[]> {
+    return await this.vendaService.listarFeiras();
+  }
+
   @Get('')
   async listarVendas(): Promise<Venda[]> {
     return await this.vendaService.listarVendas();

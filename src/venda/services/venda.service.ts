@@ -36,6 +36,12 @@ export class VendaService {
     });
   }
 
+  async listarFeiras(): Promise<Feira[]> {
+    return await this.feiraRepository.find({
+      order: { nome: 'ASC' },
+    });
+  }
+
   async inserirVenda(
     venda: Venda,
     movimentacaoEstoque: MovimentacaoEstoque[],
