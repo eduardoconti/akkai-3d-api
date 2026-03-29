@@ -3,22 +3,36 @@ import { DataSource } from 'typeorm';
 import { envValidationSchema } from './env.validation';
 import { getDatabaseConfig } from './database.config';
 
-const { error, value } = envValidationSchema.validate(process.env, {
+type ValidatedEnv = {
+  DATABASE_HOST: string;
+  DATABASE_PORT: number;
+  DATABASE_USERNAME: string;
+  DATABASE_PASSWORD: string;
+  DATABASE_NAME: string;
+  DATABASE_SYNCHRONIZE: boolean;
+  DATABASE_LOGGING: boolean;
+};
+
+const validationResult = envValidationSchema.validate(process.env, {
   abortEarly: false,
 });
+
+const { error } = validationResult;
 
 if (error) {
   throw error;
 }
 
+const value = validationResult.value as ValidatedEnv;
+
 export default new DataSource(
   getDatabaseConfig({
-    DATABASE_HOST: String(value.DATABASE_HOST),
-    DATABASE_PORT: Number(value.DATABASE_PORT),
-    DATABASE_USERNAME: String(value.DATABASE_USERNAME),
-    DATABASE_PASSWORD: String(value.DATABASE_PASSWORD),
-    DATABASE_NAME: String(value.DATABASE_NAME),
-    DATABASE_SYNCHRONIZE: Boolean(value.DATABASE_SYNCHRONIZE),
-    DATABASE_LOGGING: Boolean(value.DATABASE_LOGGING),
+    DATABASE_HOST: value.DATABASE_HOST,
+    DATABASE_PORT: value.DATABASE_PORT,
+    DATABASE_USERNAME: value.DATABASE_USERNAME,
+    DATABASE_PASSWORD: value.DATABASE_PASSWORD,
+    DATABASE_NAME: value.DATABASE_NAME,
+    DATABASE_SYNCHRONIZE: value.DATABASE_SYNCHRONIZE,
+    DATABASE_LOGGING: value.DATABASE_LOGGING,
   }),
 );

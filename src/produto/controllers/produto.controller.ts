@@ -1,13 +1,25 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { InserirProdutoUseCase } from '@produto/use-cases';
-import { DetalheProdutoDto, InserirProdutoDto } from '@produto/dto';
-import { OrigemMovimentacaoEstoque, Produto } from '@produto/entities';
+import {
+  InserirCategoriaProdutoUseCase,
+  InserirProdutoUseCase,
+} from '@produto/use-cases';
+import {
+  DetalheProdutoDto,
+  InserirCategoriaProdutoDto,
+  InserirProdutoDto,
+} from '@produto/dto';
+import {
+  CategoriaProduto,
+  OrigemMovimentacaoEstoque,
+  Produto,
+} from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 
 @Controller('produto')
 export class ProdutoController {
   constructor(
     private readonly inserirProdutoUseCase: InserirProdutoUseCase,
+    private readonly inserirCategoriaProdutoUseCase: InserirCategoriaProdutoUseCase,
     private readonly produtoService: ProdutoService,
   ) {}
 
@@ -24,6 +36,13 @@ export class ProdutoController {
   @Get('categorias')
   async listarCategorias() {
     return await this.produtoService.listarCategorias();
+  }
+
+  @Post('categorias')
+  async inserirCategoria(
+    @Body() input: InserirCategoriaProdutoDto,
+  ): Promise<CategoriaProduto> {
+    return await this.inserirCategoriaProdutoUseCase.execute(input);
   }
 
   @Get(':id')

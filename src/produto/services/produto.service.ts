@@ -37,12 +37,20 @@ export class ProdutoService {
       console.error('Erro ao inserir produto:', error);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.driverError?.code === '23505') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         // if (error.driverError.constraint === 'uq_produto_codigo') {
         throw new ConflictException(`Código ${produto.codigo} já existe`);
         // }
       }
       throw new InternalServerErrorException(`Erro ao inserir produto`);
+    });
+  }
+
+  async inserirCategoria(
+    categoria: CategoriaProduto,
+  ): Promise<CategoriaProduto> {
+    return this.categoriaRepository.save(categoria).catch((error) => {
+      console.error('Erro ao inserir categoria:', error);
+      throw new InternalServerErrorException('Erro ao inserir categoria');
     });
   }
 

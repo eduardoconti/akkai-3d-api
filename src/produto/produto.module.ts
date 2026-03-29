@@ -7,14 +7,21 @@ import {
   MovimentacaoEstoque,
   Produto,
 } from '@produto/entities';
-import { InserirProdutoUseCase } from '@produto/use-cases';
+import {
+  InserirCategoriaProdutoUseCase,
+  InserirProdutoUseCase,
+} from '@produto/use-cases';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Produto, CategoriaProduto, MovimentacaoEstoque]),
   ],
   controllers: [ProdutoController],
-  providers: [ProdutoService, InserirProdutoUseCase],
+  providers: [
+    ProdutoService,
+    InserirProdutoUseCase,
+    InserirCategoriaProdutoUseCase,
+  ],
   exports: [ProdutoService],
 })
 export class ProdutoModule {}
