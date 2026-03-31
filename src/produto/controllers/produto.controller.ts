@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
@@ -11,10 +11,12 @@ import {
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
   ListarProdutoDto,
+  PesquisarProdutosDto,
   SaidaEstoqueDto,
 } from '@produto/dto';
 import { CategoriaProduto, Produto } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
+import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 
 @Controller('produto')
 export class ProdutoController {
@@ -39,8 +41,10 @@ export class ProdutoController {
   }
 
   @Get()
-  async listarProdutos(): Promise<ListarProdutoDto[]> {
-    return await this.produtoService.listarProdutos();
+  async listarProdutos(
+    @Query() pesquisa: PesquisarProdutosDto,
+  ): Promise<ResultadoPaginado<ListarProdutoDto>> {
+    return await this.produtoService.listarProdutos(pesquisa);
   }
 
   @Get('categorias')

@@ -1,5 +1,6 @@
 export * from './alterar-produto.dto';
 export * from './listar-produto.dto';
+export * from './pesquisar-produtos.dto';
 export * from './entrada-estoque.dto';
 export * from './saida-estoque.dto';
 export * from './detalhe-produto.dto';

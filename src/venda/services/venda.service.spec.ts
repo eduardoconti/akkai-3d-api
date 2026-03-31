@@ -13,7 +13,7 @@ describe('VendaService', () => {
     find: jest.Mock;
   };
   let vendaRepository: {
-    find: jest.Mock;
+    createQueryBuilder: jest.Mock;
   };
   let queryRunner: {
     connect: jest.Mock;
@@ -33,8 +33,19 @@ describe('VendaService', () => {
       exists: jest.fn(),
       find: jest.fn(),
     };
+    const queryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      distinct: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getManyAndCount: jest
+        .fn()
+        .mockResolvedValue([[Object.assign(new Venda(), { id: 1 })], 1]),
+    };
     vendaRepository = {
-      find: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
     };
     queryRunner = {
       connect: jest.fn(),
@@ -148,17 +159,19 @@ describe('VendaService', () => {
     expect(queryRunner.release).toHaveBeenCalled();
   });
 
-  it('deve listar vendas com itens e produto ordenadas', async () => {
-    const vendas = [Object.assign(new Venda(), { id: 1 })];
-    vendaRepository.find.mockResolvedValue(vendas);
-
-    const result = await service.listarVendas();
-
-    expect(vendaRepository.find).toHaveBeenCalledWith({
-      relations: { itens: { produto: true }, feira: true },
-      order: { id: 'DESC' },
-      take: 10,
+  it('deve listar vendas paginadas', async () => {
+    const result = await service.listarVendas({
+      pagina: 1,
+      tamanhoPagina: 10,
     });
-    expect(result).toBe(vendas);
+
+    expect(vendaRepository.createQueryBuilder).toHaveBeenCalledWith('venda');
+    expect(result).toEqual({
+      itens: [expect.objectContaining({ id: 1 })],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    });
   });
 });

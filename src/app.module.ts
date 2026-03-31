@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProdutoModule } from '@produto/produto.module';
+import { RelatorioModule } from '@relatorio/relatorio.module';
 import { VendaModule } from '@venda/venda.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './config/env.validation';
@@ -19,6 +20,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
       },
     }),
     ProdutoModule,
+    RelatorioModule,
     VendaModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

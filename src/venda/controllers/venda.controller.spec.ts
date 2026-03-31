@@ -70,12 +70,24 @@ describe('VendaController', () => {
   });
 
   it('deve listar vendas', async () => {
-    const vendas = [Object.assign(new Venda(), { id: 1 })];
+    const vendas = {
+      itens: [Object.assign(new Venda(), { id: 1 })],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
     vendaService.listarVendas.mockResolvedValue(vendas);
 
-    const result = await controller.listarVendas();
+    const result = await controller.listarVendas({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
 
-    expect(vendaService.listarVendas).toHaveBeenCalled();
+    expect(vendaService.listarVendas).toHaveBeenCalledWith({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
     expect(result).toBe(vendas);
   });
 

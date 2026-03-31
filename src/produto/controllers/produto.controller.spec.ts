@@ -97,25 +97,37 @@ describe('ProdutoController', () => {
   });
 
   it('deve listar produtos', async () => {
-    const produtos: ListarProdutoDto[] = [
-      {
-        id: 1,
-        nome: 'Caneca',
-        codigo: 'CAN001',
-        descricao: 'Modelo geek',
-        idCategoria: 2,
-        estoqueMinimo: 3,
-        valor: 2500,
-        categoria: { id: 2, nome: 'Canecas' },
-        quantidadeEstoque: 9,
-      },
-    ];
-    produtoService.listarProdutos.mockResolvedValue(produtos);
+    const resposta = {
+      itens: [
+        {
+          id: 1,
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          idCategoria: 2,
+          estoqueMinimo: 3,
+          valor: 2500,
+          categoria: { id: 2, nome: 'Canecas' },
+          quantidadeEstoque: 9,
+        },
+      ] satisfies ListarProdutoDto[],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    produtoService.listarProdutos.mockResolvedValue(resposta);
 
-    const result = await controller.listarProdutos();
+    const result = await controller.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
 
-    expect(produtoService.listarProdutos).toHaveBeenCalled();
-    expect(result).toBe(produtos);
+    expect(produtoService.listarProdutos).toHaveBeenCalledWith({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+    expect(result).toBe(resposta);
   });
 
   it('deve listar categorias', async () => {

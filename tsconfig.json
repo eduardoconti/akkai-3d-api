@@ -12,6 +12,7 @@
     "baseUrl": "./",
     "paths": {
       "@produto/*": ["src/produto/*"],
+      "@relatorio/*": ["src/relatorio/*"],
       "@venda/*": ["src/venda/*"]
     },
     "incremental": true,

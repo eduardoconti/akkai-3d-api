@@ -86,6 +86,7 @@
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1",
       "^@produto/(.*)$": "<rootDir>/produto/$1",
+      "^@relatorio/(.*)$": "<rootDir>/relatorio/$1",
       "^@venda/(.*)$": "<rootDir>/venda/$1"
     }
   }

@@ -1,8 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { InserirFeiraDto, InserirVendaDto } from '@venda/dto';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  InserirFeiraDto,
+  InserirVendaDto,
+  PesquisarVendasDto,
+} from '@venda/dto';
 import { Feira, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
+import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 
 @Controller('venda')
 export class VendaController {
@@ -29,7 +34,9 @@ export class VendaController {
   }
 
   @Get('')
-  async listarVendas(): Promise<Venda[]> {
-    return await this.vendaService.listarVendas();
+  async listarVendas(
+    @Query() pesquisa: PesquisarVendasDto,
+  ): Promise<ResultadoPaginado<Venda>> {
+    return await this.vendaService.listarVendas(pesquisa);
   }
 }

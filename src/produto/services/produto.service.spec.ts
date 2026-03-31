@@ -83,38 +83,48 @@ describe('ProdutoService', () => {
   });
 
   it('deve listar produtos com estoque calculado', async () => {
-    const produtosQuery = [
-      {
-        id: '1',
-        nome: 'Caneca',
-        codigo: 'CAN001',
-        descricao: 'Modelo geek',
-        id_categoria: '2',
-        estoque_minimo: '3',
-        valor: '2500',
-        categoria_id: '2',
-        categoria_nome: 'Canecas',
-        quantidade_estoque: '9',
-      },
-    ];
-    dataSource.query.mockResolvedValue(produtosQuery);
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '1' }])
+      .mockResolvedValueOnce([
+        {
+          id: '1',
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          id_categoria: '2',
+          estoque_minimo: '3',
+          valor: '2500',
+          categoria_id: '2',
+          categoria_nome: 'Canecas',
+          quantidade_estoque: '9',
+        },
+      ]);
 
-    const result = await service.listarProdutos();
+    const result = await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
 
-    expect(dataSource.query).toHaveBeenCalled();
-    expect(result).toEqual<ListarProdutoDto[]>([
-      {
-        id: 1,
-        nome: 'Caneca',
-        codigo: 'CAN001',
-        descricao: 'Modelo geek',
-        idCategoria: 2,
-        estoqueMinimo: 3,
-        valor: 2500,
-        categoria: { id: 2, nome: 'Canecas' },
-        quantidadeEstoque: 9,
-      },
-    ]);
+    expect(dataSource.query).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      itens: [
+        {
+          id: 1,
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          idCategoria: 2,
+          estoqueMinimo: 3,
+          valor: 2500,
+          categoria: { id: 2, nome: 'Canecas' },
+          quantidadeEstoque: 9,
+        },
+      ] satisfies ListarProdutoDto[],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    });
   });
 
   it('deve salvar produto com sucesso', async () => {
