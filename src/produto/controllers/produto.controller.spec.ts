@@ -1,36 +1,37 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProdutoController } from '@produto/controllers';
+import { CategoriaProduto, OrigemMovimentacaoEstoque } from '@produto/entities';
 import {
-  CategoriaProduto,
-  OrigemMovimentacaoEstoque,
-  Produto,
-} from '@produto/entities';
-import {
+  AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
 } from '@produto/use-cases';
 import { ProdutoService } from '@produto/services';
-import { DetalheProdutoDto } from '@produto/dto';
+import { DetalheProdutoDto, ListarProdutoDto } from '@produto/dto';
 
 describe('ProdutoController', () => {
   let controller: ProdutoController;
   let inserirProdutoUseCase: { execute: jest.Mock };
+  let alterarProdutoUseCase: { execute: jest.Mock };
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
     listarCategorias: jest.Mock;
-    getProdutoById: jest.Mock;
+    obterDetalheProdutoPorId: jest.Mock;
     entradaEstoque: jest.Mock;
+    saidaEstoque: jest.Mock;
   };
 
   beforeEach(async () => {
     inserirProdutoUseCase = { execute: jest.fn() };
+    alterarProdutoUseCase = { execute: jest.fn() };
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
       listarCategorias: jest.fn(),
-      getProdutoById: jest.fn(),
+      obterDetalheProdutoPorId: jest.fn(),
       entradaEstoque: jest.fn(),
+      saidaEstoque: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -39,6 +40,10 @@ describe('ProdutoController', () => {
         {
           provide: InserirProdutoUseCase,
           useValue: inserirProdutoUseCase,
+        },
+        {
+          provide: AlterarProdutoUseCase,
+          useValue: alterarProdutoUseCase,
         },
         {
           provide: InserirCategoriaProdutoUseCase,
@@ -74,8 +79,37 @@ describe('ProdutoController', () => {
     expect(result).toEqual({ id: 1 });
   });
 
+  it('deve delegar alteração de produto', async () => {
+    alterarProdutoUseCase.execute.mockResolvedValue({ id: 1 });
+
+    const input = {
+      nome: 'Caneca Premium',
+      codigo: 'CAN002',
+      descricao: 'Nova versao',
+      idCategoria: 2,
+      valor: 3500,
+    };
+
+    const result = await controller.alterarProduto(1, input);
+
+    expect(alterarProdutoUseCase.execute).toHaveBeenCalledWith(1, input);
+    expect(result).toEqual({ id: 1 });
+  });
+
   it('deve listar produtos', async () => {
-    const produtos = [Object.assign(new Produto(), { id: 1 })];
+    const produtos: ListarProdutoDto[] = [
+      {
+        id: 1,
+        nome: 'Caneca',
+        codigo: 'CAN001',
+        descricao: 'Modelo geek',
+        idCategoria: 2,
+        estoqueMinimo: 3,
+        valor: 2500,
+        categoria: { id: 2, nome: 'Canecas' },
+        quantidadeEstoque: 9,
+      },
+    ];
     produtoService.listarProdutos.mockResolvedValue(produtos);
 
     const result = await controller.listarProdutos();
@@ -110,15 +144,16 @@ describe('ProdutoController', () => {
       id: 1,
       nome: 'Caneca',
       codigo: 'CAN001',
+      idCategoria: 1,
       valor: 2500,
       categoria: { id: 1, nome: 'Canecas' },
       quantidadeEstoque: 10,
     };
-    produtoService.getProdutoById.mockResolvedValue(detalhe);
+    produtoService.obterDetalheProdutoPorId.mockResolvedValue(detalhe);
 
     const result = await controller.getProdutoById(1);
 
-    expect(produtoService.getProdutoById).toHaveBeenCalledWith(1);
+    expect(produtoService.obterDetalheProdutoPorId).toHaveBeenCalledWith(1);
     expect(result).toBe(detalhe);
   });
 
@@ -134,6 +169,21 @@ describe('ProdutoController', () => {
       1,
       10,
       OrigemMovimentacaoEstoque.COMPRA,
+    );
+  });
+
+  it('deve delegar saída de estoque', async () => {
+    produtoService.saidaEstoque.mockResolvedValue(undefined);
+
+    await controller.saidaEstoque(1, {
+      quantidade: 2,
+      origem: OrigemMovimentacaoEstoque.PERDA,
+    });
+
+    expect(produtoService.saidaEstoque).toHaveBeenCalledWith(
+      1,
+      2,
+      OrigemMovimentacaoEstoque.PERDA,
     );
   });
 });

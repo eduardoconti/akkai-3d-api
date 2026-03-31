@@ -14,7 +14,8 @@ export interface ItemVendaInput {
   quantidade: number;
   valorUnitario: number;
   desconto?: number;
-  idProduto: number;
+  idProduto?: number;
+  nomeProduto: string;
 }
 
 @Entity('item_venda')
@@ -39,8 +40,11 @@ export class ItemVenda {
   @Column({ type: 'integer', name: 'id_venda' })
   idVenda!: number;
 
-  @Column({ type: 'integer', name: 'id_produto' })
-  idProduto!: number;
+  @Column({ type: 'integer', name: 'id_produto', nullable: true })
+  idProduto?: number;
+
+  @Column({ type: 'varchar', name: 'nome_produto', length: 120 })
+  nomeProduto!: string;
 
   @Column({ type: 'integer' })
   quantidade!: number;
@@ -61,18 +65,19 @@ export class ItemVenda {
   })
   venda!: Venda;
 
-  @ManyToOne(() => Produto, (produto) => produto.itensVenda)
+  @ManyToOne(() => Produto, (produto) => produto.itensVenda, { nullable: true })
   @JoinColumn({
     name: 'id_produto',
     foreignKeyConstraintName: 'fk_item_venda_produto',
   })
-  produto!: Produto;
+  produto?: Produto;
 
   constructor() {}
 
   static criar(inserirItemVendaInput: ItemVendaInput): ItemVenda {
     const itemVenda = new ItemVenda();
     itemVenda.idProduto = inserirItemVendaInput.idProduto;
+    itemVenda.nomeProduto = inserirItemVendaInput.nomeProduto;
     itemVenda.quantidade = inserirItemVendaInput.quantidade;
     itemVenda.valorUnitario = inserirItemVendaInput.valorUnitario;
     itemVenda.desconto = inserirItemVendaInput.desconto ?? 0;

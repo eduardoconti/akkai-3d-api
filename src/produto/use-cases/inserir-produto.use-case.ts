@@ -31,6 +31,6 @@ export class InserirProdutoUseCase {
     novoProduto.idCategoria = input.idCategoria;
     novoProduto.valor = input.valor;
 
-    return await this.produtoService.inserirProduto(novoProduto);
+    return await this.produtoService.salvar(novoProduto);
   }
 }

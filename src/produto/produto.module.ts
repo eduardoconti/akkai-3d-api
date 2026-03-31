@@ -8,6 +8,7 @@ import {
   Produto,
 } from '@produto/entities';
 import {
+  AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
 } from '@produto/use-cases';
@@ -20,6 +21,7 @@ import {
   providers: [
     ProdutoService,
     InserirProdutoUseCase,
+    AlterarProdutoUseCase,
     InserirCategoriaProdutoUseCase,
   ],
   exports: [ProdutoService],

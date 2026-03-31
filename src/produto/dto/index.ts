@@ -1,4 +1,7 @@
+export * from './alterar-produto.dto';
+export * from './listar-produto.dto';
 export * from './entrada-estoque.dto';
+export * from './saida-estoque.dto';
 export * from './detalhe-produto.dto';
 export * from './inserir-categoria-produto.dto';
 export * from './inserir-produto.dto';

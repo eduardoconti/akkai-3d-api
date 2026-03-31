@@ -22,7 +22,9 @@ export interface ExecutarInserirVendaInput {
   itens: {
     quantidade: number;
     desconto?: number;
-    idProduto: number;
+    idProduto?: number;
+    nomeProduto?: string;
+    valorUnitario?: number;
   }[];
 }
 @Injectable()
@@ -49,13 +51,35 @@ export class InserirVendaUseCase {
     const movimentacoesEstoque: MovimentacaoEstoque[] = [];
 
     for (const item of inserirVendaInput.itens) {
-      const produto = await this.produtoService.getProdutoById(item.idProduto);
+      if (item.idProduto === undefined) {
+        const itemVenda = ItemVenda.criar({
+          nomeProduto: item.nomeProduto!,
+          quantidade: item.quantidade,
+          valorUnitario: item.valorUnitario!,
+          desconto: item.desconto,
+        });
 
-      const itemVenda = new ItemVenda();
-      itemVenda.idProduto = item.idProduto;
-      itemVenda.quantidade = item.quantidade;
-      itemVenda.valorUnitario = produto.valor;
-      itemVenda.desconto = item.desconto ?? 0;
+        itensVenda.push(itemVenda);
+        continue;
+      }
+
+      const produto = await this.produtoService.obterProdutoPorId(
+        item.idProduto,
+      );
+
+      if (!produto) {
+        throw new NotFoundException(
+          `Produto com ID ${item.idProduto} não encontrado.`,
+        );
+      }
+
+      const itemVenda = ItemVenda.criar({
+        idProduto: item.idProduto,
+        nomeProduto: produto.nome,
+        quantidade: item.quantidade,
+        valorUnitario: produto.valor,
+        desconto: item.desconto,
+      });
 
       itensVenda.push(itemVenda);
 

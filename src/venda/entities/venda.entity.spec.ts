@@ -8,12 +8,14 @@ describe('Venda', () => {
         valorUnitario: 50,
         desconto: 5,
         idProduto: 1,
+        nomeProduto: 'Caneca geek',
       },
       {
         quantidade: 1,
         valorUnitario: 100,
         desconto: 0,
         idProduto: 2,
+        nomeProduto: 'Vaso decorativo',
       },
     ].map((item) => {
       const itemVenda = new ItemVenda();
@@ -21,6 +23,7 @@ describe('Venda', () => {
       itemVenda.valorUnitario = item.valorUnitario;
       itemVenda.desconto = item.desconto;
       itemVenda.idProduto = item.idProduto;
+      itemVenda.nomeProduto = item.nomeProduto;
       return itemVenda;
     });
 
@@ -40,17 +43,20 @@ describe('Venda', () => {
         quantidade: 2,
         valorUnitario: 50,
         idProduto: 1,
+        nomeProduto: 'Caneca geek',
       },
       {
         quantidade: 1,
         valorUnitario: 100,
         idProduto: 2,
+        nomeProduto: 'Vaso decorativo',
       },
     ].map((item) => {
       const itemVenda = new ItemVenda();
       itemVenda.quantidade = item.quantidade;
       itemVenda.valorUnitario = item.valorUnitario;
       itemVenda.idProduto = item.idProduto;
+      itemVenda.nomeProduto = item.nomeProduto;
       return itemVenda;
     });
 

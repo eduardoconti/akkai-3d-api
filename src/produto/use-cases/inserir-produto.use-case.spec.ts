@@ -8,20 +8,15 @@ describe('InserirProdutoUseCase', () => {
   let existeCategoriaMock: jest.MockedFunction<
     (idCategoria: number) => Promise<boolean>
   >;
-  let inserirProdutoMock: jest.MockedFunction<
-    (produto: Produto) => Promise<Produto>
-  >;
+  let salvarMock: jest.MockedFunction<(produto: Produto) => Promise<Produto>>;
 
   beforeEach(() => {
     existeCategoriaMock = jest.fn<Promise<boolean>, [number]>();
-    inserirProdutoMock = jest.fn<Promise<Produto>, [Produto]>();
+    salvarMock = jest.fn<Promise<Produto>, [Produto]>();
 
-    const produtoService: Pick<
-      ProdutoService,
-      'existeCategoria' | 'inserirProduto'
-    > = {
+    const produtoService: Pick<ProdutoService, 'existeCategoria' | 'salvar'> = {
       existeCategoria: existeCategoriaMock,
-      inserirProduto: inserirProdutoMock,
+      salvar: salvarMock,
     };
 
     useCase = new InserirProdutoUseCase(produtoService as ProdutoService);
@@ -44,12 +39,12 @@ describe('InserirProdutoUseCase', () => {
     produtoSalvo.valor = input.valor;
 
     existeCategoriaMock.mockResolvedValue(true);
-    inserirProdutoMock.mockResolvedValue(produtoSalvo);
+    salvarMock.mockResolvedValue(produtoSalvo);
 
     const result = await useCase.execute(input);
 
     expect(existeCategoriaMock).toHaveBeenCalledWith(1);
-    expect(inserirProdutoMock).toHaveBeenCalledWith(
+    expect(salvarMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Caneca',
         codigo: 'CN001',
@@ -75,6 +70,6 @@ describe('InserirProdutoUseCase', () => {
       new NotFoundException('Categoria com ID 99 não encontrada.'),
     );
 
-    expect(inserirProdutoMock).not.toHaveBeenCalled();
+    expect(salvarMock).not.toHaveBeenCalled();
   });
 });
