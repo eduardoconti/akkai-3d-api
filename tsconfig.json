@@ -12,6 +12,7 @@
     "baseUrl": "./",
     "paths": {
       "@auth/*": ["src/auth/*"],
+      "@financeiro/*": ["src/financeiro/*"],
       "@produto/*": ["src/produto/*"],
       "@relatorio/*": ["src/relatorio/*"],
       "@venda/*": ["src/venda/*"]

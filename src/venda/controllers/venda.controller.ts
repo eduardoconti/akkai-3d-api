@@ -33,7 +33,7 @@ export class VendaController {
     return await this.vendaService.listarFeiras();
   }
 
-  @Get('')
+  @Get()
   async listarVendas(
     @Query() pesquisa: PesquisarVendasDto,
   ): Promise<ResultadoPaginado<Venda>> {

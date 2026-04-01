@@ -8,6 +8,7 @@ import {
   RolePermission,
   User,
 } from '@auth/entities';
+import { Carteira, Despesa } from '@financeiro/entities';
 import {
   CategoriaProduto,
   MovimentacaoEstoque,
@@ -33,6 +34,8 @@ const entities = [
   Produto,
   MovimentacaoEstoque,
   CategoriaProduto,
+  Carteira,
+  Despesa,
   User,
   Role,
   Permission,

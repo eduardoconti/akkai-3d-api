@@ -1,3 +1,4 @@
+import { FinanceiroService } from '@financeiro/services';
 import {
   OrigemMovimentacaoEstoque,
   Produto,
@@ -20,6 +21,9 @@ describe('InserirVendaUseCase', () => {
   let existeFeiraMock: jest.MockedFunction<
     (idFeira: number) => Promise<boolean>
   >;
+  let existeCarteiraMock: jest.MockedFunction<
+    (idCarteira: number) => Promise<boolean>
+  >;
   let obterProdutoPorIdMock: jest.MockedFunction<
     (id: number) => Promise<Produto | null>
   >;
@@ -30,6 +34,7 @@ describe('InserirVendaUseCase', () => {
       [Venda, MovimentacaoEstoque[]]
     >();
     existeFeiraMock = jest.fn<Promise<boolean>, [number]>();
+    existeCarteiraMock = jest.fn<Promise<boolean>, [number]>();
     obterProdutoPorIdMock = jest.fn<Promise<Produto | null>, [number]>();
 
     const vendaService: Pick<VendaService, 'inserirVenda' | 'existeFeira'> = {
@@ -39,10 +44,14 @@ describe('InserirVendaUseCase', () => {
     const produtoService: Pick<ProdutoService, 'obterProdutoPorId'> = {
       obterProdutoPorId: obterProdutoPorIdMock,
     };
+    const financeiroService: Pick<FinanceiroService, 'existeCarteira'> = {
+      existeCarteira: existeCarteiraMock,
+    };
 
     useCase = new InserirVendaUseCase(
       vendaService as VendaService,
       produtoService as ProdutoService,
+      financeiroService as FinanceiroService,
     );
   });
 
@@ -50,6 +59,7 @@ describe('InserirVendaUseCase', () => {
     const input: ExecutarInserirVendaInput = {
       meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
+      idCarteira: 1,
       desconto: 200,
       itens: [
         {
@@ -71,16 +81,19 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
+    existeCarteiraMock.mockResolvedValue(true);
     existeFeiraMock.mockResolvedValue(true);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute(input);
 
     expect(obterProdutoPorIdMock).toHaveBeenCalledWith(1);
+    expect(existeCarteiraMock).toHaveBeenCalledWith(1);
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoVenda.LOJA,
         meioPagamento: MeioPagamento.PIX,
+        idCarteira: 1,
         idFeira: undefined,
         desconto: 300,
         valorTotal: 4700,
@@ -117,17 +130,20 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
+    existeCarteiraMock.mockResolvedValue(true);
     existeFeiraMock.mockResolvedValue(true);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
       meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
       itens: [{ idProduto: 1, quantidade: 1 }],
     });
 
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        idCarteira: 1,
         idFeira: undefined,
         desconto: 0,
         valorTotal: 1000,
@@ -154,12 +170,14 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
+    existeCarteiraMock.mockResolvedValue(true);
     existeFeiraMock.mockResolvedValue(true);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
       meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 1 }],
     });
@@ -175,10 +193,12 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda com item avulso sem movimentar estoque', async () => {
     inserirVendaMock.mockResolvedValue(new Venda());
+    existeCarteiraMock.mockResolvedValue(true);
 
     await useCase.execute({
       meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
       itens: [
         {
           nomeProduto: 'Peca personalizada',

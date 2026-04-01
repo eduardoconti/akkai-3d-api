@@ -1,3 +1,4 @@
+import { Carteira } from '@financeiro/entities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Feira, Venda } from '@venda/entities';
@@ -11,6 +12,9 @@ describe('VendaService', () => {
     save: jest.Mock;
     exists: jest.Mock;
     find: jest.Mock;
+  };
+  let carteiraRepository: {
+    exists: jest.Mock;
   };
   let vendaRepository: {
     createQueryBuilder: jest.Mock;
@@ -32,6 +36,9 @@ describe('VendaService', () => {
       save: jest.fn(),
       exists: jest.fn(),
       find: jest.fn(),
+    };
+    carteiraRepository = {
+      exists: jest.fn(),
     };
     const queryBuilder = {
       leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -65,6 +72,10 @@ describe('VendaService', () => {
         {
           provide: getRepositoryToken(Feira),
           useValue: feiraRepository,
+        },
+        {
+          provide: getRepositoryToken(Carteira),
+          useValue: carteiraRepository,
         },
         {
           provide: getRepositoryToken(Venda),
@@ -129,6 +140,17 @@ describe('VendaService', () => {
       order: { nome: 'ASC' },
     });
     expect(result).toBe(feiras);
+  });
+
+  it('deve verificar existência de carteira', async () => {
+    carteiraRepository.exists.mockResolvedValue(true);
+
+    const result = await service.existeCarteira(7);
+
+    expect(carteiraRepository.exists).toHaveBeenCalledWith({
+      where: { id: 7, ativa: true },
+    });
+    expect(result).toBe(true);
   });
 
   it('deve inserir venda dentro de transação', async () => {

@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Carteira } from '@financeiro/entities/carteira.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
 
@@ -25,6 +26,7 @@ export enum TipoVenda {
 export interface InserirVendaInput {
   tipo: TipoVenda;
   meioPagamento: MeioPagamento;
+  idCarteira: number;
   idFeira?: number;
   desconto?: number;
   itens: ItemVendaInput[];
@@ -62,6 +64,16 @@ export class Venda {
   @Column({ type: 'integer', default: 0 })
   desconto!: number;
 
+  @Column({ type: 'integer', name: 'id_carteira', nullable: true })
+  idCarteira?: number;
+
+  @ManyToOne(() => Carteira, (carteira) => carteira.vendas, { nullable: true })
+  @JoinColumn({
+    name: 'id_carteira',
+    foreignKeyConstraintName: 'fk_venda_carteira',
+  })
+  carteira?: Carteira;
+
   @Column({ type: 'integer', name: 'id_feira', nullable: true })
   idFeira?: number;
 
@@ -86,6 +98,7 @@ export class Venda {
     venda.dataInclusao = new Date();
     venda.tipo = inserirVendaInput.tipo;
     venda.meioPagamento = inserirVendaInput.meioPagamento;
+    venda.idCarteira = inserirVendaInput.idCarteira;
     venda.idFeira = inserirVendaInput.idFeira;
     venda.desconto = inserirVendaInput.desconto ?? 0;
     venda.itens = itens;

@@ -30,6 +30,7 @@ describe('Venda', () => {
     const venda = Venda.criar({
       meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
       desconto: 10,
       itens,
     });
@@ -63,6 +64,7 @@ describe('Venda', () => {
     const venda = Venda.criar({
       meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
       itens,
     });
 

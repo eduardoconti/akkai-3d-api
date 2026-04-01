@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { Carteira } from '@financeiro/entities';
 import { Feira, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +18,8 @@ export class VendaService {
     private readonly vendaRepository: Repository<Venda>,
     @InjectRepository(Feira)
     private readonly feiraRepository: Repository<Feira>,
+    @InjectRepository(Carteira)
+    private readonly carteiraRepository: Repository<Carteira>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -41,6 +44,12 @@ export class VendaService {
   async listarFeiras(): Promise<Feira[]> {
     return await this.feiraRepository.find({
       order: { nome: 'ASC' },
+    });
+  }
+
+  async existeCarteira(idCarteira: number): Promise<boolean> {
+    return this.carteiraRepository.exists({
+      where: { id: idCarteira, ativa: true },
     });
   }
 
@@ -79,6 +88,7 @@ export class VendaService {
       .leftJoinAndSelect('venda.itens', 'item')
       .leftJoinAndSelect('item.produto', 'produto')
       .leftJoinAndSelect('venda.feira', 'feira')
+      .leftJoinAndSelect('venda.carteira', 'carteira')
       .distinct(true)
       .orderBy('venda.id', 'DESC')
       .skip(offset)
@@ -97,6 +107,7 @@ export class VendaService {
           OR LOWER(venda.meioPagamento) LIKE :termo
           OR LOWER(venda.tipo) LIKE :termo
           OR LOWER(COALESCE(feira.nome, '')) LIKE :termo
+          OR LOWER(COALESCE(carteira.nome, '')) LIKE :termo
           OR LOWER(item.nomeProduto) LIKE :termo
         )`,
         { termo: `%${termo}%` },

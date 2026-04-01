@@ -60,6 +60,7 @@ describe('VendaController', () => {
     const input = {
       meioPagamento: 'PIX',
       tipo: 'LOJA',
+      idCarteira: 1,
       itens: [{ idProduto: 1, quantidade: 1 }],
     };
 

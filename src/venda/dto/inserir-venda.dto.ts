@@ -28,6 +28,14 @@ export class InserirVendaDto {
   })
   meioPagamento!: MeioPagamento;
 
+  @Type(() => Number)
+  @IsInt({ message: 'A carteira da venda deve ser um número inteiro.' })
+  @Min(1, { message: 'A carteira da venda deve ser maior que zero.' })
+  @Max(2147483647, {
+    message: 'A carteira da venda ultrapassa o limite permitido.',
+  })
+  idCarteira!: number;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'A feira da venda deve ser um número inteiro.' })

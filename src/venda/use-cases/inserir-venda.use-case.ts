@@ -3,6 +3,7 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
+import { FinanceiroService } from '@financeiro/services';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as CriarVendaInput,
@@ -17,6 +18,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;
   tipo: TipoVenda;
+  idCarteira: number;
   idFeira?: number;
   desconto?: number;
   itens: {
@@ -32,9 +34,20 @@ export class InserirVendaUseCase {
   constructor(
     private readonly vendaService: VendaService,
     private readonly produtoService: ProdutoService,
+    private readonly financeiroService: FinanceiroService,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
+    const carteiraExiste = await this.financeiroService.existeCarteira(
+      inserirVendaInput.idCarteira,
+    );
+
+    if (!carteiraExiste) {
+      throw new NotFoundException(
+        `Carteira com ID ${inserirVendaInput.idCarteira} não encontrada.`,
+      );
+    }
+
     if (inserirVendaInput.idFeira !== undefined) {
       const feiraExiste = await this.vendaService.existeFeira(
         inserirVendaInput.idFeira,
@@ -96,6 +109,7 @@ export class InserirVendaUseCase {
     const vendaInput: CriarVendaInput = {
       meioPagamento: inserirVendaInput.meioPagamento,
       tipo: inserirVendaInput.tipo,
+      idCarteira: inserirVendaInput.idCarteira,
       idFeira: inserirVendaInput.idFeira,
       desconto: inserirVendaInput.desconto,
       itens: itensVenda,

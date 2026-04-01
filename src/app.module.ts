@@ -1,4 +1,5 @@
 import { AuthModule } from '@auth/auth.module';
+import { FinanceiroModule } from '@financeiro/financeiro.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -21,6 +22,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
       },
     }),
     AuthModule,
+    FinanceiroModule,
     ProdutoModule,
     RelatorioModule,
     VendaModule,
