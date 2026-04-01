@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { RelatorioService } from '@relatorio/services';
+import { TipoVenda } from '@venda/entities/venda.entity';
 
 describe('RelatorioService', () => {
   let service: RelatorioService;
@@ -71,6 +72,67 @@ describe('RelatorioService', () => {
       service.obterResumoVendasPorPeriodo({
         dataInicio: '2026-03-31',
         dataFim: '2026-03-30',
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('deve retornar os produtos mais vendidos com os filtros informados', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          idProduto: '1',
+          nomeProduto: 'CUBO INFINITO',
+          categoriaId: '2',
+          categoriaNome: 'IMPRESSAO 3D',
+          quantidadeVendida: '12',
+          descontoTotal: '500',
+          valorTotal: '25000',
+        },
+      ])
+      .mockResolvedValueOnce([{ totalItens: 1 }]);
+
+    const result = await service.obterProdutosMaisVendidosPorPeriodo({
+      dataInicio: '2026-03-31',
+      dataFim: '2026-03-31',
+      tipoVenda: TipoVenda.FEIRA,
+      idFeira: 1,
+      idsCategorias: [2],
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(dataSource.query).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      dataInicio: '2026-03-31',
+      dataFim: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      itens: [
+        {
+          idProduto: 1,
+          nomeProduto: 'CUBO INFINITO',
+          categoria: {
+            id: 2,
+            nome: 'IMPRESSAO 3D',
+          },
+          quantidadeVendida: 12,
+          descontoTotal: 500,
+          valorTotal: 25000,
+        },
+      ],
+    });
+  });
+
+  it('deve lançar erro ao filtrar feira sem tipo FEIRA', async () => {
+    await expect(
+      service.obterProdutosMaisVendidosPorPeriodo({
+        dataInicio: '2026-03-31',
+        dataFim: '2026-03-31',
+        idFeira: 1,
+        pagina: 1,
+        tamanhoPagina: 10,
       }),
     ).rejects.toThrow(BadRequestException);
   });

@@ -12,6 +12,6 @@ export class InserirCarteiraUseCase {
     carteira.nome = input.nome.trim().toUpperCase();
     carteira.ativa = input.ativa ?? true;
 
-    return this.financeiroService.inserirCarteira(carteira);
+    return this.financeiroService.salvarCarteira(carteira);
   }
 }

@@ -26,16 +26,20 @@ export class FinanceiroService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async inserirCarteira(carteira: Carteira): Promise<Carteira> {
+  async salvarCarteira(carteira: Carteira): Promise<Carteira> {
     return this.carteiraRepository.save(carteira).catch((error) => {
-      console.error('Erro ao inserir carteira:', error);
+      console.error('Erro ao salvar carteira:', error);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.driverError?.code === '23505') {
         throw new ConflictException(`Carteira ${carteira.nome} já existe`);
       }
 
-      throw new InternalServerErrorException('Erro ao inserir carteira');
+      throw new InternalServerErrorException('Erro ao salvar carteira');
     });
+  }
+
+  async obterCarteiraPorId(id: number): Promise<Carteira | null> {
+    return this.carteiraRepository.findOne({ where: { id } });
   }
 
   async existeCarteira(idCarteira: number): Promise<boolean> {

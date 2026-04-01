@@ -1,16 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RelatorioController } from '@relatorio/controllers';
 import { RelatorioService } from '@relatorio/services';
+import { TipoVenda } from '@venda/entities/venda.entity';
 
 describe('RelatorioController', () => {
   let controller: RelatorioController;
   let relatorioService: {
     obterResumoVendasPorPeriodo: jest.Mock;
+    obterProdutosMaisVendidosPorPeriodo: jest.Mock;
   };
 
   beforeEach(async () => {
     relatorioService = {
       obterResumoVendasPorPeriodo: jest.fn(),
+      obterProdutosMaisVendidosPorPeriodo: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -46,5 +49,36 @@ describe('RelatorioController', () => {
       filtro,
     );
     expect(result).toEqual(resumo);
+  });
+
+  it('deve delegar a obtenção dos produtos mais vendidos por período', async () => {
+    const filtro = {
+      dataInicio: '2026-03-31',
+      dataFim: '2026-03-31',
+      tipoVenda: TipoVenda.FEIRA,
+      idFeira: 1,
+      idsCategorias: [1, 2],
+      pagina: 1,
+      tamanhoPagina: 10,
+    };
+    const response = {
+      dataInicio: '2026-03-31',
+      dataFim: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 0,
+      totalPaginas: 1,
+      itens: [],
+    };
+    relatorioService.obterProdutosMaisVendidosPorPeriodo.mockResolvedValue(
+      response,
+    );
+
+    const result = await controller.obterProdutosMaisVendidosPorPeriodo(filtro);
+
+    expect(
+      relatorioService.obterProdutosMaisVendidosPorPeriodo,
+    ).toHaveBeenCalledWith(filtro);
+    expect(result).toEqual(response);
   });
 });

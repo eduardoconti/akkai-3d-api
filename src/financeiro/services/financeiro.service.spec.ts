@@ -6,7 +6,11 @@ import { FinanceiroService } from '@financeiro/services';
 
 describe('FinanceiroService', () => {
   let service: FinanceiroService;
-  let carteiraRepository: { save: jest.Mock; exists: jest.Mock };
+  let carteiraRepository: {
+    save: jest.Mock;
+    exists: jest.Mock;
+    findOne: jest.Mock;
+  };
   let despesaRepository: { save: jest.Mock; createQueryBuilder?: jest.Mock };
   let dataSource: { query: jest.Mock };
 
@@ -14,6 +18,7 @@ describe('FinanceiroService', () => {
     carteiraRepository = {
       save: jest.fn(),
       exists: jest.fn(),
+      findOne: jest.fn(),
     };
     despesaRepository = {
       save: jest.fn(),
@@ -43,16 +48,27 @@ describe('FinanceiroService', () => {
     service = module.get<FinanceiroService>(FinanceiroService);
   });
 
-  it('deve inserir carteira com sucesso', async () => {
+  it('deve salvar carteira com sucesso', async () => {
     const carteira = Object.assign(new Carteira(), {
       id: 1,
       nome: 'CAIXA',
     });
     carteiraRepository.save.mockResolvedValue(carteira);
 
-    const result = await service.inserirCarteira(carteira);
+    const result = await service.salvarCarteira(carteira);
 
     expect(result).toBe(carteira);
+  });
+
+  it('deve obter carteira por id', async () => {
+    carteiraRepository.findOne.mockResolvedValue({ id: 1 });
+
+    const result = await service.obterCarteiraPorId(1);
+
+    expect(carteiraRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 1 },
+    });
+    expect(result).toEqual({ id: 1 });
   });
 
   it('deve lançar erro ao falhar inserção da despesa', async () => {

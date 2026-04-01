@@ -1,7 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
+  ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
+  ProdutosMaisVendidosPeriodoDto,
   ResumoVendasPeriodoDto,
 } from '@relatorio/dto';
 import { RelatorioService } from '@relatorio/services';
@@ -16,5 +18,15 @@ export class RelatorioController {
     @Query() filtro: ObterResumoVendasPeriodoDto,
   ): Promise<ResumoVendasPeriodoDto> {
     return await this.relatorioService.obterResumoVendasPorPeriodo(filtro);
+  }
+
+  @Get('vendas/produtos-mais-vendidos')
+  @Permissions('report.read')
+  async obterProdutosMaisVendidosPorPeriodo(
+    @Query() filtro: ObterProdutosMaisVendidosDto,
+  ): Promise<ProdutosMaisVendidosPeriodoDto> {
+    return await this.relatorioService.obterProdutosMaisVendidosPorPeriodo(
+      filtro,
+    );
   }
 }

@@ -4,6 +4,7 @@ import { FinanceiroController } from '@financeiro/controllers';
 import { Carteira, Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
 import {
+  AlterarCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
@@ -11,7 +12,12 @@ import {
 @Module({
   imports: [TypeOrmModule.forFeature([Carteira, Despesa])],
   controllers: [FinanceiroController],
-  providers: [FinanceiroService, InserirCarteiraUseCase, InserirDespesaUseCase],
+  providers: [
+    FinanceiroService,
+    InserirCarteiraUseCase,
+    AlterarCarteiraUseCase,
+    InserirDespesaUseCase,
+  ],
   exports: [FinanceiroService],
 })
 export class FinanceiroModule {}

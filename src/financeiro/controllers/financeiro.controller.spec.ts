@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FinanceiroController } from '@financeiro/controllers';
 import { FinanceiroService } from '@financeiro/services';
 import {
+  AlterarCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
@@ -11,7 +12,9 @@ describe('FinanceiroController', () => {
   let financeiroService: {
     listarCarteiras: jest.Mock;
     listarDespesas: jest.Mock;
+    obterCarteiraPorId: jest.Mock;
   };
+  let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
 
@@ -19,7 +22,9 @@ describe('FinanceiroController', () => {
     financeiroService = {
       listarCarteiras: jest.fn(),
       listarDespesas: jest.fn(),
+      obterCarteiraPorId: jest.fn(),
     };
+    alterarCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
 
@@ -29,6 +34,10 @@ describe('FinanceiroController', () => {
         {
           provide: FinanceiroService,
           useValue: financeiroService,
+        },
+        {
+          provide: AlterarCarteiraUseCase,
+          useValue: alterarCarteiraUseCase,
         },
         {
           provide: InserirCarteiraUseCase,
@@ -65,5 +74,24 @@ describe('FinanceiroController', () => {
 
     expect(financeiroService.listarCarteiras).toHaveBeenCalled();
     expect(result).toBe(carteiras);
+  });
+
+  it('deve obter carteira por id', async () => {
+    financeiroService.obterCarteiraPorId.mockResolvedValue({ id: 1 });
+
+    const result = await controller.obterCarteiraPorId(1);
+
+    expect(financeiroService.obterCarteiraPorId).toHaveBeenCalledWith(1);
+    expect(result).toEqual({ id: 1 });
+  });
+
+  it('deve delegar alteração de carteira', async () => {
+    const input = { nome: 'NUBANK', ativa: true };
+    alterarCarteiraUseCase.execute.mockResolvedValue({ id: 1, ...input });
+
+    const result = await controller.alterarCarteira(1, input);
+
+    expect(alterarCarteiraUseCase.execute).toHaveBeenCalledWith(1, input);
+    expect(result).toEqual({ id: 1, ...input });
   });
 });
