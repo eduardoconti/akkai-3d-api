@@ -2,6 +2,13 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import {
+  Permission,
+  RefreshSession,
+  Role,
+  RolePermission,
+  User,
+} from '@auth/entities';
+import {
   CategoriaProduto,
   MovimentacaoEstoque,
   Produto,
@@ -26,6 +33,11 @@ const entities = [
   Produto,
   MovimentacaoEstoque,
   CategoriaProduto,
+  User,
+  Role,
+  Permission,
+  RolePermission,
+  RefreshSession,
 ];
 
 export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
