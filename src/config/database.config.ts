@@ -23,6 +23,7 @@ type DatabaseEnv = {
   DATABASE_USERNAME: string;
   DATABASE_PASSWORD: string;
   DATABASE_NAME: string;
+  DATABASE_SSL: boolean;
   DATABASE_SYNCHRONIZE: boolean;
   DATABASE_LOGGING: boolean;
 };
@@ -51,6 +52,7 @@ export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
     username: env.DATABASE_USERNAME,
     password: env.DATABASE_PASSWORD,
     database: env.DATABASE_NAME,
+    ssl: env.DATABASE_SSL,
     entities,
     migrations: [join(__dirname, '../database/migrations/*{.ts,.js}')],
     migrationsTableName: 'typeorm_migrations',
@@ -68,6 +70,7 @@ export function getDatabaseConfigFromConfigService(
     DATABASE_USERNAME: configService.getOrThrow<string>('DATABASE_USERNAME'),
     DATABASE_PASSWORD: configService.getOrThrow<string>('DATABASE_PASSWORD'),
     DATABASE_NAME: configService.getOrThrow<string>('DATABASE_NAME'),
+    DATABASE_SSL: configService.getOrThrow<boolean>('DATABASE_SSL'),
     DATABASE_SYNCHRONIZE: configService.getOrThrow<boolean>(
       'DATABASE_SYNCHRONIZE',
     ),

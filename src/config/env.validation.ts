@@ -11,6 +11,7 @@ export const envValidationSchema = Joi.object({
   DATABASE_USERNAME: Joi.string().trim().min(1).required(),
   DATABASE_PASSWORD: Joi.string().allow('').required(),
   DATABASE_NAME: Joi.string().trim().min(1).required(),
+  DATABASE_SSL: Joi.boolean().default(false),
   DATABASE_SYNCHRONIZE: Joi.boolean().default(false),
   DATABASE_LOGGING: Joi.boolean().default(true),
   JWT_ACCESS_SECRET: Joi.string().trim().min(32).required(),
