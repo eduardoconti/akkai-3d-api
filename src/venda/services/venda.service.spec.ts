@@ -1,7 +1,10 @@
 import { Carteira } from '@financeiro/entities';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Feira, Venda } from '@venda/entities';
+import { Feira, TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -195,5 +198,65 @@ describe('VendaService', () => {
       totalItens: 1,
       totalPaginas: 1,
     });
+  });
+
+  it('deve lançar ConflictException ao inserir feira com nome duplicado', async () => {
+    const feira = Object.assign(new Feira(), { nome: 'Teatro Reviver' });
+    feiraRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
+
+    await expect(service.inserirFeira(feira)).rejects.toThrow(
+      new ConflictException('Feira Teatro Reviver já existe'),
+    );
+  });
+
+  it('deve listar vendas filtradas por tipo', async () => {
+    await service.listarVendas({
+      pagina: 1,
+      tamanhoPagina: 10,
+      tipo: TipoVenda.FEIRA,
+    });
+
+    const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
+      ?.value as {
+      andWhere: jest.Mock;
+    };
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      'venda.tipo = :tipo',
+      expect.objectContaining({ tipo: TipoVenda.FEIRA }),
+    );
+  });
+
+  it('deve listar vendas filtradas por termo', async () => {
+    await service.listarVendas({
+      pagina: 1,
+      tamanhoPagina: 10,
+      termo: 'pix',
+    });
+
+    const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
+      ?.value as {
+      andWhere: jest.Mock;
+    };
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining('LIKE :termo'),
+      expect.objectContaining({ termo: '%pix%' }),
+    );
+  });
+
+  it('deve retornar totalPaginas mínimo 1 quando não há vendas', async () => {
+    const queryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      distinct: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+    };
+    vendaRepository.createQueryBuilder.mockReturnValue(queryBuilder);
+
+    const result = await service.listarVendas({ pagina: 1, tamanhoPagina: 10 });
+
+    expect(result.totalPaginas).toBe(1);
   });
 });

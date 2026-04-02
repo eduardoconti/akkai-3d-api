@@ -191,6 +191,48 @@ describe('InserirVendaUseCase', () => {
     );
   });
 
+  it('deve lançar erro quando carteira não existir', async () => {
+    existeCarteiraMock.mockResolvedValue(false);
+
+    await expect(
+      useCase.execute({
+        meioPagamento: MeioPagamento.PIX,
+        tipo: TipoVenda.LOJA,
+        idCarteira: 99,
+        itens: [{ idProduto: 1, quantidade: 1 }],
+      }),
+    ).rejects.toThrow('Carteira com ID 99 não encontrada.');
+  });
+
+  it('deve lançar erro quando feira não existir', async () => {
+    existeCarteiraMock.mockResolvedValue(true);
+    existeFeiraMock.mockResolvedValue(false);
+
+    await expect(
+      useCase.execute({
+        meioPagamento: MeioPagamento.PIX,
+        tipo: TipoVenda.FEIRA,
+        idCarteira: 1,
+        idFeira: 99,
+        itens: [{ idProduto: 1, quantidade: 1 }],
+      }),
+    ).rejects.toThrow('Feira com ID 99 não encontrada.');
+  });
+
+  it('deve lançar erro quando produto não existir', async () => {
+    existeCarteiraMock.mockResolvedValue(true);
+    obterProdutoPorIdMock.mockResolvedValue(null);
+
+    await expect(
+      useCase.execute({
+        meioPagamento: MeioPagamento.PIX,
+        tipo: TipoVenda.LOJA,
+        idCarteira: 1,
+        itens: [{ idProduto: 99, quantidade: 1 }],
+      }),
+    ).rejects.toThrow('Produto com ID 99 não encontrado.');
+  });
+
   it('deve criar venda com item avulso sem movimentar estoque', async () => {
     inserirVendaMock.mockResolvedValue(new Venda());
     existeCarteiraMock.mockResolvedValue(true);

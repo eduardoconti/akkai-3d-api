@@ -62,4 +62,23 @@ describe('AlterarCarteiraUseCase', () => {
       }),
     ).rejects.toThrow(new NotFoundException('Carteira não encontrada'));
   });
+
+  it('deve manter ativa original quando ativa não for informado', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+    });
+    financeiroService.obterCarteiraPorId.mockResolvedValue(carteira);
+    financeiroService.salvarCarteira.mockResolvedValue({
+      ...carteira,
+      nome: 'NUBANK',
+    });
+
+    await useCase.execute(1, { nome: 'Nubank' });
+
+    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({ ativa: true }),
+    );
+  });
 });

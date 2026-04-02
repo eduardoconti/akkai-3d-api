@@ -1,4 +1,9 @@
-import { ArgumentsHost, BadRequestException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ProblemDetailsExceptionFilter } from './problem-details-exception.filter';
 
 describe('ProblemDetailsExceptionFilter', () => {
@@ -75,5 +80,79 @@ describe('ProblemDetailsExceptionFilter', () => {
       detail: 'Ocorreu um erro interno no servidor.',
       instance: '/venda',
     });
+  });
+
+  it('deve usar o campo error do body como title quando presente', () => {
+    const exception = new HttpException(
+      { error: 'Custom Error Title', message: 'detalhe do erro' },
+      HttpStatus.CONFLICT,
+    );
+
+    filter.catch(exception, host);
+
+    expect(response.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Custom Error Title',
+        status: 409,
+        detail: 'detalhe do erro',
+      }),
+    );
+  });
+
+  it('deve retornar detail quando message for array de strings', () => {
+    const exception = new BadRequestException({
+      message: ['campo1 é obrigatório', 'campo2 é inválido'],
+    });
+
+    filter.catch(exception, host);
+
+    expect(response.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: 'campo1 é obrigatório; campo2 é inválido',
+      }),
+    );
+  });
+
+  it('deve retornar detail padrão quando body for objeto sem message', () => {
+    const exception = new HttpException(
+      { error: 'Forbidden' },
+      HttpStatus.FORBIDDEN,
+    );
+
+    filter.catch(exception, host);
+
+    expect(response.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: 'A requisição não pôde ser processada.',
+      }),
+    );
+  });
+
+  it('deve usar url da requisicao quando originalUrl estiver vazio', () => {
+    const hostSemOriginalUrl = {
+      switchToHttp: () => ({
+        getResponse: () => response,
+        getRequest: () => ({ originalUrl: '', url: '/fallback' }),
+      }),
+    } as ArgumentsHost;
+
+    filter.catch(new Error('erro'), hostSemOriginalUrl);
+
+    expect(response.send).toHaveBeenCalledWith(
+      expect.objectContaining({ instance: '/fallback' }),
+    );
+  });
+
+  it('deve ignorar erros com campo erros invalido no body', () => {
+    const exception = new BadRequestException({
+      message: 'erro',
+      erros: 'nao e um array',
+    });
+
+    filter.catch(exception, host);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const sent = response.send.mock.calls[0][0] as Record<string, unknown>;
+    expect(sent['errors']).toBeUndefined();
   });
 });

@@ -36,4 +36,19 @@ describe('InserirCarteiraUseCase', () => {
     );
     expect(result).toBe(carteira);
   });
+
+  it('deve definir ativa como true quando não informado', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+    });
+    financeiroService.salvarCarteira.mockResolvedValue(carteira);
+
+    await useCase.execute({ nome: 'Caixa' });
+
+    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({ ativa: true }),
+    );
+  });
 });

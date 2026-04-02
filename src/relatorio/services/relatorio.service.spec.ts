@@ -136,4 +136,92 @@ describe('RelatorioService', () => {
       }),
     ).rejects.toThrow(BadRequestException);
   });
+
+  it('deve lançar erro quando dataFim for menor que dataInicio em produtos mais vendidos', async () => {
+    await expect(
+      service.obterProdutosMaisVendidosPorPeriodo({
+        dataInicio: '2026-03-31',
+        dataFim: '2026-03-30',
+        pagina: 1,
+        tamanhoPagina: 10,
+      }),
+    ).rejects.toThrow(
+      new BadRequestException(
+        'A data final não pode ser menor que a data inicial.',
+      ),
+    );
+  });
+
+  it('deve retornar produto com idProduto e categoria nulos', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          idProduto: null,
+          nomeProduto: 'ITEM AVULSO',
+          categoriaId: null,
+          categoriaNome: null,
+          quantidadeVendida: '3',
+          descontoTotal: '0',
+          valorTotal: '9000',
+        },
+      ])
+      .mockResolvedValueOnce([{ totalItens: 1 }]);
+
+    const result = await service.obterProdutosMaisVendidosPorPeriodo({
+      dataInicio: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(result.itens[0]?.idProduto).toBeNull();
+    expect(result.itens[0]?.categoria).toBeNull();
+  });
+
+  it('deve usar dataInicio como dataFim em produtos mais vendidos quando não informado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ totalItens: 0 }]);
+
+    await service.obterProdutosMaisVendidosPorPeriodo({
+      dataInicio: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining([
+        '2026-03-31 00:00:00.000',
+        '2026-03-31 23:59:59.999',
+      ]),
+    );
+  });
+
+  it('deve retornar totalPaginas mínimo 1 quando não há produtos', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ totalItens: 0 }]);
+
+    const result = await service.obterProdutosMaisVendidosPorPeriodo({
+      dataInicio: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(result.totalPaginas).toBe(1);
+  });
+
+  it('deve retornar zeros quando campos de resumo forem nulos', async () => {
+    dataSource.query.mockResolvedValue([
+      { quantidadeItens: null, descontoTotal: null, valorTotal: null },
+    ]);
+
+    const result = await service.obterResumoVendasPorPeriodo({
+      dataInicio: '2026-03-31',
+    });
+
+    expect(result.quantidadeItens).toBe(0);
+    expect(result.descontoTotal).toBe(0);
+    expect(result.valorTotal).toBe(0);
+  });
 });
