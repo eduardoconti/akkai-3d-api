@@ -172,6 +172,12 @@ export class ProdutoService {
   async inserirCategoria(
     categoria: CategoriaProduto,
   ): Promise<CategoriaProduto> {
+    return this.salvarCategoria(categoria);
+  }
+
+  async salvarCategoria(
+    categoria: CategoriaProduto,
+  ): Promise<CategoriaProduto> {
     return this.categoriaRepository.save(categoria).catch((error) => {
       console.error('Erro ao inserir categoria:', error);
       throw new InternalServerErrorException('Erro ao inserir categoria');
@@ -187,6 +193,10 @@ export class ProdutoService {
 
   async listarCategorias(): Promise<CategoriaProduto[]> {
     return this.categoriaRepository.find();
+  }
+
+  async obterCategoriaPorId(id: number): Promise<CategoriaProduto | null> {
+    return await this.categoriaRepository.findOne({ where: { id } });
   }
 
   async obterDetalheProdutoPorId(id: number): Promise<DetalheProdutoDto> {

@@ -1,10 +1,21 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
 } from '@produto/use-cases';
 import {
+  AlterarCategoriaProdutoDto,
   AlterarProdutoDto,
   DetalheProdutoDto,
   EntradaEstoqueDto,
@@ -20,9 +31,11 @@ import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.in
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarProdutoDocs,
+  ApiAlterarCategoriaDocs,
   ApiEntradaEstoqueDocs,
   ApiInserirCategoriaDocs,
   ApiInserirProdutoDocs,
+  ApiObterCategoriaPorIdDocs,
   ApiListarCategoriasDocs,
   ApiListarProdutosDocs,
   ApiObterProdutoPorIdDocs,
@@ -35,6 +48,7 @@ export class ProdutoController {
   constructor(
     private readonly inserirProdutoUseCase: InserirProdutoUseCase,
     private readonly alterarProdutoUseCase: AlterarProdutoUseCase,
+    private readonly alterarCategoriaProdutoUseCase: AlterarCategoriaProdutoUseCase,
     private readonly inserirCategoriaProdutoUseCase: InserirCategoriaProdutoUseCase,
     private readonly produtoService: ProdutoService,
   ) {}
@@ -74,6 +88,29 @@ export class ProdutoController {
     @Body() input: InserirCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
     return await this.inserirCategoriaProdutoUseCase.execute(input);
+  }
+
+  @ApiObterCategoriaPorIdDocs()
+  @Get('categorias/:id')
+  async obterCategoriaPorId(
+    @Param('id') id: number,
+  ): Promise<CategoriaProduto> {
+    const categoria = await this.produtoService.obterCategoriaPorId(id);
+
+    if (!categoria) {
+      throw new NotFoundException(`Categoria com ID ${id} não encontrada.`);
+    }
+
+    return categoria;
+  }
+
+  @ApiAlterarCategoriaDocs()
+  @Put('categorias/:id')
+  async alterarCategoria(
+    @Param('id') id: number,
+    @Body() input: AlterarCategoriaProdutoDto,
+  ): Promise<CategoriaProduto> {
+    return await this.alterarCategoriaProdutoUseCase.execute(id, input);
   }
 
   @ApiObterProdutoPorIdDocs()

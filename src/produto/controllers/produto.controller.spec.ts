@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProdutoController } from '@produto/controllers';
 import { CategoriaProduto, OrigemMovimentacaoEstoque } from '@produto/entities';
 import {
+  AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
@@ -13,10 +14,12 @@ describe('ProdutoController', () => {
   let controller: ProdutoController;
   let inserirProdutoUseCase: { execute: jest.Mock };
   let alterarProdutoUseCase: { execute: jest.Mock };
+  let alterarCategoriaProdutoUseCase: { execute: jest.Mock };
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
     listarCategorias: jest.Mock;
+    obterCategoriaPorId: jest.Mock;
     obterDetalheProdutoPorId: jest.Mock;
     entradaEstoque: jest.Mock;
     saidaEstoque: jest.Mock;
@@ -25,10 +28,12 @@ describe('ProdutoController', () => {
   beforeEach(async () => {
     inserirProdutoUseCase = { execute: jest.fn() };
     alterarProdutoUseCase = { execute: jest.fn() };
+    alterarCategoriaProdutoUseCase = { execute: jest.fn() };
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
       listarCategorias: jest.fn(),
+      obterCategoriaPorId: jest.fn(),
       obterDetalheProdutoPorId: jest.fn(),
       entradaEstoque: jest.fn(),
       saidaEstoque: jest.fn(),
@@ -44,6 +49,10 @@ describe('ProdutoController', () => {
         {
           provide: AlterarProdutoUseCase,
           useValue: alterarProdutoUseCase,
+        },
+        {
+          provide: AlterarCategoriaProdutoUseCase,
+          useValue: alterarCategoriaProdutoUseCase,
         },
         {
           provide: InserirCategoriaProdutoUseCase,
@@ -148,6 +157,37 @@ describe('ProdutoController', () => {
     const result = await controller.inserirCategoria(input);
 
     expect(inserirCategoriaProdutoUseCase.execute).toHaveBeenCalledWith(input);
+    expect(result).toEqual({ id: 2 });
+  });
+
+  it('deve buscar categoria por id', async () => {
+    const categoria = Object.assign(new CategoriaProduto(), {
+      id: 2,
+      nome: 'Canecas',
+      idAscendente: 1,
+    });
+    produtoService.obterCategoriaPorId.mockResolvedValue(categoria);
+
+    const result = await controller.obterCategoriaPorId(2);
+
+    expect(produtoService.obterCategoriaPorId).toHaveBeenCalledWith(2);
+    expect(result).toBe(categoria);
+  });
+
+  it('deve delegar alteração de categoria', async () => {
+    alterarCategoriaProdutoUseCase.execute.mockResolvedValue({ id: 2 });
+
+    const input = {
+      nome: 'Canecas Premium',
+      idAscendente: 1,
+    };
+
+    const result = await controller.alterarCategoria(2, input);
+
+    expect(alterarCategoriaProdutoUseCase.execute).toHaveBeenCalledWith(
+      2,
+      input,
+    );
     expect(result).toEqual({ id: 2 });
   });
 

@@ -27,6 +27,7 @@ describe('ProdutoService', () => {
     save: jest.Mock;
     exists: jest.Mock;
     find: jest.Mock;
+    findOne: jest.Mock;
   };
   let movimentacaoEstoqueRepository: {
     save: jest.Mock;
@@ -45,6 +46,7 @@ describe('ProdutoService', () => {
       save: jest.fn(),
       exists: jest.fn(),
       find: jest.fn(),
+      findOne: jest.fn(),
     };
     movimentacaoEstoqueRepository = {
       save: jest.fn(),
@@ -226,6 +228,18 @@ describe('ProdutoService', () => {
 
     expect(categoriaRepository.find).toHaveBeenCalled();
     expect(result).toBe(categorias);
+  });
+
+  it('deve buscar categoria por id', async () => {
+    const categoria = Object.assign(new CategoriaProduto(), { id: 2 });
+    categoriaRepository.findOne.mockResolvedValue(categoria);
+
+    const result = await service.obterCategoriaPorId(2);
+
+    expect(categoriaRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 2 },
+    });
+    expect(result).toBe(categoria);
   });
 
   it('deve retornar detalhe do produto com estoque calculado', async () => {

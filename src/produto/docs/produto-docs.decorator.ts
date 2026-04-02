@@ -6,6 +6,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import {
+  AlterarCategoriaProdutoDto,
   AlterarProdutoDto,
   EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
@@ -231,6 +232,71 @@ export function ApiInserirCategoriaDocs() {
     }),
     ApiValidationErrorResponse('/produto/categorias'),
     ApiUnauthorizedErrorResponse('/produto/categorias'),
+  );
+}
+
+export function ApiObterCategoriaPorIdDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém o detalhe de uma categoria de produto.',
+      description:
+        'Retorna os dados cadastrais da categoria, incluindo a referência para a categoria ascendente quando existir.',
+    }),
+    ApiIdParamDocs('Identificador da categoria a ser consultada.'),
+    ApiOkResponse({
+      description: 'Categoria encontrada com sucesso.',
+      schema: {
+        example: {
+          id: 3,
+          nome: 'FIDGET TOYS',
+          idAscendente: 1,
+        },
+      },
+    }),
+    ApiUnauthorizedErrorResponse('/produto/categorias/3'),
+    ApiNotFoundErrorResponse(
+      '/produto/categorias/999',
+      'Categoria não encontrada.',
+    ),
+  );
+}
+
+export function ApiAlterarCategoriaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera uma categoria de produto.',
+      description:
+        'Permite atualizar o nome da categoria e sua categoria ascendente opcional.',
+    }),
+    ApiIdParamDocs('Identificador da categoria a ser alterada.'),
+    ApiBody({
+      type: AlterarCategoriaProdutoDto,
+      examples: {
+        padrao: {
+          summary: 'Alteração válida',
+          value: {
+            nome: 'FIDGETS PREMIUM',
+            idAscendente: 1,
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Categoria alterada com sucesso.',
+      schema: {
+        example: {
+          id: 3,
+          nome: 'FIDGETS PREMIUM',
+          idAscendente: 1,
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/produto/categorias/3'),
+    ApiUnauthorizedErrorResponse('/produto/categorias/3'),
+    ApiNotFoundErrorResponse(
+      '/produto/categorias/999',
+      'Categoria não encontrada.',
+    ),
   );
 }
 

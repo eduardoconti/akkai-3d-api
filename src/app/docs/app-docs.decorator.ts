@@ -4,14 +4,17 @@ import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 export function ApiAppHealthDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Mensagem simples de verificação da aplicação.',
+      summary: 'Verifica a saúde da aplicação.',
       description:
-        'Endpoint básico para confirmar que a aplicação NestJS está em execução.',
+        'Endpoint público e leve para confirmar que a API está em execução e pronta para responder.',
     }),
     ApiOkResponse({
       description: 'Aplicação respondendo normalmente.',
       schema: {
-        example: 'Hello World!',
+        example: {
+          status: 'ok',
+          timestamp: '2026-04-02T12:00:00.000Z',
+        },
       },
     }),
   );

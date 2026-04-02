@@ -8,6 +8,7 @@ import {
   Produto,
 } from '@produto/entities';
 import {
+  AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
@@ -20,6 +21,7 @@ import {
   controllers: [ProdutoController],
   providers: [
     ProdutoService,
+    AlterarCategoriaProdutoUseCase,
     InserirProdutoUseCase,
     AlterarProdutoUseCase,
     InserirCategoriaProdutoUseCase,

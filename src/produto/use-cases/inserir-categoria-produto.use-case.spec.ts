@@ -11,23 +11,23 @@ describe('InserirCategoriaProdutoUseCase', () => {
   let existeCategoriaMock: jest.MockedFunction<
     (idCategoria: number) => Promise<boolean>
   >;
-  let inserirCategoriaMock: jest.MockedFunction<
+  let salvarCategoriaMock: jest.MockedFunction<
     (categoria: CategoriaProduto) => Promise<CategoriaProduto>
   >;
 
   beforeEach(() => {
     existeCategoriaMock = jest.fn<Promise<boolean>, [number]>();
-    inserirCategoriaMock = jest.fn<
+    salvarCategoriaMock = jest.fn<
       Promise<CategoriaProduto>,
       [CategoriaProduto]
     >();
 
     const produtoService: Pick<
       ProdutoService,
-      'existeCategoria' | 'inserirCategoria'
+      'existeCategoria' | 'salvarCategoria'
     > = {
       existeCategoria: existeCategoriaMock,
-      inserirCategoria: inserirCategoriaMock,
+      salvarCategoria: salvarCategoriaMock,
     };
 
     useCase = new InserirCategoriaProdutoUseCase(
@@ -43,12 +43,12 @@ describe('InserirCategoriaProdutoUseCase', () => {
     categoriaSalva.id = 1;
     categoriaSalva.nome = input.nome;
 
-    inserirCategoriaMock.mockResolvedValue(categoriaSalva);
+    salvarCategoriaMock.mockResolvedValue(categoriaSalva);
 
     const result = await useCase.execute(input);
 
     expect(existeCategoriaMock).not.toHaveBeenCalled();
-    expect(inserirCategoriaMock).toHaveBeenCalledWith(
+    expect(salvarCategoriaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Canecas',
         idAscendente: undefined,
@@ -64,7 +64,7 @@ describe('InserirCategoriaProdutoUseCase', () => {
     };
 
     existeCategoriaMock.mockResolvedValue(true);
-    inserirCategoriaMock.mockResolvedValue(
+    salvarCategoriaMock.mockResolvedValue(
       Object.assign(new CategoriaProduto(), {
         id: 6,
         nome: input.nome,
@@ -75,7 +75,7 @@ describe('InserirCategoriaProdutoUseCase', () => {
     await useCase.execute(input);
 
     expect(existeCategoriaMock).toHaveBeenCalledWith(5);
-    expect(inserirCategoriaMock).toHaveBeenCalledWith(
+    expect(salvarCategoriaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Canecas Termicas',
         idAscendente: 5,
@@ -95,6 +95,6 @@ describe('InserirCategoriaProdutoUseCase', () => {
       new NotFoundException('Categoria ascendente com ID 5 não encontrada.'),
     );
 
-    expect(inserirCategoriaMock).not.toHaveBeenCalled();
+    expect(salvarCategoriaMock).not.toHaveBeenCalled();
   });
 });

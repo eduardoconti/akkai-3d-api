@@ -1,3 +1,4 @@
+export * from './alterar-categoria-produto.dto';
 export * from './alterar-produto.dto';
 export * from './listar-produto.dto';
 export * from './pesquisar-produtos.dto';
