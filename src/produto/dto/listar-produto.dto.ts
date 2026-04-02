@@ -1,14 +1,16 @@
-export interface ListarProdutoDto {
-  id: number;
-  nome: string;
-  codigo: string;
+class CategoriaProdutoResumoListaDto {
+  id!: number;
+  nome!: string;
+}
+
+export class ListarProdutoDto {
+  id!: number;
+  nome!: string;
+  codigo!: string;
   descricao?: string;
-  idCategoria: number;
+  idCategoria!: number;
   estoqueMinimo?: number;
-  valor: number;
-  categoria: {
-    id: number;
-    nome: string;
-  };
-  quantidadeEstoque: number;
+  valor!: number;
+  categoria!: CategoriaProdutoResumoListaDto;
+  quantidadeEstoque!: number;
 }

@@ -8,7 +8,15 @@ import { Feira, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import {
+  ApiInserirFeiraDocs,
+  ApiInserirVendaDocs,
+  ApiListarFeirasDocs,
+  ApiListarVendasDocs,
+} from '@venda/docs/venda-docs.decorator';
 
+@ApiProtectedController('Vendas')
 @Controller('venda')
 export class VendaController {
   constructor(
@@ -17,22 +25,26 @@ export class VendaController {
     private readonly inserirVendaUseCase: InserirVendaUseCase,
   ) {}
 
+  @ApiInserirFeiraDocs()
   @Post('feiras')
   async inserirFeira(@Body() input: InserirFeiraDto): Promise<Feira> {
     return await this.inserirFeiraUseCase.execute(input);
   }
 
+  @ApiInserirVendaDocs()
   @Post()
   async inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
     const venda = await this.inserirVendaUseCase.execute(inserirVendaInput);
     return venda;
   }
 
+  @ApiListarFeirasDocs()
   @Get('feiras')
   async listarFeiras(): Promise<Feira[]> {
     return await this.vendaService.listarFeiras();
   }
 
+  @ApiListarVendasDocs()
   @Get()
   async listarVendas(
     @Query() pesquisa: PesquisarVendasDto,

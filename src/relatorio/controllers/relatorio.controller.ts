@@ -7,11 +7,18 @@ import {
   ResumoVendasPeriodoDto,
 } from '@relatorio/dto';
 import { RelatorioService } from '@relatorio/services';
+import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import {
+  ApiProdutosMaisVendidosDocs,
+  ApiResumoVendasPeriodoDocs,
+} from '@relatorio/docs/relatorio-docs.decorator';
 
+@ApiProtectedController('Relatórios')
 @Controller('relatorio')
 export class RelatorioController {
   constructor(private readonly relatorioService: RelatorioService) {}
 
+  @ApiResumoVendasPeriodoDocs()
   @Get('vendas/resumo')
   @Permissions('report.read')
   async obterResumoVendasPorPeriodo(
@@ -20,6 +27,7 @@ export class RelatorioController {
     return await this.relatorioService.obterResumoVendasPorPeriodo(filtro);
   }
 
+  @ApiProdutosMaisVendidosDocs()
   @Get('vendas/produtos-mais-vendidos')
   @Permissions('report.read')
   async obterProdutosMaisVendidosPorPeriodo(
