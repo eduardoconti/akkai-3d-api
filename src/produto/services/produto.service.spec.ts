@@ -129,6 +129,25 @@ describe('ProdutoService', () => {
     });
   });
 
+  it('deve ordenar produtos por código quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'codigo',
+      direcao: 'desc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('ORDER BY p.codigo DESC'),
+      expect.any(Array),
+    );
+  });
+
   it('deve salvar produto com sucesso', async () => {
     const produto = Object.assign(new Produto(), {
       id: 1,

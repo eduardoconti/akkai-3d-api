@@ -25,6 +25,7 @@ import {
   ApiIdParamDocs,
   ApiPaginacaoQueryDocs,
 } from '../../common/docs/decorators/api-query-docs.decorator';
+import { ApiQuery } from '@nestjs/swagger';
 
 const PRODUTO_EXEMPLO = {
   id: 1,
@@ -139,6 +140,18 @@ export function ApiListarProdutosDocs() {
         'Retorna produtos paginados com categoria, estoque mínimo e quantidade atual em estoque.',
     }),
     ApiPaginacaoQueryDocs(),
+    ApiQuery({
+      name: 'ordenarPor',
+      required: false,
+      enum: ['nome', 'codigo'],
+      description: 'Campo usado para ordenação dos produtos.',
+    }),
+    ApiQuery({
+      name: 'direcao',
+      required: false,
+      enum: ['asc', 'desc'],
+      description: 'Direção da ordenação dos produtos.',
+    }),
     ApiPaginatedOkResponse(
       ListarProdutoDto,
       'Produtos encontrados com sucesso.',

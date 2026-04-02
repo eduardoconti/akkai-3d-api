@@ -38,6 +38,8 @@ export class ProdutoService {
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     const termo = pesquisa.termo?.toLowerCase();
     const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
+    const orderBy = pesquisa.ordenarPor === 'codigo' ? 'p.codigo' : 'p.nome';
+    const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
     const filtros: string[] = [];
     const parametros: unknown[] = [];
 
@@ -112,7 +114,7 @@ export class ProdutoService {
        INNER JOIN categoria_produto c ON c.id = p.id_categoria
        LEFT JOIN estoque e ON e.id_produto = p.id
        ${whereClause}
-       ORDER BY p.nome ASC
+       ORDER BY ${orderBy} ${orderDirection}
        LIMIT $${parametros.length - 1}
        OFFSET $${parametros.length}
       `,
