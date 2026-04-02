@@ -22,6 +22,7 @@ import {
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
   ListarProdutoDto,
+  PesquisarCategoriasDto,
   PesquisarProdutosDto,
   SaidaEstoqueDto,
 } from '@produto/dto';
@@ -78,8 +79,10 @@ export class ProdutoController {
 
   @ApiListarCategoriasDocs()
   @Get('categorias')
-  async listarCategorias() {
-    return await this.produtoService.listarCategorias();
+  async listarCategorias(
+    @Query() pesquisa: PesquisarCategoriasDto,
+  ): Promise<ResultadoPaginado<CategoriaProduto>> {
+    return await this.produtoService.listarCategorias(pesquisa);
   }
 
   @ApiInserirCategoriaDocs()

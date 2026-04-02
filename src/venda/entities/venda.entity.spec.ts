@@ -7,19 +7,17 @@ import {
 } from '@venda/entities';
 
 describe('Venda', () => {
-  it('deve calcular o valor total corretamente com desconto no item e na venda', () => {
+  it('deve calcular o valor total corretamente com desconto apenas na venda', () => {
     const itens = [
       {
         quantidade: 2,
         valorUnitario: 50,
-        desconto: 5,
         idProduto: 1,
         nomeProduto: 'Caneca geek',
       },
       {
         quantidade: 1,
         valorUnitario: 100,
-        desconto: 0,
         idProduto: 2,
         nomeProduto: 'Vaso decorativo',
       },
@@ -27,9 +25,9 @@ describe('Venda', () => {
       const itemVenda = new ItemVenda();
       itemVenda.quantidade = item.quantidade;
       itemVenda.valorUnitario = item.valorUnitario;
-      itemVenda.desconto = item.desconto;
       itemVenda.idProduto = item.idProduto;
       itemVenda.nomeProduto = item.nomeProduto;
+      itemVenda.valorTotal = item.quantidade * item.valorUnitario;
       return itemVenda;
     });
 
@@ -41,7 +39,7 @@ describe('Venda', () => {
       itens,
     });
 
-    expect(venda.valorTotal).toBe(185);
+    expect(venda.valorTotal).toBe(190);
   });
 
   it('deve calcular o valor total corretamente sem descontos', () => {
@@ -64,6 +62,7 @@ describe('Venda', () => {
       itemVenda.valorUnitario = item.valorUnitario;
       itemVenda.idProduto = item.idProduto;
       itemVenda.nomeProduto = item.nomeProduto;
+      itemVenda.valorTotal = item.quantidade * item.valorUnitario;
       return itemVenda;
     });
 
@@ -85,16 +84,16 @@ describe('ItemVenda', () => {
     valorUnitario: 1000,
   };
 
-  it('deve calcular valor total corretamente sem desconto', () => {
+  it('deve calcular valor total corretamente', () => {
     const item = ItemVenda.criar(base);
     expect(item.valorTotal).toBe(2000);
-    expect(item.desconto).toBe(0);
   });
 
-  it('deve calcular valor total com desconto', () => {
-    const item = ItemVenda.criar({ ...base, desconto: 300 });
-    expect(item.valorTotal).toBe(1700);
-    expect(item.desconto).toBe(300);
+  it('deve zerar valor unitário e valor total quando o item for brinde', () => {
+    const item = ItemVenda.criar({ ...base, brinde: true });
+    expect(item.brinde).toBe(true);
+    expect(item.valorUnitario).toBe(0);
+    expect(item.valorTotal).toBe(0);
   });
 
   it('deve atribuir idProduto quando informado', () => {

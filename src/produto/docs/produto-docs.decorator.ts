@@ -189,25 +189,47 @@ export function ApiListarCategoriasDocs() {
     ApiOperation({
       summary: 'Lista categorias de produto.',
       description:
-        'Retorna todas as categorias cadastradas, incluindo a categoria ascendente quando existir.',
+        'Retorna as categorias cadastradas de forma paginada, com filtro opcional por nome.',
+    }),
+    ApiQuery({
+      name: 'pagina',
+      required: false,
+      description: 'Página atual da pesquisa.',
+      schema: { type: 'integer', default: 1, minimum: 1 },
+    }),
+    ApiQuery({
+      name: 'tamanhoPagina',
+      required: false,
+      description: 'Quantidade de itens por página.',
+      schema: { type: 'integer', default: 10, minimum: 1, maximum: 50 },
+    }),
+    ApiQuery({
+      name: 'termo',
+      required: false,
+      description: 'Filtro por nome da categoria.',
+      schema: { type: 'string', example: 'fidget' },
     }),
     ApiOkResponse({
       description: 'Categorias encontradas com sucesso.',
       schema: {
-        example: [
-          {
-            id: 2,
-            nome: 'IMPRESSAO 3D',
-            idAscendente: null,
-            ascendente: null,
-          },
-          {
-            id: 3,
-            nome: 'FIDGET TOYS',
-            idAscendente: null,
-            ascendente: null,
-          },
-        ],
+        example: {
+          itens: [
+            {
+              id: 2,
+              nome: 'IMPRESSAO 3D',
+              idAscendente: null,
+            },
+            {
+              id: 3,
+              nome: 'FIDGET TOYS',
+              idAscendente: null,
+            },
+          ],
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 2,
+          totalPaginas: 1,
+        },
       },
     }),
     ApiUnauthorizedErrorResponse('/produto/categorias'),

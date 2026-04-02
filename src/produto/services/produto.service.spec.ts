@@ -28,6 +28,7 @@ describe('ProdutoService', () => {
     exists: jest.Mock;
     find: jest.Mock;
     findOne: jest.Mock;
+    createQueryBuilder: jest.Mock;
   };
   let movimentacaoEstoqueRepository: {
     save: jest.Mock;
@@ -47,6 +48,7 @@ describe('ProdutoService', () => {
       exists: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
+      createQueryBuilder: jest.fn(),
     };
     movimentacaoEstoqueRepository = {
       save: jest.fn(),
@@ -241,12 +243,30 @@ describe('ProdutoService', () => {
 
   it('deve listar categorias', async () => {
     const categorias = [Object.assign(new CategoriaProduto(), { id: 1 })];
-    categoriaRepository.find.mockResolvedValue(categorias);
+    const queryBuilder = {
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([categorias, 1]),
+    };
+    categoriaRepository.createQueryBuilder.mockReturnValue(queryBuilder);
 
-    const result = await service.listarCategorias();
+    const result = await service.listarCategorias({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
 
-    expect(categoriaRepository.find).toHaveBeenCalled();
-    expect(result).toBe(categorias);
+    expect(categoriaRepository.createQueryBuilder).toHaveBeenCalledWith(
+      'categoria',
+    );
+    expect(result).toEqual({
+      itens: categorias,
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    });
   });
 
   it('deve buscar categoria por id', async () => {

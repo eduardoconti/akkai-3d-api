@@ -23,7 +23,7 @@ export interface ExecutarInserirVendaInput {
   desconto?: number;
   itens: {
     quantidade: number;
-    desconto?: number;
+    brinde?: boolean;
     idProduto?: number;
     nomeProduto?: string;
     valorUnitario?: number;
@@ -69,7 +69,7 @@ export class InserirVendaUseCase {
           nomeProduto: item.nomeProduto!,
           quantidade: item.quantidade,
           valorUnitario: item.valorUnitario!,
-          desconto: item.desconto,
+          brinde: item.brinde,
         });
 
         itensVenda.push(itemVenda);
@@ -91,7 +91,7 @@ export class InserirVendaUseCase {
         nomeProduto: produto.nome,
         quantidade: item.quantidade,
         valorUnitario: produto.valor,
-        desconto: item.desconto,
+        brinde: item.brinde,
       });
 
       itensVenda.push(itemVenda);

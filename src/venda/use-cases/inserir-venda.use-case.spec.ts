@@ -65,7 +65,6 @@ describe('InserirVendaUseCase', () => {
         {
           idProduto: 1,
           quantidade: 2,
-          desconto: 100,
         },
       ],
     };
@@ -95,16 +94,15 @@ describe('InserirVendaUseCase', () => {
         meioPagamento: MeioPagamento.PIX,
         idCarteira: 1,
         idFeira: undefined,
-        desconto: 300,
-        valorTotal: 4700,
+        desconto: 200,
+        valorTotal: 4800,
         itens: [
           expect.objectContaining({
             idProduto: 1,
             nomeProduto: 'Caneca',
             quantidade: 2,
             valorUnitario: 2500,
-            desconto: 100,
-            valorTotal: 4900,
+            valorTotal: 5000,
           }),
         ],
       }),
@@ -151,7 +149,6 @@ describe('InserirVendaUseCase', () => {
           expect.objectContaining({
             idProduto: 1,
             nomeProduto: 'Caneca',
-            desconto: 0,
             valorTotal: 1000,
           }),
         ],
@@ -246,7 +243,6 @@ describe('InserirVendaUseCase', () => {
           nomeProduto: 'Peca personalizada',
           valorUnitario: 4500,
           quantidade: 1,
-          desconto: 500,
         },
       ],
     });
@@ -254,19 +250,73 @@ describe('InserirVendaUseCase', () => {
     expect(obterProdutoPorIdMock).not.toHaveBeenCalled();
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        valorTotal: 4000,
+        valorTotal: 4500,
         itens: [
           expect.objectContaining({
             idProduto: undefined,
             nomeProduto: 'Peca personalizada',
             valorUnitario: 4500,
             quantidade: 1,
-            desconto: 500,
-            valorTotal: 4000,
+            valorTotal: 4500,
           }),
         ],
       }),
       [],
     );
+  });
+
+  it('deve registrar item de catálogo como brinde com valor zero e manter saída de estoque', async () => {
+    const vendaPersistida = new Venda();
+    vendaPersistida.id = 2;
+
+    obterProdutoPorIdMock.mockResolvedValue(
+      Object.assign(new Produto(), {
+        id: 1,
+        nome: 'Caneca',
+        codigo: 'CN001',
+        idCategoria: 1,
+        valor: 2500,
+      }),
+    );
+    existeCarteiraMock.mockResolvedValue(true);
+    inserirVendaMock.mockResolvedValue(vendaPersistida);
+
+    const result = await useCase.execute({
+      meioPagamento: MeioPagamento.PIX,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [
+        {
+          idProduto: 1,
+          quantidade: 2,
+          brinde: true,
+        },
+      ],
+    });
+
+    expect(inserirVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        valorTotal: 0,
+        itens: [
+          expect.objectContaining({
+            idProduto: 1,
+            nomeProduto: 'Caneca',
+            quantidade: 2,
+            brinde: true,
+            valorUnitario: 0,
+            valorTotal: 0,
+          }),
+        ],
+      }),
+      [
+        expect.objectContaining({
+          idProduto: 1,
+          quantidade: 2,
+          tipo: TipoMovimentacaoEstoque.SAIDA,
+          origem: OrigemMovimentacaoEstoque.VENDA,
+        }),
+      ],
+    );
+    expect(result).toBe(vendaPersistida);
   });
 });

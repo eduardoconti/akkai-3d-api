@@ -140,13 +140,25 @@ describe('ProdutoController', () => {
   });
 
   it('deve listar categorias', async () => {
-    const categorias = [Object.assign(new CategoriaProduto(), { id: 1 })];
-    produtoService.listarCategorias.mockResolvedValue(categorias);
+    const resposta = {
+      itens: [Object.assign(new CategoriaProduto(), { id: 1 })],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    produtoService.listarCategorias.mockResolvedValue(resposta);
 
-    const result = await controller.listarCategorias();
+    const result = await controller.listarCategorias({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
 
-    expect(produtoService.listarCategorias).toHaveBeenCalled();
-    expect(result).toBe(categorias);
+    expect(produtoService.listarCategorias).toHaveBeenCalledWith({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+    expect(result).toBe(resposta);
   });
 
   it('deve delegar inserção de categoria', async () => {

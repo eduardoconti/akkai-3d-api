@@ -13,23 +13,22 @@ import { Venda } from '@venda/entities';
 export interface ItemVendaInput {
   quantidade: number;
   valorUnitario: number;
-  desconto?: number;
+  brinde?: boolean;
   idProduto?: number;
   nomeProduto: string;
 }
 
 @Entity('item_venda')
-@Unique('uk_item_venda_venda_produto', ['idVenda', 'idProduto'])
+@Unique('uk_item_venda_venda_produto_brinde', [
+  'idVenda',
+  'idProduto',
+  'brinde',
+])
 @Check('ck_item_venda_quantidade_positiva', '"quantidade" > 0')
 @Check('ck_item_venda_valor_unitario_nao_negativo', '"valor_unitario" >= 0')
-@Check('ck_item_venda_desconto_nao_negativo', '"desconto" >= 0')
-@Check(
-  'ck_item_venda_desconto_nao_excede_bruto',
-  '"desconto" <= ("quantidade" * "valor_unitario")',
-)
 @Check(
   'ck_item_venda_valor_total_consistente',
-  '"valor_total" = (("quantidade" * "valor_unitario") - "desconto")',
+  '"valor_total" = ("quantidade" * "valor_unitario")',
 )
 export class ItemVenda {
   @PrimaryGeneratedColumn({
@@ -55,8 +54,8 @@ export class ItemVenda {
   @Column({ type: 'integer', name: 'valor_total' })
   valorTotal!: number;
 
-  @Column({ type: 'integer', default: 0 })
-  desconto!: number;
+  @Column({ type: 'boolean', default: false })
+  brinde!: boolean;
 
   @ManyToOne(() => Venda, (venda) => venda.itens)
   @JoinColumn({
@@ -79,8 +78,10 @@ export class ItemVenda {
     itemVenda.idProduto = inserirItemVendaInput.idProduto;
     itemVenda.nomeProduto = inserirItemVendaInput.nomeProduto;
     itemVenda.quantidade = inserirItemVendaInput.quantidade;
-    itemVenda.valorUnitario = inserirItemVendaInput.valorUnitario;
-    itemVenda.desconto = inserirItemVendaInput.desconto ?? 0;
+    itemVenda.brinde = inserirItemVendaInput.brinde ?? false;
+    itemVenda.valorUnitario = itemVenda.brinde
+      ? 0
+      : inserirItemVendaInput.valorUnitario;
 
     itemVenda.calcularValorTotal();
 
@@ -96,9 +97,6 @@ export class ItemVenda {
   }
 
   private calcularValorTotal(): void {
-    const valorBruto = this.quantidade * this.valorUnitario;
-    const valorDesconto = this.desconto ?? 0;
-
-    this.valorTotal = valorBruto - valorDesconto;
+    this.valorTotal = this.quantidade * this.valorUnitario;
   }
 }

@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -102,11 +103,9 @@ export class InserirItemVendaDto {
   quantidade!: number;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'O desconto do item deve ser informado em centavos.' })
-  @Min(0, { message: 'O desconto do item não pode ser negativo.' })
-  @Max(10000, {
-    message: 'O desconto do item deve ser de no máximo R$ 100,00.',
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean({
+    message: 'O indicador de brinde do item deve ser verdadeiro ou falso.',
   })
-  desconto?: number;
+  brinde?: boolean;
 }

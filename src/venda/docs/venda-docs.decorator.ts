@@ -46,7 +46,6 @@ const VENDA_EXEMPLO = {
       quantidade: 1,
       valorUnitario: 2200,
       valorTotal: 2200,
-      desconto: 0,
     },
   ],
 };
@@ -107,7 +106,6 @@ export function ApiInserirVendaDocs() {
               {
                 idProduto: 1,
                 quantidade: 1,
-                desconto: 0,
               },
             ],
           },
@@ -123,7 +121,6 @@ export function ApiInserirVendaDocs() {
                 nomeProduto: 'Peça personalizada',
                 valorUnitario: 4500,
                 quantidade: 1,
-                desconto: 500,
               },
             ],
           },

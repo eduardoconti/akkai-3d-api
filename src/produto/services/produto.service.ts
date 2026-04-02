@@ -16,6 +16,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   DetalheProdutoDto,
   ListarProdutoDto,
+  PesquisarCategoriasDto,
   PesquisarProdutosDto,
 } from '@produto/dto';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
@@ -193,8 +194,32 @@ export class ProdutoService {
     return categoria;
   }
 
-  async listarCategorias(): Promise<CategoriaProduto[]> {
-    return this.categoriaRepository.find();
+  async listarCategorias(
+    pesquisa: PesquisarCategoriasDto,
+  ): Promise<ResultadoPaginado<CategoriaProduto>> {
+    const termo = pesquisa.termo?.toLowerCase();
+    const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
+    const queryBuilder = this.categoriaRepository
+      .createQueryBuilder('categoria')
+      .orderBy('categoria.nome', 'ASC')
+      .skip(offset)
+      .take(pesquisa.tamanhoPagina);
+
+    if (termo) {
+      queryBuilder.where('LOWER(categoria.nome) LIKE :termo', {
+        termo: `%${termo}%`,
+      });
+    }
+
+    const [itens, totalItens] = await queryBuilder.getManyAndCount();
+
+    return {
+      itens,
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+    };
   }
 
   async obterCategoriaPorId(id: number): Promise<CategoriaProduto | null> {

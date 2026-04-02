@@ -111,9 +111,5 @@ export class Venda {
     this.valorTotal =
       this.itens.reduce((total, item) => total + item.valorTotal, 0) -
       this.desconto;
-
-    this.desconto =
-      this.itens.reduce((total, item) => total + (item.desconto ?? 0), 0) +
-      this.desconto;
   }
 }
