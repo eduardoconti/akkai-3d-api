@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -10,6 +11,8 @@ import {
 import { User } from './user.entity';
 
 @Entity('refresh_sessions')
+@Index('idx_refresh_sessions_user_id', ['userId'])
+@Index('idx_refresh_sessions_validacao', ['userId', 'revokedAt', 'expiresAt'])
 export class RefreshSession {
   @PrimaryGeneratedColumn('uuid', {
     primaryKeyConstraintName: 'pk_refresh_sessions',

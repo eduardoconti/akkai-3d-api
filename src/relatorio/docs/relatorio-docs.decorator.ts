@@ -120,8 +120,6 @@ export function ApiProdutosMaisVendidosDocs() {
                 nome: 'IMPRESSAO 3D',
               },
               quantidadeVendida: 8,
-              descontoTotal: 500,
-              valorTotal: 17100,
             },
             {
               idProduto: 2,
@@ -131,8 +129,6 @@ export function ApiProdutosMaisVendidosDocs() {
                 nome: 'FIDGET TOYS',
               },
               quantidadeVendida: 4,
-              descontoTotal: 0,
-              valorTotal: 20000,
             },
           ],
         },

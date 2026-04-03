@@ -6,6 +6,4 @@ export class ProdutoMaisVendidoDto {
     nome: string;
   } | null;
   quantidadeVendida!: number;
-  descontoTotal!: number;
-  valorTotal!: number;
 }

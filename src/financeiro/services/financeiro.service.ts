@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
@@ -18,6 +19,8 @@ type ListarCarteiraRow = {
 
 @Injectable()
 export class FinanceiroService {
+  private readonly logger = new Logger(FinanceiroService.name);
+
   constructor(
     @InjectRepository(Carteira)
     private readonly carteiraRepository: Repository<Carteira>,
@@ -28,7 +31,7 @@ export class FinanceiroService {
 
   async salvarCarteira(carteira: Carteira): Promise<Carteira> {
     return this.carteiraRepository.save(carteira).catch((error) => {
-      console.error('Erro ao salvar carteira:', error);
+      this.logger.error('Erro ao salvar carteira', error);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.driverError?.code === '23505') {
         throw new ConflictException(`Carteira ${carteira.nome} já existe`);
@@ -50,7 +53,7 @@ export class FinanceiroService {
 
   async inserirDespesa(despesa: Despesa): Promise<Despesa> {
     return this.despesaRepository.save(despesa).catch((error) => {
-      console.error('Erro ao inserir despesa:', error);
+      this.logger.error('Erro ao inserir despesa', error);
       throw new InternalServerErrorException('Erro ao inserir despesa');
     });
   }

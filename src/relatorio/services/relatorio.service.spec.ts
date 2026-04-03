@@ -85,8 +85,6 @@ describe('RelatorioService', () => {
           categoriaId: '2',
           categoriaNome: 'IMPRESSAO 3D',
           quantidadeVendida: '12',
-          descontoTotal: '500',
-          valorTotal: '25000',
         },
       ])
       .mockResolvedValueOnce([{ totalItens: 1 }]);
@@ -118,8 +116,6 @@ describe('RelatorioService', () => {
             nome: 'IMPRESSAO 3D',
           },
           quantidadeVendida: 12,
-          descontoTotal: 500,
-          valorTotal: 25000,
         },
       ],
     });
@@ -161,8 +157,6 @@ describe('RelatorioService', () => {
           categoriaId: null,
           categoriaNome: null,
           quantidadeVendida: '3',
-          descontoTotal: '0',
-          valorTotal: '9000',
         },
       ])
       .mockResolvedValueOnce([{ totalItens: 1 }]);

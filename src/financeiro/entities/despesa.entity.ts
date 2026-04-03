@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -20,6 +21,8 @@ export enum CategoriaDespesa {
 
 @Entity('despesa')
 @Check('ck_despesa_valor_nao_negativo', '"valor" >= 0')
+@Index('idx_despesa_id_carteira', ['idCarteira'])
+@Index('idx_despesa_data_lancamento', ['dataLancamento'])
 export class Despesa {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_despesa',

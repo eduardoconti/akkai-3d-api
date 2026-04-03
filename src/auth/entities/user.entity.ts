@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -14,6 +15,7 @@ import { Role } from './role.entity';
 
 @Entity('users')
 @Check('ck_users_email_not_blank', `char_length(trim("email")) > 0`)
+@Index('idx_users_is_active_email', ['isActive', 'email'])
 export class User {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_users',

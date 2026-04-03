@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -34,6 +35,10 @@ export interface InserirVendaInput {
 @Entity('venda')
 @Check('ck_venda_desconto_nao_negativo', '"desconto" >= 0')
 @Check('ck_venda_valor_total_nao_negativo', '"valor_total" >= 0')
+@Index('idx_venda_id_carteira', ['idCarteira'])
+@Index('idx_venda_id_feira', ['idFeira'])
+@Index('idx_venda_data_inclusao', ['dataInclusao'])
+@Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
 export class Venda {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_venda',

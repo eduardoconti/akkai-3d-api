@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -23,6 +24,8 @@ import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.in
 
 @Injectable()
 export class ProdutoService {
+  private readonly logger = new Logger(ProdutoService.name);
+
   constructor(
     @InjectRepository(Produto)
     private readonly produtoRepository: Repository<Produto>,
@@ -153,7 +156,7 @@ export class ProdutoService {
 
   async salvar(produto: Produto): Promise<Produto> {
     return this.produtoRepository.save(produto).catch((error) => {
-      console.error('Erro ao salvar produto:', error);
+      this.logger.error('Erro ao salvar produto', error);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.driverError?.code === '23505') {
         throw new ConflictException(`Código ${produto.codigo} já existe`);
@@ -182,7 +185,7 @@ export class ProdutoService {
     categoria: CategoriaProduto,
   ): Promise<CategoriaProduto> {
     return this.categoriaRepository.save(categoria).catch((error) => {
-      console.error('Erro ao inserir categoria:', error);
+      this.logger.error('Erro ao inserir categoria', error);
       throw new InternalServerErrorException('Erro ao inserir categoria');
     });
   }

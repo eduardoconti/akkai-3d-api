@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -23,6 +24,8 @@ export enum OrigemMovimentacaoEstoque {
 
 @Entity('movimentacao_estoque')
 @Check('ck_movimentacao_estoque_quantidade_positiva', '"quantidade" > 0')
+@Index('idx_movimentacao_estoque_id_produto', ['idProduto'])
+@Index('idx_movimentacao_estoque_id_produto_tipo', ['idProduto', 'tipo'])
 export class MovimentacaoEstoque {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_movimentacao_estoque',

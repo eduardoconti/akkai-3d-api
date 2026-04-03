@@ -20,8 +20,6 @@ type ProdutoMaisVendidoRow = {
   categoriaId: string | number | null;
   categoriaNome: string | null;
   quantidadeVendida: string | number;
-  descontoTotal: string | number;
-  valorTotal: string | number;
 };
 
 @Injectable()
@@ -76,9 +74,7 @@ export class RelatorioService {
           item.nome_produto AS "nomeProduto",
           categoria.id AS "categoriaId",
           categoria.nome AS "categoriaNome",
-          SUM(item.quantidade) AS "quantidadeVendida",
-          SUM(item.desconto) AS "descontoTotal",
-          SUM(item.valor_total) AS "valorTotal"
+          SUM(item.quantidade) AS "quantidadeVendida"
         FROM item_venda item
         INNER JOIN venda v ON v.id = item.id_venda
         LEFT JOIN produto p ON p.id = item.id_produto
@@ -91,7 +87,6 @@ export class RelatorioService {
           categoria.nome
         ORDER BY
           SUM(item.quantidade) DESC,
-          SUM(item.valor_total) DESC,
           item.nome_produto ASC
         LIMIT $${parameters.length + 1}
         OFFSET $${parameters.length + 2}
@@ -146,8 +141,6 @@ export class RelatorioService {
                 nome: row.categoriaNome,
               },
         quantidadeVendida: Number(row.quantidadeVendida),
-        descontoTotal: Number(row.descontoTotal),
-        valorTotal: Number(row.valorTotal),
       })),
     };
   }

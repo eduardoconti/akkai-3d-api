@@ -3,6 +3,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,6 +19,7 @@ import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
   'ck_produto_estoque_minimo_nao_negativo',
   '"estoque_minimo" IS NULL OR "estoque_minimo" >= 0',
 )
+@Index('idx_produto_id_categoria', ['idCategoria'])
 export class Produto {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_produto',

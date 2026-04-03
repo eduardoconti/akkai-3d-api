@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
 import { Feira, Venda } from '@venda/entities';
@@ -13,6 +14,8 @@ import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.in
 
 @Injectable()
 export class VendaService {
+  private readonly logger = new Logger(VendaService.name);
+
   constructor(
     @InjectRepository(Venda)
     private readonly vendaRepository: Repository<Venda>,
@@ -25,7 +28,7 @@ export class VendaService {
 
   async inserirFeira(feira: Feira): Promise<Feira> {
     return this.feiraRepository.save(feira).catch((error) => {
-      console.error('Erro ao inserir feira:', error);
+      this.logger.error('Erro ao inserir feira', error);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.driverError?.code === '23505') {
         throw new ConflictException(`Feira ${feira.nome} já existe`);
@@ -68,7 +71,7 @@ export class VendaService {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Erro desconhecido';
-      console.error('Erro ao inserir venda:', errorMessage);
+      this.logger.error('Erro ao inserir venda', errorMessage);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('Erro ao inserir venda');
     } finally {
