@@ -1,14 +1,16 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
 import { Carteira, Despesa } from '@financeiro/entities';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { DataSource, Repository } from 'typeorm';
+import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
+import { calcularOffset } from '../../common/utils/paginacao.util';
 
 type ListarCarteiraRow = {
   id: number;
@@ -30,14 +32,13 @@ export class FinanceiroService {
   ) {}
 
   async salvarCarteira(carteira: Carteira): Promise<Carteira> {
-    return this.carteiraRepository.save(carteira).catch((error) => {
+    return this.carteiraRepository.save(carteira).catch((error: unknown) => {
       this.logger.error('Erro ao salvar carteira', error);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (error.driverError?.code === '23505') {
-        throw new ConflictException(`Carteira ${carteira.nome} já existe`);
-      }
-
-      throw new InternalServerErrorException('Erro ao salvar carteira');
+      lancarExcecaoConflito(
+        error,
+        `Carteira ${carteira.nome} já existe`,
+        'Erro ao salvar carteira',
+      );
     });
   }
 
@@ -45,10 +46,25 @@ export class FinanceiroService {
     return this.carteiraRepository.findOne({ where: { id } });
   }
 
+  async garantirCarteiraPorId(id: number): Promise<Carteira> {
+    const carteira = await this.obterCarteiraPorId(id);
+    if (!carteira) {
+      throw new NotFoundException('Carteira não encontrada');
+    }
+    return carteira;
+  }
+
   async existeCarteira(idCarteira: number): Promise<boolean> {
     return this.carteiraRepository.exists({
       where: { id: idCarteira, ativa: true },
     });
+  }
+
+  async garantirExisteCarteira(id: number): Promise<void> {
+    const existe = await this.existeCarteira(id);
+    if (!existe) {
+      throw new NotFoundException(`Carteira com ID ${id} não encontrada.`);
+    }
   }
 
   async inserirDespesa(despesa: Despesa): Promise<Despesa> {
@@ -104,7 +120,7 @@ export class FinanceiroService {
   async listarDespesas(
     pesquisa: PesquisarDespesasDto,
   ): Promise<ResultadoPaginado<Despesa>> {
-    const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
+    const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
     const termo = pesquisa.termo?.toLowerCase();
 
     const queryBuilder = this.despesaRepository

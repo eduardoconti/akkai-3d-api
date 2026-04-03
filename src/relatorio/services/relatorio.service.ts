@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { calcularOffset } from '../../common/utils/paginacao.util';
 import { DataSource } from 'typeorm';
 import {
   ObterProdutosMaisVendidosDto,
@@ -65,7 +66,7 @@ export class RelatorioService {
       conditions.push(`p.id_categoria = ANY($${parameters.length})`);
     }
 
-    const offset = (filtro.pagina - 1) * filtro.tamanhoPagina;
+    const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
 
     const rows: ProdutoMaisVendidoRow[] = await this.dataSource.query(
       `

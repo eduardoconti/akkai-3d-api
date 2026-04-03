@@ -4,13 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import {
-  CategoriaProduto,
-  MovimentacaoEstoque,
-  OrigemMovimentacaoEstoque,
-  Produto,
-  TipoMovimentacaoEstoque,
-} from '@produto/entities';
+import { Produto } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListarProdutoDto } from '@produto/dto';
@@ -23,16 +17,6 @@ describe('ProdutoService', () => {
     findOne: jest.Mock;
     exists: jest.Mock;
   };
-  let categoriaRepository: {
-    save: jest.Mock;
-    exists: jest.Mock;
-    find: jest.Mock;
-    findOne: jest.Mock;
-    createQueryBuilder: jest.Mock;
-  };
-  let movimentacaoEstoqueRepository: {
-    save: jest.Mock;
-  };
   let dataSource: {
     query: jest.Mock;
   };
@@ -42,16 +26,6 @@ describe('ProdutoService', () => {
       save: jest.fn(),
       findOne: jest.fn(),
       exists: jest.fn(),
-    };
-    categoriaRepository = {
-      save: jest.fn(),
-      exists: jest.fn(),
-      find: jest.fn(),
-      findOne: jest.fn(),
-      createQueryBuilder: jest.fn(),
-    };
-    movimentacaoEstoqueRepository = {
-      save: jest.fn(),
     };
     dataSource = {
       query: jest.fn(),
@@ -63,14 +37,6 @@ describe('ProdutoService', () => {
         {
           provide: getRepositoryToken(Produto),
           useValue: produtoRepository,
-        },
-        {
-          provide: getRepositoryToken(CategoriaProduto),
-          useValue: categoriaRepository,
-        },
-        {
-          provide: getRepositoryToken(MovimentacaoEstoque),
-          useValue: movimentacaoEstoqueRepository,
         },
         {
           provide: getDataSourceToken(),
@@ -175,6 +141,23 @@ describe('ProdutoService', () => {
     expect(result).toBe(produto);
   });
 
+  it('deve retornar produto em garantirExisteProduto', async () => {
+    const produto = Object.assign(new Produto(), { id: 1 });
+    produtoRepository.findOne.mockResolvedValue(produto);
+
+    const result = await service.garantirExisteProduto(1);
+
+    expect(result).toBe(produto);
+  });
+
+  it('deve lançar NotFoundException em garantirExisteProduto quando não existe', async () => {
+    produtoRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.garantirExisteProduto(99)).rejects.toThrow(
+      new NotFoundException('Produto com ID 99 não encontrado'),
+    );
+  });
+
   it('deve lançar conflito ao inserir produto com código duplicado', async () => {
     const produto = Object.assign(new Produto(), { codigo: 'CAN001' });
     produtoRepository.save.mockRejectedValue({
@@ -195,41 +178,6 @@ describe('ProdutoService', () => {
     );
   });
 
-  it('deve inserir categoria com sucesso', async () => {
-    const categoria = Object.assign(new CategoriaProduto(), {
-      id: 1,
-      nome: 'Canecas',
-    });
-    categoriaRepository.save.mockResolvedValue(categoria);
-
-    const result = await service.inserirCategoria(categoria);
-
-    expect(categoriaRepository.save).toHaveBeenCalledWith(categoria);
-    expect(result).toBe(categoria);
-  });
-
-  it('deve lançar erro interno ao falhar inserção de categoria', async () => {
-    const categoria = Object.assign(new CategoriaProduto(), {
-      nome: 'Canecas',
-    });
-    categoriaRepository.save.mockRejectedValue(new Error('falha'));
-
-    await expect(service.inserirCategoria(categoria)).rejects.toThrow(
-      new InternalServerErrorException('Erro ao inserir categoria'),
-    );
-  });
-
-  it('deve verificar existência de categoria', async () => {
-    categoriaRepository.exists.mockResolvedValue(true);
-
-    const result = await service.existeCategoria(5);
-
-    expect(categoriaRepository.exists).toHaveBeenCalledWith({
-      where: { id: 5 },
-    });
-    expect(result).toBe(true);
-  });
-
   it('deve verificar existência de produto', async () => {
     produtoRepository.exists.mockResolvedValue(true);
 
@@ -239,46 +187,6 @@ describe('ProdutoService', () => {
       where: { id: 7 },
     });
     expect(result).toBe(true);
-  });
-
-  it('deve listar categorias', async () => {
-    const categorias = [Object.assign(new CategoriaProduto(), { id: 1 })];
-    const queryBuilder = {
-      orderBy: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([categorias, 1]),
-    };
-    categoriaRepository.createQueryBuilder.mockReturnValue(queryBuilder);
-
-    const result = await service.listarCategorias({
-      pagina: 1,
-      tamanhoPagina: 10,
-    });
-
-    expect(categoriaRepository.createQueryBuilder).toHaveBeenCalledWith(
-      'categoria',
-    );
-    expect(result).toEqual({
-      itens: categorias,
-      pagina: 1,
-      tamanhoPagina: 10,
-      totalItens: 1,
-      totalPaginas: 1,
-    });
-  });
-
-  it('deve buscar categoria por id', async () => {
-    const categoria = Object.assign(new CategoriaProduto(), { id: 2 });
-    categoriaRepository.findOne.mockResolvedValue(categoria);
-
-    const result = await service.obterCategoriaPorId(2);
-
-    expect(categoriaRepository.findOne).toHaveBeenCalledWith({
-      where: { id: 2 },
-    });
-    expect(result).toBe(categoria);
   });
 
   it('deve retornar detalhe do produto com estoque calculado', async () => {
@@ -309,58 +217,6 @@ describe('ProdutoService', () => {
     produtoRepository.findOne.mockResolvedValue(null);
 
     await expect(service.obterDetalheProdutoPorId(99)).rejects.toThrow(
-      new NotFoundException('Produto com ID 99 não encontrado'),
-    );
-  });
-
-  it('deve registrar entrada de estoque', async () => {
-    produtoRepository.exists.mockResolvedValue(true);
-    movimentacaoEstoqueRepository.save.mockResolvedValue(undefined);
-
-    await service.entradaEstoque(1, 10, OrigemMovimentacaoEstoque.COMPRA);
-
-    expect(movimentacaoEstoqueRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        idProduto: 1,
-        quantidade: 10,
-        tipo: TipoMovimentacaoEstoque.ENTRADA,
-        origem: OrigemMovimentacaoEstoque.COMPRA,
-      }),
-    );
-  });
-
-  it('deve registrar saída de estoque', async () => {
-    produtoRepository.exists.mockResolvedValue(true);
-    movimentacaoEstoqueRepository.save.mockResolvedValue(undefined);
-
-    await service.saidaEstoque(1, 2, OrigemMovimentacaoEstoque.PERDA);
-
-    expect(movimentacaoEstoqueRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        idProduto: 1,
-        quantidade: 2,
-        tipo: TipoMovimentacaoEstoque.SAIDA,
-        origem: OrigemMovimentacaoEstoque.PERDA,
-      }),
-    );
-  });
-
-  it('deve lançar erro ao registrar entrada em produto inexistente', async () => {
-    produtoRepository.exists.mockResolvedValue(false);
-
-    await expect(
-      service.entradaEstoque(99, 10, OrigemMovimentacaoEstoque.COMPRA),
-    ).rejects.toThrow(
-      new NotFoundException('Produto com ID 99 não encontrado'),
-    );
-  });
-
-  it('deve lançar erro ao registrar saída em produto inexistente', async () => {
-    produtoRepository.exists.mockResolvedValue(false);
-
-    await expect(
-      service.saidaEstoque(99, 2, OrigemMovimentacaoEstoque.PERDA),
-    ).rejects.toThrow(
       new NotFoundException('Produto com ID 99 não encontrado'),
     );
   });

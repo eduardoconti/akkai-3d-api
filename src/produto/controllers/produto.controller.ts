@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
@@ -27,7 +18,11 @@ import {
   SaidaEstoqueDto,
 } from '@produto/dto';
 import { CategoriaProduto, Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import {
+  CategoriaProdutoService,
+  EstoqueService,
+  ProdutoService,
+} from '@produto/services';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
@@ -52,6 +47,8 @@ export class ProdutoController {
     private readonly alterarCategoriaProdutoUseCase: AlterarCategoriaProdutoUseCase,
     private readonly inserirCategoriaProdutoUseCase: InserirCategoriaProdutoUseCase,
     private readonly produtoService: ProdutoService,
+    private readonly categoriaProdutoService: CategoriaProdutoService,
+    private readonly estoqueService: EstoqueService,
   ) {}
 
   @ApiInserirProdutoDocs()
@@ -82,7 +79,7 @@ export class ProdutoController {
   async listarCategorias(
     @Query() pesquisa: PesquisarCategoriasDto,
   ): Promise<ResultadoPaginado<CategoriaProduto>> {
-    return await this.produtoService.listarCategorias(pesquisa);
+    return await this.categoriaProdutoService.listarCategorias(pesquisa);
   }
 
   @ApiInserirCategoriaDocs()
@@ -98,13 +95,7 @@ export class ProdutoController {
   async obterCategoriaPorId(
     @Param('id') id: number,
   ): Promise<CategoriaProduto> {
-    const categoria = await this.produtoService.obterCategoriaPorId(id);
-
-    if (!categoria) {
-      throw new NotFoundException(`Categoria com ID ${id} não encontrada.`);
-    }
-
-    return categoria;
+    return await this.categoriaProdutoService.garantirCategoriaPorId(id);
   }
 
   @ApiAlterarCategoriaDocs()
@@ -128,7 +119,7 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: EntradaEstoqueDto,
   ) {
-    return await this.produtoService.entradaEstoque(id, quantidade, origem);
+    return await this.estoqueService.entradaEstoque(id, quantidade, origem);
   }
 
   @ApiSaidaEstoqueDocs()
@@ -137,6 +128,6 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: SaidaEstoqueDto,
   ) {
-    return await this.produtoService.saidaEstoque(id, quantidade, origem);
+    return await this.estoqueService.saidaEstoque(id, quantidade, origem);
   }
 }

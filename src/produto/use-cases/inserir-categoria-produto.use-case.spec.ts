@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { CategoriaProduto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService } from '@produto/services';
 import {
   InserirCategoriaProdutoInput,
   InserirCategoriaProdutoUseCase,
@@ -8,31 +8,26 @@ import {
 
 describe('InserirCategoriaProdutoUseCase', () => {
   let useCase: InserirCategoriaProdutoUseCase;
-  let existeCategoriaMock: jest.MockedFunction<
-    (idCategoria: number) => Promise<boolean>
+  let garantirExisteCategoriaMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
   let salvarCategoriaMock: jest.MockedFunction<
     (categoria: CategoriaProduto) => Promise<CategoriaProduto>
   >;
 
   beforeEach(() => {
-    existeCategoriaMock = jest.fn<Promise<boolean>, [number]>();
+    garantirExisteCategoriaMock = jest.fn<Promise<void>, [number]>();
     salvarCategoriaMock = jest.fn<
       Promise<CategoriaProduto>,
       [CategoriaProduto]
     >();
 
-    const produtoService: Pick<
-      ProdutoService,
-      'existeCategoria' | 'salvarCategoria'
-    > = {
-      existeCategoria: existeCategoriaMock,
+    const categoriaProdutoService = {
+      garantirExisteCategoria: garantirExisteCategoriaMock,
       salvarCategoria: salvarCategoriaMock,
-    };
+    } as unknown as CategoriaProdutoService;
 
-    useCase = new InserirCategoriaProdutoUseCase(
-      produtoService as ProdutoService,
-    );
+    useCase = new InserirCategoriaProdutoUseCase(categoriaProdutoService);
   });
 
   it('deve inserir categoria sem categoria pai', async () => {
@@ -47,7 +42,7 @@ describe('InserirCategoriaProdutoUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(existeCategoriaMock).not.toHaveBeenCalled();
+    expect(garantirExisteCategoriaMock).not.toHaveBeenCalled();
     expect(salvarCategoriaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Canecas',
@@ -63,7 +58,7 @@ describe('InserirCategoriaProdutoUseCase', () => {
       idAscendente: 5,
     };
 
-    existeCategoriaMock.mockResolvedValue(true);
+    garantirExisteCategoriaMock.mockResolvedValue(undefined);
     salvarCategoriaMock.mockResolvedValue(
       Object.assign(new CategoriaProduto(), {
         id: 6,
@@ -74,7 +69,7 @@ describe('InserirCategoriaProdutoUseCase', () => {
 
     await useCase.execute(input);
 
-    expect(existeCategoriaMock).toHaveBeenCalledWith(5);
+    expect(garantirExisteCategoriaMock).toHaveBeenCalledWith(5);
     expect(salvarCategoriaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Canecas Termicas',
@@ -84,7 +79,9 @@ describe('InserirCategoriaProdutoUseCase', () => {
   });
 
   it('deve lançar erro quando a categoria pai não existe', async () => {
-    existeCategoriaMock.mockResolvedValue(false);
+    garantirExisteCategoriaMock.mockRejectedValue(
+      new NotFoundException('Categoria ascendente com ID 5 não encontrada.'),
+    );
 
     await expect(
       useCase.execute({

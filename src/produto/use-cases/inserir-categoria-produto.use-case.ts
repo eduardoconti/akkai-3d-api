@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CategoriaProduto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService } from '@produto/services';
 
 export interface InserirCategoriaProdutoInput {
   nome: string;
@@ -9,27 +9,23 @@ export interface InserirCategoriaProdutoInput {
 
 @Injectable()
 export class InserirCategoriaProdutoUseCase {
-  constructor(private readonly produtoService: ProdutoService) {}
+  constructor(
+    private readonly categoriaProdutoService: CategoriaProdutoService,
+  ) {}
 
   async execute(
     input: InserirCategoriaProdutoInput,
   ): Promise<CategoriaProduto> {
     if (input.idAscendente !== undefined) {
-      const categoriaPaiExiste = await this.produtoService.existeCategoria(
+      await this.categoriaProdutoService.garantirExisteCategoria(
         input.idAscendente,
       );
-
-      if (!categoriaPaiExiste) {
-        throw new NotFoundException(
-          `Categoria ascendente com ID ${input.idAscendente} não encontrada.`,
-        );
-      }
     }
 
     const categoria = new CategoriaProduto();
     categoria.nome = input.nome;
     categoria.idAscendente = input.idAscendente;
 
-    return this.produtoService.salvarCategoria(categoria);
+    return this.categoriaProdutoService.salvarCategoria(categoria);
   }
 }

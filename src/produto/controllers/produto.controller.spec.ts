@@ -7,7 +7,11 @@ import {
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
 } from '@produto/use-cases';
-import { ProdutoService } from '@produto/services';
+import {
+  CategoriaProdutoService,
+  EstoqueService,
+  ProdutoService,
+} from '@produto/services';
 import { DetalheProdutoDto, ListarProdutoDto } from '@produto/dto';
 
 describe('ProdutoController', () => {
@@ -18,9 +22,13 @@ describe('ProdutoController', () => {
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
-    listarCategorias: jest.Mock;
-    obterCategoriaPorId: jest.Mock;
     obterDetalheProdutoPorId: jest.Mock;
+  };
+  let categoriaProdutoService: {
+    listarCategorias: jest.Mock;
+    garantirCategoriaPorId: jest.Mock;
+  };
+  let estoqueService: {
     entradaEstoque: jest.Mock;
     saidaEstoque: jest.Mock;
   };
@@ -32,9 +40,13 @@ describe('ProdutoController', () => {
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
-      listarCategorias: jest.fn(),
-      obterCategoriaPorId: jest.fn(),
       obterDetalheProdutoPorId: jest.fn(),
+    };
+    categoriaProdutoService = {
+      listarCategorias: jest.fn(),
+      garantirCategoriaPorId: jest.fn(),
+    };
+    estoqueService = {
       entradaEstoque: jest.fn(),
       saidaEstoque: jest.fn(),
     };
@@ -61,6 +73,14 @@ describe('ProdutoController', () => {
         {
           provide: ProdutoService,
           useValue: produtoService,
+        },
+        {
+          provide: CategoriaProdutoService,
+          useValue: categoriaProdutoService,
+        },
+        {
+          provide: EstoqueService,
+          useValue: estoqueService,
         },
       ],
     }).compile();
@@ -147,14 +167,14 @@ describe('ProdutoController', () => {
       totalItens: 1,
       totalPaginas: 1,
     };
-    produtoService.listarCategorias.mockResolvedValue(resposta);
+    categoriaProdutoService.listarCategorias.mockResolvedValue(resposta);
 
     const result = await controller.listarCategorias({
       pagina: 1,
       tamanhoPagina: 10,
     });
 
-    expect(produtoService.listarCategorias).toHaveBeenCalledWith({
+    expect(categoriaProdutoService.listarCategorias).toHaveBeenCalledWith({
       pagina: 1,
       tamanhoPagina: 10,
     });
@@ -178,11 +198,13 @@ describe('ProdutoController', () => {
       nome: 'Canecas',
       idAscendente: 1,
     });
-    produtoService.obterCategoriaPorId.mockResolvedValue(categoria);
+    categoriaProdutoService.garantirCategoriaPorId.mockResolvedValue(categoria);
 
     const result = await controller.obterCategoriaPorId(2);
 
-    expect(produtoService.obterCategoriaPorId).toHaveBeenCalledWith(2);
+    expect(categoriaProdutoService.garantirCategoriaPorId).toHaveBeenCalledWith(
+      2,
+    );
     expect(result).toBe(categoria);
   });
 
@@ -222,14 +244,14 @@ describe('ProdutoController', () => {
   });
 
   it('deve delegar entrada de estoque', async () => {
-    produtoService.entradaEstoque.mockResolvedValue(undefined);
+    estoqueService.entradaEstoque.mockResolvedValue(undefined);
 
     await controller.entradaEstoque(1, {
       quantidade: 10,
       origem: OrigemMovimentacaoEstoque.COMPRA,
     });
 
-    expect(produtoService.entradaEstoque).toHaveBeenCalledWith(
+    expect(estoqueService.entradaEstoque).toHaveBeenCalledWith(
       1,
       10,
       OrigemMovimentacaoEstoque.COMPRA,
@@ -237,14 +259,14 @@ describe('ProdutoController', () => {
   });
 
   it('deve delegar saída de estoque', async () => {
-    produtoService.saidaEstoque.mockResolvedValue(undefined);
+    estoqueService.saidaEstoque.mockResolvedValue(undefined);
 
     await controller.saidaEstoque(1, {
       quantidade: 2,
       origem: OrigemMovimentacaoEstoque.PERDA,
     });
 
-    expect(produtoService.saidaEstoque).toHaveBeenCalledWith(
+    expect(estoqueService.saidaEstoque).toHaveBeenCalledWith(
       1,
       2,
       OrigemMovimentacaoEstoque.PERDA,

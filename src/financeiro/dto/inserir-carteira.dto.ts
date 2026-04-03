@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsOptional,
@@ -7,6 +8,9 @@ import {
 } from 'class-validator';
 
 export class InserirCarteiraDto {
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  )
   @IsString({ message: 'O nome da carteira deve ser um texto.' })
   @MinLength(2, {
     message: 'O nome da carteira deve ter pelo menos 2 caracteres.',

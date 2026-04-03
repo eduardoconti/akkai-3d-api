@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { FinanceiroService } from '@financeiro/services';
 import {
   OrigemMovimentacaoEstoque,
@@ -7,7 +8,7 @@ import {
 import { ProdutoService } from '@produto/services';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
-import { VendaService } from '@venda/services';
+import { FeiraService, VendaService } from '@venda/services';
 import {
   ExecutarInserirVendaInput,
   InserirVendaUseCase,
@@ -18,14 +19,14 @@ describe('InserirVendaUseCase', () => {
   let inserirVendaMock: jest.MockedFunction<
     (venda: Venda, movimentacoes: MovimentacaoEstoque[]) => Promise<Venda>
   >;
-  let existeFeiraMock: jest.MockedFunction<
-    (idFeira: number) => Promise<boolean>
+  let garantirExisteFeiraMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
-  let existeCarteiraMock: jest.MockedFunction<
-    (idCarteira: number) => Promise<boolean>
+  let garantirExisteCarteiraMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
-  let obterProdutoPorIdMock: jest.MockedFunction<
-    (id: number) => Promise<Produto | null>
+  let garantirExisteProdutoMock: jest.MockedFunction<
+    (id: number) => Promise<Produto>
   >;
 
   beforeEach(() => {
@@ -33,25 +34,31 @@ describe('InserirVendaUseCase', () => {
       Promise<Venda>,
       [Venda, MovimentacaoEstoque[]]
     >();
-    existeFeiraMock = jest.fn<Promise<boolean>, [number]>();
-    existeCarteiraMock = jest.fn<Promise<boolean>, [number]>();
-    obterProdutoPorIdMock = jest.fn<Promise<Produto | null>, [number]>();
+    garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
+    garantirExisteCarteiraMock = jest.fn<Promise<void>, [number]>();
+    garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
 
-    const vendaService: Pick<VendaService, 'inserirVenda' | 'existeFeira'> = {
+    const vendaService = {
       inserirVenda: inserirVendaMock,
-      existeFeira: existeFeiraMock,
-    };
-    const produtoService: Pick<ProdutoService, 'obterProdutoPorId'> = {
-      obterProdutoPorId: obterProdutoPorIdMock,
-    };
-    const financeiroService: Pick<FinanceiroService, 'existeCarteira'> = {
-      existeCarteira: existeCarteiraMock,
-    };
+    } as unknown as VendaService;
+
+    const feiraService = {
+      garantirExisteFeira: garantirExisteFeiraMock,
+    } as unknown as FeiraService;
+
+    const produtoService = {
+      garantirExisteProduto: garantirExisteProdutoMock,
+    } as unknown as ProdutoService;
+
+    const financeiroService = {
+      garantirExisteCarteira: garantirExisteCarteiraMock,
+    } as unknown as FinanceiroService;
 
     useCase = new InserirVendaUseCase(
-      vendaService as VendaService,
-      produtoService as ProdutoService,
-      financeiroService as FinanceiroService,
+      vendaService,
+      feiraService,
+      produtoService,
+      financeiroService,
     );
   });
 
@@ -71,7 +78,7 @@ describe('InserirVendaUseCase', () => {
     const vendaPersistida = new Venda();
     vendaPersistida.id = 1;
 
-    obterProdutoPorIdMock.mockResolvedValue(
+    garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
@@ -80,14 +87,13 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    existeCarteiraMock.mockResolvedValue(true);
-    existeFeiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute(input);
 
-    expect(obterProdutoPorIdMock).toHaveBeenCalledWith(1);
-    expect(existeCarteiraMock).toHaveBeenCalledWith(1);
+    expect(garantirExisteProdutoMock).toHaveBeenCalledWith(1);
+    expect(garantirExisteCarteiraMock).toHaveBeenCalledWith(1);
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoVenda.LOJA,
@@ -119,7 +125,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve usar desconto zero quando nao informado', async () => {
-    obterProdutoPorIdMock.mockResolvedValue(
+    garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
@@ -128,8 +134,7 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    existeCarteiraMock.mockResolvedValue(true);
-    existeFeiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
@@ -158,7 +163,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve validar a existência da feira quando idFeira for informado', async () => {
-    obterProdutoPorIdMock.mockResolvedValue(
+    garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
@@ -167,8 +172,8 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    existeCarteiraMock.mockResolvedValue(true);
-    existeFeiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirExisteFeiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
@@ -179,7 +184,7 @@ describe('InserirVendaUseCase', () => {
       itens: [{ idProduto: 1, quantidade: 1 }],
     });
 
-    expect(existeFeiraMock).toHaveBeenCalledWith(3);
+    expect(garantirExisteFeiraMock).toHaveBeenCalledWith(3);
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idFeira: 3,
@@ -189,7 +194,9 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando carteira não existir', async () => {
-    existeCarteiraMock.mockResolvedValue(false);
+    garantirExisteCarteiraMock.mockRejectedValue(
+      new NotFoundException('Carteira com ID 99 não encontrada.'),
+    );
 
     await expect(
       useCase.execute({
@@ -202,8 +209,10 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando feira não existir', async () => {
-    existeCarteiraMock.mockResolvedValue(true);
-    existeFeiraMock.mockResolvedValue(false);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirExisteFeiraMock.mockRejectedValue(
+      new NotFoundException('Feira com ID 99 não encontrada.'),
+    );
 
     await expect(
       useCase.execute({
@@ -217,8 +226,10 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando produto não existir', async () => {
-    existeCarteiraMock.mockResolvedValue(true);
-    obterProdutoPorIdMock.mockResolvedValue(null);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirExisteProdutoMock.mockRejectedValue(
+      new NotFoundException('Produto com ID 99 não encontrado.'),
+    );
 
     await expect(
       useCase.execute({
@@ -232,7 +243,7 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda com item avulso sem movimentar estoque', async () => {
     inserirVendaMock.mockResolvedValue(new Venda());
-    existeCarteiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
 
     await useCase.execute({
       meioPagamento: MeioPagamento.PIX,
@@ -247,7 +258,7 @@ describe('InserirVendaUseCase', () => {
       ],
     });
 
-    expect(obterProdutoPorIdMock).not.toHaveBeenCalled();
+    expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         valorTotal: 4500,
@@ -269,7 +280,7 @@ describe('InserirVendaUseCase', () => {
     const vendaPersistida = new Venda();
     vendaPersistida.id = 2;
 
-    obterProdutoPorIdMock.mockResolvedValue(
+    garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
@@ -278,7 +289,7 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    existeCarteiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute({

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InserirDespesaDto } from '@financeiro/dto';
 import { Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
@@ -8,15 +8,7 @@ export class InserirDespesaUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
   async execute(input: InserirDespesaDto): Promise<Despesa> {
-    const carteiraExiste = await this.financeiroService.existeCarteira(
-      input.idCarteira,
-    );
-
-    if (!carteiraExiste) {
-      throw new NotFoundException(
-        `Carteira com ID ${input.idCarteira} não encontrada.`,
-      );
-    }
+    await this.financeiroService.garantirExisteCarteira(input.idCarteira);
 
     const despesa = new Despesa();
     despesa.dataLancamento = new Date(`${input.dataLancamento}T00:00:00.000`);

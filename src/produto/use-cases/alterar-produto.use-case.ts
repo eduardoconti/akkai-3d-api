@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 
 export interface AlterarProdutoInput {
   nome: string;
@@ -13,24 +13,17 @@ export interface AlterarProdutoInput {
 
 @Injectable()
 export class AlterarProdutoUseCase {
-  constructor(private readonly produtoService: ProdutoService) {}
+  constructor(
+    private readonly produtoService: ProdutoService,
+    private readonly categoriaProdutoService: CategoriaProdutoService,
+  ) {}
 
   async execute(id: number, input: AlterarProdutoInput): Promise<Produto> {
-    const produto = await this.produtoService.obterProdutoPorId(id);
+    const produto = await this.produtoService.garantirExisteProduto(id);
 
-    if (!produto) {
-      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
-    }
-
-    const categoriaExiste = await this.produtoService.existeCategoria(
+    await this.categoriaProdutoService.garantirExisteCategoria(
       input.idCategoria,
     );
-
-    if (!categoriaExiste) {
-      throw new NotFoundException(
-        `Categoria com ID ${input.idCategoria} não encontrada.`,
-      );
-    }
 
     produto.nome = input.nome;
     produto.codigo = input.codigo;

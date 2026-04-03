@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ProdutoController } from '@produto/controllers';
-import { ProdutoService } from '@produto/services';
+import {
+  CategoriaProdutoService,
+  EstoqueService,
+  ProdutoService,
+} from '@produto/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CategoriaProduto,
@@ -21,11 +25,13 @@ import {
   controllers: [ProdutoController],
   providers: [
     ProdutoService,
+    CategoriaProdutoService,
+    EstoqueService,
     AlterarCategoriaProdutoUseCase,
     InserirProdutoUseCase,
     AlterarProdutoUseCase,
     InserirCategoriaProdutoUseCase,
   ],
-  exports: [ProdutoService],
+  exports: [ProdutoService, CategoriaProdutoService, EstoqueService],
 })
 export class ProdutoModule {}

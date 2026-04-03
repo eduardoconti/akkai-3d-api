@@ -15,7 +15,7 @@ describe('InserirCarteiraUseCase', () => {
     useCase = new InserirCarteiraUseCase(financeiroService as never);
   });
 
-  it('deve inserir carteira com nome normalizado', async () => {
+  it('deve inserir carteira com nome fornecido pelo DTO', async () => {
     const carteira = Object.assign(new Carteira(), {
       id: 1,
       nome: 'NUBANK PIX',
@@ -24,7 +24,7 @@ describe('InserirCarteiraUseCase', () => {
     financeiroService.salvarCarteira.mockResolvedValue(carteira);
 
     const result = await useCase.execute({
-      nome: '  Nubank Pix ',
+      nome: 'NUBANK PIX',
       ativa: true,
     });
 
@@ -45,7 +45,7 @@ describe('InserirCarteiraUseCase', () => {
     });
     financeiroService.salvarCarteira.mockResolvedValue(carteira);
 
-    await useCase.execute({ nome: 'Caixa' });
+    await useCase.execute({ nome: 'CAIXA' });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true }),

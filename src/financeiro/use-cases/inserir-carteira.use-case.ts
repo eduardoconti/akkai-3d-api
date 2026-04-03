@@ -9,7 +9,7 @@ export class InserirCarteiraUseCase {
 
   async execute(input: InserirCarteiraDto): Promise<Carteira> {
     const carteira = new Carteira();
-    carteira.nome = input.nome.trim().toUpperCase();
+    carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? true;
 
     return this.financeiroService.salvarCarteira(carteira);

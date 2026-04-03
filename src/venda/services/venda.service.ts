@@ -1,16 +1,16 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { Feira, Venda } from '@venda/entities';
+import { Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { PesquisarVendasDto } from '@venda/dto';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { calcularOffset } from '../../common/utils/paginacao.util';
 
 @Injectable()
 export class VendaService {
@@ -19,36 +19,10 @@ export class VendaService {
   constructor(
     @InjectRepository(Venda)
     private readonly vendaRepository: Repository<Venda>,
-    @InjectRepository(Feira)
-    private readonly feiraRepository: Repository<Feira>,
     @InjectRepository(Carteira)
     private readonly carteiraRepository: Repository<Carteira>,
     private readonly dataSource: DataSource,
   ) {}
-
-  async inserirFeira(feira: Feira): Promise<Feira> {
-    return this.feiraRepository.save(feira).catch((error) => {
-      this.logger.error('Erro ao inserir feira', error);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (error.driverError?.code === '23505') {
-        throw new ConflictException(`Feira ${feira.nome} já existe`);
-      }
-
-      throw new InternalServerErrorException('Erro ao inserir feira');
-    });
-  }
-
-  async existeFeira(idFeira: number): Promise<boolean> {
-    return this.feiraRepository.exists({
-      where: { id: idFeira },
-    });
-  }
-
-  async listarFeiras(): Promise<Feira[]> {
-    return await this.feiraRepository.find({
-      order: { nome: 'ASC' },
-    });
-  }
 
   async existeCarteira(idCarteira: number): Promise<boolean> {
     return this.carteiraRepository.exists({
@@ -83,7 +57,7 @@ export class VendaService {
   async listarVendas(
     pesquisa: PesquisarVendasDto,
   ): Promise<ResultadoPaginado<Venda>> {
-    const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
+    const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
     const termo = pesquisa.termo?.toLowerCase();
 
     const queryBuilder = this.vendaRepository

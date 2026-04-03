@@ -6,31 +6,28 @@ import { MeioPagamento } from '@venda/entities';
 
 describe('InserirDespesaUseCase', () => {
   let useCase: InserirDespesaUseCase;
-  let existeCarteiraMock: jest.MockedFunction<
-    (idCarteira: number) => Promise<boolean>
+  let garantirExisteCarteiraMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
   let inserirDespesaMock: jest.MockedFunction<
     (despesa: Despesa) => Promise<Despesa>
   >;
 
   beforeEach(() => {
-    existeCarteiraMock = jest.fn<Promise<boolean>, [number]>();
+    garantirExisteCarteiraMock = jest.fn<Promise<void>, [number]>();
     inserirDespesaMock = jest.fn<Promise<Despesa>, [Despesa]>();
 
-    const financeiroService: Pick<
-      FinanceiroService,
-      'existeCarteira' | 'inserirDespesa'
-    > = {
-      existeCarteira: existeCarteiraMock,
+    const financeiroService = {
+      garantirExisteCarteira: garantirExisteCarteiraMock,
       inserirDespesa: inserirDespesaMock,
-    };
+    } as unknown as FinanceiroService;
 
-    useCase = new InserirDespesaUseCase(financeiroService as FinanceiroService);
+    useCase = new InserirDespesaUseCase(financeiroService);
   });
 
   it('deve inserir despesa quando a carteira existir', async () => {
     const despesaPersistida = Object.assign(new Despesa(), { id: 1 });
-    existeCarteiraMock.mockResolvedValue(true);
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
     inserirDespesaMock.mockResolvedValue(despesaPersistida);
 
     const result = await useCase.execute({
@@ -43,7 +40,7 @@ describe('InserirDespesaUseCase', () => {
       observacao: 'Reposição',
     });
 
-    expect(existeCarteiraMock).toHaveBeenCalledWith(2);
+    expect(garantirExisteCarteiraMock).toHaveBeenCalledWith(2);
     expect(inserirDespesaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         descricao: 'Filamento PLA',
@@ -58,7 +55,9 @@ describe('InserirDespesaUseCase', () => {
   });
 
   it('deve lançar erro quando a carteira não existir', async () => {
-    existeCarteiraMock.mockResolvedValue(false);
+    garantirExisteCarteiraMock.mockRejectedValue(
+      new NotFoundException('Carteira com ID 2 não encontrada.'),
+    );
 
     await expect(
       useCase.execute({

@@ -12,8 +12,8 @@ import {
   Venda,
   ItemVenda,
 } from '@venda/entities';
-import { VendaService } from '@venda/services';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { FeiraService, VendaService } from '@venda/services';
+import { Injectable } from '@nestjs/common';
 
 export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;
@@ -33,31 +33,18 @@ export interface ExecutarInserirVendaInput {
 export class InserirVendaUseCase {
   constructor(
     private readonly vendaService: VendaService,
+    private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
     private readonly financeiroService: FinanceiroService,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
-    const carteiraExiste = await this.financeiroService.existeCarteira(
+    await this.financeiroService.garantirExisteCarteira(
       inserirVendaInput.idCarteira,
     );
 
-    if (!carteiraExiste) {
-      throw new NotFoundException(
-        `Carteira com ID ${inserirVendaInput.idCarteira} não encontrada.`,
-      );
-    }
-
     if (inserirVendaInput.idFeira !== undefined) {
-      const feiraExiste = await this.vendaService.existeFeira(
-        inserirVendaInput.idFeira,
-      );
-
-      if (!feiraExiste) {
-        throw new NotFoundException(
-          `Feira com ID ${inserirVendaInput.idFeira} não encontrada.`,
-        );
-      }
+      await this.feiraService.garantirExisteFeira(inserirVendaInput.idFeira);
     }
 
     const itensVenda: ItemVenda[] = [];
@@ -76,15 +63,9 @@ export class InserirVendaUseCase {
         continue;
       }
 
-      const produto = await this.produtoService.obterProdutoPorId(
+      const produto = await this.produtoService.garantirExisteProduto(
         item.idProduto,
       );
-
-      if (!produto) {
-        throw new NotFoundException(
-          `Produto com ID ${item.idProduto} não encontrado.`,
-        );
-      }
 
       const itemVenda = ItemVenda.criar({
         idProduto: item.idProduto,

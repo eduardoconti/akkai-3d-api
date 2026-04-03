@@ -1,36 +1,25 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriaProduto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService } from '@produto/services';
 import { AlterarCategoriaProdutoUseCase } from './alterar-categoria-produto.use-case';
 
 describe('AlterarCategoriaProdutoUseCase', () => {
   let useCase: AlterarCategoriaProdutoUseCase;
-  let produtoService: {
-    obterCategoriaPorId: jest.Mock;
-    existeCategoria: jest.Mock;
+  let categoriaProdutoService: {
+    garantirCategoriaPorId: jest.Mock;
+    garantirExisteCategoria: jest.Mock;
     salvarCategoria: jest.Mock;
   };
 
-  beforeEach(async () => {
-    produtoService = {
-      obterCategoriaPorId: jest.fn(),
-      existeCategoria: jest.fn(),
+  beforeEach(() => {
+    categoriaProdutoService = {
+      garantirCategoriaPorId: jest.fn(),
+      garantirExisteCategoria: jest.fn(),
       salvarCategoria: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AlterarCategoriaProdutoUseCase,
-        {
-          provide: ProdutoService,
-          useValue: produtoService,
-        },
-      ],
-    }).compile();
-
-    useCase = module.get<AlterarCategoriaProdutoUseCase>(
-      AlterarCategoriaProdutoUseCase,
+    useCase = new AlterarCategoriaProdutoUseCase(
+      categoriaProdutoService as unknown as CategoriaProdutoService,
     );
   });
 
@@ -40,9 +29,11 @@ describe('AlterarCategoriaProdutoUseCase', () => {
       nome: 'FIDGET TOYS',
       idAscendente: undefined,
     });
-    produtoService.obterCategoriaPorId.mockResolvedValue(categoria);
-    produtoService.existeCategoria.mockResolvedValue(true);
-    produtoService.salvarCategoria.mockImplementation(
+    categoriaProdutoService.garantirCategoriaPorId.mockResolvedValue(categoria);
+    categoriaProdutoService.garantirExisteCategoria.mockResolvedValue(
+      undefined,
+    );
+    categoriaProdutoService.salvarCategoria.mockImplementation(
       (value: CategoriaProduto) => Promise.resolve(value),
     );
 
@@ -51,9 +42,13 @@ describe('AlterarCategoriaProdutoUseCase', () => {
       idAscendente: 1,
     });
 
-    expect(produtoService.obterCategoriaPorId).toHaveBeenCalledWith(3);
-    expect(produtoService.existeCategoria).toHaveBeenCalledWith(1);
-    expect(produtoService.salvarCategoria).toHaveBeenCalledWith(
+    expect(categoriaProdutoService.garantirCategoriaPorId).toHaveBeenCalledWith(
+      3,
+    );
+    expect(
+      categoriaProdutoService.garantirExisteCategoria,
+    ).toHaveBeenCalledWith(1);
+    expect(categoriaProdutoService.salvarCategoria).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 3,
         nome: 'FIDGET PREMIUM',
@@ -70,7 +65,9 @@ describe('AlterarCategoriaProdutoUseCase', () => {
   });
 
   it('deve lançar erro quando categoria não existe', async () => {
-    produtoService.obterCategoriaPorId.mockResolvedValue(null);
+    categoriaProdutoService.garantirCategoriaPorId.mockRejectedValue(
+      new NotFoundException('Categoria com ID 99 não encontrada.'),
+    );
 
     await expect(
       useCase.execute(99, { nome: 'FIDGET PREMIUM' }),
@@ -80,20 +77,20 @@ describe('AlterarCategoriaProdutoUseCase', () => {
   });
 
   it('deve lançar erro quando categoria ascendente não existe', async () => {
-    produtoService.obterCategoriaPorId.mockResolvedValue(
+    categoriaProdutoService.garantirCategoriaPorId.mockResolvedValue(
       Object.assign(new CategoriaProduto(), { id: 3 }),
     );
-    produtoService.existeCategoria.mockResolvedValue(false);
+    categoriaProdutoService.garantirExisteCategoria.mockRejectedValue(
+      new NotFoundException('Categoria com ID 5 não encontrada.'),
+    );
 
     await expect(
       useCase.execute(3, { nome: 'FIDGET PREMIUM', idAscendente: 5 }),
-    ).rejects.toThrow(
-      new NotFoundException('Categoria ascendente com ID 5 não encontrada.'),
-    );
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('deve lançar erro quando categoria aponta para ela mesma', async () => {
-    produtoService.obterCategoriaPorId.mockResolvedValue(
+    categoriaProdutoService.garantirCategoriaPorId.mockResolvedValue(
       Object.assign(new CategoriaProduto(), { id: 3 }),
     );
 

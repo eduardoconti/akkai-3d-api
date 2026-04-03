@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Feira } from '@venda/entities';
-import { VendaService } from '@venda/services';
+import { FeiraService } from '@venda/services';
 
 export interface InserirFeiraInput {
   nome: string;
@@ -11,7 +11,7 @@ export interface InserirFeiraInput {
 
 @Injectable()
 export class InserirFeiraUseCase {
-  constructor(private readonly vendaService: VendaService) {}
+  constructor(private readonly feiraService: FeiraService) {}
 
   async execute(input: InserirFeiraInput): Promise<Feira> {
     const feira = new Feira();
@@ -20,6 +20,6 @@ export class InserirFeiraUseCase {
     feira.descricao = input.descricao;
     feira.ativa = input.ativa ?? true;
 
-    return this.vendaService.inserirFeira(feira);
+    return this.feiraService.inserirFeira(feira);
   }
 }

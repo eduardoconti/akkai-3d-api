@@ -1,5 +1,5 @@
 import { Feira } from '@venda/entities';
-import { VendaService } from '@venda/services';
+import { FeiraService } from '@venda/services';
 import { InserirFeiraInput, InserirFeiraUseCase } from '@venda/use-cases';
 
 describe('InserirFeiraUseCase', () => {
@@ -9,11 +9,11 @@ describe('InserirFeiraUseCase', () => {
   beforeEach(() => {
     inserirFeiraMock = jest.fn<Promise<Feira>, [Feira]>();
 
-    const vendaService: Pick<VendaService, 'inserirFeira'> = {
+    const feiraService = {
       inserirFeira: inserirFeiraMock,
-    };
+    } as unknown as FeiraService;
 
-    useCase = new InserirFeiraUseCase(vendaService as VendaService);
+    useCase = new InserirFeiraUseCase(feiraService);
   });
 
   it('deve inserir feira com ativa true por padrão', async () => {

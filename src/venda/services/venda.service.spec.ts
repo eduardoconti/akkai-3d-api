@@ -1,21 +1,13 @@
 import { Carteira } from '@financeiro/entities';
-import {
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Feira, TipoVenda, Venda } from '@venda/entities';
+import { TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('VendaService', () => {
   let service: VendaService;
 
-  let feiraRepository: {
-    save: jest.Mock;
-    exists: jest.Mock;
-    find: jest.Mock;
-  };
   let carteiraRepository: {
     exists: jest.Mock;
   };
@@ -35,11 +27,6 @@ describe('VendaService', () => {
   };
 
   beforeEach(async () => {
-    feiraRepository = {
-      save: jest.fn(),
-      exists: jest.fn(),
-      find: jest.fn(),
-    };
     carteiraRepository = {
       exists: jest.fn(),
     };
@@ -73,10 +60,6 @@ describe('VendaService', () => {
       providers: [
         VendaService,
         {
-          provide: getRepositoryToken(Feira),
-          useValue: feiraRepository,
-        },
-        {
           provide: getRepositoryToken(Carteira),
           useValue: carteiraRepository,
         },
@@ -96,53 +79,6 @@ describe('VendaService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  it('deve inserir feira com sucesso', async () => {
-    const feira = Object.assign(new Feira(), {
-      id: 1,
-      nome: 'Teatro Reviver',
-    });
-    feiraRepository.save.mockResolvedValue(feira);
-
-    const result = await service.inserirFeira(feira);
-
-    expect(feiraRepository.save).toHaveBeenCalledWith(feira);
-    expect(result).toBe(feira);
-  });
-
-  it('deve lançar erro ao falhar inserção da feira', async () => {
-    const feira = Object.assign(new Feira(), {
-      nome: 'Teatro Reviver',
-    });
-    feiraRepository.save.mockRejectedValue(new Error('falha'));
-
-    await expect(service.inserirFeira(feira)).rejects.toThrow(
-      new InternalServerErrorException('Erro ao inserir feira'),
-    );
-  });
-
-  it('deve verificar existência de feira', async () => {
-    feiraRepository.exists.mockResolvedValue(true);
-
-    const result = await service.existeFeira(5);
-
-    expect(feiraRepository.exists).toHaveBeenCalledWith({
-      where: { id: 5 },
-    });
-    expect(result).toBe(true);
-  });
-
-  it('deve listar feiras ordenadas por nome', async () => {
-    const feiras = [Object.assign(new Feira(), { id: 1 })];
-    feiraRepository.find = jest.fn().mockResolvedValue(feiras);
-
-    const result = await service.listarFeiras();
-
-    expect(feiraRepository.find).toHaveBeenCalledWith({
-      order: { nome: 'ASC' },
-    });
-    expect(result).toBe(feiras);
   });
 
   it('deve verificar existência de carteira', async () => {
@@ -198,15 +134,6 @@ describe('VendaService', () => {
       totalItens: 1,
       totalPaginas: 1,
     });
-  });
-
-  it('deve lançar ConflictException ao inserir feira com nome duplicado', async () => {
-    const feira = Object.assign(new Feira(), { nome: 'Teatro Reviver' });
-    feiraRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
-
-    await expect(service.inserirFeira(feira)).rejects.toThrow(
-      new ConflictException('Feira Teatro Reviver já existe'),
-    );
   });
 
   it('deve listar vendas filtradas por tipo', async () => {

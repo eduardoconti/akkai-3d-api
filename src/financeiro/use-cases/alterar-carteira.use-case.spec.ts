@@ -5,13 +5,13 @@ import { AlterarCarteiraUseCase } from '@financeiro/use-cases';
 describe('AlterarCarteiraUseCase', () => {
   let useCase: AlterarCarteiraUseCase;
   let financeiroService: {
-    obterCarteiraPorId: jest.Mock;
+    garantirCarteiraPorId: jest.Mock;
     salvarCarteira: jest.Mock;
   };
 
   beforeEach(() => {
     financeiroService = {
-      obterCarteiraPorId: jest.fn(),
+      garantirCarteiraPorId: jest.fn(),
       salvarCarteira: jest.fn(),
     };
 
@@ -25,7 +25,7 @@ describe('AlterarCarteiraUseCase', () => {
       ativa: true,
     });
 
-    financeiroService.obterCarteiraPorId.mockResolvedValue(carteira);
+    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
     financeiroService.salvarCarteira.mockResolvedValue({
       ...carteira,
       nome: 'NUBANK PIX',
@@ -33,11 +33,11 @@ describe('AlterarCarteiraUseCase', () => {
     });
 
     const result = await useCase.execute(1, {
-      nome: 'Nubank Pix',
+      nome: 'NUBANK PIX',
       ativa: false,
     });
 
-    expect(financeiroService.obterCarteiraPorId).toHaveBeenCalledWith(1);
+    expect(financeiroService.garantirCarteiraPorId).toHaveBeenCalledWith(1);
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 1,
@@ -54,7 +54,9 @@ describe('AlterarCarteiraUseCase', () => {
   });
 
   it('deve lançar erro quando carteira não existir', async () => {
-    financeiroService.obterCarteiraPorId.mockResolvedValue(null);
+    financeiroService.garantirCarteiraPorId.mockRejectedValue(
+      new NotFoundException('Carteira não encontrada'),
+    );
 
     await expect(
       useCase.execute(99, {
@@ -69,13 +71,13 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
     });
-    financeiroService.obterCarteiraPorId.mockResolvedValue(carteira);
+    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
     financeiroService.salvarCarteira.mockResolvedValue({
       ...carteira,
       nome: 'NUBANK',
     });
 
-    await useCase.execute(1, { nome: 'Nubank' });
+    await useCase.execute(1, { nome: 'NUBANK' });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true }),

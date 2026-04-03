@@ -5,25 +5,6 @@ export class AddIndexes1775185541381 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "item_venda" DROP CONSTRAINT "ck_item_venda_desconto_nao_excede_bruto"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" DROP CONSTRAINT "ck_item_venda_desconto_nao_negativo"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" DROP CONSTRAINT "ck_item_venda_valor_total_consistente"`,
-    );
-    await queryRunner.query(
-      `UPDATE "item_venda" SET "valor_total" = "quantidade" * "valor_unitario"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" ADD CONSTRAINT "ck_item_venda_valor_total_consistente" CHECK (("valor_total" = ("quantidade" * "valor_unitario")))`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "role_permissions" DROP CONSTRAINT "uq_role_permissions_role_permission"`,
-    );
-    await queryRunner.query(`ALTER TABLE "item_venda" DROP COLUMN "desconto"`);
-    await queryRunner.query(
       `CREATE INDEX "idx_refresh_sessions_validacao" ON "refresh_sessions" ("user_id", "revoked_at", "expires_at") `,
     );
     await queryRunner.query(
@@ -85,18 +66,6 @@ export class AddIndexes1775185541381 implements MigrationInterface {
     );
     await queryRunner.query(
       `DROP INDEX "public"."idx_refresh_sessions_validacao"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" ADD "desconto" integer NOT NULL DEFAULT '0'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "role_permissions" ADD CONSTRAINT "uq_role_permissions_role_permission" UNIQUE ("role_id", "permission_id")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" ADD CONSTRAINT "ck_item_venda_desconto_nao_negativo" CHECK ((desconto >= 0))`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "item_venda" ADD CONSTRAINT "ck_item_venda_desconto_nao_excede_bruto" CHECK ((desconto <= (quantidade * valor_unitario)))`,
     );
   }
 }

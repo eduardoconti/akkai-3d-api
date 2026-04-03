@@ -1,33 +1,36 @@
 import { NotFoundException } from '@nestjs/common';
 import { Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 import { AlterarProdutoInput, AlterarProdutoUseCase } from '@produto/use-cases';
 
 describe('AlterarProdutoUseCase', () => {
   let useCase: AlterarProdutoUseCase;
-  let obterProdutoPorIdMock: jest.MockedFunction<
-    (id: number) => Promise<Produto | null>
+  let garantirExisteProdutoMock: jest.MockedFunction<
+    (id: number) => Promise<Produto>
   >;
-  let existeCategoriaMock: jest.MockedFunction<
-    (idCategoria: number) => Promise<boolean>
+  let garantirExisteCategoriaMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
   let salvarMock: jest.MockedFunction<(produto: Produto) => Promise<Produto>>;
 
   beforeEach(() => {
-    obterProdutoPorIdMock = jest.fn<Promise<Produto | null>, [number]>();
-    existeCategoriaMock = jest.fn<Promise<boolean>, [number]>();
+    garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
+    garantirExisteCategoriaMock = jest.fn<Promise<void>, [number]>();
     salvarMock = jest.fn<Promise<Produto>, [Produto]>();
 
-    const produtoService: Pick<
-      ProdutoService,
-      'obterProdutoPorId' | 'existeCategoria' | 'salvar'
-    > = {
-      obterProdutoPorId: obterProdutoPorIdMock,
-      existeCategoria: existeCategoriaMock,
+    const produtoService = {
+      garantirExisteProduto: garantirExisteProdutoMock,
       salvar: salvarMock,
-    };
+    } as unknown as ProdutoService;
 
-    useCase = new AlterarProdutoUseCase(produtoService as ProdutoService);
+    const categoriaProdutoService = {
+      garantirExisteCategoria: garantirExisteCategoriaMock,
+    } as unknown as CategoriaProdutoService;
+
+    useCase = new AlterarProdutoUseCase(
+      produtoService,
+      categoriaProdutoService,
+    );
   });
 
   it('deve alterar produto quando a categoria existe', async () => {
@@ -48,14 +51,14 @@ describe('AlterarProdutoUseCase', () => {
     produtoAtualizado.idCategoria = input.idCategoria;
     produtoAtualizado.valor = input.valor;
 
-    obterProdutoPorIdMock.mockResolvedValue(produtoAtualizado);
-    existeCategoriaMock.mockResolvedValue(true);
+    garantirExisteProdutoMock.mockResolvedValue(produtoAtualizado);
+    garantirExisteCategoriaMock.mockResolvedValue(undefined);
     salvarMock.mockResolvedValue(produtoAtualizado);
 
     const result = await useCase.execute(10, input);
 
-    expect(obterProdutoPorIdMock).toHaveBeenCalledWith(10);
-    expect(existeCategoriaMock).toHaveBeenCalledWith(2);
+    expect(garantirExisteProdutoMock).toHaveBeenCalledWith(10);
+    expect(garantirExisteCategoriaMock).toHaveBeenCalledWith(2);
     expect(salvarMock).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 10,
@@ -71,7 +74,9 @@ describe('AlterarProdutoUseCase', () => {
   });
 
   it('deve lançar erro quando o produto não existe', async () => {
-    obterProdutoPorIdMock.mockResolvedValue(null);
+    garantirExisteProdutoMock.mockRejectedValue(
+      new NotFoundException('Produto com ID 10 não encontrado'),
+    );
 
     await expect(
       useCase.execute(10, {
@@ -84,15 +89,17 @@ describe('AlterarProdutoUseCase', () => {
       new NotFoundException('Produto com ID 10 não encontrado'),
     );
 
-    expect(existeCategoriaMock).not.toHaveBeenCalled();
+    expect(garantirExisteCategoriaMock).not.toHaveBeenCalled();
     expect(salvarMock).not.toHaveBeenCalled();
   });
 
   it('deve lançar erro quando a categoria não existe', async () => {
-    obterProdutoPorIdMock.mockResolvedValue(
+    garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), { id: 10 }),
     );
-    existeCategoriaMock.mockResolvedValue(false);
+    garantirExisteCategoriaMock.mockRejectedValue(
+      new NotFoundException('Categoria com ID 99 não encontrada.'),
+    );
 
     await expect(
       useCase.execute(10, {

@@ -1,26 +1,15 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import {
-  CategoriaProduto,
-  MovimentacaoEstoque,
-  OrigemMovimentacaoEstoque,
-  Produto,
-  TipoMovimentacaoEstoque,
-} from '@produto/entities';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Produto } from '@produto/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   DetalheProdutoDto,
   ListarProdutoDto,
-  PesquisarCategoriasDto,
   PesquisarProdutosDto,
 } from '@produto/dto';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
+import { calcularOffset } from '../../common/utils/paginacao.util';
 
 @Injectable()
 export class ProdutoService {
@@ -29,19 +18,15 @@ export class ProdutoService {
   constructor(
     @InjectRepository(Produto)
     private readonly produtoRepository: Repository<Produto>,
-    @InjectRepository(CategoriaProduto)
-    private readonly categoriaRepository: Repository<CategoriaProduto>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
-    @InjectRepository(MovimentacaoEstoque)
-    private readonly movimentacaoEstoqueRepository: Repository<MovimentacaoEstoque>,
   ) {}
 
   async listarProdutos(
     pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     const termo = pesquisa.termo?.toLowerCase();
-    const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
+    const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
     const orderBy = pesquisa.ordenarPor === 'codigo' ? 'p.codigo' : 'p.nome';
     const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
     const filtros: string[] = [];
@@ -155,78 +140,30 @@ export class ProdutoService {
   }
 
   async salvar(produto: Produto): Promise<Produto> {
-    return this.produtoRepository.save(produto).catch((error) => {
+    return this.produtoRepository.save(produto).catch((error: unknown) => {
       this.logger.error('Erro ao salvar produto', error);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (error.driverError?.code === '23505') {
-        throw new ConflictException(`Código ${produto.codigo} já existe`);
-      }
-      throw new InternalServerErrorException(`Erro ao salvar produto`);
+      lancarExcecaoConflito(
+        error,
+        `Código ${produto.codigo} já existe`,
+        'Erro ao salvar produto',
+      );
     });
   }
 
   async obterProdutoPorId(id: number): Promise<Produto | null> {
-    return await this.produtoRepository.findOne({ where: { id } });
+    return this.produtoRepository.findOne({ where: { id } });
+  }
+
+  async garantirExisteProduto(id: number): Promise<Produto> {
+    const produto = await this.obterProdutoPorId(id);
+    if (!produto) {
+      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
+    }
+    return produto;
   }
 
   async existeProduto(idProduto: number): Promise<boolean> {
-    return await this.produtoRepository.exists({
-      where: { id: idProduto },
-    });
-  }
-
-  async inserirCategoria(
-    categoria: CategoriaProduto,
-  ): Promise<CategoriaProduto> {
-    return this.salvarCategoria(categoria);
-  }
-
-  async salvarCategoria(
-    categoria: CategoriaProduto,
-  ): Promise<CategoriaProduto> {
-    return this.categoriaRepository.save(categoria).catch((error) => {
-      this.logger.error('Erro ao inserir categoria', error);
-      throw new InternalServerErrorException('Erro ao inserir categoria');
-    });
-  }
-
-  async existeCategoria(idCategoria: number): Promise<boolean> {
-    const categoria = await this.categoriaRepository.exists({
-      where: { id: idCategoria },
-    });
-    return categoria;
-  }
-
-  async listarCategorias(
-    pesquisa: PesquisarCategoriasDto,
-  ): Promise<ResultadoPaginado<CategoriaProduto>> {
-    const termo = pesquisa.termo?.toLowerCase();
-    const offset = (pesquisa.pagina - 1) * pesquisa.tamanhoPagina;
-    const queryBuilder = this.categoriaRepository
-      .createQueryBuilder('categoria')
-      .orderBy('categoria.nome', 'ASC')
-      .skip(offset)
-      .take(pesquisa.tamanhoPagina);
-
-    if (termo) {
-      queryBuilder.where('LOWER(categoria.nome) LIKE :termo', {
-        termo: `%${termo}%`,
-      });
-    }
-
-    const [itens, totalItens] = await queryBuilder.getManyAndCount();
-
-    return {
-      itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
-  }
-
-  async obterCategoriaPorId(id: number): Promise<CategoriaProduto | null> {
-    return await this.categoriaRepository.findOne({ where: { id } });
+    return this.produtoRepository.exists({ where: { id: idProduto } });
   }
 
   async obterDetalheProdutoPorId(id: number): Promise<DetalheProdutoDto> {
@@ -254,48 +191,5 @@ export class ProdutoService {
       ...produto,
       quantidadeEstoque,
     };
-  }
-
-  async entradaEstoque(
-    id: number,
-    quantidade: number,
-    origem:
-      | OrigemMovimentacaoEstoque.COMPRA
-      | OrigemMovimentacaoEstoque.AJUSTE
-      | OrigemMovimentacaoEstoque.PRODUCAO,
-  ): Promise<void> {
-    const produtoExiste = await this.existeProduto(id);
-
-    if (!produtoExiste) {
-      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
-    }
-
-    const movimentacaoStoque = new MovimentacaoEstoque();
-    movimentacaoStoque.idProduto = id;
-    movimentacaoStoque.quantidade = quantidade;
-    movimentacaoStoque.tipo = TipoMovimentacaoEstoque.ENTRADA;
-    movimentacaoStoque.origem = origem;
-
-    await this.movimentacaoEstoqueRepository.save(movimentacaoStoque);
-  }
-
-  async saidaEstoque(
-    id: number,
-    quantidade: number,
-    origem: OrigemMovimentacaoEstoque.AJUSTE | OrigemMovimentacaoEstoque.PERDA,
-  ): Promise<void> {
-    const produtoExiste = await this.existeProduto(id);
-
-    if (!produtoExiste) {
-      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
-    }
-
-    const movimentacaoStoque = new MovimentacaoEstoque();
-    movimentacaoStoque.idProduto = id;
-    movimentacaoStoque.quantidade = quantidade;
-    movimentacaoStoque.tipo = TipoMovimentacaoEstoque.SAIDA;
-    movimentacaoStoque.origem = origem;
-
-    await this.movimentacaoEstoqueRepository.save(movimentacaoStoque);
   }
 }

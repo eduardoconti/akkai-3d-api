@@ -1,25 +1,31 @@
 import { NotFoundException } from '@nestjs/common';
 import { Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 import { InserirProdutoInput, InserirProdutoUseCase } from '@produto/use-cases';
 
 describe('InserirProdutoUseCase', () => {
   let useCase: InserirProdutoUseCase;
-  let existeCategoriaMock: jest.MockedFunction<
-    (idCategoria: number) => Promise<boolean>
+  let garantirExisteCategoriaMock: jest.MockedFunction<
+    (id: number) => Promise<void>
   >;
   let salvarMock: jest.MockedFunction<(produto: Produto) => Promise<Produto>>;
 
   beforeEach(() => {
-    existeCategoriaMock = jest.fn<Promise<boolean>, [number]>();
+    garantirExisteCategoriaMock = jest.fn<Promise<void>, [number]>();
     salvarMock = jest.fn<Promise<Produto>, [Produto]>();
 
-    const produtoService: Pick<ProdutoService, 'existeCategoria' | 'salvar'> = {
-      existeCategoria: existeCategoriaMock,
+    const produtoService = {
       salvar: salvarMock,
-    };
+    } as unknown as ProdutoService;
 
-    useCase = new InserirProdutoUseCase(produtoService as ProdutoService);
+    const categoriaProdutoService = {
+      garantirExisteCategoria: garantirExisteCategoriaMock,
+    } as unknown as CategoriaProdutoService;
+
+    useCase = new InserirProdutoUseCase(
+      produtoService,
+      categoriaProdutoService,
+    );
   });
 
   it('deve inserir produto quando a categoria existe', async () => {
@@ -38,12 +44,12 @@ describe('InserirProdutoUseCase', () => {
     produtoSalvo.idCategoria = input.idCategoria;
     produtoSalvo.valor = input.valor;
 
-    existeCategoriaMock.mockResolvedValue(true);
+    garantirExisteCategoriaMock.mockResolvedValue(undefined);
     salvarMock.mockResolvedValue(produtoSalvo);
 
     const result = await useCase.execute(input);
 
-    expect(existeCategoriaMock).toHaveBeenCalledWith(1);
+    expect(garantirExisteCategoriaMock).toHaveBeenCalledWith(1);
     expect(salvarMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Caneca',
@@ -57,7 +63,9 @@ describe('InserirProdutoUseCase', () => {
   });
 
   it('deve lançar erro quando a categoria não existe', async () => {
-    existeCategoriaMock.mockResolvedValue(false);
+    garantirExisteCategoriaMock.mockRejectedValue(
+      new NotFoundException('Categoria com ID 99 não encontrada.'),
+    );
 
     await expect(
       useCase.execute({
