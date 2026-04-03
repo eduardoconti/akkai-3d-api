@@ -42,6 +42,19 @@ export class InserirProdutoDto {
   })
   descricao?: string;
 
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({
+    message: 'O estoque mínimo do produto deve ser um número inteiro.',
+  })
+  @Min(0, {
+    message: 'O estoque mínimo do produto não pode ser negativo.',
+  })
+  @Max(100, {
+    message: 'O estoque mínimo do produto deve ser de no máximo 100 unidades.',
+  })
+  estoqueMinimo?: number;
+
   @Type(() => Number)
   @IsInt({ message: 'A categoria do produto deve ser um número inteiro.' })
   @Min(1, { message: 'A categoria do produto deve ser maior que zero.' })

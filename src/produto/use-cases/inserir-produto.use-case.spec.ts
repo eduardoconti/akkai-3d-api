@@ -33,6 +33,7 @@ describe('InserirProdutoUseCase', () => {
       nome: 'Caneca',
       codigo: 'CN001',
       descricao: 'Caneca de ceramica',
+      estoqueMinimo: 5,
       idCategoria: 1,
       valor: 2590,
     };
@@ -41,6 +42,7 @@ describe('InserirProdutoUseCase', () => {
     produtoSalvo.nome = input.nome;
     produtoSalvo.codigo = input.codigo;
     produtoSalvo.descricao = input.descricao;
+    produtoSalvo.estoqueMinimo = input.estoqueMinimo;
     produtoSalvo.idCategoria = input.idCategoria;
     produtoSalvo.valor = input.valor;
 
@@ -55,6 +57,7 @@ describe('InserirProdutoUseCase', () => {
         nome: 'Caneca',
         codigo: 'CN001',
         descricao: 'Caneca de ceramica',
+        estoqueMinimo: 5,
         idCategoria: 1,
         valor: 2590,
       }),

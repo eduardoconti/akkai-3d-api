@@ -6,6 +6,7 @@ export interface InserirProdutoInput {
   nome: string;
   codigo: string;
   descricao?: string;
+  estoqueMinimo?: number;
   idCategoria: number;
   valor: number;
 }
@@ -25,6 +26,7 @@ export class InserirProdutoUseCase {
     novoProduto.nome = input.nome;
     novoProduto.codigo = input.codigo;
     novoProduto.descricao = input.descricao;
+    novoProduto.estoqueMinimo = input.estoqueMinimo;
     novoProduto.idCategoria = input.idCategoria;
     novoProduto.valor = input.valor;
 
