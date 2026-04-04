@@ -1,4 +1,6 @@
-import { IsDateString, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDateString, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { TipoVenda } from '@venda/entities/venda.entity';
 
 export class ObterResumoVendasPeriodoDto {
   @IsOptional()
@@ -18,4 +20,17 @@ export class ObterResumoVendasPeriodoDto {
     },
   )
   dataFim?: string;
+
+
+  @IsOptional()
+  @IsEnum(TipoVenda, {
+    message: 'O tipo de venda deve ser FEIRA, LOJA ou ONLINE.',
+  })
+  tipoVenda?: TipoVenda;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'A feira deve ser um número inteiro.' })
+  @Min(1, { message: 'A feira deve ser maior que zero.' })
+  idFeira?: number;
 }

@@ -158,6 +158,30 @@ export class RelatorioService {
       );
     }
 
+    if (filtro.idFeira && filtro.tipoVenda !== TipoVenda.FEIRA) {
+      throw new BadRequestException(
+        'O filtro por feira só pode ser utilizado quando o tipo de venda for FEIRA.',
+      );
+    }
+
+    const parameters: Array<string | number> = [
+      `${dataInicio} 00:00:00.000`,
+      `${dataFim} 23:59:59.999`,
+    ];
+    const conditions = ['venda.data_inclusao BETWEEN $1 AND $2'];
+
+    if (filtro.tipoVenda) {
+      parameters.push(filtro.tipoVenda);
+      conditions.push(`venda.tipo = $${parameters.length}`);
+    }
+
+    if (filtro.idFeira) {
+      parameters.push(filtro.idFeira);
+      conditions.push(`venda.id_feira = $${parameters.length}`);
+    }
+
+    const whereClause = conditions.join(' AND ');
+
     const rows: ResumoVendasPeriodoRow[] = await this.dataSource.query(
       `
         SELECT
@@ -166,30 +190,28 @@ export class RelatorioService {
               SELECT SUM(item.quantidade)
               FROM item_venda item
               INNER JOIN venda venda ON venda.id = item.id_venda
-              WHERE venda.data_inclusao BETWEEN $1 AND $2
+              WHERE ${whereClause}
             ),
             0
           ) AS "quantidadeItens",
-          (
-            COALESCE(
-              (
-                SELECT SUM(venda.desconto)
-                FROM venda venda
-                WHERE venda.data_inclusao BETWEEN $1 AND $2
-              ),
-              0
-            )
+          COALESCE(
+            (
+              SELECT SUM(venda.desconto)
+              FROM venda venda
+              WHERE ${whereClause}
+            ),
+            0
           ) AS "descontoTotal",
           COALESCE(
             (
               SELECT SUM(venda.valor_total)
               FROM venda venda
-              WHERE venda.data_inclusao BETWEEN $1 AND $2
+              WHERE ${whereClause}
             ),
             0
           ) AS "valorTotal"
       `,
-      [`${dataInicio} 00:00:00.000`, `${dataFim} 23:59:59.999`],
+      parameters,
     );
     const row = rows[0];
 

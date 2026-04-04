@@ -36,9 +36,15 @@ describe('RelatorioService', () => {
     const result = await service.obterResumoVendasPorPeriodo({
       dataInicio: '2026-03-31',
       dataFim: '2026-03-31',
+      tipoVenda: TipoVenda.FEIRA,
+      idFeira: 1,
     });
 
     expect(dataSource.query).toHaveBeenCalledTimes(1);
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.stringContaining('venda.id_feira = $4'),
+      ['2026-03-31 00:00:00.000', '2026-03-31 23:59:59.999', TipoVenda.FEIRA, 1],
+    );
     expect(result).toEqual({
       dataInicio: '2026-03-31',
       dataFim: '2026-03-31',
@@ -72,6 +78,17 @@ describe('RelatorioService', () => {
       service.obterResumoVendasPorPeriodo({
         dataInicio: '2026-03-31',
         dataFim: '2026-03-30',
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+
+  it('deve lançar erro ao filtrar feira no resumo sem tipo FEIRA', async () => {
+    await expect(
+      service.obterResumoVendasPorPeriodo({
+        dataInicio: '2026-03-31',
+        dataFim: '2026-03-31',
+        idFeira: 1,
       }),
     ).rejects.toThrow(BadRequestException);
   });

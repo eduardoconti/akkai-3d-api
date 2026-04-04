@@ -33,6 +33,8 @@ describe('RelatorioController', () => {
     const filtro = {
       dataInicio: '2026-03-31',
       dataFim: '2026-03-31',
+      tipoVenda: TipoVenda.FEIRA,
+      idFeira: 1,
     };
     const resumo = {
       dataInicio: '2026-03-31T00:00:00.000Z',
