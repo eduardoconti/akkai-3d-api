@@ -72,7 +72,10 @@ export class ItemVenda {
   })
   produto?: Produto;
 
-  @OneToMany(() => MovimentacaoEstoque, (movimentacao) => movimentacao.itemVenda)
+  @OneToMany(
+    () => MovimentacaoEstoque,
+    (movimentacao) => movimentacao.itemVenda,
+  )
   movimentacoesEstoque!: MovimentacaoEstoque[];
 
   constructor() {}

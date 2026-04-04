@@ -1,5 +1,8 @@
 import { Carteira } from '@financeiro/entities';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
@@ -103,7 +106,9 @@ describe('VendaService', () => {
       quantidade: 2,
     });
     const movimentacoes = [movimentacao];
-    queryRunner.manager.save.mockResolvedValueOnce(venda).mockResolvedValueOnce(movimentacoes);
+    queryRunner.manager.save
+      .mockResolvedValueOnce(venda)
+      .mockResolvedValueOnce(movimentacoes);
 
     const result = await service.inserirVenda(venda, movimentacoes);
 
@@ -118,7 +123,9 @@ describe('VendaService', () => {
     const item = Object.assign(new ItemVenda(), { id: 12, idProduto: 1 });
     const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
     vendaRepository.findOne.mockResolvedValue(venda);
-    queryRunner.manager.save.mockResolvedValueOnce(venda).mockResolvedValueOnce([{ idProduto: 1 }]);
+    queryRunner.manager.save
+      .mockResolvedValueOnce(venda)
+      .mockResolvedValueOnce([{ idProduto: 1 }]);
 
     const movimentacao = Object.assign(new MovimentacaoEstoque(), {
       idProduto: 1,
@@ -130,7 +137,9 @@ describe('VendaService', () => {
       idVenda: 1,
     });
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
-    expect(queryRunner.manager.save.mock.calls[1]?.[0][0]?.idItemVenda).toBe(12);
+    expect(queryRunner.manager.save.mock.calls[1]?.[0][0]?.idItemVenda).toBe(
+      12,
+    );
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
     expect(result).toBe(venda);
   });
@@ -150,7 +159,9 @@ describe('VendaService', () => {
   });
 
   it('deve obter venda por id com relações', async () => {
-    vendaRepository.findOne.mockResolvedValue(Object.assign(new Venda(), { id: 3 }));
+    vendaRepository.findOne.mockResolvedValue(
+      Object.assign(new Venda(), { id: 3 }),
+    );
 
     const result = await service.obterVendaPorId(3);
 
@@ -234,20 +245,61 @@ describe('VendaService', () => {
     );
   });
 
-  it('deve listar vendas filtradas por termo', async () => {
+  it('deve listar vendas filtradas por período e feira', async () => {
     await service.listarVendas({
       pagina: 1,
       tamanhoPagina: 10,
-      termo: 'pix',
+      dataInicio: '2026-04-04',
+      dataFim: '2026-04-05',
+      tipo: TipoVenda.FEIRA,
+      idFeira: 7,
     });
 
     const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
       ?.value as {
       andWhere: jest.Mock;
     };
+
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-      expect.stringContaining('LIKE :termo'),
-      expect.objectContaining({ termo: '%pix%' }),
+      'venda.dataInclusao BETWEEN :dataInicio AND :dataFim',
+      expect.objectContaining({
+        dataInicio: '2026-04-04 00:00:00.000',
+        dataFim: '2026-04-05 23:59:59.999',
+      }),
+    );
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      'venda.idFeira = :idFeira',
+      expect.objectContaining({ idFeira: 7 }),
+    );
+  });
+
+  it('deve lançar erro quando a data final for menor que a inicial', async () => {
+    await expect(
+      service.listarVendas({
+        pagina: 1,
+        tamanhoPagina: 10,
+        dataInicio: '2026-04-05',
+        dataFim: '2026-04-04',
+      }),
+    ).rejects.toThrow(
+      new BadRequestException(
+        'A data final não pode ser menor que a data inicial.',
+      ),
+    );
+  });
+
+  it('deve lançar erro quando filtrar por feira sem tipo FEIRA', async () => {
+    await expect(
+      service.listarVendas({
+        pagina: 1,
+        tamanhoPagina: 10,
+        tipo: TipoVenda.LOJA,
+        idFeira: 7,
+      }),
+    ).rejects.toThrow(
+      new BadRequestException(
+        'O filtro por feira só pode ser utilizado quando o tipo de venda for FEIRA.',
+      ),
     );
   });
 

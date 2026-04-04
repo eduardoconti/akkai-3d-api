@@ -1,13 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
 import { FinanceiroService } from '@financeiro/services';
-import {
-  Produto,
-  TipoMovimentacaoEstoque,
-} from '@produto/entities';
+import { Produto, TipoMovimentacaoEstoque } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
-import { AlterarVendaUseCase, ExecutarAlterarVendaInput } from '@venda/use-cases';
+import {
+  AlterarVendaUseCase,
+  ExecutarAlterarVendaInput,
+} from '@venda/use-cases';
 
 describe('AlterarVendaUseCase', () => {
   let useCase: AlterarVendaUseCase;

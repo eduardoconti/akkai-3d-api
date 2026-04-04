@@ -81,6 +81,7 @@ export class RelatorioService {
         LEFT JOIN produto p ON p.id = item.id_produto
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
         WHERE ${conditions.join(' AND ')}
+          AND item.brinde = false
         GROUP BY
           item.id_produto,
           item.nome_produto,
@@ -110,6 +111,7 @@ export class RelatorioService {
             LEFT JOIN produto p ON p.id = item.id_produto
             LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
             WHERE ${conditions.join(' AND ')}
+              AND item.brinde = false
             GROUP BY
               item.id_produto,
               item.nome_produto,

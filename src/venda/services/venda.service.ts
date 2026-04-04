@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { ItemVenda, Venda } from '@venda/entities';
+import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
@@ -126,8 +127,22 @@ export class VendaService {
   async listarVendas(
     pesquisa: PesquisarVendasDto,
   ): Promise<ResultadoPaginado<Venda>> {
+    const dataInicio = pesquisa.dataInicio;
+    const dataFim = pesquisa.dataFim ?? pesquisa.dataInicio;
+
+    if (dataInicio && dataFim && dataFim < dataInicio) {
+      throw new BadRequestException(
+        'A data final não pode ser menor que a data inicial.',
+      );
+    }
+
+    if (pesquisa.idFeira && pesquisa.tipo !== TipoVenda.FEIRA) {
+      throw new BadRequestException(
+        'O filtro por feira só pode ser utilizado quando o tipo de venda for FEIRA.',
+      );
+    }
+
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
-    const termo = pesquisa.termo?.toLowerCase();
 
     const queryBuilder = this.vendaRepository
       .createQueryBuilder('venda')
@@ -140,24 +155,26 @@ export class VendaService {
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
 
+    if (dataInicio) {
+      queryBuilder.andWhere(
+        'venda.dataInclusao BETWEEN :dataInicio AND :dataFim',
+        {
+          dataInicio: `${dataInicio} 00:00:00.000`,
+          dataFim: `${dataFim ?? dataInicio} 23:59:59.999`,
+        },
+      );
+    }
+
     if (pesquisa.tipo) {
       queryBuilder.andWhere('venda.tipo = :tipo', {
         tipo: pesquisa.tipo,
       });
     }
 
-    if (termo) {
-      queryBuilder.andWhere(
-        `(
-          CAST(venda.id AS TEXT) LIKE :termo
-          OR LOWER(venda.meioPagamento) LIKE :termo
-          OR LOWER(venda.tipo) LIKE :termo
-          OR LOWER(COALESCE(feira.nome, '')) LIKE :termo
-          OR LOWER(COALESCE(carteira.nome, '')) LIKE :termo
-          OR LOWER(item.nomeProduto) LIKE :termo
-        )`,
-        { termo: `%${termo}%` },
-      );
+    if (pesquisa.idFeira) {
+      queryBuilder.andWhere('venda.idFeira = :idFeira', {
+        idFeira: pesquisa.idFeira,
+      });
     }
 
     const [itens, totalItens] = await queryBuilder.getManyAndCount();

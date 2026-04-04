@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import {
   Check,
   Column,
@@ -115,8 +116,17 @@ export class Venda {
   }
 
   private calcularValorTotal(): void {
-    this.valorTotal =
-      this.itens.reduce((total, item) => total + item.valorTotal, 0) -
-      this.desconto;
+    const totalItens = this.itens.reduce(
+      (total, item) => total + item.valorTotal,
+      0,
+    );
+
+    if (this.desconto > totalItens) {
+      throw new BadRequestException(
+        'O desconto não pode ser maior que o valor total dos itens.',
+      );
+    }
+
+    this.valorTotal = totalItens - this.desconto;
   }
 }

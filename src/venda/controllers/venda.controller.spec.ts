@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VendaController } from '@venda/controllers';
-import { Feira, Venda } from '@venda/entities';
+import { Feira, TipoVenda, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import {
   AlterarVendaUseCase,
@@ -98,7 +98,7 @@ describe('VendaController', () => {
 
     const input = {
       meioPagamento: 'PIX',
-      tipo: 'FEIRA',
+      tipo: TipoVenda.FEIRA,
       idCarteira: 1,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 2 }],
@@ -131,11 +131,19 @@ describe('VendaController', () => {
     const result = await controller.listarVendas({
       pagina: 1,
       tamanhoPagina: 10,
+      dataInicio: '2026-04-04',
+      dataFim: '2026-04-04',
+      tipo: TipoVenda.FEIRA,
+      idFeira: 3,
     });
 
     expect(vendaService.listarVendas).toHaveBeenCalledWith({
       pagina: 1,
       tamanhoPagina: 10,
+      dataInicio: '2026-04-04',
+      dataFim: '2026-04-04',
+      tipo: TipoVenda.FEIRA,
+      idFeira: 3,
     });
     expect(result).toBe(vendas);
   });
