@@ -97,19 +97,21 @@ export class Venda {
   constructor() {}
 
   static criar(inserirVendaInput: InserirVendaInput): Venda {
-    const itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
-
     const venda = new Venda();
     venda.dataInclusao = new Date();
-    venda.tipo = inserirVendaInput.tipo;
-    venda.meioPagamento = inserirVendaInput.meioPagamento;
-    venda.idCarteira = inserirVendaInput.idCarteira;
-    venda.idFeira = inserirVendaInput.idFeira;
-    venda.desconto = inserirVendaInput.desconto ?? 0;
-    venda.itens = itens;
-
-    venda.calcularValorTotal();
+    venda.atualizar(inserirVendaInput);
     return venda;
+  }
+
+  atualizar(inserirVendaInput: InserirVendaInput): void {
+    this.tipo = inserirVendaInput.tipo;
+    this.meioPagamento = inserirVendaInput.meioPagamento;
+    this.idCarteira = inserirVendaInput.idCarteira;
+    this.idFeira = inserirVendaInput.idFeira;
+    this.desconto = inserirVendaInput.desconto ?? 0;
+    this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
+
+    this.calcularValorTotal();
   }
 
   private calcularValorTotal(): void {

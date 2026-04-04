@@ -1,7 +1,8 @@
 import { Carteira } from '@financeiro/entities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { TipoVenda, Venda } from '@venda/entities';
+import { MovimentacaoEstoque } from '@produto/entities';
+import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -13,11 +14,12 @@ describe('VendaService', () => {
   };
   let vendaRepository: {
     createQueryBuilder: jest.Mock;
+    findOne: jest.Mock;
   };
   let queryRunner: {
     connect: jest.Mock;
     startTransaction: jest.Mock;
-    manager: { save: jest.Mock };
+    manager: { save: jest.Mock; delete: jest.Mock };
     commitTransaction: jest.Mock;
     rollbackTransaction: jest.Mock;
     release: jest.Mock;
@@ -43,11 +45,12 @@ describe('VendaService', () => {
     };
     vendaRepository = {
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
+      findOne: jest.fn(),
     };
     queryRunner = {
       connect: jest.fn(),
       startTransaction: jest.fn(),
-      manager: { save: jest.fn() },
+      manager: { save: jest.fn(), delete: jest.fn() },
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
       release: jest.fn(),
@@ -92,20 +95,74 @@ describe('VendaService', () => {
     expect(result).toBe(true);
   });
 
-  it('deve inserir venda dentro de transação', async () => {
-    const venda = Object.assign(new Venda(), { id: 1 });
-    const movimentacoes = [{ idProduto: 1, quantidade: 2 }];
+  it('deve inserir venda dentro de transação vinculando movimentos aos itens', async () => {
+    const item = Object.assign(new ItemVenda(), { id: 9, idProduto: 1 });
+    const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
+    const movimentacao = Object.assign(new MovimentacaoEstoque(), {
+      idProduto: 1,
+      quantidade: 2,
+    });
+    const movimentacoes = [movimentacao];
+    queryRunner.manager.save.mockResolvedValueOnce(venda).mockResolvedValueOnce(movimentacoes);
 
-    const result = await service.inserirVenda(venda, movimentacoes as never[]);
+    const result = await service.inserirVenda(venda, movimentacoes);
 
-    expect(dataSource.createQueryRunner).toHaveBeenCalled();
-    expect(queryRunner.connect).toHaveBeenCalled();
-    expect(queryRunner.startTransaction).toHaveBeenCalled();
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
+    expect(movimentacoes[0]?.idItemVenda).toBe(9);
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(2, movimentacoes);
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
-    expect(queryRunner.release).toHaveBeenCalled();
     expect(result).toBe(venda);
+  });
+
+  it('deve alterar venda dentro de transação vinculando novos movimentos aos itens', async () => {
+    const item = Object.assign(new ItemVenda(), { id: 12, idProduto: 1 });
+    const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
+    vendaRepository.findOne.mockResolvedValue(venda);
+    queryRunner.manager.save.mockResolvedValueOnce(venda).mockResolvedValueOnce([{ idProduto: 1 }]);
+
+    const movimentacao = Object.assign(new MovimentacaoEstoque(), {
+      idProduto: 1,
+    });
+
+    const result = await service.alterarVenda(venda, [movimentacao]);
+
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(1, ItemVenda, {
+      idVenda: 1,
+    });
+    expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
+    expect(queryRunner.manager.save.mock.calls[1]?.[0][0]?.idItemVenda).toBe(12);
+    expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    expect(result).toBe(venda);
+  });
+
+  it('deve excluir venda dentro de transação sem criar movimentos de ajuste', async () => {
+    const venda = Object.assign(new Venda(), { id: 1 });
+
+    await service.excluirVenda(venda);
+
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(1, ItemVenda, {
+      idVenda: 1,
+    });
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(2, Venda, {
+      id: 1,
+    });
+    expect(queryRunner.commitTransaction).toHaveBeenCalled();
+  });
+
+  it('deve obter venda por id com relações', async () => {
+    vendaRepository.findOne.mockResolvedValue(Object.assign(new Venda(), { id: 3 }));
+
+    const result = await service.obterVendaPorId(3);
+
+    expect(vendaRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 3 },
+      relations: {
+        itens: { produto: true },
+        feira: true,
+        carteira: true,
+      },
+    });
+    expect(result).toEqual(expect.objectContaining({ id: 3 }));
   });
 
   it('deve fazer rollback ao falhar inserção da venda', async () => {
@@ -114,6 +171,30 @@ describe('VendaService', () => {
 
     await expect(service.inserirVenda(venda, [])).rejects.toThrow(
       new InternalServerErrorException('Erro ao inserir venda'),
+    );
+
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    expect(queryRunner.release).toHaveBeenCalled();
+  });
+
+  it('deve fazer rollback ao falhar alteração da venda', async () => {
+    const venda = Object.assign(new Venda(), { id: 1 });
+    queryRunner.manager.delete.mockRejectedValueOnce(new Error('falha'));
+
+    await expect(service.alterarVenda(venda, [])).rejects.toThrow(
+      new InternalServerErrorException('Erro ao alterar venda'),
+    );
+
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    expect(queryRunner.release).toHaveBeenCalled();
+  });
+
+  it('deve fazer rollback ao falhar exclusão da venda', async () => {
+    const venda = Object.assign(new Venda(), { id: 1 });
+    queryRunner.manager.delete.mockRejectedValueOnce(new Error('falha'));
+
+    await expect(service.excluirVenda(venda)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir venda'),
     );
 
     expect(queryRunner.rollbackTransaction).toHaveBeenCalled();

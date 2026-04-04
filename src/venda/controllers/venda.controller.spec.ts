@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { VendaController } from '@venda/controllers';
 import { Feira, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
-import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
+import {
+  AlterarVendaUseCase,
+  ExcluirVendaUseCase,
+  InserirFeiraUseCase,
+  InserirVendaUseCase,
+} from '@venda/use-cases';
 
 describe('VendaController', () => {
   let controller: VendaController;
@@ -10,12 +15,16 @@ describe('VendaController', () => {
   let feiraService: { listarFeiras: jest.Mock };
   let inserirFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
+  let alterarVendaUseCase: { execute: jest.Mock };
+  let excluirVendaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     vendaService = { listarVendas: jest.fn() };
     feiraService = { listarFeiras: jest.fn() };
     inserirFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
+    alterarVendaUseCase = { execute: jest.fn() };
+    excluirVendaUseCase = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [VendaController],
@@ -35,6 +44,14 @@ describe('VendaController', () => {
         {
           provide: InserirVendaUseCase,
           useValue: inserirVendaUseCase,
+        },
+        {
+          provide: AlterarVendaUseCase,
+          useValue: alterarVendaUseCase,
+        },
+        {
+          provide: ExcluirVendaUseCase,
+          useValue: excluirVendaUseCase,
         },
       ],
     }).compile();
@@ -74,6 +91,31 @@ describe('VendaController', () => {
 
     expect(inserirVendaUseCase.execute).toHaveBeenCalledWith(input);
     expect(result).toEqual({ id: 1 });
+  });
+
+  it('deve delegar alteração de venda', async () => {
+    alterarVendaUseCase.execute.mockResolvedValue({ id: 2 });
+
+    const input = {
+      meioPagamento: 'PIX',
+      tipo: 'FEIRA',
+      idCarteira: 1,
+      idFeira: 3,
+      itens: [{ idProduto: 1, quantidade: 2 }],
+    };
+
+    const result = await controller.alterarVenda(2, input as never);
+
+    expect(alterarVendaUseCase.execute).toHaveBeenCalledWith(2, input);
+    expect(result).toEqual({ id: 2 });
+  });
+
+  it('deve delegar exclusão de venda', async () => {
+    excluirVendaUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirVenda(2);
+
+    expect(excluirVendaUseCase.execute).toHaveBeenCalledWith(2);
   });
 
   it('deve listar vendas', async () => {

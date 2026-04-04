@@ -2,9 +2,10 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { Venda } from '@venda/entities';
+import { ItemVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
@@ -30,6 +31,27 @@ export class VendaService {
     });
   }
 
+  async obterVendaPorId(id: number): Promise<Venda | null> {
+    return this.vendaRepository.findOne({
+      where: { id },
+      relations: {
+        itens: { produto: true },
+        feira: true,
+        carteira: true,
+      },
+    });
+  }
+
+  async garantirExisteVenda(id: number): Promise<Venda> {
+    const venda = await this.obterVendaPorId(id);
+
+    if (!venda) {
+      throw new NotFoundException(`Venda com ID ${id} não encontrada.`);
+    }
+
+    return venda;
+  }
+
   async inserirVenda(
     venda: Venda,
     movimentacaoEstoque: MovimentacaoEstoque[],
@@ -39,9 +61,11 @@ export class VendaService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      await queryRunner.manager.save(venda);
+      const vendaSalva = await queryRunner.manager.save(venda);
+      this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
       await queryRunner.manager.save(movimentacaoEstoque);
       await queryRunner.commitTransaction();
+      return vendaSalva;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Erro desconhecido';
@@ -51,7 +75,52 @@ export class VendaService {
     } finally {
       await queryRunner.release();
     }
-    return venda;
+  }
+
+  async alterarVenda(
+    venda: Venda,
+    movimentacaoEstoque: MovimentacaoEstoque[],
+  ): Promise<Venda> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
+      const vendaSalva = await queryRunner.manager.save(venda);
+      this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
+      await queryRunner.manager.save(movimentacaoEstoque);
+      await queryRunner.commitTransaction();
+      return (await this.obterVendaPorId(vendaSalva.id)) ?? vendaSalva;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido';
+      this.logger.error('Erro ao alterar venda', errorMessage);
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('Erro ao alterar venda');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async excluirVenda(venda: Venda): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
+      await queryRunner.manager.delete(Venda, { id: venda.id });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido';
+      this.logger.error('Erro ao excluir venda', errorMessage);
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('Erro ao excluir venda');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async listarVendas(
@@ -100,5 +169,23 @@ export class VendaService {
       totalItens,
       totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
     };
+  }
+
+  private vincularMovimentacoesAosItens(
+    venda: Venda,
+    movimentacoesEstoque: MovimentacaoEstoque[],
+  ): void {
+    const itensCatalogo = venda.itens.filter((item) => item.idProduto);
+
+    itensCatalogo.forEach((item, index) => {
+      const movimentacao = movimentacoesEstoque[index];
+
+      if (!movimentacao) {
+        return;
+      }
+
+      movimentacao.idItemVenda = item.id;
+      movimentacao.itemVenda = item;
+    });
   }
 }

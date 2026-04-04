@@ -1,10 +1,11 @@
-import { Produto } from '@produto/entities';
+import { MovimentacaoEstoque, Produto } from '@produto/entities';
 import {
   Check,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -70,6 +71,9 @@ export class ItemVenda {
     foreignKeyConstraintName: 'fk_item_venda_produto',
   })
   produto?: Produto;
+
+  @OneToMany(() => MovimentacaoEstoque, (movimentacao) => movimentacao.itemVenda)
+  movimentacoesEstoque!: MovimentacaoEstoque[];
 
   constructor() {}
 

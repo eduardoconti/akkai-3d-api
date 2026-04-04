@@ -1,12 +1,28 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  AlterarVendaDto,
   InserirFeiraDto,
   InserirVendaDto,
   PesquisarVendasDto,
 } from '@venda/dto';
 import { Feira, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
-import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
+import {
+  AlterarVendaUseCase,
+  ExcluirVendaUseCase,
+  InserirFeiraUseCase,
+  InserirVendaUseCase,
+} from '@venda/use-cases';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
@@ -24,6 +40,8 @@ export class VendaController {
     private readonly feiraService: FeiraService,
     private readonly inserirFeiraUseCase: InserirFeiraUseCase,
     private readonly inserirVendaUseCase: InserirVendaUseCase,
+    private readonly alterarVendaUseCase: AlterarVendaUseCase,
+    private readonly excluirVendaUseCase: ExcluirVendaUseCase,
   ) {}
 
   @ApiInserirFeiraDocs()
@@ -37,6 +55,19 @@ export class VendaController {
   async inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
     const venda = await this.inserirVendaUseCase.execute(inserirVendaInput);
     return venda;
+  }
+
+  @Put(':id')
+  async alterarVenda(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() alterarVendaInput: AlterarVendaDto,
+  ): Promise<Venda> {
+    return await this.alterarVendaUseCase.execute(id, alterarVendaInput);
+  }
+
+  @Delete(':id')
+  async excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.excluirVendaUseCase.execute(id);
   }
 
   @ApiListarFeirasDocs()

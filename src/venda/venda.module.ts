@@ -5,7 +5,12 @@ import { FeiraService, VendaService } from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feira, ItemVenda, Venda } from '@venda/entities';
 import { ProdutoModule } from '@produto/produto.module';
-import { InserirFeiraUseCase, InserirVendaUseCase } from '@venda/use-cases';
+import {
+  AlterarVendaUseCase,
+  ExcluirVendaUseCase,
+  InserirFeiraUseCase,
+  InserirVendaUseCase,
+} from '@venda/use-cases';
 import { Carteira } from '@financeiro/entities';
 
 @Module({
@@ -15,6 +20,8 @@ import { Carteira } from '@financeiro/entities';
     FeiraService,
     InserirFeiraUseCase,
     InserirVendaUseCase,
+    AlterarVendaUseCase,
+    ExcluirVendaUseCase,
   ],
   imports: [
     ProdutoModule,

@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Produto } from '@produto/entities';
+import { ItemVenda } from '@venda/entities';
 
 export enum TipoMovimentacaoEstoque {
   ENTRADA = 'E',
@@ -26,6 +27,7 @@ export enum OrigemMovimentacaoEstoque {
 @Check('ck_movimentacao_estoque_quantidade_positiva', '"quantidade" > 0')
 @Index('idx_movimentacao_estoque_id_produto', ['idProduto'])
 @Index('idx_movimentacao_estoque_id_produto_tipo', ['idProduto', 'tipo'])
+@Index('idx_movimentacao_estoque_id_item_venda', ['idItemVenda'])
 export class MovimentacaoEstoque {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_movimentacao_estoque',
@@ -34,6 +36,9 @@ export class MovimentacaoEstoque {
 
   @Column({ type: 'integer', name: 'id_produto' })
   idProduto!: number;
+
+  @Column({ type: 'integer', name: 'id_item_venda', nullable: true })
+  idItemVenda?: number;
 
   @Column({ type: 'integer' })
   quantidade!: number;
@@ -65,6 +70,16 @@ export class MovimentacaoEstoque {
     foreignKeyConstraintName: 'fk_movimentacao_estoque_produto',
   })
   produto!: Produto;
+
+  @ManyToOne(() => ItemVenda, (itemVenda) => itemVenda.movimentacoesEstoque, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({
+    name: 'id_item_venda',
+    foreignKeyConstraintName: 'fk_movimentacao_estoque_item_venda',
+  })
+  itemVenda?: ItemVenda;
 
   constructor() {}
 }
