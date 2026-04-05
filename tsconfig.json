@@ -13,6 +13,7 @@
     "paths": {
       "@auth/*": ["src/auth/*"],
       "@financeiro/*": ["src/financeiro/*"],
+      "@orcamento/*": ["src/orcamento/*"],
       "@produto/*": ["src/produto/*"],
       "@relatorio/*": ["src/relatorio/*"],
       "@venda/*": ["src/venda/*"]

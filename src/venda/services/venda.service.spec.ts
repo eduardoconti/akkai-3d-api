@@ -137,6 +137,7 @@ describe('VendaService', () => {
       idVenda: 1,
     });
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     expect(queryRunner.manager.save.mock.calls[1]?.[0][0]?.idItemVenda).toBe(
       12,
     );

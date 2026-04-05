@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
+import { Orcamento } from '@orcamento/entities';
 import {
   Permission,
   RefreshSession,
@@ -29,6 +30,7 @@ type DatabaseEnv = {
 };
 
 const entities = [
+  Orcamento,
   Venda,
   ItemVenda,
   Feira,

@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProdutoModule } from '@produto/produto.module';
+import { OrcamentoModule } from '@orcamento/orcamento.module';
 import { RelatorioModule } from '@relatorio/relatorio.module';
 import { VendaModule } from '@venda/venda.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,6 +24,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
     }),
     AuthModule,
     FinanceiroModule,
+    OrcamentoModule,
     ProdutoModule,
     RelatorioModule,
     VendaModule,
