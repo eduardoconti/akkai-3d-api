@@ -11,6 +11,7 @@ export class InserirCarteiraUseCase {
     const carteira = new Carteira();
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? true;
+    carteira.meiosPagamento = input.meiosPagamento ?? [];
 
     return this.financeiroService.salvarCarteira(carteira);
   }

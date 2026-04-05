@@ -1,5 +1,13 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 
 export class AlterarCarteiraDto {
   @Transform(({ value }: { value: unknown }) =>
@@ -14,4 +22,12 @@ export class AlterarCarteiraDto {
   @IsOptional()
   @IsBoolean({ message: 'O status da carteira deve ser verdadeiro ou falso.' })
   ativa?: boolean;
+
+  @IsOptional()
+  @IsArray({ message: 'Os meios de pagamento devem ser uma lista.' })
+  @IsEnum(MeioPagamento, {
+    each: true,
+    message: `Cada meio de pagamento deve ser um dos valores: ${Object.values(MeioPagamento).join(', ')}.`,
+  })
+  meiosPagamento?: MeioPagamento[];
 }

@@ -26,11 +26,27 @@ export default tseslint.config(
   },
   {
     rules: {
+      // TypeScript - any
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-return': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'error',
+
+      // TypeScript - promises
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/require-await': 'warn',
+
+      // TypeScript - variáveis
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
+
+      // Qualidade geral
+      'eqeqeq': ['error', 'always'],
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
 );

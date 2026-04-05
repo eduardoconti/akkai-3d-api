@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 import { Venda } from '@venda/entities/venda.entity';
 import { Despesa } from './despesa.entity';
 
@@ -21,6 +22,13 @@ export class Carteira {
     default: true,
   })
   ativa!: boolean;
+
+  @Column({
+    type: 'simple-json',
+    name: 'meios_pagamento',
+    default: '[]',
+  })
+  meiosPagamento!: MeioPagamento[];
 
   @OneToMany(() => Venda, (venda) => venda.carteira)
   vendas!: Venda[];

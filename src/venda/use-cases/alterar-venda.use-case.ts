@@ -42,7 +42,10 @@ export class AlterarVendaUseCase {
   async execute(id: number, input: ExecutarAlterarVendaInput): Promise<Venda> {
     const venda = await this.vendaService.garantirExisteVenda(id);
 
-    await this.financeiroService.garantirExisteCarteira(input.idCarteira);
+    await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
+      input.idCarteira,
+      input.meioPagamento,
+    );
 
     if (input.idFeira !== undefined) {
       await this.feiraService.garantirExisteFeira(input.idFeira);

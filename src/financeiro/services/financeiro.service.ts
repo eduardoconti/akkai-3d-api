@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -7,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { DataSource, Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
@@ -17,6 +19,7 @@ type ListarCarteiraRow = {
   nome: string;
   ativa: boolean;
   saldoAtual: string | number;
+  meiosPagamento: string;
 };
 
 @Injectable()
@@ -66,6 +69,26 @@ export class FinanceiroService {
     const existe = await this.existeCarteira(id);
     if (!existe) {
       throw new NotFoundException(`Carteira com ID ${id} não encontrada.`);
+    }
+  }
+
+  async garantirCarteiraAceitaMeioPagamento(
+    idCarteira: number,
+    meioPagamento: MeioPagamento,
+  ): Promise<void> {
+    const carteira = await this.obterCarteiraPorId(idCarteira);
+    if (!carteira || !carteira.ativa) {
+      throw new NotFoundException(
+        `Carteira com ID ${idCarteira} não encontrada.`,
+      );
+    }
+    if (
+      carteira.meiosPagamento.length > 0 &&
+      !carteira.meiosPagamento.includes(meioPagamento)
+    ) {
+      throw new BadRequestException(
+        `A carteira não aceita o meio de pagamento ${meioPagamento}.`,
+      );
     }
   }
 
@@ -126,6 +149,7 @@ export class FinanceiroService {
       nome: string;
       ativa: boolean;
       saldoAtual: number;
+      meiosPagamento: MeioPagamento[];
     }>
   > {
     const rows: ListarCarteiraRow[] = await this.dataSource.query(`
@@ -133,6 +157,7 @@ export class FinanceiroService {
         c.id,
         c.nome,
         c.ativa,
+        c.meios_pagamento AS "meiosPagamento",
         (
           COALESCE(
             (
@@ -160,6 +185,7 @@ export class FinanceiroService {
       nome: row.nome,
       ativa: row.ativa,
       saldoAtual: Number(row.saldoAtual),
+      meiosPagamento: (JSON.parse(row.meiosPagamento) as MeioPagamento[]) ?? [],
     }));
   }
 

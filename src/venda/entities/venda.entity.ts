@@ -12,13 +12,9 @@ import {
 import { Carteira } from '@financeiro/entities/carteira.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
+import { MeioPagamento } from './meio-pagamento.enum';
 
-export enum MeioPagamento {
-  DIN = 'DIN',
-  DEB = 'DEB',
-  CRE = 'CRE',
-  PIX = 'PIX',
-}
+export { MeioPagamento };
 
 export enum TipoVenda {
   FEIRA = 'FEIRA',
@@ -108,7 +104,9 @@ export class Venda {
     this.tipo = inserirVendaInput.tipo;
     this.meioPagamento = inserirVendaInput.meioPagamento;
     this.idCarteira = inserirVendaInput.idCarteira;
+    this.carteira = undefined;
     this.idFeira = inserirVendaInput.idFeira;
+    this.feira = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 

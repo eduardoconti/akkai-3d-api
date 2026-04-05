@@ -39,8 +39,9 @@ export class InserirVendaUseCase {
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
-    await this.financeiroService.garantirExisteCarteira(
+    await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
       inserirVendaInput.idCarteira,
+      inserirVendaInput.meioPagamento,
     );
 
     if (inserirVendaInput.idFeira !== undefined) {

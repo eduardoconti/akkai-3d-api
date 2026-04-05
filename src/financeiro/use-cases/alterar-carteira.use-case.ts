@@ -12,6 +12,7 @@ export class AlterarCarteiraUseCase {
 
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? carteira.ativa;
+    carteira.meiosPagamento = input.meiosPagamento ?? carteira.meiosPagamento;
 
     return this.financeiroService.salvarCarteira(carteira);
   }
