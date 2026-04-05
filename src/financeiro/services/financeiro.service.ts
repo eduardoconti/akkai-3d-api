@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -6,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
-import { Carteira, Despesa } from '@financeiro/entities';
+import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { DataSource, Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
@@ -28,6 +29,8 @@ export class FinanceiroService {
     private readonly carteiraRepository: Repository<Carteira>,
     @InjectRepository(Despesa)
     private readonly despesaRepository: Repository<Despesa>,
+    @InjectRepository(CategoriaDespesa)
+    private readonly categoriaDespesaRepository: Repository<CategoriaDespesa>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -72,6 +75,50 @@ export class FinanceiroService {
       this.logger.error('Erro ao inserir despesa', error);
       throw new InternalServerErrorException('Erro ao inserir despesa');
     });
+  }
+
+  async salvarCategoriaDespesa(
+    categoria: CategoriaDespesa,
+  ): Promise<CategoriaDespesa> {
+    return this.categoriaDespesaRepository
+      .save(categoria)
+      .catch((error: unknown) => {
+        this.logger.error('Erro ao salvar categoria de despesa', error);
+        lancarExcecaoConflito(
+          error,
+          `Categoria ${categoria.nome} já existe`,
+          'Erro ao salvar categoria de despesa',
+        );
+      });
+  }
+
+  async listarCategoriasDespesa(): Promise<CategoriaDespesa[]> {
+    return this.categoriaDespesaRepository.find({
+      order: { nome: 'ASC' },
+    });
+  }
+
+  async garantirCategoriaDespesaPorId(id: number): Promise<CategoriaDespesa> {
+    const categoria = await this.categoriaDespesaRepository.findOne({
+      where: { id },
+    });
+    if (!categoria) {
+      throw new NotFoundException(
+        `Categoria de despesa com ID ${id} não encontrada.`,
+      );
+    }
+    return categoria;
+  }
+
+  async garantirExisteCategoriaDespesa(id: number): Promise<void> {
+    const existe = await this.categoriaDespesaRepository.exists({
+      where: { id },
+    });
+    if (!existe) {
+      throw new NotFoundException(
+        `Categoria de despesa com ID ${id} não encontrada.`,
+      );
+    }
   }
 
   async listarCarteiras(): Promise<
@@ -126,6 +173,7 @@ export class FinanceiroService {
     const queryBuilder = this.despesaRepository
       .createQueryBuilder('despesa')
       .leftJoinAndSelect('despesa.carteira', 'carteira')
+      .leftJoinAndSelect('despesa.categoria', 'categoria')
       .orderBy('despesa.dataLancamento', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
@@ -136,7 +184,7 @@ export class FinanceiroService {
           LOWER(despesa.descricao) LIKE :termo
           OR LOWER(COALESCE(despesa.observacao, '')) LIKE :termo
           OR LOWER(carteira.nome) LIKE :termo
-          OR LOWER(despesa.categoria) LIKE :termo
+          OR LOWER(categoria.nome) LIKE :termo
         )`,
         { termo: `%${termo}%` },
       );

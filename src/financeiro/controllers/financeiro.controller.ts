@@ -10,15 +10,19 @@ import {
 } from '@nestjs/common';
 import {
   AlterarCarteiraDto,
+  AlterarCategoriaDespesaDto,
   InserirCarteiraDto,
+  InserirCategoriaDespesaDto,
   InserirDespesaDto,
   PesquisarDespesasDto,
 } from '@financeiro/dto';
-import { Carteira, Despesa } from '@financeiro/entities';
+import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
+  AlterarCategoriaDespesaUseCase,
   InserirCarteiraUseCase,
+  InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
@@ -28,6 +32,7 @@ import {
   ApiInserirCarteiraDocs,
   ApiInserirDespesaDocs,
   ApiListarCarteirasDocs,
+  ApiListarCategoriasDespesaDocs,
   ApiListarDespesasDocs,
   ApiObterCarteiraPorIdDocs,
 } from '@financeiro/docs/financeiro-docs.decorator';
@@ -40,6 +45,8 @@ export class FinanceiroController {
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
     private readonly inserirDespesaUseCase: InserirDespesaUseCase,
+    private readonly inserirCategoriaDespesaUseCase: InserirCategoriaDespesaUseCase,
+    private readonly alterarCategoriaDespesaUseCase: AlterarCategoriaDespesaUseCase,
   ) {}
 
   @ApiInserirCarteiraDocs()
@@ -69,6 +76,27 @@ export class FinanceiroController {
     @Body() input: AlterarCarteiraDto,
   ): Promise<Carteira> {
     return this.alterarCarteiraUseCase.execute(id, input);
+  }
+
+  @Post('categorias-despesa')
+  async inserirCategoriaDespesa(
+    @Body() input: InserirCategoriaDespesaDto,
+  ): Promise<CategoriaDespesa> {
+    return this.inserirCategoriaDespesaUseCase.execute(input);
+  }
+
+  @ApiListarCategoriasDespesaDocs()
+  @Get('categorias-despesa')
+  async listarCategoriasDespesa(): Promise<CategoriaDespesa[]> {
+    return this.financeiroService.listarCategoriasDespesa();
+  }
+
+  @Put('categorias-despesa/:id')
+  async alterarCategoriaDespesa(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AlterarCategoriaDespesaDto,
+  ): Promise<CategoriaDespesa> {
+    return this.alterarCategoriaDespesaUseCase.execute(id, input);
   }
 
   @ApiInserirDespesaDocs()

@@ -10,7 +10,6 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { CategoriaDespesa } from '@financeiro/entities';
 import { MeioPagamento } from '@venda/entities';
 import { trimStringValue } from '../../common/transforms/trim-string.transform';
 
@@ -39,11 +38,10 @@ export class InserirDespesaDto {
   })
   valor!: number;
 
-  @IsEnum(CategoriaDespesa, {
-    message:
-      'A categoria da despesa deve ser DESPESA_FIXA, MATERIA_PRIMA, EMBALAGEM, EVENTO, TRANSPORTE ou OUTROS.',
-  })
-  categoria!: CategoriaDespesa;
+  @Type(() => Number)
+  @IsInt({ message: 'A categoria da despesa deve ser um número inteiro.' })
+  @Min(1, { message: 'A categoria da despesa deve ser maior que zero.' })
+  idCategoria!: number;
 
   @IsEnum(MeioPagamento, {
     message: 'O meio de pagamento deve ser DIN, DEB, CRE ou PIX.',

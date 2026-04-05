@@ -3,7 +3,9 @@ import { FinanceiroController } from '@financeiro/controllers';
 import { FinanceiroService } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
+  AlterarCategoriaDespesaUseCase,
   InserirCarteiraUseCase,
+  InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
 
@@ -12,21 +14,27 @@ describe('FinanceiroController', () => {
   let financeiroService: {
     listarCarteiras: jest.Mock;
     listarDespesas: jest.Mock;
+    listarCategoriasDespesa: jest.Mock;
     obterCarteiraPorId: jest.Mock;
   };
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
+  let inserirCategoriaDespesaUseCase: { execute: jest.Mock };
+  let alterarCategoriaDespesaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     financeiroService = {
       listarCarteiras: jest.fn(),
       listarDespesas: jest.fn(),
+      listarCategoriasDespesa: jest.fn(),
       obterCarteiraPorId: jest.fn(),
     };
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
+    inserirCategoriaDespesaUseCase = { execute: jest.fn() };
+    alterarCategoriaDespesaUseCase = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FinanceiroController],
@@ -46,6 +54,14 @@ describe('FinanceiroController', () => {
         {
           provide: InserirDespesaUseCase,
           useValue: inserirDespesaUseCase,
+        },
+        {
+          provide: InserirCategoriaDespesaUseCase,
+          useValue: inserirCategoriaDespesaUseCase,
+        },
+        {
+          provide: AlterarCategoriaDespesaUseCase,
+          useValue: alterarCategoriaDespesaUseCase,
         },
       ],
     }).compile();
@@ -93,5 +109,44 @@ describe('FinanceiroController', () => {
 
     expect(alterarCarteiraUseCase.execute).toHaveBeenCalledWith(1, input);
     expect(result).toEqual({ id: 1, ...input });
+  });
+
+  it('deve delegar inserção de categoria de despesa', async () => {
+    inserirCategoriaDespesaUseCase.execute.mockResolvedValue({
+      id: 1,
+      nome: 'Embalagem',
+    });
+
+    const input = { nome: 'Embalagem' };
+    const result = await controller.inserirCategoriaDespesa(input);
+
+    expect(inserirCategoriaDespesaUseCase.execute).toHaveBeenCalledWith(input);
+    expect(result).toEqual({ id: 1, nome: 'Embalagem' });
+  });
+
+  it('deve listar categorias de despesa', async () => {
+    const categorias = [{ id: 1, nome: 'Embalagem' }];
+    financeiroService.listarCategoriasDespesa.mockResolvedValue(categorias);
+
+    const result = await controller.listarCategoriasDespesa();
+
+    expect(financeiroService.listarCategoriasDespesa).toHaveBeenCalled();
+    expect(result).toBe(categorias);
+  });
+
+  it('deve delegar alteração de categoria de despesa', async () => {
+    alterarCategoriaDespesaUseCase.execute.mockResolvedValue({
+      id: 1,
+      nome: 'Embalagem Atualizada',
+    });
+
+    const input = { nome: 'Embalagem Atualizada' };
+    const result = await controller.alterarCategoriaDespesa(1, input);
+
+    expect(alterarCategoriaDespesaUseCase.execute).toHaveBeenCalledWith(
+      1,
+      input,
+    );
+    expect(result).toEqual({ id: 1, nome: 'Embalagem Atualizada' });
   });
 });

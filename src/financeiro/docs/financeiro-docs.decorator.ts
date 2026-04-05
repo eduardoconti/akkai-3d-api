@@ -35,7 +35,8 @@ const DESPESA_EXEMPLO = {
   dataLancamento: '2026-04-01T00:00:00.000Z',
   descricao: 'Compra de matéria-prima',
   valor: 4500,
-  categoria: 'MATERIA_PRIMA',
+  idCategoria: 1,
+  categoria: { id: 1, nome: 'Matéria-prima' },
   meioPagamento: 'PIX',
   observacao: 'Reposição semanal de filamento',
   idCarteira: 1,
@@ -158,6 +159,25 @@ export function ApiAlterarCarteiraDocs() {
   );
 }
 
+export function ApiListarCategoriasDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista categorias de despesa.',
+      description: 'Retorna todas as categorias de despesa cadastradas.',
+    }),
+    ApiOkResponse({
+      description: 'Categorias encontradas com sucesso.',
+      schema: {
+        example: [
+          { id: 1, nome: 'Matéria-prima' },
+          { id: 2, nome: 'Embalagem' },
+        ],
+      },
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/categorias-despesa'),
+  );
+}
+
 export function ApiInserirDespesaDocs() {
   return applyDecorators(
     ApiOperation({
@@ -174,7 +194,7 @@ export function ApiInserirDespesaDocs() {
             dataLancamento: '2026-04-01',
             descricao: 'Compra de matéria-prima',
             valor: 4500,
-            categoria: 'MATERIA_PRIMA',
+            idCategoria: 1,
             meioPagamento: 'PIX',
             idCarteira: 1,
             observacao: 'Reposição semanal de filamento',

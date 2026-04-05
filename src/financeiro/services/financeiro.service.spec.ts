@@ -1,10 +1,11 @@
 import {
   ConflictException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Carteira, Despesa } from '@financeiro/entities';
+import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
 
 describe('FinanceiroService', () => {
@@ -15,6 +16,12 @@ describe('FinanceiroService', () => {
     findOne: jest.Mock;
   };
   let despesaRepository: { save: jest.Mock; createQueryBuilder?: jest.Mock };
+  let categoriaDespesaRepository: {
+    save: jest.Mock;
+    find: jest.Mock;
+    findOne: jest.Mock;
+    exists: jest.Mock;
+  };
   let dataSource: { query: jest.Mock };
 
   beforeEach(async () => {
@@ -25,6 +32,12 @@ describe('FinanceiroService', () => {
     };
     despesaRepository = {
       save: jest.fn(),
+    };
+    categoriaDespesaRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      exists: jest.fn(),
     };
     dataSource = {
       query: jest.fn(),
@@ -40,6 +53,10 @@ describe('FinanceiroService', () => {
         {
           provide: getRepositoryToken(Despesa),
           useValue: despesaRepository,
+        },
+        {
+          provide: getRepositoryToken(CategoriaDespesa),
+          useValue: categoriaDespesaRepository,
         },
         {
           provide: getDataSourceToken(),
@@ -201,5 +218,69 @@ describe('FinanceiroService', () => {
     });
 
     expect(result.totalPaginas).toBe(1);
+  });
+
+  it('deve salvar categoria de despesa com sucesso', async () => {
+    const categoria = Object.assign(new CategoriaDespesa(), {
+      id: 1,
+      nome: 'Matéria-prima',
+    });
+    categoriaDespesaRepository.save.mockResolvedValue(categoria);
+
+    const result = await service.salvarCategoriaDespesa(categoria);
+
+    expect(result).toBe(categoria);
+  });
+
+  it('deve lançar ConflictException ao salvar categoria com nome duplicado', async () => {
+    const categoria = Object.assign(new CategoriaDespesa(), {
+      nome: 'Embalagem',
+    });
+    categoriaDespesaRepository.save.mockRejectedValue({
+      driverError: { code: '23505' },
+    });
+
+    await expect(service.salvarCategoriaDespesa(categoria)).rejects.toThrow(
+      new ConflictException('Categoria Embalagem já existe'),
+    );
+  });
+
+  it('deve listar categorias de despesa ordenadas por nome', async () => {
+    const categorias = [
+      Object.assign(new CategoriaDespesa(), { id: 1, nome: 'Embalagem' }),
+      Object.assign(new CategoriaDespesa(), { id: 2, nome: 'Transporte' }),
+    ];
+    categoriaDespesaRepository.find.mockResolvedValue(categorias);
+
+    const result = await service.listarCategoriasDespesa();
+
+    expect(categoriaDespesaRepository.find).toHaveBeenCalledWith({
+      order: { nome: 'ASC' },
+    });
+    expect(result).toBe(categorias);
+  });
+
+  it('deve lançar NotFoundException ao garantir categoria inexistente por id', async () => {
+    categoriaDespesaRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.garantirCategoriaDespesaPorId(99)).rejects.toThrow(
+      new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve garantir existência de categoria de despesa', async () => {
+    categoriaDespesaRepository.exists.mockResolvedValue(true);
+
+    await expect(
+      service.garantirExisteCategoriaDespesa(1),
+    ).resolves.not.toThrow();
+  });
+
+  it('deve lançar NotFoundException ao garantir existência de categoria inexistente', async () => {
+    categoriaDespesaRepository.exists.mockResolvedValue(false);
+
+    await expect(service.garantirExisteCategoriaDespesa(99)).rejects.toThrow(
+      new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
+    );
   });
 });

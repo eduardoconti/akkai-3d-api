@@ -9,19 +9,12 @@ import {
 } from 'typeorm';
 import { MeioPagamento } from '@venda/entities/venda.entity';
 import { Carteira } from './carteira.entity';
-
-export enum CategoriaDespesa {
-  DESPESA_FIXA = 'DESPESA_FIXA',
-  MATERIA_PRIMA = 'MATERIA_PRIMA',
-  EMBALAGEM = 'EMBALAGEM',
-  EVENTO = 'EVENTO',
-  TRANSPORTE = 'TRANSPORTE',
-  OUTROS = 'OUTROS',
-}
+import { CategoriaDespesa } from './categoria-despesa.entity';
 
 @Entity('despesa')
 @Check('ck_despesa_valor_nao_negativo', '"valor" >= 0')
 @Index('idx_despesa_id_carteira', ['idCarteira'])
+@Index('idx_despesa_id_categoria', ['idCategoria'])
 @Index('idx_despesa_data_lancamento', ['dataLancamento'])
 export class Despesa {
   @PrimaryGeneratedColumn({
@@ -47,10 +40,15 @@ export class Despesa {
   })
   valor!: number;
 
-  @Column({
-    type: 'enum',
-    enum: CategoriaDespesa,
-    enumName: 'categoria_despesa_enum',
+  @Column({ type: 'integer', name: 'id_categoria' })
+  idCategoria!: number;
+
+  @ManyToOne(() => CategoriaDespesa, (categoria) => categoria.despesas, {
+    nullable: false,
+  })
+  @JoinColumn({
+    name: 'id_categoria',
+    foreignKeyConstraintName: 'fk_despesa_categoria_despesa',
   })
   categoria!: CategoriaDespesa;
 
