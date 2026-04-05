@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   InternalServerErrorException,
   NotFoundException,
@@ -7,6 +8,8 @@ import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
+import { DateService } from '../../common/services/date.service';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 
 describe('FinanceiroService', () => {
   let service: FinanceiroService;
@@ -23,6 +26,12 @@ describe('FinanceiroService', () => {
     exists: jest.Mock;
   };
   let dataSource: { query: jest.Mock };
+  const dateServiceMock = {
+    toUtcDateRange: (d: string) => ({
+      start: `${d} 00:00:00.000`,
+      end: `${d} 23:59:59.999`,
+    }),
+  };
 
   beforeEach(async () => {
     carteiraRepository = {
@@ -62,6 +71,10 @@ describe('FinanceiroService', () => {
           provide: getDataSourceToken(),
           useValue: dataSource,
         },
+        {
+          provide: DateService,
+          useValue: dateServiceMock,
+        },
       ],
     }).compile();
 
@@ -91,6 +104,49 @@ describe('FinanceiroService', () => {
     expect(result).toEqual({ id: 1 });
   });
 
+  it('deve garantir carteira por id retornando a carteira', async () => {
+    const carteira = Object.assign(new Carteira(), { id: 1, nome: 'CAIXA' });
+    carteiraRepository.findOne.mockResolvedValue(carteira);
+
+    const result = await service.garantirCarteiraPorId(1);
+
+    expect(result).toBe(carteira);
+  });
+
+  it('deve lançar NotFoundException quando carteira não existir em garantirCarteiraPorId', async () => {
+    carteiraRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.garantirCarteiraPorId(99)).rejects.toThrow(
+      new NotFoundException('Carteira não encontrada'),
+    );
+  });
+
+  it('deve lançar NotFoundException quando carteira não existir em garantirExisteCarteira', async () => {
+    carteiraRepository.exists.mockResolvedValue(false);
+
+    await expect(service.garantirExisteCarteira(99)).rejects.toThrow(
+      new NotFoundException('Carteira com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve não lançar erro quando carteira existir em garantirExisteCarteira', async () => {
+    carteiraRepository.exists.mockResolvedValue(true);
+
+    await expect(service.garantirExisteCarteira(1)).resolves.not.toThrow();
+  });
+
+  it('deve garantir categoria de despesa por id retornando a categoria', async () => {
+    const categoria = Object.assign(new CategoriaDespesa(), {
+      id: 1,
+      nome: 'Matéria-prima',
+    });
+    categoriaDespesaRepository.findOne.mockResolvedValue(categoria);
+
+    const result = await service.garantirCategoriaDespesaPorId(1);
+
+    expect(result).toBe(categoria);
+  });
+
   it('deve lançar erro ao falhar inserção da despesa', async () => {
     despesaRepository.save.mockRejectedValue(new Error('falha'));
 
@@ -99,13 +155,14 @@ describe('FinanceiroService', () => {
     );
   });
 
-  it('deve listar carteiras com saldo atual', async () => {
+  it('deve listar carteiras com saldo atual e meios de pagamento', async () => {
     dataSource.query.mockResolvedValue([
       {
         id: 1,
         nome: 'CAIXA',
         ativa: true,
         saldoAtual: '12000',
+        meiosPagamento: '["PIX","DIN"]',
       },
     ]);
 
@@ -117,8 +174,73 @@ describe('FinanceiroService', () => {
         nome: 'CAIXA',
         ativa: true,
         saldoAtual: 12000,
+        meiosPagamento: ['PIX', 'DIN'],
       },
     ]);
+  });
+
+  it('deve garantir carteira aceita meio de pagamento quando lista estiver vazia', async () => {
+    carteiraRepository.findOne.mockResolvedValue(
+      Object.assign(new Carteira(), { id: 1, ativa: true, meiosPagamento: [] }),
+    );
+
+    await expect(
+      service.garantirCarteiraAceitaMeioPagamento(1, MeioPagamento.PIX),
+    ).resolves.not.toThrow();
+  });
+
+  it('deve garantir carteira aceita meio de pagamento quando ele está na lista', async () => {
+    carteiraRepository.findOne.mockResolvedValue(
+      Object.assign(new Carteira(), {
+        id: 1,
+        ativa: true,
+        meiosPagamento: [MeioPagamento.PIX, MeioPagamento.DIN],
+      }),
+    );
+
+    await expect(
+      service.garantirCarteiraAceitaMeioPagamento(1, MeioPagamento.PIX),
+    ).resolves.not.toThrow();
+  });
+
+  it('deve lançar BadRequestException quando meio de pagamento não for aceito pela carteira', async () => {
+    carteiraRepository.findOne.mockResolvedValue(
+      Object.assign(new Carteira(), {
+        id: 1,
+        ativa: true,
+        meiosPagamento: [MeioPagamento.PIX],
+      }),
+    );
+
+    await expect(
+      service.garantirCarteiraAceitaMeioPagamento(1, MeioPagamento.DIN),
+    ).rejects.toThrow(
+      new BadRequestException(
+        `A carteira não aceita o meio de pagamento ${MeioPagamento.DIN}.`,
+      ),
+    );
+  });
+
+  it('deve lançar NotFoundException quando carteira não existir em garantirCarteiraAceitaMeioPagamento', async () => {
+    carteiraRepository.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.garantirCarteiraAceitaMeioPagamento(99, MeioPagamento.PIX),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('deve lançar NotFoundException quando carteira estiver inativa em garantirCarteiraAceitaMeioPagamento', async () => {
+    carteiraRepository.findOne.mockResolvedValue(
+      Object.assign(new Carteira(), {
+        id: 1,
+        ativa: false,
+        meiosPagamento: [],
+      }),
+    );
+
+    await expect(
+      service.garantirCarteiraAceitaMeioPagamento(1, MeioPagamento.PIX),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('deve lançar ConflictException ao salvar carteira com nome duplicado', async () => {

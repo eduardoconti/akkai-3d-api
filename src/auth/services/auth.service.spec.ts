@@ -374,6 +374,67 @@ describe('AuthService', () => {
     );
   });
 
+  it('deve renovar sessão com sucesso no refresh', async () => {
+    const authenticatedUser = {
+      id: 1,
+      name: 'Eduardo',
+      email: 'eduardo@email.com',
+      isActive: true,
+      role: {
+        name: 'admin',
+        rolePermissions: [
+          { permission: { name: 'create:produto' } },
+          { permission: { name: 'read:produto' } },
+        ],
+      },
+    } as unknown as User;
+
+    const session = {
+      id: 'session-id',
+      userId: 1,
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 100000),
+      tokenHash: 'hash-valido',
+      user: authenticatedUser,
+    };
+
+    const newSession = {
+      id: 'new-session-id',
+      userId: 1,
+      tokenHash: '',
+      expiresAt: new Date(),
+    };
+
+    jwtService.verifyAsync.mockResolvedValue({
+      sub: 1,
+      sessionId: 'session-id',
+    });
+    refreshSessionRepository.findOne.mockResolvedValue(session);
+    jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+    refreshSessionRepository.save
+      .mockResolvedValueOnce({ ...session, revokedAt: new Date() }) // revokeSession
+      .mockResolvedValueOnce(newSession) // issueSession: save refreshSession (1st)
+      .mockResolvedValueOnce({ ...newSession, tokenHash: 'refresh-hash' }); // issueSession: save with hash (2nd)
+    userRepository.findOne.mockResolvedValue(authenticatedUser);
+    refreshSessionRepository.create.mockReturnValue(newSession);
+    jest.spyOn(bcrypt, 'hash').mockResolvedValue('refresh-hash' as never);
+    jwtService.signAsync
+      .mockResolvedValueOnce('access-token')
+      .mockResolvedValueOnce('refresh-token');
+
+    const response = { cookie: jest.fn() };
+    const result = await service.refresh('token-valido', response as never);
+
+    expect(response.cookie).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      id: 1,
+      name: 'Eduardo',
+      email: 'eduardo@email.com',
+      role: 'admin',
+      permissions: ['create:produto', 'read:produto'],
+    });
+  });
+
   it('deve retornar dados do usuário em me', async () => {
     userRepository.findOne.mockResolvedValue({
       id: 1,

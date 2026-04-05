@@ -3,10 +3,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { RelatorioService } from '@relatorio/services';
 import { TipoVenda } from '@venda/entities/venda.entity';
+import { DateService } from '../../common/services/date.service';
 
 describe('RelatorioService', () => {
   let service: RelatorioService;
   let dataSource: { query: jest.Mock };
+  const dateServiceMock = {
+    toUtcDateRange: (d: string) => ({
+      start: `${d} 00:00:00.000`,
+      end: `${d} 23:59:59.999`,
+    }),
+  };
 
   beforeEach(async () => {
     dataSource = { query: jest.fn() };
@@ -17,6 +24,10 @@ describe('RelatorioService', () => {
         {
           provide: DataSource,
           useValue: dataSource,
+        },
+        {
+          provide: DateService,
+          useValue: dateServiceMock,
         },
       ],
     }).compile();

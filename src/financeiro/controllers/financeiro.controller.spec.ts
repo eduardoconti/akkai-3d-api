@@ -111,6 +111,42 @@ describe('FinanceiroController', () => {
     expect(result).toEqual({ id: 1, ...input });
   });
 
+  it('deve delegar inserção de despesa', async () => {
+    const despesa = { id: 1, descricao: 'Aluguel', valor: 150000 };
+    inserirDespesaUseCase.execute.mockResolvedValue(despesa);
+
+    const input = {
+      descricao: 'Aluguel',
+      valor: 150000,
+      idCarteira: 1,
+      idCategoria: 1,
+      meioPagamento: 'PIX',
+    };
+    const result = await controller.inserirDespesa(input as never);
+
+    expect(inserirDespesaUseCase.execute).toHaveBeenCalledWith(input);
+    expect(result).toBe(despesa);
+  });
+
+  it('deve listar despesas', async () => {
+    const despesas = {
+      itens: [],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 0,
+      totalPaginas: 1,
+    };
+    financeiroService.listarDespesas.mockResolvedValue(despesas);
+
+    const result = await controller.listarDespesas({
+      pagina: 1,
+      tamanhoPagina: 10,
+    } as never);
+
+    expect(financeiroService.listarDespesas).toHaveBeenCalled();
+    expect(result).toBe(despesas);
+  });
+
   it('deve delegar inserção de categoria de despesa', async () => {
     inserirCategoriaDespesaUseCase.execute.mockResolvedValue({
       id: 1,

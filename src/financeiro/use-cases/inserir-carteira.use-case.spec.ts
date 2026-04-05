@@ -1,5 +1,6 @@
 import { Carteira } from '@financeiro/entities';
 import { InserirCarteiraUseCase } from '@financeiro/use-cases';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 
 describe('InserirCarteiraUseCase', () => {
   let useCase: InserirCarteiraUseCase;
@@ -20,6 +21,7 @@ describe('InserirCarteiraUseCase', () => {
       id: 1,
       nome: 'NUBANK PIX',
       ativa: true,
+      meiosPagamento: [],
     });
     financeiroService.salvarCarteira.mockResolvedValue(carteira);
 
@@ -32,6 +34,7 @@ describe('InserirCarteiraUseCase', () => {
       expect.objectContaining({
         nome: 'NUBANK PIX',
         ativa: true,
+        meiosPagamento: [],
       }),
     );
     expect(result).toBe(carteira);
@@ -42,13 +45,35 @@ describe('InserirCarteiraUseCase', () => {
       id: 1,
       nome: 'CAIXA',
       ativa: true,
+      meiosPagamento: [],
     });
     financeiroService.salvarCarteira.mockResolvedValue(carteira);
 
     await useCase.execute({ nome: 'CAIXA' });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
-      expect.objectContaining({ ativa: true }),
+      expect.objectContaining({ ativa: true, meiosPagamento: [] }),
+    );
+  });
+
+  it('deve salvar meios de pagamento informados', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'NUBANK',
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX, MeioPagamento.DEB],
+    });
+    financeiroService.salvarCarteira.mockResolvedValue(carteira);
+
+    await useCase.execute({
+      nome: 'NUBANK',
+      meiosPagamento: [MeioPagamento.PIX, MeioPagamento.DEB],
+    });
+
+    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({
+        meiosPagamento: [MeioPagamento.PIX, MeioPagamento.DEB],
+      }),
     );
   });
 });

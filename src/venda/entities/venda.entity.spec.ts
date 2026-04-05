@@ -1,3 +1,4 @@
+import { Carteira } from '@financeiro/entities/carteira.entity';
 import {
   ItemVenda,
   ItemVendaInput,
@@ -7,6 +8,40 @@ import {
 } from '@venda/entities';
 
 describe('Venda', () => {
+  it('deve limpar a relação carteira ao chamar atualizar', () => {
+    const venda = new Venda();
+    venda.carteira = Object.assign(new Carteira(), { id: 1 });
+    venda.idCarteira = 1;
+    venda.itens = [];
+
+    venda.atualizar({
+      meioPagamento: MeioPagamento.PIX,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 2,
+      itens: [],
+    });
+
+    expect(venda.carteira).toBeUndefined();
+    expect(venda.idCarteira).toBe(2);
+  });
+
+  it('deve limpar a relação feira ao chamar atualizar', () => {
+    const venda = new Venda();
+    venda.feira = { id: 5 } as never;
+    venda.idFeira = 5;
+    venda.itens = [];
+
+    venda.atualizar({
+      meioPagamento: MeioPagamento.DIN,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [],
+    });
+
+    expect(venda.feira).toBeUndefined();
+    expect(venda.idFeira).toBeUndefined();
+  });
+
   it('deve calcular o valor total corretamente com desconto apenas na venda', () => {
     const itens = [
       {
@@ -74,6 +109,25 @@ describe('Venda', () => {
     });
 
     expect(venda.valorTotal).toBe(200);
+  });
+
+  it('deve lançar BadRequestException quando desconto for maior que o total dos itens', () => {
+    expect(() =>
+      Venda.criar({
+        meioPagamento: MeioPagamento.PIX,
+        tipo: TipoVenda.LOJA,
+        idCarteira: 1,
+        desconto: 1000,
+        itens: [
+          {
+            idProduto: 1,
+            nomeProduto: 'Caneca',
+            quantidade: 1,
+            valorUnitario: 500,
+          },
+        ],
+      }),
+    ).toThrow('O desconto não pode ser maior que o valor total dos itens.');
   });
 });
 

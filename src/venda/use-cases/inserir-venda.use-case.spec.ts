@@ -22,8 +22,8 @@ describe('InserirVendaUseCase', () => {
   let garantirExisteFeiraMock: jest.MockedFunction<
     (id: number) => Promise<void>
   >;
-  let garantirExisteCarteiraMock: jest.MockedFunction<
-    (id: number) => Promise<void>
+  let garantirCarteiraAceitaMeioPagamentoMock: jest.MockedFunction<
+    (id: number, meio: MeioPagamento) => Promise<void>
   >;
   let garantirExisteProdutoMock: jest.MockedFunction<
     (id: number) => Promise<Produto>
@@ -35,7 +35,10 @@ describe('InserirVendaUseCase', () => {
       [Venda, MovimentacaoEstoque[]]
     >();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
-    garantirExisteCarteiraMock = jest.fn<Promise<void>, [number]>();
+    garantirCarteiraAceitaMeioPagamentoMock = jest.fn<
+      Promise<void>,
+      [number, MeioPagamento]
+    >();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
 
     const vendaService = {
@@ -51,7 +54,8 @@ describe('InserirVendaUseCase', () => {
     } as unknown as ProdutoService;
 
     const financeiroService = {
-      garantirExisteCarteira: garantirExisteCarteiraMock,
+      garantirCarteiraAceitaMeioPagamento:
+        garantirCarteiraAceitaMeioPagamentoMock,
     } as unknown as FinanceiroService;
 
     useCase = new InserirVendaUseCase(
@@ -87,13 +91,16 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute(input);
 
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(1);
-    expect(garantirExisteCarteiraMock).toHaveBeenCalledWith(1);
+    expect(garantirCarteiraAceitaMeioPagamentoMock).toHaveBeenCalledWith(
+      1,
+      MeioPagamento.PIX,
+    );
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoVenda.LOJA,
@@ -134,7 +141,7 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
@@ -172,7 +179,7 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     garantirExisteFeiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
 
@@ -194,7 +201,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando carteira não existir', async () => {
-    garantirExisteCarteiraMock.mockRejectedValue(
+    garantirCarteiraAceitaMeioPagamentoMock.mockRejectedValue(
       new NotFoundException('Carteira com ID 99 não encontrada.'),
     );
 
@@ -209,7 +216,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando feira não existir', async () => {
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     garantirExisteFeiraMock.mockRejectedValue(
       new NotFoundException('Feira com ID 99 não encontrada.'),
     );
@@ -226,7 +233,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando produto não existir', async () => {
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     garantirExisteProdutoMock.mockRejectedValue(
       new NotFoundException('Produto com ID 99 não encontrado.'),
     );
@@ -243,7 +250,7 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda com item avulso sem movimentar estoque', async () => {
     inserirVendaMock.mockResolvedValue(new Venda());
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
 
     await useCase.execute({
       meioPagamento: MeioPagamento.PIX,
@@ -289,7 +296,7 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute({

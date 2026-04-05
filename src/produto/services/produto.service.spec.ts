@@ -116,6 +116,24 @@ describe('ProdutoService', () => {
     );
   });
 
+  it('deve listar produtos filtrando por termo', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '1' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      termo: 'Caneca',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('WHERE'),
+      expect.arrayContaining(['%caneca%']),
+    );
+  });
+
   it('deve salvar produto com sucesso', async () => {
     const produto = Object.assign(new Produto(), {
       id: 1,

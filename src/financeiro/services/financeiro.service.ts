@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { DateService } from '../../common/services/date.service';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { DataSource, Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
@@ -34,6 +35,7 @@ export class FinanceiroService {
     @InjectRepository(CategoriaDespesa)
     private readonly categoriaDespesaRepository: Repository<CategoriaDespesa>,
     private readonly dataSource: DataSource,
+    private readonly dateService: DateService,
   ) {}
 
   async salvarCarteira(carteira: Carteira): Promise<Carteira> {
@@ -216,14 +218,16 @@ export class FinanceiroService {
     }
 
     if (pesquisa.dataInicio) {
+      const range = this.dateService.toUtcDateRange(pesquisa.dataInicio);
       queryBuilder.andWhere('despesa.dataLancamento >= :dataInicio', {
-        dataInicio: `${pesquisa.dataInicio} 00:00:00.000`,
+        dataInicio: range.start,
       });
     }
 
     if (pesquisa.dataFim) {
+      const range = this.dateService.toUtcDateRange(pesquisa.dataFim);
       queryBuilder.andWhere('despesa.dataLancamento <= :dataFim', {
-        dataFim: `${pesquisa.dataFim} 23:59:59.999`,
+        dataFim: range.end,
       });
     }
 

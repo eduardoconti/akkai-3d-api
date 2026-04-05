@@ -14,14 +14,14 @@ describe('AlterarVendaUseCase', () => {
   let alterarVendaMock: jest.Mock;
   let garantirExisteVendaMock: jest.Mock;
   let garantirExisteFeiraMock: jest.Mock;
-  let garantirExisteCarteiraMock: jest.Mock;
+  let garantirCarteiraAceitaMeioPagamentoMock: jest.Mock;
   let garantirExisteProdutoMock: jest.Mock;
 
   beforeEach(() => {
     alterarVendaMock = jest.fn();
     garantirExisteVendaMock = jest.fn();
     garantirExisteFeiraMock = jest.fn();
-    garantirExisteCarteiraMock = jest.fn();
+    garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn();
 
     const vendaService = {
@@ -35,7 +35,8 @@ describe('AlterarVendaUseCase', () => {
       garantirExisteProduto: garantirExisteProdutoMock,
     } as unknown as ProdutoService;
     const financeiroService = {
-      garantirExisteCarteira: garantirExisteCarteiraMock,
+      garantirCarteiraAceitaMeioPagamento:
+        garantirCarteiraAceitaMeioPagamentoMock,
     } as unknown as FinanceiroService;
 
     useCase = new AlterarVendaUseCase(
@@ -73,7 +74,7 @@ describe('AlterarVendaUseCase', () => {
     };
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
-    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     garantirExisteFeiraMock.mockResolvedValue(undefined);
     garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
@@ -87,7 +88,10 @@ describe('AlterarVendaUseCase', () => {
     const result = await useCase.execute(5, input);
 
     expect(garantirExisteVendaMock).toHaveBeenCalledWith(5);
-    expect(garantirExisteCarteiraMock).toHaveBeenCalledWith(2);
+    expect(garantirCarteiraAceitaMeioPagamentoMock).toHaveBeenCalledWith(
+      2,
+      MeioPagamento.PIX,
+    );
     expect(garantirExisteFeiraMock).toHaveBeenCalledWith(3);
     expect(alterarVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -108,6 +112,35 @@ describe('AlterarVendaUseCase', () => {
       ],
     );
     expect(result).toBe(vendaExistente);
+  });
+
+  it('deve alterar venda com item avulso sem movimentar estoque', async () => {
+    const vendaExistente = Venda.criar({
+      meioPagamento: MeioPagamento.DIN,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [],
+    });
+    vendaExistente.id = 6;
+
+    garantirExisteVendaMock.mockResolvedValue(vendaExistente);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    alterarVendaMock.mockResolvedValue(vendaExistente);
+
+    await useCase.execute(6, {
+      meioPagamento: MeioPagamento.PIX,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [
+        { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },
+      ],
+    });
+
+    expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
+    expect(alterarVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 6 }),
+      [],
+    );
   });
 
   it('deve lançar erro quando venda não existir', async () => {

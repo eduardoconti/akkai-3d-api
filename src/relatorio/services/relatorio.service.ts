@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { calcularOffset } from '../../common/utils/paginacao.util';
+import { DateService } from '../../common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
   ObterProdutosMaisVendidosDto,
@@ -25,7 +26,10 @@ type ProdutoMaisVendidoRow = {
 
 @Injectable()
 export class RelatorioService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly dateService: DateService,
+  ) {}
 
   async obterProdutosMaisVendidosPorPeriodo(
     filtro: ObterProdutosMaisVendidosDto,
@@ -45,9 +49,12 @@ export class RelatorioService {
       );
     }
 
+    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
+    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+
     const parameters: Array<string | number | number[]> = [
-      `${dataInicio} 00:00:00.000`,
-      `${dataFim} 23:59:59.999`,
+      rangeInicio.start,
+      rangeFim.end,
     ];
     const conditions = ['v.data_inclusao BETWEEN $1 AND $2'];
 
@@ -166,9 +173,12 @@ export class RelatorioService {
       );
     }
 
+    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
+    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+
     const parameters: Array<string | number> = [
-      `${dataInicio} 00:00:00.000`,
-      `${dataFim} 23:59:59.999`,
+      rangeInicio.start,
+      rangeFim.end,
     ];
     const conditions = ['venda.data_inclusao BETWEEN $1 AND $2'];
 

@@ -13,6 +13,7 @@ import { MovimentacaoEstoque } from '@produto/entities';
 import { PesquisarVendasDto } from '@venda/dto';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { calcularOffset } from '../../common/utils/paginacao.util';
+import { DateService } from '../../common/services/date.service';
 
 @Injectable()
 export class VendaService {
@@ -24,6 +25,7 @@ export class VendaService {
     @InjectRepository(Carteira)
     private readonly carteiraRepository: Repository<Carteira>,
     private readonly dataSource: DataSource,
+    private readonly dateService: DateService,
   ) {}
 
   async existeCarteira(idCarteira: number): Promise<boolean> {
@@ -156,11 +158,17 @@ export class VendaService {
       .take(pesquisa.tamanhoPagina);
 
     if (dataInicio) {
+      const range = this.dateService.toUtcDateRange(dataInicio);
+      const rangeFim =
+        dataFim && dataFim !== dataInicio
+          ? this.dateService.toUtcDateRange(dataFim)
+          : range;
+
       queryBuilder.andWhere(
         'venda.dataInclusao BETWEEN :dataInicio AND :dataFim',
         {
-          dataInicio: `${dataInicio} 00:00:00.000`,
-          dataFim: `${dataFim ?? dataInicio} 23:59:59.999`,
+          dataInicio: range.start,
+          dataFim: rangeFim.end,
         },
       );
     }

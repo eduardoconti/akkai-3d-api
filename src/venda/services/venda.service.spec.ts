@@ -8,6 +8,7 @@ import { MovimentacaoEstoque } from '@produto/entities';
 import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
+import { DateService } from '../../common/services/date.service';
 
 describe('VendaService', () => {
   let service: VendaService;
@@ -29,6 +30,12 @@ describe('VendaService', () => {
   };
   let dataSource: {
     createQueryRunner: jest.Mock;
+  };
+  const dateServiceMock = {
+    toUtcDateRange: (d: string) => ({
+      start: `${d} 00:00:00.000`,
+      end: `${d} 23:59:59.999`,
+    }),
   };
 
   beforeEach(async () => {
@@ -76,6 +83,10 @@ describe('VendaService', () => {
         {
           provide: getDataSourceToken(),
           useValue: dataSource,
+        },
+        {
+          provide: DateService,
+          useValue: dateServiceMock,
         },
       ],
     }).compile();
@@ -159,6 +170,24 @@ describe('VendaService', () => {
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
   });
 
+  it('deve garantir existência de venda retornando a venda', async () => {
+    vendaRepository.findOne.mockResolvedValue(
+      Object.assign(new Venda(), { id: 3 }),
+    );
+
+    const result = await service.garantirExisteVenda(3);
+
+    expect(result).toEqual(expect.objectContaining({ id: 3 }));
+  });
+
+  it('deve lançar NotFoundException quando venda não existir em garantirExisteVenda', async () => {
+    vendaRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.garantirExisteVenda(99)).rejects.toThrow(
+      'Venda com ID 99 não encontrada.',
+    );
+  });
+
   it('deve obter venda por id com relações', async () => {
     vendaRepository.findOne.mockResolvedValue(
       Object.assign(new Venda(), { id: 3 }),
@@ -175,6 +204,19 @@ describe('VendaService', () => {
       },
     });
     expect(result).toEqual(expect.objectContaining({ id: 3 }));
+  });
+
+  it('deve inserir venda com item de catálogo sem movimentação correspondente sem vincular idItemVenda', async () => {
+    const item = Object.assign(new ItemVenda(), { id: 7, idProduto: 1 });
+    const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
+    queryRunner.manager.save
+      .mockResolvedValueOnce(venda)
+      .mockResolvedValueOnce([]);
+
+    // movimentacoes vazia: nenhuma correspondência para o item de catálogo
+    await service.inserirVenda(venda, []);
+
+    expect(queryRunner.commitTransaction).toHaveBeenCalled();
   });
 
   it('deve fazer rollback ao falhar inserção da venda', async () => {

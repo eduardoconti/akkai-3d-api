@@ -1,4 +1,5 @@
 import { AuthModule } from '@auth/auth.module';
+import { CommonModule } from './common/common.module';
 import { FinanceiroModule } from '@financeiro/financeiro.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -22,6 +23,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
         abortEarly: false,
       },
     }),
+    CommonModule,
     AuthModule,
     FinanceiroModule,
     OrcamentoModule,
