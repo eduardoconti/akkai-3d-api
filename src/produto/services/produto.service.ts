@@ -27,7 +27,20 @@ export class ProdutoService {
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     const termo = pesquisa.termo?.toLowerCase();
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
-    const orderBy = pesquisa.ordenarPor === 'codigo' ? 'p.codigo' : 'p.nome';
+    const orderByMap = {
+      codigo: 'p.codigo',
+      quantidade: 'COALESCE(e.quantidade_estoque, 0)',
+      nivelEstoque: `
+        CASE
+          WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0
+          WHEN p.estoque_minimo IS NOT NULL
+            AND COALESCE(e.quantidade_estoque, 0) < p.estoque_minimo THEN 1
+          ELSE 2
+        END
+      `,
+      nome: 'p.nome',
+    } as const;
+    const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nome'];
     const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
     const filtros: string[] = [];
     const parametros: unknown[] = [];
@@ -103,7 +116,7 @@ export class ProdutoService {
        INNER JOIN categoria_produto c ON c.id = p.id_categoria
        LEFT JOIN estoque e ON e.id_produto = p.id
        ${whereClause}
-       ORDER BY ${orderBy} ${orderDirection}
+       ORDER BY ${orderBy} ${orderDirection}, p.nome ASC
        LIMIT $${parametros.length - 1}
        OFFSET $${parametros.length}
       `,

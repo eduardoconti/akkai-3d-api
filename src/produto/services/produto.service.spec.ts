@@ -116,6 +116,51 @@ describe('ProdutoService', () => {
     );
   });
 
+  it('deve ordenar produtos por quantidade em estoque quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'quantidade',
+      direcao: 'desc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining(
+        'ORDER BY COALESCE(e.quantidade_estoque, 0) DESC, p.nome ASC',
+      ),
+      expect.any(Array),
+    );
+  });
+
+  it('deve ordenar produtos por nível do estoque quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'nivelEstoque',
+      direcao: 'asc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0'),
+      expect.any(Array),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('ORDER BY'),
+      expect.any(Array),
+    );
+  });
+
   it('deve listar produtos filtrando por termo', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])
