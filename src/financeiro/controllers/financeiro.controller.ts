@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -11,6 +14,7 @@ import {
 import {
   AlterarCarteiraDto,
   AlterarCategoriaDespesaDto,
+  AlterarDespesaDto,
   InserirCarteiraDto,
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
@@ -21,6 +25,8 @@ import { FinanceiroService } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
+  AlterarDespesaUseCase,
+  ExcluirDespesaUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
@@ -45,6 +51,8 @@ export class FinanceiroController {
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
     private readonly inserirDespesaUseCase: InserirDespesaUseCase,
+    private readonly alterarDespesaUseCase: AlterarDespesaUseCase,
+    private readonly excluirDespesaUseCase: ExcluirDespesaUseCase,
     private readonly inserirCategoriaDespesaUseCase: InserirCategoriaDespesaUseCase,
     private readonly alterarCategoriaDespesaUseCase: AlterarCategoriaDespesaUseCase,
   ) {}
@@ -111,5 +119,21 @@ export class FinanceiroController {
     @Query() pesquisa: PesquisarDespesasDto,
   ): Promise<ResultadoPaginado<Despesa>> {
     return this.financeiroService.listarDespesas(pesquisa);
+  }
+
+  @Put('despesas/:id')
+  async alterarDespesa(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AlterarDespesaDto,
+  ): Promise<Despesa> {
+    return this.alterarDespesaUseCase.execute(id, input);
+  }
+
+  @Delete('despesas/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async excluirDespesa(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.excluirDespesaUseCase.execute(id);
   }
 }

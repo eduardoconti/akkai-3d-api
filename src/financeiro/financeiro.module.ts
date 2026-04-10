@@ -6,6 +6,8 @@ import { FinanceiroService } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
+  AlterarDespesaUseCase,
+  ExcluirDespesaUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
@@ -19,6 +21,8 @@ import {
     InserirCarteiraUseCase,
     AlterarCarteiraUseCase,
     InserirDespesaUseCase,
+    AlterarDespesaUseCase,
+    ExcluirDespesaUseCase,
     InserirCategoriaDespesaUseCase,
     AlterarCategoriaDespesaUseCase,
   ],

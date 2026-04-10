@@ -4,6 +4,8 @@ import { FinanceiroService } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
+  AlterarDespesaUseCase,
+  ExcluirDespesaUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
@@ -20,6 +22,8 @@ describe('FinanceiroController', () => {
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
+  let alterarDespesaUseCase: { execute: jest.Mock };
+  let excluirDespesaUseCase: { execute: jest.Mock };
   let inserirCategoriaDespesaUseCase: { execute: jest.Mock };
   let alterarCategoriaDespesaUseCase: { execute: jest.Mock };
 
@@ -33,6 +37,8 @@ describe('FinanceiroController', () => {
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
+    alterarDespesaUseCase = { execute: jest.fn() };
+    excluirDespesaUseCase = { execute: jest.fn() };
     inserirCategoriaDespesaUseCase = { execute: jest.fn() };
     alterarCategoriaDespesaUseCase = { execute: jest.fn() };
 
@@ -54,6 +60,14 @@ describe('FinanceiroController', () => {
         {
           provide: InserirDespesaUseCase,
           useValue: inserirDespesaUseCase,
+        },
+        {
+          provide: AlterarDespesaUseCase,
+          useValue: alterarDespesaUseCase,
+        },
+        {
+          provide: ExcluirDespesaUseCase,
+          useValue: excluirDespesaUseCase,
         },
         {
           provide: InserirCategoriaDespesaUseCase,
@@ -145,6 +159,32 @@ describe('FinanceiroController', () => {
 
     expect(financeiroService.listarDespesas).toHaveBeenCalled();
     expect(result).toBe(despesas);
+  });
+
+  it('deve delegar alteração de despesa', async () => {
+    const despesa = { id: 1, descricao: 'Aluguel', valor: 150000 };
+    alterarDespesaUseCase.execute.mockResolvedValue(despesa);
+
+    const input = {
+      dataLancamento: '2026-04-01',
+      descricao: 'Aluguel',
+      valor: 150000,
+      idCarteira: 1,
+      idCategoria: 1,
+      meioPagamento: 'PIX',
+    };
+    const result = await controller.alterarDespesa(1, input as never);
+
+    expect(alterarDespesaUseCase.execute).toHaveBeenCalledWith(1, input);
+    expect(result).toBe(despesa);
+  });
+
+  it('deve delegar exclusão de despesa', async () => {
+    excluirDespesaUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirDespesa(1);
+
+    expect(excluirDespesaUseCase.execute).toHaveBeenCalledWith(1);
   });
 
   it('deve delegar inserção de categoria de despesa', async () => {

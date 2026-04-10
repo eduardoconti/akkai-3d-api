@@ -101,6 +101,35 @@ export class FinanceiroService {
     });
   }
 
+  async obterDespesaPorId(id: number): Promise<Despesa | null> {
+    return this.despesaRepository.findOne({ where: { id } });
+  }
+
+  async garantirDespesaPorId(id: number): Promise<Despesa> {
+    const despesa = await this.obterDespesaPorId(id);
+    if (!despesa) {
+      throw new NotFoundException(`Despesa com ID ${id} não encontrada.`);
+    }
+    return despesa;
+  }
+
+  async alterarDespesa(despesa: Despesa): Promise<Despesa> {
+    const { id, ...restante } = despesa;
+    await this.despesaRepository.update(id, restante).catch((error) => {
+      this.logger.error('Erro ao alterar despesa', error);
+      throw new InternalServerErrorException('Erro ao alterar despesa');
+    });
+
+    return despesa;
+  }
+
+  async excluirDespesa(id: number): Promise<void> {
+    await this.despesaRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir despesa', error);
+      throw new InternalServerErrorException('Erro ao excluir despesa');
+    });
+  }
+
   async salvarCategoriaDespesa(
     categoria: CategoriaDespesa,
   ): Promise<CategoriaDespesa> {
