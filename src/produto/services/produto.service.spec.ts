@@ -151,7 +151,9 @@ describe('ProdutoService', () => {
 
     expect(dataSource.query).toHaveBeenNthCalledWith(
       2,
-      expect.stringContaining('WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0'),
+      expect.stringContaining(
+        'WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0',
+      ),
       expect.any(Array),
     );
     expect(dataSource.query).toHaveBeenNthCalledWith(

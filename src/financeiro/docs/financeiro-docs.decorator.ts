@@ -2,12 +2,14 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
 } from '@nestjs/swagger';
 import {
   AlterarCarteiraDto,
+  AlterarDespesaDto,
   InserirCarteiraDto,
   InserirDespesaDto,
   ListarCarteiraDto,
@@ -211,6 +213,60 @@ export function ApiInserirDespesaDocs() {
     ApiNotFoundErrorResponse(
       '/financeiro/despesas',
       'Carteira não encontrada.',
+    ),
+  );
+}
+
+export function ApiAlterarDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera os dados de uma despesa.',
+      description:
+        'Atualiza todos os campos de uma despesa existente vinculada a uma carteira e categoria.',
+    }),
+    ApiIdParamDocs('Identificador da despesa a ser alterada.'),
+    ApiBody({
+      type: AlterarDespesaDto,
+      examples: {
+        padrao: {
+          summary: 'Alteração válida',
+          value: {
+            dataLancamento: '2026-04-01',
+            descricao: 'Compra de matéria-prima',
+            valor: 5000,
+            idCategoria: 1,
+            meioPagamento: 'PIX',
+            idCarteira: 1,
+            observacao: 'Reposição quinzenal',
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Despesa alterada com sucesso.',
+      schema: { example: DESPESA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/financeiro/despesas/9'),
+    ApiUnauthorizedErrorResponse('/financeiro/despesas/9'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/despesas/999',
+      'Despesa com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiExcluirDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma despesa.',
+      description: 'Remove permanentemente uma despesa pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da despesa a ser excluída.'),
+    ApiNoContentResponse({ description: 'Despesa excluída com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/financeiro/despesas/9'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/despesas/999',
+      'Despesa com ID 999 não encontrada.',
     ),
   );
 }

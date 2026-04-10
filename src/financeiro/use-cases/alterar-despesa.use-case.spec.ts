@@ -46,14 +46,18 @@ describe('AlterarDespesaUseCase', () => {
 
     financeiroService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
     financeiroService.garantirExisteCarteira.mockResolvedValue(undefined);
-    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(undefined);
+    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(
+      undefined,
+    );
     financeiroService.alterarDespesa.mockResolvedValue(despesaAlterada);
 
     const result = await useCase.execute(5, inputPadrao);
 
     expect(financeiroService.garantirDespesaPorId).toHaveBeenCalledWith(5);
     expect(financeiroService.garantirExisteCarteira).toHaveBeenCalledWith(2);
-    expect(financeiroService.garantirExisteCategoriaDespesa).toHaveBeenCalledWith(1);
+    expect(
+      financeiroService.garantirExisteCategoriaDespesa,
+    ).toHaveBeenCalledWith(1);
     expect(financeiroService.alterarDespesa).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 5,
@@ -72,7 +76,9 @@ describe('AlterarDespesaUseCase', () => {
     const despesaExistente = Object.assign(new Despesa(), { id: 5 });
     financeiroService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
     financeiroService.garantirExisteCarteira.mockResolvedValue(undefined);
-    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(undefined);
+    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(
+      undefined,
+    );
     financeiroService.alterarDespesa.mockResolvedValue(despesaExistente);
 
     await useCase.execute(5, { ...inputPadrao, observacao: undefined });

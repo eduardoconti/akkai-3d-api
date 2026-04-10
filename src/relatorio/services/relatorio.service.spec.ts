@@ -237,6 +237,74 @@ describe('RelatorioService', () => {
     expect(result.totalPaginas).toBe(1);
   });
 
+  it('deve retornar o relatório de valor dos produtos em estoque', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          codigo: 'CB-001',
+          nome: 'Cubo Infinito',
+          quantidade: '8',
+          valor: '2500',
+          valorTotal: '20000',
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          totalItens: '1',
+          totalQuantidade: '8',
+          totalValor: '2500',
+          totalValorTotal: '20000',
+        },
+      ]);
+
+    const result = await service.obterValorProdutosEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(dataSource.query).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidade: 8,
+      totalValor: 2500,
+      totalValorTotal: 20000,
+      itens: [
+        {
+          codigo: 'CB-001',
+          nome: 'Cubo Infinito',
+          quantidade: 8,
+          valor: 2500,
+          valorTotal: 20000,
+        },
+      ],
+    });
+  });
+
+  it('deve retornar totalizadores zerados quando não houver produtos em estoque', async () => {
+    dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        totalItens: '0',
+        totalQuantidade: null,
+        totalValor: null,
+        totalValorTotal: null,
+      },
+    ]);
+
+    const result = await service.obterValorProdutosEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(result.totalPaginas).toBe(1);
+    expect(result.totalQuantidade).toBe(0);
+    expect(result.totalValor).toBe(0);
+    expect(result.totalValorTotal).toBe(0);
+    expect(result.itens).toEqual([]);
+  });
+
   it('deve retornar zeros quando campos de resumo forem nulos', async () => {
     dataSource.query.mockResolvedValue([
       { quantidadeItens: null, descontoTotal: null, valorTotal: null },

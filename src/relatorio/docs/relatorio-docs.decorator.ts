@@ -139,3 +139,60 @@ export function ApiProdutosMaisVendidosDocs() {
     ApiForbiddenErrorResponse('/relatorio/vendas/produtos-mais-vendidos'),
   );
 }
+
+export function ApiValorProdutosEstoqueDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém o relatório de valor dos produtos em estoque.',
+      description:
+        'Retorna os produtos com saldo positivo em estoque, de forma paginada, incluindo quantidade, valor unitário, valor total por item e os totalizadores gerais do relatório. Os itens respeitam a página solicitada, mas os totalizadores consideram todo o conjunto retornado pelos filtros.',
+    }),
+    ApiQuery({
+      name: 'pagina',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Página desejada da consulta.',
+    }),
+    ApiQuery({
+      name: 'tamanhoPagina',
+      required: false,
+      type: Number,
+      example: 10,
+      description: 'Quantidade máxima de itens por página.',
+    }),
+    ApiOkResponse({
+      description: 'Relatório calculado com sucesso.',
+      schema: {
+        example: {
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 2,
+          totalPaginas: 1,
+          totalQuantidade: 15,
+          totalValor: 4500,
+          totalValorTotal: 35500,
+          itens: [
+            {
+              codigo: 'CB-001',
+              nome: 'Cubo Infinito',
+              quantidade: 10,
+              valor: 2500,
+              valorTotal: 25000,
+            },
+            {
+              codigo: 'BL-010',
+              nome: 'Bola Fidget',
+              quantidade: 5,
+              valor: 2000,
+              valorTotal: 10000,
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/estoque/valor-produtos'),
+    ApiUnauthorizedErrorResponse('/relatorio/estoque/valor-produtos'),
+    ApiForbiddenErrorResponse('/relatorio/estoque/valor-produtos'),
+  );
+}

@@ -5,8 +5,10 @@ import { DataSource } from 'typeorm';
 import {
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
+  ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
   ResumoVendasPeriodoDto,
+  ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
 import { TipoVenda } from '@venda/entities/venda.entity';
 
@@ -24,12 +26,111 @@ type ProdutoMaisVendidoRow = {
   quantidadeVendida: string | number;
 };
 
+type ValorProdutoEstoqueRow = {
+  codigo: string;
+  nome: string;
+  quantidade: string | number;
+  valor: string | number;
+  valorTotal: string | number;
+};
+
+type TotalizadoresValorProdutosEstoqueRow = {
+  totalItens: string | number;
+  totalQuantidade: string | number | null;
+  totalValor: string | number | null;
+  totalValorTotal: string | number | null;
+};
+
 @Injectable()
 export class RelatorioService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly dateService: DateService,
   ) {}
+
+  async obterValorProdutosEstoque(
+    filtro: ObterValorProdutosEstoqueDto,
+  ): Promise<ValorProdutosEstoqueDto> {
+    const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
+
+    const rows: ValorProdutoEstoqueRow[] = await this.dataSource.query(
+      `
+        WITH estoque AS (
+          SELECT
+            id_produto,
+            SUM(
+              CASE
+                WHEN tipo = 'E' THEN quantidade
+                WHEN tipo = 'S' THEN -quantidade
+                ELSE 0
+              END
+            ) AS quantidade_estoque
+          FROM movimentacao_estoque
+          GROUP BY id_produto
+        )
+        SELECT
+          p.codigo AS codigo,
+          p.nome AS nome,
+          COALESCE(e.quantidade_estoque, 0) AS quantidade,
+          p.valor AS valor,
+          COALESCE(e.quantidade_estoque, 0) * p.valor AS "valorTotal"
+        FROM produto p
+        LEFT JOIN estoque e ON e.id_produto = p.id
+        WHERE COALESCE(e.quantidade_estoque, 0) > 0
+        ORDER BY p.nome ASC, p.codigo ASC
+        LIMIT $1
+        OFFSET $2
+      `,
+      [filtro.tamanhoPagina, offset],
+    );
+
+    const totalizadores: TotalizadoresValorProdutosEstoqueRow[] =
+      await this.dataSource.query(
+        `
+          WITH estoque AS (
+            SELECT
+              id_produto,
+              SUM(
+                CASE
+                  WHEN tipo = 'E' THEN quantidade
+                  WHEN tipo = 'S' THEN -quantidade
+                  ELSE 0
+                END
+              ) AS quantidade_estoque
+            FROM movimentacao_estoque
+            GROUP BY id_produto
+          )
+          SELECT
+            COUNT(*)::int AS "totalItens",
+            COALESCE(SUM(COALESCE(e.quantidade_estoque, 0)), 0) AS "totalQuantidade",
+            COALESCE(SUM(p.valor), 0) AS "totalValor",
+            COALESCE(SUM(COALESCE(e.quantidade_estoque, 0) * p.valor), 0) AS "totalValorTotal"
+          FROM produto p
+          LEFT JOIN estoque e ON e.id_produto = p.id
+          WHERE COALESCE(e.quantidade_estoque, 0) > 0
+        `,
+      );
+
+    const totais = totalizadores[0];
+    const totalItens = Number(totais?.totalItens ?? 0);
+
+    return {
+      pagina: filtro.pagina,
+      tamanhoPagina: filtro.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
+      totalQuantidade: Number(totais?.totalQuantidade ?? 0),
+      totalValor: Number(totais?.totalValor ?? 0),
+      totalValorTotal: Number(totais?.totalValorTotal ?? 0),
+      itens: rows.map((row) => ({
+        codigo: row.codigo,
+        nome: row.nome,
+        quantidade: Number(row.quantidade),
+        valor: Number(row.valor),
+        valorTotal: Number(row.valorTotal),
+      })),
+    };
+  }
 
   async obterProdutosMaisVendidosPorPeriodo(
     filtro: ObterProdutosMaisVendidosDto,

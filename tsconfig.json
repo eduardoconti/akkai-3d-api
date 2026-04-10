@@ -33,6 +33,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "strictBindCallApply": true,
     "useUnknownInCatchVariables": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["jest", "node"]
   }
 }

@@ -18,7 +18,13 @@ describe('FinanceiroService', () => {
     exists: jest.Mock;
     findOne: jest.Mock;
   };
-  let despesaRepository: { save: jest.Mock; createQueryBuilder?: jest.Mock };
+  let despesaRepository: {
+    save: jest.Mock;
+    findOne: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    createQueryBuilder?: jest.Mock;
+  };
   let categoriaDespesaRepository: {
     save: jest.Mock;
     find: jest.Mock;
@@ -41,6 +47,9 @@ describe('FinanceiroService', () => {
     };
     despesaRepository = {
       save: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
     };
     categoriaDespesaRepository = {
       save: jest.fn(),
@@ -152,6 +161,91 @@ describe('FinanceiroService', () => {
 
     await expect(service.inserirDespesa(new Despesa())).rejects.toThrow(
       new InternalServerErrorException('Erro ao inserir despesa'),
+    );
+  });
+
+  it('deve obter despesa por id', async () => {
+    const despesa = Object.assign(new Despesa(), { id: 5 });
+    despesaRepository.findOne = jest.fn().mockResolvedValue(despesa);
+
+    const result = await service.obterDespesaPorId(5);
+
+    expect(despesaRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 5 },
+    });
+    expect(result).toBe(despesa);
+  });
+
+  it('deve retornar null quando despesa não existir em obterDespesaPorId', async () => {
+    despesaRepository.findOne = jest.fn().mockResolvedValue(null);
+
+    const result = await service.obterDespesaPorId(99);
+
+    expect(result).toBeNull();
+  });
+
+  it('deve garantir despesa por id retornando a despesa', async () => {
+    const despesa = Object.assign(new Despesa(), { id: 5 });
+    despesaRepository.findOne = jest.fn().mockResolvedValue(despesa);
+
+    const result = await service.garantirDespesaPorId(5);
+
+    expect(result).toBe(despesa);
+  });
+
+  it('deve lançar NotFoundException quando despesa não existir em garantirDespesaPorId', async () => {
+    despesaRepository.findOne = jest.fn().mockResolvedValue(null);
+
+    await expect(service.garantirDespesaPorId(99)).rejects.toThrow(
+      new NotFoundException('Despesa com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve alterar despesa com sucesso', async () => {
+    const despesa = Object.assign(new Despesa(), {
+      id: 5,
+      descricao: 'Aluguel',
+      valor: 150000,
+      idCategoria: 1,
+      meioPagamento: MeioPagamento.PIX,
+      idCarteira: 1,
+    });
+    despesaRepository.update = jest.fn().mockResolvedValue(undefined);
+
+    const result = await service.alterarDespesa(despesa);
+
+    expect(despesaRepository.update).toHaveBeenCalledWith(
+      5,
+      expect.not.objectContaining({ id: 5 }),
+    );
+    expect(result).toBe(despesa);
+  });
+
+  it('deve lançar InternalServerErrorException ao falhar alteração da despesa', async () => {
+    const despesa = Object.assign(new Despesa(), {
+      id: 5,
+      descricao: 'Aluguel',
+    });
+    despesaRepository.update = jest.fn().mockRejectedValue(new Error('falha'));
+
+    await expect(service.alterarDespesa(despesa)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao alterar despesa'),
+    );
+  });
+
+  it('deve excluir despesa com sucesso', async () => {
+    despesaRepository.delete = jest.fn().mockResolvedValue(undefined);
+
+    await service.excluirDespesa(5);
+
+    expect(despesaRepository.delete).toHaveBeenCalledWith({ id: 5 });
+  });
+
+  it('deve lançar InternalServerErrorException ao falhar exclusão da despesa', async () => {
+    despesaRepository.delete = jest.fn().mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirDespesa(5)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir despesa'),
     );
   });
 

@@ -8,12 +8,14 @@ describe('RelatorioController', () => {
   let relatorioService: {
     obterResumoVendasPorPeriodo: jest.Mock;
     obterProdutosMaisVendidosPorPeriodo: jest.Mock;
+    obterValorProdutosEstoque: jest.Mock;
   };
 
   beforeEach(async () => {
     relatorioService = {
       obterResumoVendasPorPeriodo: jest.fn(),
       obterProdutosMaisVendidosPorPeriodo: jest.fn(),
+      obterValorProdutosEstoque: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -81,6 +83,39 @@ describe('RelatorioController', () => {
     expect(
       relatorioService.obterProdutosMaisVendidosPorPeriodo,
     ).toHaveBeenCalledWith(filtro);
+    expect(result).toEqual(response);
+  });
+
+  it('deve delegar a obtenção do valor dos produtos em estoque', async () => {
+    const filtro = {
+      pagina: 1,
+      tamanhoPagina: 10,
+    };
+    const response = {
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidade: 8,
+      totalValor: 2500,
+      totalValorTotal: 20000,
+      itens: [
+        {
+          codigo: 'CB-001',
+          nome: 'Cubo Infinito',
+          quantidade: 8,
+          valor: 2500,
+          valorTotal: 20000,
+        },
+      ],
+    };
+    relatorioService.obterValorProdutosEstoque.mockResolvedValue(response);
+
+    const result = await controller.obterValorProdutosEstoque(filtro);
+
+    expect(relatorioService.obterValorProdutosEstoque).toHaveBeenCalledWith(
+      filtro,
+    );
     expect(result).toEqual(response);
   });
 });

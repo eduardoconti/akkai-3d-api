@@ -3,14 +3,17 @@ import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
+  ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
   ResumoVendasPeriodoDto,
+  ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
 import { RelatorioService } from '@relatorio/services';
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiProdutosMaisVendidosDocs,
   ApiResumoVendasPeriodoDocs,
+  ApiValorProdutosEstoqueDocs,
 } from '@relatorio/docs/relatorio-docs.decorator';
 
 @ApiProtectedController('Relatórios')
@@ -36,5 +39,14 @@ export class RelatorioController {
     return await this.relatorioService.obterProdutosMaisVendidosPorPeriodo(
       filtro,
     );
+  }
+
+  @ApiValorProdutosEstoqueDocs()
+  @Get('estoque/valor-produtos')
+  @Permissions('report.read')
+  async obterValorProdutosEstoque(
+    @Query() filtro: ObterValorProdutosEstoqueDto,
+  ): Promise<ValorProdutosEstoqueDto> {
+    return await this.relatorioService.obterValorProdutosEstoque(filtro);
   }
 }

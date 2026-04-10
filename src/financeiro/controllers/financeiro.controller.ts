@@ -35,6 +35,8 @@ import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.in
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
+  ApiAlterarDespesaDocs,
+  ApiExcluirDespesaDocs,
   ApiInserirCarteiraDocs,
   ApiInserirDespesaDocs,
   ApiListarCarteirasDocs,
@@ -121,6 +123,7 @@ export class FinanceiroController {
     return this.financeiroService.listarDespesas(pesquisa);
   }
 
+  @ApiAlterarDespesaDocs()
   @Put('despesas/:id')
   async alterarDespesa(
     @Param('id', ParseIntPipe) id: number,
@@ -129,11 +132,10 @@ export class FinanceiroController {
     return this.alterarDespesaUseCase.execute(id, input);
   }
 
+  @ApiExcluirDespesaDocs()
   @Delete('despesas/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async excluirDespesa(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
+  async excluirDespesa(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.excluirDespesaUseCase.execute(id);
   }
 }
