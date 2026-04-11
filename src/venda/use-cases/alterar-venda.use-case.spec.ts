@@ -8,6 +8,7 @@ import {
   AlterarVendaUseCase,
   ExecutarAlterarVendaInput,
 } from '@venda/use-cases';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 
 describe('AlterarVendaUseCase', () => {
   let useCase: AlterarVendaUseCase;
@@ -16,6 +17,7 @@ describe('AlterarVendaUseCase', () => {
   let garantirExisteFeiraMock: jest.Mock;
   let garantirCarteiraAceitaMeioPagamentoMock: jest.Mock;
   let garantirExisteProdutoMock: jest.Mock;
+  let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
     alterarVendaMock = jest.fn();
@@ -23,6 +25,7 @@ describe('AlterarVendaUseCase', () => {
     garantirExisteFeiraMock = jest.fn();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn();
+    currentUserContext = { usuarioId: 7 };
 
     const vendaService = {
       alterarVenda: alterarVendaMock,
@@ -44,6 +47,7 @@ describe('AlterarVendaUseCase', () => {
       feiraService,
       produtoService,
       financeiroService,
+      currentUserContext as CurrentUserContext,
     );
   });
 
@@ -109,6 +113,7 @@ describe('AlterarVendaUseCase', () => {
           idProduto: 20,
           quantidade: 1,
           tipo: TipoMovimentacaoEstoque.SAIDA,
+          idUsuarioInclusao: 7,
         }),
       ],
     );

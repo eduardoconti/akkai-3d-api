@@ -14,6 +14,7 @@ import {
   Venda,
 } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 
 export interface ExecutarAlterarVendaInput {
   id: number;
@@ -38,9 +39,11 @@ export class AlterarVendaUseCase {
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
     private readonly financeiroService: FinanceiroService,
+    private readonly currentUserContext: CurrentUserContext,
   ) {}
 
   async execute(input: ExecutarAlterarVendaInput): Promise<Venda> {
+    const idUsuarioInclusao = this.currentUserContext.usuarioId;
     const venda = await this.vendaService.garantirExisteVenda(input.id);
 
     await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
@@ -84,6 +87,7 @@ export class AlterarVendaUseCase {
       movimentoEstoque.tipo = TipoMovimentacaoEstoque.SAIDA;
       movimentoEstoque.origem = OrigemMovimentacaoEstoque.VENDA;
       movimentoEstoque.dataInclusao = new Date();
+      movimentoEstoque.idUsuarioInclusao = idUsuarioInclusao;
       movimentacoesEstoque.push(movimentoEstoque);
     }
 
