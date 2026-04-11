@@ -139,7 +139,10 @@ describe('ProdutoController', () => {
 
     const result = await controller.alterarProduto(1, input);
 
-    expect(alterarProdutoUseCase.execute).toHaveBeenCalledWith(1, input);
+    expect(alterarProdutoUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      ...input,
+    });
     expect(result).toEqual({ id: 1 });
   });
 
@@ -268,10 +271,10 @@ describe('ProdutoController', () => {
 
     const result = await controller.alterarCategoria(2, input);
 
-    expect(alterarCategoriaProdutoUseCase.execute).toHaveBeenCalledWith(
-      2,
-      input,
-    );
+    expect(alterarCategoriaProdutoUseCase.execute).toHaveBeenCalledWith({
+      id: 2,
+      ...input,
+    });
     expect(result).toEqual({ id: 2 });
   });
 
@@ -329,6 +332,7 @@ describe('ProdutoController', () => {
         {
           id: 11,
           idProduto: 1,
+          usuario: 'Eduardo',
           quantidade: 2,
           tipo: 'S',
           origem: 'VENDA',

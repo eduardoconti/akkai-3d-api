@@ -1,5 +1,6 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
+import { User } from '@auth/entities/user.entity';
 import {
   MovimentacaoEstoque,
   OrigemMovimentacaoEstoque,
@@ -121,6 +122,10 @@ describe('EstoqueService', () => {
           tipo: TipoMovimentacaoEstoque.SAIDA,
           origem: OrigemMovimentacaoEstoque.VENDA,
           dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
+          usuarioInclusao: Object.assign(new User(), {
+            id: 7,
+            name: 'Eduardo',
+          }),
         }),
       ],
       1,
@@ -134,6 +139,7 @@ describe('EstoqueService', () => {
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(3);
     expect(movimentacaoRepository.findAndCount).toHaveBeenCalledWith({
       where: { idProduto: 3 },
+      relations: { usuarioInclusao: true },
       order: { dataInclusao: 'DESC', id: 'DESC' },
       skip: 0,
       take: 10,
@@ -144,6 +150,7 @@ describe('EstoqueService', () => {
           id: 11,
           idProduto: 3,
           idItemVenda: undefined,
+          usuario: 'Eduardo',
           quantidade: 2,
           tipo: TipoMovimentacaoEstoque.SAIDA,
           origem: OrigemMovimentacaoEstoque.VENDA,

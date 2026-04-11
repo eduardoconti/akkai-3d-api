@@ -7,7 +7,8 @@ export class PesquisarEstoqueDto extends PesquisaPaginadaDto {
     message:
       'A ordenação do estoque deve ser por nome, código, quantidade ou nível do estoque.',
   })
-  ordenarPor?: 'nome' | 'codigo' | 'quantidade' | 'nivelEstoque' = 'nome';
+  ordenarPor?: 'nome' | 'codigo' | 'quantidade' | 'nivelEstoque' =
+    'nivelEstoque';
 
   @IsOptional()
   @IsIn(['asc', 'desc'], {

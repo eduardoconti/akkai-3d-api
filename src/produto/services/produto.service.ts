@@ -167,7 +167,7 @@ export class ProdutoService {
       `,
       nome: 'p.nome',
     } as const;
-    const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nome'];
+    const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nivelEstoque'];
     const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
     const filtros: string[] = [];
     const parametros: unknown[] = [];
