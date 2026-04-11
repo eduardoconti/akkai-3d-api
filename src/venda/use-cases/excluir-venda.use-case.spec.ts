@@ -28,7 +28,7 @@ describe('ExcluirVendaUseCase', () => {
 
     const useCase = new ExcluirVendaUseCase(vendaService);
 
-    await useCase.execute(5);
+    await useCase.execute({ id: 5 });
 
     expect(garantirExisteVenda).toHaveBeenCalledWith(5);
     expect(excluirVenda).toHaveBeenCalledWith(vendaExistente);

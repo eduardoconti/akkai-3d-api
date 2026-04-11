@@ -85,7 +85,7 @@ export class FinanceiroController {
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarCarteiraDto,
   ): Promise<Carteira> {
-    return this.alterarCarteiraUseCase.execute(id, input);
+    return this.alterarCarteiraUseCase.execute({ id, ...input });
   }
 
   @Post('categorias-despesa')
@@ -106,7 +106,7 @@ export class FinanceiroController {
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarCategoriaDespesaDto,
   ): Promise<CategoriaDespesa> {
-    return this.alterarCategoriaDespesaUseCase.execute(id, input);
+    return this.alterarCategoriaDespesaUseCase.execute({ id, ...input });
   }
 
   @ApiInserirDespesaDocs()
@@ -129,13 +129,13 @@ export class FinanceiroController {
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarDespesaDto,
   ): Promise<Despesa> {
-    return this.alterarDespesaUseCase.execute(id, input);
+    return this.alterarDespesaUseCase.execute({ id, ...input });
   }
 
   @ApiExcluirDespesaDocs()
   @Delete('despesas/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirDespesa(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.excluirDespesaUseCase.execute(id);
+    return this.excluirDespesaUseCase.execute({ id });
   }
 }

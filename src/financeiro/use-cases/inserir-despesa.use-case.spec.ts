@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 import { FinanceiroService } from '@financeiro/services';
 import { InserirDespesaUseCase } from '@financeiro/use-cases';
 import { Despesa } from '@financeiro/entities';
@@ -15,11 +16,13 @@ describe('InserirDespesaUseCase', () => {
   let inserirDespesaMock: jest.MockedFunction<
     (despesa: Despesa) => Promise<Despesa>
   >;
+  let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
     garantirExisteCarteiraMock = jest.fn<Promise<void>, [number]>();
     garantirExisteCategoriaDespesaMock = jest.fn<Promise<void>, [number]>();
     inserirDespesaMock = jest.fn<Promise<Despesa>, [Despesa]>();
+    currentUserContext = { usuarioId: 7 };
 
     const financeiroService = {
       garantirExisteCarteira: garantirExisteCarteiraMock,
@@ -27,7 +30,10 @@ describe('InserirDespesaUseCase', () => {
       inserirDespesa: inserirDespesaMock,
     } as unknown as FinanceiroService;
 
-    useCase = new InserirDespesaUseCase(financeiroService);
+    useCase = new InserirDespesaUseCase(
+      financeiroService,
+      currentUserContext as CurrentUserContext,
+    );
   });
 
   it('deve inserir despesa quando a carteira e categoria existirem', async () => {
@@ -55,6 +61,7 @@ describe('InserirDespesaUseCase', () => {
         idCategoria: 1,
         meioPagamento: MeioPagamento.PIX,
         idCarteira: 2,
+        idUsuarioInclusao: 7,
         observacao: 'Reposição',
       }),
     );

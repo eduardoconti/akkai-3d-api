@@ -32,7 +32,7 @@ describe('AlterarCategoriaDespesaUseCase', () => {
     garantirCategoriaDespesaPorIdMock.mockResolvedValue(categoria);
     salvarCategoriaDespesaMock.mockResolvedValue(categoriaAtualizada);
 
-    const result = await useCase.execute(1, { nome: 'Embalagem Premium' });
+    const result = await useCase.execute({ id: 1, nome: 'Embalagem Premium' });
 
     expect(garantirCategoriaDespesaPorIdMock).toHaveBeenCalledWith(1);
     expect(salvarCategoriaDespesaMock).toHaveBeenCalledWith(
@@ -46,7 +46,7 @@ describe('AlterarCategoriaDespesaUseCase', () => {
       new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
     );
 
-    await expect(useCase.execute(99, { nome: 'Qualquer' })).rejects.toThrow(
+    await expect(useCase.execute({ id: 99, nome: 'Qualquer' })).rejects.toThrow(
       new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
     );
   });

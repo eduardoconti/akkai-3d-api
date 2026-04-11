@@ -65,6 +65,7 @@ describe('AlterarVendaUseCase', () => {
     vendaExistente.id = 5;
 
     const input: ExecutarAlterarVendaInput = {
+      id: 5,
       meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.FEIRA,
       idCarteira: 2,
@@ -85,7 +86,7 @@ describe('AlterarVendaUseCase', () => {
     );
     alterarVendaMock.mockResolvedValue(vendaExistente);
 
-    const result = await useCase.execute(5, input);
+    const result = await useCase.execute(input);
 
     expect(garantirExisteVendaMock).toHaveBeenCalledWith(5);
     expect(garantirCarteiraAceitaMeioPagamentoMock).toHaveBeenCalledWith(
@@ -127,7 +128,8 @@ describe('AlterarVendaUseCase', () => {
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
     alterarVendaMock.mockResolvedValue(vendaExistente);
 
-    await useCase.execute(6, {
+    await useCase.execute({
+      id: 6,
       meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
       idCarteira: 1,
@@ -149,7 +151,8 @@ describe('AlterarVendaUseCase', () => {
     );
 
     await expect(
-      useCase.execute(99, {
+      useCase.execute({
+        id: 99,
         meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.LOJA,
         idCarteira: 1,

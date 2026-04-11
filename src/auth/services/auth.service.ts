@@ -36,13 +36,13 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, response: Response): Promise<AuthMeDto> {
-    const normalizedEmail = dto.email.toLowerCase().trim();
+    const normalizedLogin = dto.login.toLowerCase().trim();
     const existingUser = await this.userRepository.exists({
-      where: { email: normalizedEmail },
+      where: { login: normalizedLogin },
     });
 
     if (existingUser) {
-      throw new ConflictException('Já existe um usuário com esse e-mail.');
+      throw new ConflictException('Já existe um usuário com esse login.');
     }
 
     const defaultRole = await this.getOrCreateDefaultRole();
@@ -53,7 +53,7 @@ export class AuthService {
 
     const user = this.userRepository.create({
       name: dto.name.trim(),
-      email: normalizedEmail,
+      login: normalizedLogin,
       passwordHash,
       roleId: defaultRole.id,
       isActive: true,
@@ -66,10 +66,10 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, response: Response): Promise<AuthMeDto> {
-    const user = await this.findActiveUserByEmail(dto.email);
+    const user = await this.findActiveUserByLogin(dto.login);
 
     if (!user) {
-      throw new UnauthorizedException('E-mail ou senha inválidos.');
+      throw new UnauthorizedException('Login ou senha inválidos.');
     }
 
     const passwordMatches = await bcrypt.compare(
@@ -78,7 +78,7 @@ export class AuthService {
     );
 
     if (!passwordMatches) {
-      throw new UnauthorizedException('E-mail ou senha inválidos.');
+      throw new UnauthorizedException('Login ou senha inválidos.');
     }
 
     const authenticatedUser = await this.issueSession(user, response);
@@ -169,10 +169,10 @@ export class AuthService {
     });
   }
 
-  private async findActiveUserByEmail(email: string): Promise<User | null> {
+  private async findActiveUserByLogin(login: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: {
-        email: email.toLowerCase().trim(),
+        login: login.toLowerCase().trim(),
         isActive: true,
       },
       relations: {
@@ -247,7 +247,7 @@ export class AuthService {
 
     return {
       sub: user.id,
-      email: user.email,
+      login: user.login,
       role: user.role.name,
       permissions,
       sessionId,
@@ -350,7 +350,7 @@ export class AuthService {
     return {
       id: user.id,
       name: user.name,
-      email: user.email,
+      login: user.login,
       role: user.role.name,
       permissions,
     };

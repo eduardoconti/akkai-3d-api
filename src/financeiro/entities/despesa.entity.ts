@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from '@auth/entities/user.entity';
 import { MeioPagamento } from '@venda/entities/venda.entity';
 import { Carteira } from './carteira.entity';
 import { CategoriaDespesa } from './categoria-despesa.entity';
@@ -39,6 +40,16 @@ export class Despesa {
     type: 'integer',
   })
   valor!: number;
+
+  @Column({ type: 'integer', name: 'id_usuario_inclusao' })
+  idUsuarioInclusao!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({
+    name: 'id_usuario_inclusao',
+    foreignKeyConstraintName: 'fk_despesa_usuario_inclusao',
+  })
+  usuarioInclusao!: User;
 
   @Column({ type: 'integer', name: 'id_categoria' })
   idCategoria!: number;

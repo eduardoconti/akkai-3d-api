@@ -37,10 +37,7 @@ describe('AlterarCategoriaProdutoUseCase', () => {
       (value: CategoriaProduto) => Promise.resolve(value),
     );
 
-    const result = await useCase.execute(3, {
-      nome: 'FIDGET PREMIUM',
-      idAscendente: 1,
-    });
+    const result = await useCase.execute({ id: 3, nome: 'FIDGET PREMIUM', idAscendente: 1 });
 
     expect(categoriaProdutoService.garantirCategoriaPorId).toHaveBeenCalledWith(
       3,
@@ -70,7 +67,7 @@ describe('AlterarCategoriaProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute(99, { nome: 'FIDGET PREMIUM' }),
+      useCase.execute({ id: 99, nome: 'FIDGET PREMIUM' }),
     ).rejects.toThrow(
       new NotFoundException('Categoria com ID 99 não encontrada.'),
     );
@@ -85,7 +82,7 @@ describe('AlterarCategoriaProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute(3, { nome: 'FIDGET PREMIUM', idAscendente: 5 }),
+      useCase.execute({ id: 3, nome: 'FIDGET PREMIUM', idAscendente: 5 }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -95,7 +92,7 @@ describe('AlterarCategoriaProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute(3, { nome: 'FIDGET PREMIUM', idAscendente: 3 }),
+      useCase.execute({ id: 3, nome: 'FIDGET PREMIUM', idAscendente: 3 }),
     ).rejects.toThrow(
       new BadRequestException(
         'A categoria não pode ser definida como ascendente dela mesma.',

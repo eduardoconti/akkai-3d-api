@@ -1,14 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { AlterarCarteiraDto } from '@financeiro/dto';
 import { Carteira } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
+import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+
+export interface AlterarCarteiraInput {
+  id: number;
+  nome: string;
+  ativa?: boolean;
+  meiosPagamento?: MeioPagamento[];
+}
 
 @Injectable()
 export class AlterarCarteiraUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
-  async execute(id: number, input: AlterarCarteiraDto): Promise<Carteira> {
-    const carteira = await this.financeiroService.garantirCarteiraPorId(id);
+  async execute(input: AlterarCarteiraInput): Promise<Carteira> {
+    const carteira = await this.financeiroService.garantirCarteiraPorId(input.id);
 
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? carteira.ativa;

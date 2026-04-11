@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 import { FinanceiroService } from '@financeiro/services';
 import {
   OrigemMovimentacaoEstoque,
@@ -28,6 +29,7 @@ describe('InserirVendaUseCase', () => {
   let garantirExisteProdutoMock: jest.MockedFunction<
     (id: number) => Promise<Produto>
   >;
+  let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
     inserirVendaMock = jest.fn<
@@ -40,6 +42,7 @@ describe('InserirVendaUseCase', () => {
       [number, MeioPagamento]
     >();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
+    currentUserContext = { usuarioId: 7 };
 
     const vendaService = {
       inserirVenda: inserirVendaMock,
@@ -63,6 +66,7 @@ describe('InserirVendaUseCase', () => {
       feiraService,
       produtoService,
       financeiroService,
+      currentUserContext as CurrentUserContext,
     );
   });
 
@@ -125,6 +129,7 @@ describe('InserirVendaUseCase', () => {
           quantidade: 2,
           tipo: TipoMovimentacaoEstoque.SAIDA,
           origem: OrigemMovimentacaoEstoque.VENDA,
+          idUsuarioInclusao: 7,
         }),
       ],
     );
@@ -332,6 +337,7 @@ describe('InserirVendaUseCase', () => {
           quantidade: 2,
           tipo: TipoMovimentacaoEstoque.SAIDA,
           origem: OrigemMovimentacaoEstoque.VENDA,
+          idUsuarioInclusao: 7,
         }),
       ],
     );

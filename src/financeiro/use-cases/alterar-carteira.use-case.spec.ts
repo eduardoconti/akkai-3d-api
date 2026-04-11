@@ -34,10 +34,7 @@ describe('AlterarCarteiraUseCase', () => {
       ativa: false,
     });
 
-    const result = await useCase.execute(1, {
-      nome: 'NUBANK PIX',
-      ativa: false,
-    });
+    const result = await useCase.execute({ id: 1, nome: 'NUBANK PIX', ativa: false });
 
     expect(financeiroService.garantirCarteiraPorId).toHaveBeenCalledWith(1);
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
@@ -69,10 +66,7 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [MeioPagamento.PIX],
     });
 
-    await useCase.execute(1, {
-      nome: 'CAIXA',
-      meiosPagamento: [MeioPagamento.PIX],
-    });
+    await useCase.execute({ id: 1, nome: 'CAIXA', meiosPagamento: [MeioPagamento.PIX] });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ meiosPagamento: [MeioPagamento.PIX] }),
@@ -90,7 +84,7 @@ describe('AlterarCarteiraUseCase', () => {
     financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
     financeiroService.salvarCarteira.mockResolvedValue(carteira);
 
-    await useCase.execute(1, { nome: 'CAIXA' });
+    await useCase.execute({ id: 1, nome: 'CAIXA' });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -105,9 +99,7 @@ describe('AlterarCarteiraUseCase', () => {
     );
 
     await expect(
-      useCase.execute(99, {
-        nome: 'Carteira teste',
-      }),
+      useCase.execute({ id: 99, nome: 'Carteira teste' }),
     ).rejects.toThrow(new NotFoundException('Carteira não encontrada'));
   });
 
@@ -123,7 +115,7 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'NUBANK',
     });
 
-    await useCase.execute(1, { nome: 'NUBANK' });
+    await useCase.execute({ id: 1, nome: 'NUBANK' });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true }),

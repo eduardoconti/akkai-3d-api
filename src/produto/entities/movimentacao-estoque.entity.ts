@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from '@auth/entities/user.entity';
 import { Produto } from '@produto/entities';
 import { ItemVenda } from '@venda/entities';
 
@@ -63,6 +64,16 @@ export class MovimentacaoEstoque {
     enumName: 'origem_movimentacao_estoque_enum',
   })
   origem!: OrigemMovimentacaoEstoque;
+
+  @Column({ type: 'integer', name: 'id_usuario_inclusao' })
+  idUsuarioInclusao!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({
+    name: 'id_usuario_inclusao',
+    foreignKeyConstraintName: 'fk_movimentacao_estoque_usuario_inclusao',
+  })
+  usuarioInclusao!: User;
 
   @ManyToOne(() => Produto, (produto) => produto.movimentacoesEstoque)
   @JoinColumn({

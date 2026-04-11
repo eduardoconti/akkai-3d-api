@@ -16,6 +16,7 @@ import {
 import { FeiraService, VendaService } from '@venda/services';
 
 export interface ExecutarAlterarVendaInput {
+  id: number;
   meioPagamento: MeioPagamento;
   tipo: TipoVenda;
   idCarteira: number;
@@ -39,8 +40,8 @@ export class AlterarVendaUseCase {
     private readonly financeiroService: FinanceiroService,
   ) {}
 
-  async execute(id: number, input: ExecutarAlterarVendaInput): Promise<Venda> {
-    const venda = await this.vendaService.garantirExisteVenda(id);
+  async execute(input: ExecutarAlterarVendaInput): Promise<Venda> {
+    const venda = await this.vendaService.garantirExisteVenda(input.id);
 
     await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
       input.idCarteira,

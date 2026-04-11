@@ -114,20 +114,20 @@ describe('AuthService', () => {
     jest.restoreAllMocks();
   });
 
-  it('deve lançar conflito ao registrar e-mail já existente', async () => {
+  it('deve lançar conflito ao registrar login já existente', async () => {
     userRepository.exists.mockResolvedValue(true);
 
     await expect(
       service.register(
         {
           name: 'Eduardo',
-          email: 'eduardo@email.com',
+          login: 'eduardo',
           password: '123456',
         },
         { cookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
-      new ConflictException('Já existe um usuário com esse e-mail.'),
+      new ConflictException('Já existe um usuário com esse login.'),
     );
   });
 
@@ -136,7 +136,7 @@ describe('AuthService', () => {
     const user = {
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       passwordHash: 'password-hash',
       roleId: 1,
       isActive: true,
@@ -181,7 +181,7 @@ describe('AuthService', () => {
     const result = await service.register(
       {
         name: 'Eduardo',
-        email: 'eduardo@email.com',
+        login: 'eduardo',
         password: '123456',
       },
       response as never,
@@ -190,7 +190,7 @@ describe('AuthService', () => {
     expect(userRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Eduardo',
-        email: 'eduardo@email.com',
+        login: 'eduardo',
         roleId: 1,
       }),
     );
@@ -198,7 +198,7 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       role: 'user',
       permissions: [],
     });
@@ -207,7 +207,7 @@ describe('AuthService', () => {
   it('deve lançar erro no login com senha inválida', async () => {
     userRepository.findOne.mockResolvedValue({
       id: 1,
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       passwordHash: 'hash',
       isActive: true,
       role: {
@@ -218,10 +218,10 @@ describe('AuthService', () => {
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
     await expect(
-      service.login({ email: 'eduardo@email.com', password: '123456' }, {
+      service.login({ login: 'eduardo', password: '123456' }, {
         cookie: jest.fn(),
       } as never),
-    ).rejects.toThrow(new UnauthorizedException('E-mail ou senha inválidos.'));
+    ).rejects.toThrow(new UnauthorizedException('Login ou senha inválidos.'));
   });
 
   it('deve lançar erro no refresh sem token', async () => {
@@ -242,17 +242,17 @@ describe('AuthService', () => {
     userRepository.findOne.mockResolvedValue(null);
 
     await expect(
-      service.login({ email: 'naoexiste@email.com', password: '123456' }, {
+      service.login({ login: 'naoexiste', password: '123456' }, {
         cookie: jest.fn(),
       } as never),
-    ).rejects.toThrow(new UnauthorizedException('E-mail ou senha inválidos.'));
+    ).rejects.toThrow(new UnauthorizedException('Login ou senha inválidos.'));
   });
 
   it('deve fazer login com sucesso e emitir sessão', async () => {
     const authenticatedUser = {
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       passwordHash: 'hash',
       isActive: true,
       role: { id: 1, name: 'user', rolePermissions: [] },
@@ -279,7 +279,7 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('refresh-token');
 
     const result = await service.login(
-      { email: 'eduardo@email.com', password: '123456' },
+      { login: 'eduardo', password: '123456' },
       response as never,
     );
 
@@ -287,7 +287,7 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       role: 'user',
       permissions: [],
     });
@@ -378,7 +378,7 @@ describe('AuthService', () => {
     const authenticatedUser = {
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       isActive: true,
       role: {
         name: 'admin',
@@ -429,7 +429,7 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       role: 'admin',
       permissions: ['create:produto', 'read:produto'],
     });
@@ -439,7 +439,7 @@ describe('AuthService', () => {
     userRepository.findOne.mockResolvedValue({
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       isActive: true,
       role: { name: 'user', rolePermissions: [] },
     });
@@ -449,7 +449,7 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 1,
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       role: 'user',
       permissions: [],
     });
@@ -460,7 +460,7 @@ describe('AuthService', () => {
     const user = {
       id: 2,
       name: 'Novo',
-      email: 'novo@email.com',
+      login: 'novousr',
       passwordHash: 'hash',
       roleId: 2,
       isActive: true,
@@ -494,7 +494,7 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('refresh-token');
 
     await service.register(
-      { name: 'Novo', email: 'novo@email.com', password: '123456' },
+      { name: 'Novo', login: 'novousr', password: '123456' },
       response as never,
     );
 
@@ -549,7 +549,7 @@ describe('AuthService', () => {
     userRepository.findOne
       .mockResolvedValueOnce({
         id: 1,
-        email: 'eduardo@email.com',
+        login: 'eduardo',
         passwordHash: 'hash',
         isActive: true,
         role: { name: 'user', rolePermissions: [] },
@@ -558,7 +558,7 @@ describe('AuthService', () => {
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 
     await expect(
-      service.login({ email: 'eduardo@email.com', password: '123456' }, {
+      service.login({ login: 'eduardo', password: '123456' }, {
         cookie: jest.fn(),
       } as never),
     ).rejects.toThrow(

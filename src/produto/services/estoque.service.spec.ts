@@ -40,7 +40,7 @@ describe('EstoqueService', () => {
     );
     movimentacaoRepository.save.mockResolvedValue(undefined);
 
-    await service.entradaEstoque(1, 5, OrigemMovimentacaoEstoque.COMPRA);
+    await service.entradaEstoque(1, 5, OrigemMovimentacaoEstoque.COMPRA, 7);
 
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(1);
     expect(movimentacaoRepository.save).toHaveBeenCalledWith(
@@ -49,6 +49,7 @@ describe('EstoqueService', () => {
         quantidade: 5,
         tipo: TipoMovimentacaoEstoque.ENTRADA,
         origem: OrigemMovimentacaoEstoque.COMPRA,
+        idUsuarioInclusao: 7,
       }),
     );
   });
@@ -59,12 +60,13 @@ describe('EstoqueService', () => {
     );
     movimentacaoRepository.save.mockResolvedValue(undefined);
 
-    await service.entradaEstoque(2, 3, OrigemMovimentacaoEstoque.PRODUCAO);
+    await service.entradaEstoque(2, 3, OrigemMovimentacaoEstoque.PRODUCAO, 8);
 
     expect(movimentacaoRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoMovimentacaoEstoque.ENTRADA,
         origem: OrigemMovimentacaoEstoque.PRODUCAO,
+        idUsuarioInclusao: 8,
       }),
     );
   });
@@ -75,7 +77,7 @@ describe('EstoqueService', () => {
     );
     movimentacaoRepository.save.mockResolvedValue(undefined);
 
-    await service.saidaEstoque(1, 2, OrigemMovimentacaoEstoque.AJUSTE);
+    await service.saidaEstoque(1, 2, OrigemMovimentacaoEstoque.AJUSTE, 9);
 
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(1);
     expect(movimentacaoRepository.save).toHaveBeenCalledWith(
@@ -84,6 +86,7 @@ describe('EstoqueService', () => {
         quantidade: 2,
         tipo: TipoMovimentacaoEstoque.SAIDA,
         origem: OrigemMovimentacaoEstoque.AJUSTE,
+        idUsuarioInclusao: 9,
       }),
     );
   });
@@ -94,12 +97,13 @@ describe('EstoqueService', () => {
     );
     movimentacaoRepository.save.mockResolvedValue(undefined);
 
-    await service.saidaEstoque(3, 1, OrigemMovimentacaoEstoque.PERDA);
+    await service.saidaEstoque(3, 1, OrigemMovimentacaoEstoque.PERDA, 10);
 
     expect(movimentacaoRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoMovimentacaoEstoque.SAIDA,
         origem: OrigemMovimentacaoEstoque.PERDA,
+        idUsuarioInclusao: 10,
       }),
     );
   });

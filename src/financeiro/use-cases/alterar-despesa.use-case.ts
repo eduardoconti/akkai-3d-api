@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { AlterarDespesaDto } from '@financeiro/dto';
 import { Despesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
+import { MeioPagamento } from '@venda/entities';
+
+export interface AlterarDespesaInput {
+  id: number;
+  dataLancamento: string;
+  descricao: string;
+  valor: number;
+  idCategoria: number;
+  meioPagamento: MeioPagamento;
+  idCarteira: number;
+  observacao?: string;
+}
 
 @Injectable()
 export class AlterarDespesaUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
-  async execute(id: number, input: AlterarDespesaDto): Promise<Despesa> {
-    const despesa = await this.financeiroService.garantirDespesaPorId(id);
+  async execute(input: AlterarDespesaInput): Promise<Despesa> {
+    const despesa = await this.financeiroService.garantirDespesaPorId(input.id);
 
     await this.financeiroService.garantirExisteCarteira(input.idCarteira);
     await this.financeiroService.garantirExisteCategoriaDespesa(

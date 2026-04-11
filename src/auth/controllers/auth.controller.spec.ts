@@ -26,7 +26,7 @@ describe('AuthController', () => {
 
   it('deve delegar login', async () => {
     const response = { cookie: jest.fn() };
-    const body = { email: 'eduardo@email.com', password: '123456' };
+    const body = { login: 'eduardo', password: '123456' };
     authService.login.mockResolvedValue({ id: 1 });
 
     const result = await controller.login(body, response as never);
@@ -39,7 +39,7 @@ describe('AuthController', () => {
     const response = { cookie: jest.fn() };
     const body = {
       name: 'Eduardo',
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       password: '123456',
     };
     authService.register.mockResolvedValue({ id: 1 });
@@ -76,7 +76,7 @@ describe('AuthController', () => {
     const result = await controller.me({
       user: {
         sub: 1,
-        email: 'eduardo@email.com',
+        login: 'eduardo',
         role: 'user',
         permissions: [],
       },

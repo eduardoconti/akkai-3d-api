@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  EntradaEstoqueUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
+  SaidaEstoqueUseCase,
 } from '@produto/use-cases';
 import {
   AlterarCategoriaProdutoDto,
@@ -52,6 +62,8 @@ export class ProdutoController {
     private readonly alterarProdutoUseCase: AlterarProdutoUseCase,
     private readonly alterarCategoriaProdutoUseCase: AlterarCategoriaProdutoUseCase,
     private readonly inserirCategoriaProdutoUseCase: InserirCategoriaProdutoUseCase,
+    private readonly entradaEstoqueUseCase: EntradaEstoqueUseCase,
+    private readonly saidaEstoqueUseCase: SaidaEstoqueUseCase,
     private readonly produtoService: ProdutoService,
     private readonly categoriaProdutoService: CategoriaProdutoService,
     private readonly estoqueService: EstoqueService,
@@ -69,7 +81,7 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() input: AlterarProdutoDto,
   ): Promise<Produto> {
-    return await this.alterarProdutoUseCase.execute(id, input);
+    return await this.alterarProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiListarProdutosDocs()
@@ -118,7 +130,7 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() input: AlterarCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
-    return await this.alterarCategoriaProdutoUseCase.execute(id, input);
+    return await this.alterarCategoriaProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiObterProdutoPorIdDocs()
@@ -133,7 +145,7 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: EntradaEstoqueDto,
   ) {
-    return await this.estoqueService.entradaEstoque(id, quantidade, origem);
+    return await this.entradaEstoqueUseCase.execute({ idProduto: id, quantidade, origem });
   }
 
   @ApiSaidaEstoqueDocs()
@@ -142,7 +154,7 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: SaidaEstoqueDto,
   ) {
-    return await this.estoqueService.saidaEstoque(id, quantidade, origem);
+    return await this.saidaEstoqueUseCase.execute({ idProduto: id, quantidade, origem });
   }
 
   @ApiListarMovimentacoesEstoqueDocs()

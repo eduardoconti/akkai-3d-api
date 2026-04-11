@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsString, Matches, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsString({
@@ -9,13 +9,16 @@ export class RegisterDto {
   })
   name!: string;
 
-  @IsEmail(
-    {},
-    {
-      message: 'O e-mail informado é inválido.',
-    },
-  )
-  email!: string;
+  @IsString({
+    message: 'O login deve ser um texto.',
+  })
+  @MinLength(3, {
+    message: 'O login deve ter pelo menos 3 caracteres.',
+  })
+  @Matches(/^[A-Za-z]+$/, {
+    message: 'O login deve conter apenas letras.',
+  })
+  login!: string;
 
   @IsString({
     message: 'A senha deve ser um texto.',

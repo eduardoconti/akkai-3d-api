@@ -9,7 +9,7 @@ describe('JwtStrategy', () => {
     const strategy = new JwtStrategy(configService);
     const payload = {
       sub: 1,
-      email: 'eduardo@email.com',
+      login: 'eduardo',
       role: 'user',
       permissions: ['report.read'],
     };

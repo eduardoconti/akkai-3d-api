@@ -3,6 +3,7 @@ import { Produto } from '@produto/entities';
 import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 
 export interface AlterarProdutoInput {
+  id: number;
   nome: string;
   codigo: string;
   descricao?: string;
@@ -18,8 +19,8 @@ export class AlterarProdutoUseCase {
     private readonly categoriaProdutoService: CategoriaProdutoService,
   ) {}
 
-  async execute(id: number, input: AlterarProdutoInput): Promise<Produto> {
-    const produto = await this.produtoService.garantirExisteProduto(id);
+  async execute(input: AlterarProdutoInput): Promise<Produto> {
+    const produto = await this.produtoService.garantirExisteProduto(input.id);
 
     await this.categoriaProdutoService.garantirExisteCategoria(
       input.idCategoria,

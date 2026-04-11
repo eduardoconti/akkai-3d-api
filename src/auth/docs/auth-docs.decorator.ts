@@ -18,7 +18,7 @@ export function ApiAuthLoginDocs() {
     ApiOperation({
       summary: 'Realiza login e inicia a sessão do usuário.',
       description:
-        'Valida e-mail e senha, emite os cookies HttpOnly `access_token` e `refresh_token` e retorna os dados básicos do usuário autenticado.',
+        'Valida login e senha, emite os cookies HttpOnly `access_token` e `refresh_token` e retorna os dados básicos do usuário autenticado.',
     }),
     ApiBody({
       type: LoginDto,
@@ -26,7 +26,7 @@ export function ApiAuthLoginDocs() {
         padrao: {
           summary: 'Login válido',
           value: {
-            email: 'eduardo@email.com',
+            login: 'eduardo',
             password: '123456',
           },
         },
@@ -39,7 +39,7 @@ export function ApiAuthLoginDocs() {
         example: {
           id: 1,
           name: 'Eduardo',
-          email: 'eduardo@email.com',
+          login: 'eduardo',
           role: 'admin',
           permissions: ['report.read', 'sales.read'],
         },
@@ -64,7 +64,7 @@ export function ApiAuthRegisterDocs() {
           summary: 'Cadastro válido',
           value: {
             name: 'Eduardo',
-            email: 'eduardo@email.com',
+            login: 'eduardo',
             password: '123456',
           },
         },
@@ -77,7 +77,7 @@ export function ApiAuthRegisterDocs() {
         example: {
           id: 2,
           name: 'Eduardo',
-          email: 'eduardo@email.com',
+          login: 'eduardo',
           role: 'user',
           permissions: [],
         },
@@ -86,7 +86,7 @@ export function ApiAuthRegisterDocs() {
     ApiValidationErrorResponse('/auth/register'),
     ApiConflictErrorResponse(
       '/auth/register',
-      'Já existe um usuário cadastrado com este e-mail.',
+      'Já existe um usuário cadastrado com este login.',
     ),
   );
 }
@@ -105,7 +105,7 @@ export function ApiAuthRefreshDocs() {
         example: {
           id: 1,
           name: 'Eduardo',
-          email: 'eduardo@email.com',
+          login: 'eduardo',
           role: 'admin',
           permissions: ['report.read', 'sales.read'],
         },
@@ -153,7 +153,7 @@ export function ApiAuthMeDocs() {
         example: {
           id: 1,
           name: 'Eduardo',
-          email: 'eduardo@email.com',
+          login: 'eduardo',
           role: 'admin',
           permissions: ['report.read', 'sales.read'],
         },

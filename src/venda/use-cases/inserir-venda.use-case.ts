@@ -14,6 +14,7 @@ import {
 } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import { Injectable } from '@nestjs/common';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 
 export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;
@@ -36,9 +37,12 @@ export class InserirVendaUseCase {
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
     private readonly financeiroService: FinanceiroService,
+    private readonly currentUserContext: CurrentUserContext,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
+    const idUsuarioInclusao = this.currentUserContext.usuarioId;
+
     await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
       inserirVendaInput.idCarteira,
       inserirVendaInput.meioPagamento,
@@ -84,6 +88,7 @@ export class InserirVendaUseCase {
       movimentoEstoque.tipo = TipoMovimentacaoEstoque.SAIDA;
       movimentoEstoque.origem = OrigemMovimentacaoEstoque.VENDA;
       movimentoEstoque.dataInclusao = new Date();
+      movimentoEstoque.idUsuarioInclusao = idUsuarioInclusao;
 
       movimentacoesEstoque.push(movimentoEstoque);
     }
@@ -98,6 +103,7 @@ export class InserirVendaUseCase {
     };
 
     const venda = Venda.criar(vendaInput);
+    venda.idUsuarioInclusao = idUsuarioInclusao;
 
     return await this.vendaService.inserirVenda(venda, movimentacoesEstoque);
   }

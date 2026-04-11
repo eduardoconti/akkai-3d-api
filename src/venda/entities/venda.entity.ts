@@ -9,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from '@auth/entities/user.entity';
 import { Carteira } from '@financeiro/entities/carteira.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
@@ -65,6 +66,16 @@ export class Venda {
 
   @Column({ type: 'integer', default: 0 })
   desconto!: number;
+
+  @Column({ type: 'integer', name: 'id_usuario_inclusao' })
+  idUsuarioInclusao!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({
+    name: 'id_usuario_inclusao',
+    foreignKeyConstraintName: 'fk_venda_usuario_inclusao',
+  })
+  usuarioInclusao!: User;
 
   @Column({ type: 'integer', name: 'id_carteira', nullable: true })
   idCarteira?: number;

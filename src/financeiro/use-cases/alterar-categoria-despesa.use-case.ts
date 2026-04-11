@@ -3,6 +3,7 @@ import { CategoriaDespesa } from '@financeiro/entities';
 import { FinanceiroService } from '@financeiro/services';
 
 export interface AlterarCategoriaDespesaInput {
+  id: number;
   nome: string;
 }
 
@@ -10,12 +11,9 @@ export interface AlterarCategoriaDespesaInput {
 export class AlterarCategoriaDespesaUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
-  async execute(
-    id: number,
-    input: AlterarCategoriaDespesaInput,
-  ): Promise<CategoriaDespesa> {
+  async execute(input: AlterarCategoriaDespesaInput): Promise<CategoriaDespesa> {
     const categoria =
-      await this.financeiroService.garantirCategoriaDespesaPorId(id);
+      await this.financeiroService.garantirCategoriaDespesaPorId(input.id);
 
     categoria.nome = input.nome;
 

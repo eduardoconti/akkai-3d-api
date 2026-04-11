@@ -4,8 +4,10 @@ import { CategoriaProduto, OrigemMovimentacaoEstoque } from '@produto/entities';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  EntradaEstoqueUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
+  SaidaEstoqueUseCase,
 } from '@produto/use-cases';
 import {
   CategoriaProdutoService,
@@ -24,6 +26,8 @@ describe('ProdutoController', () => {
   let alterarProdutoUseCase: { execute: jest.Mock };
   let alterarCategoriaProdutoUseCase: { execute: jest.Mock };
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
+  let entradaEstoqueUseCase: { execute: jest.Mock };
+  let saidaEstoqueUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
     listarEstoque: jest.Mock;
@@ -34,9 +38,7 @@ describe('ProdutoController', () => {
     garantirCategoriaPorId: jest.Mock;
   };
   let estoqueService: {
-    entradaEstoque: jest.Mock;
     listarMovimentacoesPorProduto: jest.Mock;
-    saidaEstoque: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -44,6 +46,8 @@ describe('ProdutoController', () => {
     alterarProdutoUseCase = { execute: jest.fn() };
     alterarCategoriaProdutoUseCase = { execute: jest.fn() };
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
+    entradaEstoqueUseCase = { execute: jest.fn() };
+    saidaEstoqueUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
       listarEstoque: jest.fn(),
@@ -54,9 +58,7 @@ describe('ProdutoController', () => {
       garantirCategoriaPorId: jest.fn(),
     };
     estoqueService = {
-      entradaEstoque: jest.fn(),
       listarMovimentacoesPorProduto: jest.fn(),
-      saidaEstoque: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -77,6 +79,14 @@ describe('ProdutoController', () => {
         {
           provide: InserirCategoriaProdutoUseCase,
           useValue: inserirCategoriaProdutoUseCase,
+        },
+        {
+          provide: EntradaEstoqueUseCase,
+          useValue: entradaEstoqueUseCase,
+        },
+        {
+          provide: SaidaEstoqueUseCase,
+          useValue: saidaEstoqueUseCase,
         },
         {
           provide: ProdutoService,
@@ -284,33 +294,33 @@ describe('ProdutoController', () => {
   });
 
   it('deve delegar entrada de estoque', async () => {
-    estoqueService.entradaEstoque.mockResolvedValue(undefined);
+    entradaEstoqueUseCase.execute.mockResolvedValue(undefined);
 
     await controller.entradaEstoque(1, {
       quantidade: 10,
       origem: OrigemMovimentacaoEstoque.COMPRA,
     });
 
-    expect(estoqueService.entradaEstoque).toHaveBeenCalledWith(
-      1,
-      10,
-      OrigemMovimentacaoEstoque.COMPRA,
-    );
+    expect(entradaEstoqueUseCase.execute).toHaveBeenCalledWith({
+      idProduto: 1,
+      quantidade: 10,
+      origem: OrigemMovimentacaoEstoque.COMPRA,
+    });
   });
 
   it('deve delegar saída de estoque', async () => {
-    estoqueService.saidaEstoque.mockResolvedValue(undefined);
+    saidaEstoqueUseCase.execute.mockResolvedValue(undefined);
 
     await controller.saidaEstoque(1, {
       quantidade: 2,
       origem: OrigemMovimentacaoEstoque.PERDA,
     });
 
-    expect(estoqueService.saidaEstoque).toHaveBeenCalledWith(
-      1,
-      2,
-      OrigemMovimentacaoEstoque.PERDA,
-    );
+    expect(saidaEstoqueUseCase.execute).toHaveBeenCalledWith({
+      idProduto: 1,
+      quantidade: 2,
+      origem: OrigemMovimentacaoEstoque.PERDA,
+    });
   });
 
   it('deve listar movimentações de estoque de um produto', async () => {

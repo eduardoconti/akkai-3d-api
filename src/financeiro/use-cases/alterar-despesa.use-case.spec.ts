@@ -51,7 +51,7 @@ describe('AlterarDespesaUseCase', () => {
     );
     financeiroService.alterarDespesa.mockResolvedValue(despesaAlterada);
 
-    const result = await useCase.execute(5, inputPadrao);
+    const result = await useCase.execute({ id: 5, ...inputPadrao });
 
     expect(financeiroService.garantirDespesaPorId).toHaveBeenCalledWith(5);
     expect(financeiroService.garantirExisteCarteira).toHaveBeenCalledWith(2);
@@ -81,7 +81,7 @@ describe('AlterarDespesaUseCase', () => {
     );
     financeiroService.alterarDespesa.mockResolvedValue(despesaExistente);
 
-    await useCase.execute(5, { ...inputPadrao, observacao: undefined });
+    await useCase.execute({ id: 5, ...inputPadrao, observacao: undefined });
 
     expect(financeiroService.alterarDespesa).toHaveBeenCalledWith(
       expect.objectContaining({ observacao: undefined }),
@@ -93,7 +93,7 @@ describe('AlterarDespesaUseCase', () => {
       new NotFoundException('Despesa com ID 99 não encontrada.'),
     );
 
-    await expect(useCase.execute(99, inputPadrao)).rejects.toThrow(
+    await expect(useCase.execute({ id: 99, ...inputPadrao })).rejects.toThrow(
       NotFoundException,
     );
 
@@ -108,7 +108,7 @@ describe('AlterarDespesaUseCase', () => {
       new NotFoundException('Carteira com ID 2 não encontrada.'),
     );
 
-    await expect(useCase.execute(5, inputPadrao)).rejects.toThrow(
+    await expect(useCase.execute({ id: 5, ...inputPadrao })).rejects.toThrow(
       NotFoundException,
     );
 
@@ -124,7 +124,7 @@ describe('AlterarDespesaUseCase', () => {
       new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
     );
 
-    await expect(useCase.execute(5, inputPadrao)).rejects.toThrow(
+    await expect(useCase.execute({ id: 5, ...inputPadrao })).rejects.toThrow(
       NotFoundException,
     );
 

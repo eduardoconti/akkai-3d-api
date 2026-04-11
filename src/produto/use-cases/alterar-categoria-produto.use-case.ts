@@ -3,6 +3,7 @@ import { CategoriaProduto } from '@produto/entities';
 import { CategoriaProdutoService } from '@produto/services';
 
 export interface AlterarCategoriaProdutoInput {
+  id: number;
   nome: string;
   idAscendente?: number;
 }
@@ -13,15 +14,12 @@ export class AlterarCategoriaProdutoUseCase {
     private readonly categoriaProdutoService: CategoriaProdutoService,
   ) {}
 
-  async execute(
-    id: number,
-    input: AlterarCategoriaProdutoInput,
-  ): Promise<CategoriaProduto> {
+  async execute(input: AlterarCategoriaProdutoInput): Promise<CategoriaProduto> {
     const categoria =
-      await this.categoriaProdutoService.garantirCategoriaPorId(id);
+      await this.categoriaProdutoService.garantirCategoriaPorId(input.id);
 
     if (input.idAscendente !== undefined) {
-      if (input.idAscendente === id) {
+      if (input.idAscendente === input.id) {
         throw new BadRequestException(
           'A categoria não pode ser definida como ascendente dela mesma.',
         );

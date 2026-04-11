@@ -31,6 +31,7 @@ export class EstoqueService {
       | OrigemMovimentacaoEstoque.COMPRA
       | OrigemMovimentacaoEstoque.AJUSTE
       | OrigemMovimentacaoEstoque.PRODUCAO,
+    idUsuarioInclusao: number,
   ): Promise<void> {
     await this.produtoService.garantirExisteProduto(id);
 
@@ -39,6 +40,7 @@ export class EstoqueService {
     movimentacao.quantidade = quantidade;
     movimentacao.tipo = TipoMovimentacaoEstoque.ENTRADA;
     movimentacao.origem = origem;
+    movimentacao.idUsuarioInclusao = idUsuarioInclusao;
 
     await this.movimentacaoEstoqueRepository.save(movimentacao);
   }
@@ -47,6 +49,7 @@ export class EstoqueService {
     id: number,
     quantidade: number,
     origem: OrigemMovimentacaoEstoque.AJUSTE | OrigemMovimentacaoEstoque.PERDA,
+    idUsuarioInclusao: number,
   ): Promise<void> {
     await this.produtoService.garantirExisteProduto(id);
 
@@ -55,6 +58,7 @@ export class EstoqueService {
     movimentacao.quantidade = quantidade;
     movimentacao.tipo = TipoMovimentacaoEstoque.SAIDA;
     movimentacao.origem = origem;
+    movimentacao.idUsuarioInclusao = idUsuarioInclusao;
 
     await this.movimentacaoEstoqueRepository.save(movimentacao);
   }

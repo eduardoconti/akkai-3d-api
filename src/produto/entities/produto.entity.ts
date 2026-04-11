@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { User } from '@auth/entities/user.entity';
 import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
 
 @Entity('produto')
@@ -43,6 +44,16 @@ export class Produto {
 
   @Column({ type: 'integer' })
   valor!: number;
+
+  @Column({ type: 'integer', name: 'id_usuario_inclusao' })
+  idUsuarioInclusao!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({
+    name: 'id_usuario_inclusao',
+    foreignKeyConstraintName: 'fk_produto_usuario_inclusao',
+  })
+  usuarioInclusao!: User;
 
   @ManyToOne(() => CategoriaProduto, (categoria) => categoria.produtos)
   @JoinColumn({

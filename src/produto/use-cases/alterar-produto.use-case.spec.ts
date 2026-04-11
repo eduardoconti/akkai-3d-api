@@ -35,6 +35,7 @@ describe('AlterarProdutoUseCase', () => {
 
   it('deve alterar produto quando a categoria existe', async () => {
     const input: AlterarProdutoInput = {
+      id: 10,
       nome: 'Caneca Nova',
       codigo: 'CN002',
       descricao: 'Caneca de ceramica atualizada',
@@ -55,7 +56,7 @@ describe('AlterarProdutoUseCase', () => {
     garantirExisteCategoriaMock.mockResolvedValue(undefined);
     salvarMock.mockResolvedValue(produtoAtualizado);
 
-    const result = await useCase.execute(10, input);
+    const result = await useCase.execute(input);
 
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(10);
     expect(garantirExisteCategoriaMock).toHaveBeenCalledWith(2);
@@ -79,12 +80,7 @@ describe('AlterarProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute(10, {
-        nome: 'Caneca Nova',
-        codigo: 'CN002',
-        idCategoria: 2,
-        valor: 3190,
-      }),
+      useCase.execute({ id: 10, nome: 'Caneca Nova', codigo: 'CN002', idCategoria: 2, valor: 3190 }),
     ).rejects.toThrow(
       new NotFoundException('Produto com ID 10 não encontrado'),
     );
@@ -102,12 +98,7 @@ describe('AlterarProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute(10, {
-        nome: 'Caneca Nova',
-        codigo: 'CN002',
-        idCategoria: 99,
-        valor: 3190,
-      }),
+      useCase.execute({ id: 10, nome: 'Caneca Nova', codigo: 'CN002', idCategoria: 99, valor: 3190 }),
     ).rejects.toThrow(
       new NotFoundException('Categoria com ID 99 não encontrada.'),
     );

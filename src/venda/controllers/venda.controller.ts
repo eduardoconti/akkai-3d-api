@@ -62,12 +62,12 @@ export class VendaController {
     @Param('id', ParseIntPipe) id: number,
     @Body() alterarVendaInput: AlterarVendaDto,
   ): Promise<Venda> {
-    return await this.alterarVendaUseCase.execute(id, alterarVendaInput);
+    return await this.alterarVendaUseCase.execute({ id, ...alterarVendaInput });
   }
 
   @Delete(':id')
   async excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.excluirVendaUseCase.execute(id);
+    await this.excluirVendaUseCase.execute({ id });
   }
 
   @ApiListarFeirasDocs()

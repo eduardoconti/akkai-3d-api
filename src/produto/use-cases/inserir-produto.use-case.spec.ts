@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { CurrentUserContext } from '../../common/services/current-user-context.service';
 import { Produto } from '@produto/entities';
 import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 import { InserirProdutoInput, InserirProdutoUseCase } from '@produto/use-cases';
@@ -9,10 +10,12 @@ describe('InserirProdutoUseCase', () => {
     (id: number) => Promise<void>
   >;
   let salvarMock: jest.MockedFunction<(produto: Produto) => Promise<Produto>>;
+  let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
     garantirExisteCategoriaMock = jest.fn<Promise<void>, [number]>();
     salvarMock = jest.fn<Promise<Produto>, [Produto]>();
+    currentUserContext = { usuarioId: 7 };
 
     const produtoService = {
       salvar: salvarMock,
@@ -25,6 +28,7 @@ describe('InserirProdutoUseCase', () => {
     useCase = new InserirProdutoUseCase(
       produtoService,
       categoriaProdutoService,
+      currentUserContext as CurrentUserContext,
     );
   });
 
@@ -60,6 +64,7 @@ describe('InserirProdutoUseCase', () => {
         estoqueMinimo: 5,
         idCategoria: 1,
         valor: 2590,
+        idUsuarioInclusao: 7,
       }),
     );
     expect(result).toBe(produtoSalvo);

@@ -106,7 +106,10 @@ describe('VendaController', () => {
 
     const result = await controller.alterarVenda(2, input as never);
 
-    expect(alterarVendaUseCase.execute).toHaveBeenCalledWith(2, input);
+    expect(alterarVendaUseCase.execute).toHaveBeenCalledWith({
+      id: 2,
+      ...input,
+    });
     expect(result).toEqual({ id: 2 });
   });
 

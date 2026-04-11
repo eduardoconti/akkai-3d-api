@@ -14,8 +14,9 @@ import { RefreshSession } from './refresh-session.entity';
 import { Role } from './role.entity';
 
 @Entity('users')
-@Check('ck_users_email_not_blank', `char_length(trim("email")) > 0`)
-@Index('idx_users_is_active_email', ['isActive', 'email'])
+@Check('ck_users_login_letters_only', `"login" ~ '^[A-Za-z]+$'`)
+@Check('ck_users_login_min_length', `char_length(trim("login")) >= 3`)
+@Index('idx_users_is_active_login', ['isActive', 'login'])
 export class User {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_users',
@@ -24,10 +25,10 @@ export class User {
 
   @Column({
     type: 'varchar',
-    length: 150,
+    length: 50,
     unique: true,
   })
-  email!: string;
+  login!: string;
 
   @Column({
     type: 'varchar',

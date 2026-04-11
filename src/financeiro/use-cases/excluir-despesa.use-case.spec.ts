@@ -26,7 +26,7 @@ describe('ExcluirDespesaUseCase', () => {
     financeiroService.garantirDespesaPorId.mockResolvedValue(despesa);
     financeiroService.excluirDespesa.mockResolvedValue(undefined);
 
-    await useCase.execute(7);
+    await useCase.execute({ id: 7 });
 
     expect(financeiroService.garantirDespesaPorId).toHaveBeenCalledWith(7);
     expect(financeiroService.excluirDespesa).toHaveBeenCalledWith(7);
@@ -37,7 +37,7 @@ describe('ExcluirDespesaUseCase', () => {
       new NotFoundException('Despesa com ID 99 não encontrada.'),
     );
 
-    await expect(useCase.execute(99)).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
 
     expect(financeiroService.excluirDespesa).not.toHaveBeenCalled();
   });

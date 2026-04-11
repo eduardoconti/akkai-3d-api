@@ -14,8 +14,10 @@ import {
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  EntradaEstoqueUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
+  SaidaEstoqueUseCase,
 } from '@produto/use-cases';
 
 @Module({
@@ -28,9 +30,11 @@ import {
     CategoriaProdutoService,
     EstoqueService,
     AlterarCategoriaProdutoUseCase,
+    EntradaEstoqueUseCase,
     InserirProdutoUseCase,
     AlterarProdutoUseCase,
     InserirCategoriaProdutoUseCase,
+    SaidaEstoqueUseCase,
   ],
   exports: [ProdutoService, CategoriaProdutoService, EstoqueService],
 })
