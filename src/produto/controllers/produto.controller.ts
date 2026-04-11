@@ -12,7 +12,11 @@ import {
   EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
+  ListarMovimentacaoEstoqueDto,
+  ListarProdutoEstoqueDto,
   ListarProdutoDto,
+  PesquisarEstoqueDto,
+  PesquisarMovimentacoesEstoqueDto,
   PesquisarCategoriasDto,
   PesquisarProdutosDto,
   SaidaEstoqueDto,
@@ -31,6 +35,8 @@ import {
   ApiEntradaEstoqueDocs,
   ApiInserirCategoriaDocs,
   ApiInserirProdutoDocs,
+  ApiListarEstoqueDocs,
+  ApiListarMovimentacoesEstoqueDocs,
   ApiObterCategoriaPorIdDocs,
   ApiListarCategoriasDocs,
   ApiListarProdutosDocs,
@@ -72,6 +78,14 @@ export class ProdutoController {
     @Query() pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     return await this.produtoService.listarProdutos(pesquisa);
+  }
+
+  @ApiListarEstoqueDocs()
+  @Get('estoque')
+  async listarEstoque(
+    @Query() pesquisa: PesquisarEstoqueDto,
+  ): Promise<ResultadoPaginado<ListarProdutoEstoqueDto>> {
+    return await this.produtoService.listarEstoque(pesquisa);
   }
 
   @ApiListarCategoriasDocs()
@@ -129,5 +143,14 @@ export class ProdutoController {
     @Body() { quantidade, origem }: SaidaEstoqueDto,
   ) {
     return await this.estoqueService.saidaEstoque(id, quantidade, origem);
+  }
+
+  @ApiListarMovimentacoesEstoqueDocs()
+  @Get(':id/estoque/movimentacoes')
+  async listarMovimentacoesEstoque(
+    @Param('id') id: number,
+    @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,
+  ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
+    return await this.estoqueService.listarMovimentacoesPorProduto(id, pesquisa);
   }
 }

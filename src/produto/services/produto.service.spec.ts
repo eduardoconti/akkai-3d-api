@@ -52,7 +52,7 @@ describe('ProdutoService', () => {
     expect(service).toBeDefined();
   });
 
-  it('deve listar produtos com estoque calculado', async () => {
+  it('deve listar produtos sem retornar saldo de estoque', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])
       .mockResolvedValueOnce([
@@ -66,7 +66,6 @@ describe('ProdutoService', () => {
           valor: '2500',
           categoria_id: '2',
           categoria_nome: 'Canecas',
-          quantidade_estoque: '9',
         },
       ]);
 
@@ -87,7 +86,6 @@ describe('ProdutoService', () => {
           estoqueMinimo: 3,
           valor: 2500,
           categoria: { id: 2, nome: 'Canecas' },
-          quantidadeEstoque: 9,
         },
       ] satisfies ListarProdutoDto[],
       pagina: 1,
@@ -116,51 +114,48 @@ describe('ProdutoService', () => {
     );
   });
 
-  it('deve ordenar produtos por quantidade em estoque quando solicitado', async () => {
+  it('deve listar estoque sem retornar valor do produto', async () => {
     dataSource.query
-      .mockResolvedValueOnce([{ total: '0' }])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([{ total: '1' }])
+      .mockResolvedValueOnce([
+        {
+          id: '1',
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          id_categoria: '2',
+          estoque_minimo: '3',
+          valor: '2500',
+          categoria_id: '2',
+          categoria_nome: 'Canecas',
+          quantidade_estoque: '9',
+        },
+      ]);
 
-    await service.listarProdutos({
+    const result = await service.listarEstoque({
       pagina: 1,
       tamanhoPagina: 10,
-      ordenarPor: 'quantidade',
-      direcao: 'desc',
     });
 
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining(
-        'ORDER BY COALESCE(e.quantidade_estoque, 0) DESC, p.nome ASC',
-      ),
-      expect.any(Array),
-    );
-  });
-
-  it('deve ordenar produtos por nível do estoque quando solicitado', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([{ total: '0' }])
-      .mockResolvedValueOnce([]);
-
-    await service.listarProdutos({
+    expect(result).toEqual({
+      itens: [
+        {
+          id: 1,
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          idCategoria: 2,
+          estoqueMinimo: 3,
+          categoria: { id: 2, nome: 'Canecas' },
+          quantidadeEstoque: 9,
+        },
+      ],
       pagina: 1,
       tamanhoPagina: 10,
-      ordenarPor: 'nivelEstoque',
-      direcao: 'asc',
+      totalItens: 1,
+      totalPaginas: 1,
     });
-
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining(
-        'WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0',
-      ),
-      expect.any(Array),
-    );
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('ORDER BY'),
-      expect.any(Array),
-    );
+    expect(result.itens[0]).not.toHaveProperty('valor');
   });
 
   it('deve listar produtos filtrando por termo', async () => {
@@ -178,6 +173,48 @@ describe('ProdutoService', () => {
       1,
       expect.stringContaining('WHERE'),
       expect.arrayContaining(['%caneca%']),
+    );
+  });
+
+  it('deve ordenar estoque por quantidade quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'quantidade',
+      direcao: 'desc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining(
+        'ORDER BY COALESCE(e.quantidade_estoque, 0) DESC',
+      ),
+      expect.any(Array),
+    );
+  });
+
+  it('deve ordenar estoque por nível do estoque quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'nivelEstoque',
+      direcao: 'asc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining(
+        'WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0',
+      ),
+      expect.any(Array),
     );
   });
 

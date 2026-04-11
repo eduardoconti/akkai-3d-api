@@ -12,7 +12,11 @@ import {
   EstoqueService,
   ProdutoService,
 } from '@produto/services';
-import { DetalheProdutoDto, ListarProdutoDto } from '@produto/dto';
+import {
+  DetalheProdutoDto,
+  ListarMovimentacaoEstoqueDto,
+  ListarProdutoDto,
+} from '@produto/dto';
 
 describe('ProdutoController', () => {
   let controller: ProdutoController;
@@ -22,6 +26,7 @@ describe('ProdutoController', () => {
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
+    listarEstoque: jest.Mock;
     obterDetalheProdutoPorId: jest.Mock;
   };
   let categoriaProdutoService: {
@@ -30,6 +35,7 @@ describe('ProdutoController', () => {
   };
   let estoqueService: {
     entradaEstoque: jest.Mock;
+    listarMovimentacoesPorProduto: jest.Mock;
     saidaEstoque: jest.Mock;
   };
 
@@ -40,6 +46,7 @@ describe('ProdutoController', () => {
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
+      listarEstoque: jest.fn(),
       obterDetalheProdutoPorId: jest.fn(),
     };
     categoriaProdutoService = {
@@ -48,6 +55,7 @@ describe('ProdutoController', () => {
     };
     estoqueService = {
       entradaEstoque: jest.fn(),
+      listarMovimentacoesPorProduto: jest.fn(),
       saidaEstoque: jest.fn(),
     };
 
@@ -137,7 +145,6 @@ describe('ProdutoController', () => {
           estoqueMinimo: 3,
           valor: 2500,
           categoria: { id: 2, nome: 'Canecas' },
-          quantidadeEstoque: 9,
         },
       ] satisfies ListarProdutoDto[],
       pagina: 1,
@@ -175,6 +182,39 @@ describe('ProdutoController', () => {
     });
 
     expect(categoriaProdutoService.listarCategorias).toHaveBeenCalledWith({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+    expect(result).toBe(resposta);
+  });
+
+  it('deve listar estoque', async () => {
+    const resposta = {
+      itens: [
+        {
+          id: 1,
+          nome: 'Caneca',
+          codigo: 'CAN001',
+          descricao: 'Modelo geek',
+          idCategoria: 2,
+          estoqueMinimo: 3,
+          categoria: { id: 2, nome: 'Canecas' },
+          quantidadeEstoque: 9,
+        },
+      ],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    produtoService.listarEstoque.mockResolvedValue(resposta);
+
+    const result = await controller.listarEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(produtoService.listarEstoque).toHaveBeenCalledWith({
       pagina: 1,
       tamanhoPagina: 10,
     });
@@ -271,5 +311,39 @@ describe('ProdutoController', () => {
       2,
       OrigemMovimentacaoEstoque.PERDA,
     );
+  });
+
+  it('deve listar movimentações de estoque de um produto', async () => {
+    const resposta = {
+      itens: [
+        {
+          id: 11,
+          idProduto: 1,
+          quantidade: 2,
+          tipo: 'S',
+          origem: 'VENDA',
+          dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
+        },
+      ] satisfies ListarMovimentacaoEstoqueDto[],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    estoqueService.listarMovimentacoesPorProduto.mockResolvedValue(resposta);
+
+    const result = await controller.listarMovimentacoesEstoque(1, {
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(estoqueService.listarMovimentacoesPorProduto).toHaveBeenCalledWith(
+      1,
+      {
+        pagina: 1,
+        tamanhoPagina: 10,
+      },
+    );
+    expect(result).toBe(resposta);
   });
 });

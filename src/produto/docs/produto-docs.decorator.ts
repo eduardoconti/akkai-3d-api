@@ -11,6 +11,8 @@ import {
   EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
+  ListarMovimentacaoEstoqueDto,
+  ListarProdutoEstoqueDto,
   ListarProdutoDto,
   SaidaEstoqueDto,
 } from '@produto/dto';
@@ -39,7 +41,6 @@ const PRODUTO_EXEMPLO = {
     id: 2,
     nome: 'IMPRESSAO 3D',
   },
-  quantidadeEstoque: 8,
 };
 
 export function ApiInserirProdutoDocs() {
@@ -137,13 +138,13 @@ export function ApiListarProdutosDocs() {
     ApiOperation({
       summary: 'Lista produtos do catálogo com paginação.',
       description:
-        'Retorna produtos paginados com categoria, estoque mínimo e quantidade atual em estoque.',
+        'Retorna produtos paginados com dados cadastrais, categoria, estoque mínimo e valor.',
     }),
     ApiPaginacaoQueryDocs(),
     ApiQuery({
       name: 'ordenarPor',
       required: false,
-      enum: ['nome', 'codigo', 'quantidade', 'nivelEstoque'],
+      enum: ['nome', 'codigo'],
       description: 'Campo usado para ordenação dos produtos.',
     }),
     ApiQuery({
@@ -174,13 +175,75 @@ export function ApiListarProdutosDocs() {
               id: 3,
               nome: 'FIDGET TOYS',
             },
-            quantidadeEstoque: 16,
           },
         ],
       },
     ),
     ApiValidationErrorResponse('/produto'),
     ApiUnauthorizedErrorResponse('/produto'),
+  );
+}
+
+export function ApiListarEstoqueDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista o estoque dos produtos com paginação.',
+      description:
+        'Retorna os produtos paginados com código, categoria, estoque mínimo e quantidade atual em estoque, sem os dados de valor.',
+    }),
+    ApiPaginacaoQueryDocs(),
+    ApiQuery({
+      name: 'ordenarPor',
+      required: false,
+      enum: ['nome', 'codigo', 'quantidade', 'nivelEstoque'],
+      description: 'Campo usado para ordenação do estoque.',
+    }),
+    ApiQuery({
+      name: 'direcao',
+      required: false,
+      enum: ['asc', 'desc'],
+      description: 'Direção da ordenação do estoque.',
+    }),
+    ApiPaginatedOkResponse(
+      ListarProdutoEstoqueDto,
+      'Estoque encontrado com sucesso.',
+      {
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 2,
+        totalPaginas: 1,
+        itens: [
+          {
+            id: 1,
+            nome: 'Cubo Infinito',
+            codigo: 'FT001',
+            descricao: 'Brinquedo articulado impresso em 3D.',
+            idCategoria: 2,
+            estoqueMinimo: 5,
+            categoria: {
+              id: 2,
+              nome: 'IMPRESSAO 3D',
+            },
+            quantidadeEstoque: 8,
+          },
+          {
+            id: 2,
+            nome: 'Bola Fidget',
+            codigo: 'FT002',
+            descricao: 'Brinquedo sensorial.',
+            idCategoria: 3,
+            estoqueMinimo: 3,
+            categoria: {
+              id: 3,
+              nome: 'FIDGET TOYS',
+            },
+            quantidadeEstoque: 16,
+          },
+        ],
+      },
+    ),
+    ApiValidationErrorResponse('/produto/estoque'),
+    ApiUnauthorizedErrorResponse('/produto/estoque'),
   );
 }
 
@@ -431,6 +494,52 @@ export function ApiSaidaEstoqueDocs() {
     ApiUnauthorizedErrorResponse('/produto/1/estoque/saida'),
     ApiNotFoundErrorResponse(
       '/produto/999/estoque/saida',
+      'Produto não encontrado.',
+    ),
+  );
+}
+
+export function ApiListarMovimentacoesEstoqueDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista o histórico de movimentações de estoque de um produto.',
+      description:
+        'Retorna as movimentações de estoque do produto informado em ordem decrescente de data de inclusão.',
+    }),
+    ApiIdParamDocs('Identificador do produto para consulta do histórico de estoque.'),
+    ApiPaginacaoQueryDocs(),
+    ApiPaginatedOkResponse(
+      ListarMovimentacaoEstoqueDto,
+      'Movimentações encontradas com sucesso.',
+      {
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 2,
+        totalPaginas: 1,
+        itens: [
+          {
+            id: 11,
+            idProduto: 1,
+            quantidade: 2,
+            tipo: 'S',
+            origem: 'VENDA',
+            dataInclusao: '2026-04-10T10:30:00.000Z',
+          },
+          {
+            id: 10,
+            idProduto: 1,
+            quantidade: 5,
+            tipo: 'E',
+            origem: 'COMPRA',
+            dataInclusao: '2026-04-09T14:00:00.000Z',
+          },
+        ],
+      },
+    ),
+    ApiValidationErrorResponse('/produto/1/estoque/movimentacoes'),
+    ApiUnauthorizedErrorResponse('/produto/1/estoque/movimentacoes'),
+    ApiNotFoundErrorResponse(
+      '/produto/999/estoque/movimentacoes',
       'Produto não encontrado.',
     ),
   );

@@ -4,7 +4,9 @@ import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   DetalheProdutoDto,
+  ListarProdutoEstoqueDto,
   ListarProdutoDto,
+  PesquisarEstoqueDto,
   PesquisarProdutosDto,
 } from '@produto/dto';
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
@@ -25,6 +27,131 @@ export class ProdutoService {
   async listarProdutos(
     pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
+    const termo = pesquisa.termo?.toLowerCase();
+    const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
+    const orderByMap = {
+      codigo: 'p.codigo',
+      nome: 'p.nome',
+    } as const;
+    const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nome'];
+    const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
+    const filtros: string[] = [];
+    const parametros: unknown[] = [];
+
+    if (termo) {
+      parametros.push(`%${termo}%`);
+      filtros.push(`
+        (
+          LOWER(p.nome) LIKE $${parametros.length}
+          OR LOWER(p.codigo) LIKE $${parametros.length}
+          OR LOWER(COALESCE(p.descricao, '')) LIKE $${parametros.length}
+          OR LOWER(c.nome) LIKE $${parametros.length}
+        )
+      `);
+    }
+
+    const whereClause =
+      filtros.length > 0 ? `WHERE ${filtros.join(' AND ')}` : '';
+
+    const contagem = await this.dataSource.query<Array<{ total: string }>>(
+      `
+        SELECT COUNT(*) AS total
+        FROM produto p
+        INNER JOIN categoria_produto c ON c.id = p.id_categoria
+        ${whereClause}
+      `,
+      parametros,
+    );
+
+    parametros.push(pesquisa.tamanhoPagina);
+    parametros.push(offset);
+
+    const produtos = await this.dataSource.query<
+      Array<{
+        id: string;
+        nome: string;
+        codigo: string;
+        descricao: string | null;
+        id_categoria: string;
+        estoque_minimo: string | null;
+        valor: string;
+        categoria_id: string;
+        categoria_nome: string;
+      }>
+    >(
+      `
+       SELECT
+         p.id,
+         p.nome,
+         p.codigo,
+         p.descricao,
+         p.id_categoria,
+         p.estoque_minimo,
+         p.valor,
+         c.id AS categoria_id,
+         c.nome AS categoria_nome
+       FROM produto p
+       INNER JOIN categoria_produto c ON c.id = p.id_categoria
+       ${whereClause}
+       ORDER BY ${orderBy} ${orderDirection}, p.nome ASC
+       LIMIT $${parametros.length - 1}
+       OFFSET $${parametros.length}
+      `,
+      parametros,
+    );
+
+    return {
+      itens: produtos.map((produto) => ({
+        id: Number(produto.id),
+        nome: produto.nome,
+        codigo: produto.codigo,
+        descricao: produto.descricao ?? undefined,
+        idCategoria: Number(produto.id_categoria),
+        estoqueMinimo:
+          produto.estoque_minimo === null
+            ? undefined
+            : Number(produto.estoque_minimo),
+        valor: Number(produto.valor),
+        categoria: {
+          id: Number(produto.categoria_id),
+          nome: produto.categoria_nome,
+        },
+      })),
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens: Number(contagem[0]?.total ?? 0),
+      totalPaginas: Math.max(
+        1,
+        Math.ceil(Number(contagem[0]?.total ?? 0) / pesquisa.tamanhoPagina),
+      ),
+    };
+  }
+
+  async listarEstoque(
+    pesquisa: PesquisarEstoqueDto,
+  ): Promise<ResultadoPaginado<ListarProdutoEstoqueDto>> {
+    const { itens, totalItens } =
+      await this.pesquisarProdutosComEstoque(pesquisa);
+
+    return {
+      itens: itens.map((produto) => ({
+        id: produto.id,
+        nome: produto.nome,
+        codigo: produto.codigo,
+        descricao: produto.descricao,
+        idCategoria: produto.idCategoria,
+        estoqueMinimo: produto.estoqueMinimo,
+        categoria: produto.categoria,
+        quantidadeEstoque: produto.quantidadeEstoque,
+      })),
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+    };
+  }
+
+  private async pesquisarProdutosComEstoque(pesquisa: PesquisarEstoqueDto) {
     const termo = pesquisa.termo?.toLowerCase();
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
     const orderByMap = {
@@ -116,7 +243,7 @@ export class ProdutoService {
        INNER JOIN categoria_produto c ON c.id = p.id_categoria
        LEFT JOIN estoque e ON e.id_produto = p.id
        ${whereClause}
-       ORDER BY ${orderBy} ${orderDirection}, p.nome ASC
+       ORDER BY ${orderBy} ${orderDirection}, quantidade_estoque ASC, p.nome ASC
        LIMIT $${parametros.length - 1}
        OFFSET $${parametros.length}
       `,
@@ -141,14 +268,9 @@ export class ProdutoService {
       quantidadeEstoque: Number(produto.quantidade_estoque ?? 0),
     }));
 
-    const totalItens = Number(contagem[0]?.total ?? 0);
-
     return {
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+      totalItens: Number(contagem[0]?.total ?? 0),
     };
   }
 

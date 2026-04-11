@@ -6,7 +6,13 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
+import {
+  ListarMovimentacaoEstoqueDto,
+  PesquisarMovimentacoesEstoqueDto,
+} from '@produto/dto';
 import { ProdutoService } from './produto.service';
+import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { calcularOffset } from '../../common/utils/paginacao.util';
 
 @Injectable()
 export class EstoqueService {
@@ -51,5 +57,36 @@ export class EstoqueService {
     movimentacao.origem = origem;
 
     await this.movimentacaoEstoqueRepository.save(movimentacao);
+  }
+
+  async listarMovimentacoesPorProduto(
+    id: number,
+    pesquisa: PesquisarMovimentacoesEstoqueDto,
+  ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
+    await this.produtoService.garantirExisteProduto(id);
+
+    const [movimentacoes, totalItens] =
+      await this.movimentacaoEstoqueRepository.findAndCount({
+        where: { idProduto: id },
+        order: { dataInclusao: 'DESC', id: 'DESC' },
+        skip: calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina),
+        take: pesquisa.tamanhoPagina,
+      });
+
+    return {
+      itens: movimentacoes.map((movimentacao) => ({
+        id: movimentacao.id,
+        idProduto: movimentacao.idProduto,
+        idItemVenda: movimentacao.idItemVenda,
+        quantidade: movimentacao.quantidade,
+        tipo: movimentacao.tipo,
+        origem: movimentacao.origem,
+        dataInclusao: movimentacao.dataInclusao,
+      })),
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+    };
   }
 }

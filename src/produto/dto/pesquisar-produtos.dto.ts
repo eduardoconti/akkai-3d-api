@@ -3,11 +3,10 @@ import { PesquisaPaginadaDto } from '../../common/dto/pesquisa-paginada.dto';
 
 export class PesquisarProdutosDto extends PesquisaPaginadaDto {
   @IsOptional()
-  @IsIn(['nome', 'codigo', 'quantidade', 'nivelEstoque'], {
-    message:
-      'A ordenação dos produtos deve ser por nome, código, quantidade ou nível do estoque.',
+  @IsIn(['nome', 'codigo'], {
+    message: 'A ordenação dos produtos deve ser por nome ou código.',
   })
-  ordenarPor?: 'nome' | 'codigo' | 'quantidade' | 'nivelEstoque' = 'nome';
+  ordenarPor?: 'nome' | 'codigo' = 'nome';
 
   @IsOptional()
   @IsIn(['asc', 'desc'], {
