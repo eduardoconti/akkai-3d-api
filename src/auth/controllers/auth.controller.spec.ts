@@ -10,6 +10,9 @@ describe('AuthController', () => {
     refresh: jest.Mock;
     logout: jest.Mock;
     me: jest.Mock;
+    listRoles: jest.Mock;
+    updateProfile: jest.Mock;
+    updatePassword: jest.Mock;
   };
 
   beforeEach(() => {
@@ -19,6 +22,9 @@ describe('AuthController', () => {
       refresh: jest.fn(),
       logout: jest.fn(),
       me: jest.fn(),
+      listRoles: jest.fn(),
+      updateProfile: jest.fn(),
+      updatePassword: jest.fn(),
     };
 
     controller = new AuthController(authService as unknown as AuthService);
@@ -90,5 +96,66 @@ describe('AuthController', () => {
     await expect(controller.me({})).rejects.toThrow(
       new UnauthorizedException('Usuário não autenticado.'),
     );
+  });
+
+  it('deve listar papéis', async () => {
+    authService.listRoles.mockResolvedValue([{ id: 1, name: 'user' }]);
+
+    const result = await controller.listRoles();
+
+    expect(authService.listRoles).toHaveBeenCalled();
+    expect(result).toEqual([{ id: 1, name: 'user' }]);
+  });
+
+  it('deve delegar alteração de cadastro', async () => {
+    const request = {
+      user: {
+        sub: 1,
+        login: 'eduardo',
+        role: 'user',
+        permissions: [],
+      },
+    };
+    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
+    const body = {
+      name: 'Eduardo',
+      login: 'eduardo',
+      isActive: true,
+      roleId: 1,
+    };
+    authService.updateProfile.mockResolvedValue({ id: 1 });
+
+    const result = await controller.updateProfile(
+      request,
+      body,
+      response as never,
+    );
+
+    expect(authService.updateProfile).toHaveBeenCalledWith(
+      1,
+      body,
+      [],
+      response,
+    );
+    expect(result).toEqual({ id: 1 });
+  });
+
+  it('deve delegar alteração de senha', async () => {
+    const request = {
+      user: {
+        sub: 1,
+        login: 'eduardo',
+        role: 'user',
+        permissions: [],
+      },
+    };
+    const body = {
+      currentPassword: '123456',
+      newPassword: '654321',
+    };
+
+    await controller.updatePassword(request, body);
+
+    expect(authService.updatePassword).toHaveBeenCalledWith(1, body);
   });
 });

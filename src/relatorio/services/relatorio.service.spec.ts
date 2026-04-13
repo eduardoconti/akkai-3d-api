@@ -113,6 +113,7 @@ describe('RelatorioService', () => {
       .mockResolvedValueOnce([
         {
           idProduto: '1',
+          codigo: 'CB-001',
           nomeProduto: 'CUBO INFINITO',
           categoriaId: '2',
           categoriaNome: 'IMPRESSAO 3D',
@@ -142,6 +143,7 @@ describe('RelatorioService', () => {
       itens: [
         {
           idProduto: 1,
+          codigo: 'CB-001',
           nomeProduto: 'CUBO INFINITO',
           categoria: {
             id: 2,
@@ -185,6 +187,7 @@ describe('RelatorioService', () => {
       .mockResolvedValueOnce([
         {
           idProduto: null,
+          codigo: null,
           nomeProduto: 'ITEM AVULSO',
           categoriaId: null,
           categoriaNome: null,

@@ -20,6 +20,7 @@ type ResumoVendasPeriodoRow = {
 
 type ProdutoMaisVendidoRow = {
   idProduto: string | number | null;
+  codigo: string | null;
   nomeProduto: string;
   categoriaId: string | number | null;
   categoriaNome: string | null;
@@ -180,6 +181,7 @@ export class RelatorioService {
       `
         SELECT
           item.id_produto AS "idProduto",
+          p.codigo AS codigo,
           item.nome_produto AS "nomeProduto",
           categoria.id AS "categoriaId",
           categoria.nome AS "categoriaNome",
@@ -192,6 +194,7 @@ export class RelatorioService {
           AND item.brinde = false
         GROUP BY
           item.id_produto,
+          p.codigo,
           item.nome_produto,
           categoria.id,
           categoria.nome
@@ -211,6 +214,7 @@ export class RelatorioService {
           FROM (
             SELECT
               item.id_produto,
+              p.codigo,
               item.nome_produto,
               categoria.id,
               categoria.nome
@@ -222,6 +226,7 @@ export class RelatorioService {
               AND item.brinde = false
             GROUP BY
               item.id_produto,
+              p.codigo,
               item.nome_produto,
               categoria.id,
               categoria.nome
@@ -243,6 +248,7 @@ export class RelatorioService {
           row.idProduto === null || row.idProduto === undefined
             ? null
             : Number(row.idProduto),
+        codigo: row.codigo,
         nomeProduto: row.nomeProduto,
         categoria:
           row.categoriaId === null || row.categoriaNome === null

@@ -1,6 +1,7 @@
 import {
   ConflictException,
   ForbiddenException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -21,6 +22,7 @@ describe('AuthService', () => {
   };
   let roleRepository: {
     findOne: jest.Mock;
+    find: jest.Mock;
     create: jest.Mock;
     save: jest.Mock;
   };
@@ -47,6 +49,7 @@ describe('AuthService', () => {
     };
     roleRepository = {
       findOne: jest.fn(),
+      find: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
     };
@@ -140,6 +143,8 @@ describe('AuthService', () => {
       passwordHash: 'password-hash',
       roleId: 1,
       isActive: true,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     } as User;
     const authenticatedUser = {
       ...user,
@@ -199,8 +204,12 @@ describe('AuthService', () => {
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
+      isActive: true,
+      roleId: 1,
       role: 'user',
       permissions: [],
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
@@ -255,6 +264,9 @@ describe('AuthService', () => {
       login: 'eduardo',
       passwordHash: 'hash',
       isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
       role: { id: 1, name: 'user', rolePermissions: [] },
     } as unknown as User;
     const savedSession = {
@@ -288,8 +300,12 @@ describe('AuthService', () => {
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
+      isActive: true,
+      roleId: 1,
       role: 'user',
       permissions: [],
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
@@ -380,6 +396,9 @@ describe('AuthService', () => {
       name: 'Eduardo',
       login: 'eduardo',
       isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
       role: {
         name: 'admin',
         rolePermissions: [
@@ -430,8 +449,12 @@ describe('AuthService', () => {
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
+      isActive: true,
+      roleId: 1,
       role: 'admin',
       permissions: ['create:produto', 'read:produto'],
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
@@ -441,6 +464,9 @@ describe('AuthService', () => {
       name: 'Eduardo',
       login: 'eduardo',
       isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
       role: { name: 'user', rolePermissions: [] },
     });
 
@@ -450,9 +476,292 @@ describe('AuthService', () => {
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
+      isActive: true,
+      roleId: 1,
       role: 'user',
       permissions: [],
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
+  });
+
+  it('deve listar os papéis disponíveis', async () => {
+    roleRepository.find.mockResolvedValue([
+      { id: 1, name: 'admin', description: 'Administrador' },
+      { id: 2, name: 'user', description: 'Padrão' },
+    ]);
+
+    const result = await service.listRoles();
+
+    expect(result).toEqual([
+      { id: 1, name: 'admin', description: 'Administrador' },
+      { id: 2, name: 'user', description: 'Padrão' },
+    ]);
+  });
+
+  it('deve atualizar o cadastro do usuário', async () => {
+    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:05:00.000Z'),
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+    const role = {
+      id: 2,
+      name: 'admin',
+      description: 'Administrador',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+    const updatedUser = {
+      ...user,
+      name: 'Eduardo Silva',
+      login: 'eduardosilva',
+      roleId: 2,
+      role,
+      updatedAt: new Date('2026-04-13T11:00:00.000Z'),
+    } as unknown as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(updatedUser);
+    roleRepository.findOne.mockResolvedValue(role);
+    userRepository.save.mockResolvedValue(updatedUser);
+    const issueSessionSpy = jest
+      .spyOn(service as never, 'issueSession')
+      .mockResolvedValue(updatedUser as never);
+
+    const result = await service.updateProfile(
+      1,
+      {
+        name: 'Eduardo Silva',
+        login: 'EduardoSilva',
+        isActive: true,
+        roleId: 2,
+      },
+      ['auth.user.update_role', 'auth.user.update_status'],
+      response as never,
+    );
+
+    expect(userRepository.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Eduardo Silva',
+        login: 'eduardosilva',
+        isActive: true,
+        roleId: 2,
+      }),
+    );
+    expect(issueSessionSpy).toHaveBeenCalled();
+    expect(result).toEqual(
+      expect.objectContaining({
+        login: 'eduardosilva',
+        roleId: 2,
+        role: 'admin',
+      }),
+    );
+  });
+
+  it('deve lançar conflito ao atualizar cadastro com login já existente', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce({ id: 2, login: 'joao' });
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'joao',
+          isActive: true,
+          roleId: 1,
+        },
+        ['auth.user.update_role', 'auth.user.update_status'],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(
+      new ConflictException('Já existe um usuário com esse login.'),
+    );
+  });
+
+  it('deve lançar erro quando o papel informado não existir', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: true,
+          roleId: 99,
+        },
+        ['auth.user.update_role', 'auth.user.update_status'],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(new NotFoundException('Papel com ID 99 não encontrado.'));
+  });
+
+  it('deve bloquear alteração de papel sem permissão', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+    const role = {
+      id: 2,
+      name: 'admin',
+      description: 'Administrador',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null);
+    roleRepository.findOne.mockResolvedValue(role);
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: true,
+          roleId: 2,
+        },
+        [],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(
+      new ForbiddenException(
+        'Você não possui permissão para alterar o papel do usuário.',
+      ),
+    );
+  });
+
+  it('deve bloquear alteração de status sem permissão', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+    const role = {
+      id: 1,
+      name: 'user',
+      description: 'Padrão',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null);
+    roleRepository.findOne.mockResolvedValue(role);
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: false,
+          roleId: 1,
+        },
+        [],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(
+      new ForbiddenException(
+        'Você não possui permissão para alterar o status do usuário.',
+      ),
+    );
+  });
+
+  it('deve atualizar a senha do usuário', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+
+    userRepository.findOne.mockResolvedValue(user);
+    jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+    jest.spyOn(bcrypt, 'hash').mockResolvedValue('new-hash' as never);
+
+    await service.updatePassword(1, {
+      currentPassword: '123456',
+      newPassword: '654321',
+    });
+
+    expect(userRepository.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        passwordHash: 'new-hash',
+      }),
+    );
+  });
+
+  it('deve lançar erro ao atualizar senha com senha atual inválida', async () => {
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role: { id: 1, name: 'user', rolePermissions: [] },
+    } as unknown as User;
+
+    userRepository.findOne.mockResolvedValue(user);
+    jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+
+    await expect(
+      service.updatePassword(1, {
+        currentPassword: '123456',
+        newPassword: '654321',
+      }),
+    ).rejects.toThrow(new UnauthorizedException('Senha atual inválida.'));
   });
 
   it('deve criar o role padrão quando não existir', async () => {

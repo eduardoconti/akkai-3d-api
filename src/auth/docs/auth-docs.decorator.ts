@@ -5,7 +5,13 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { LoginDto, AuthMeDto, RegisterDto } from '@auth/dto';
+import {
+  AlterarCadastroDto,
+  AlterarSenhaDto,
+  LoginDto,
+  RegisterDto,
+  UsuarioAutenticadoDto,
+} from '@auth/dto';
 import {
   ApiConflictErrorResponse,
   ApiUnauthorizedErrorResponse,
@@ -34,7 +40,7 @@ export function ApiAuthLoginDocs() {
     }),
     ApiOkResponse({
       description: 'Login realizado com sucesso.',
-      type: AuthMeDto,
+      type: UsuarioAutenticadoDto,
       schema: {
         example: {
           id: 1,
@@ -72,7 +78,7 @@ export function ApiAuthRegisterDocs() {
     }),
     ApiOkResponse({
       description: 'Usuário criado e autenticado com sucesso.',
-      type: AuthMeDto,
+      type: UsuarioAutenticadoDto,
       schema: {
         example: {
           id: 2,
@@ -100,7 +106,7 @@ export function ApiAuthRefreshDocs() {
     }),
     ApiOkResponse({
       description: 'Sessão renovada com sucesso.',
-      type: AuthMeDto,
+      type: UsuarioAutenticadoDto,
       schema: {
         example: {
           id: 1,
@@ -148,7 +154,7 @@ export function ApiAuthMeDocs() {
     }),
     ApiOkResponse({
       description: 'Dados do usuário autenticado.',
-      type: AuthMeDto,
+      type: UsuarioAutenticadoDto,
       schema: {
         example: {
           id: 1,
@@ -160,5 +166,89 @@ export function ApiAuthMeDocs() {
       },
     }),
     ApiUnauthorizedErrorResponse('/auth/me'),
+  );
+}
+
+export function ApiAuthRolesDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista os papéis disponíveis.',
+      description:
+        'Retorna os papéis cadastrados para seleção no formulário de alteração de cadastro.',
+    }),
+    ApiOkResponse({
+      description: 'Papéis encontrados com sucesso.',
+      schema: {
+        example: [
+          {
+            id: 1,
+            name: 'user',
+            description: 'Papel padrão',
+          },
+        ],
+      },
+    }),
+    ApiUnauthorizedErrorResponse('/auth/roles'),
+  );
+}
+
+export function ApiAuthUpdateProfileDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Atualiza o cadastro do usuário autenticado.',
+      description:
+        'Permite alterar os dados cadastrais do usuário atual. O campo updatedAt é atualizado automaticamente.',
+    }),
+    ApiBody({
+      type: AlterarCadastroDto,
+      examples: {
+        padrao: {
+          summary: 'Atualização válida',
+          value: {
+            name: 'Eduardo',
+            login: 'eduardo',
+            isActive: true,
+            roleId: 1,
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Cadastro atualizado com sucesso.',
+      type: UsuarioAutenticadoDto,
+    }),
+    ApiValidationErrorResponse('/auth/me'),
+    ApiUnauthorizedErrorResponse('/auth/me'),
+    ApiConflictErrorResponse(
+      '/auth/me',
+      'Já existe um usuário cadastrado com este login.',
+    ),
+  );
+}
+
+export function ApiAuthUpdatePasswordDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Atualiza a senha do usuário autenticado.',
+      description:
+        'Valida a senha atual e persiste a nova senha com hash seguro.',
+    }),
+    ApiBody({
+      type: AlterarSenhaDto,
+      examples: {
+        padrao: {
+          summary: 'Troca de senha válida',
+          value: {
+            currentPassword: '123456',
+            newPassword: '654321',
+          },
+        },
+      },
+    }),
+    ApiNoContentResponse({
+      description: 'Senha alterada com sucesso.',
+    }),
+    ApiValidationErrorResponse('/auth/me/password'),
+    ApiUnauthorizedErrorResponse('/auth/me/password'),
   );
 }

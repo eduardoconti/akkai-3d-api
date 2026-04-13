@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,7 +11,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { Repository } from 'typeorm';
-import { AuthMeDto, LoginDto, RegisterDto } from '@auth/dto';
+import {
+  AlterarCadastroDto,
+  AlterarSenhaDto,
+  LoginDto,
+  RegisterDto,
+  PapelUsuarioDto,
+  UsuarioAutenticadoDto,
+} from '@auth/dto';
 import {
   Permission,
   RefreshSession,
@@ -21,6 +29,8 @@ import {
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
 type CookieSameSite = 'lax' | 'strict' | 'none';
+const PERMISSAO_ALTERAR_PAPEL_USUARIO = 'auth.user.update_role';
+const PERMISSAO_ALTERAR_STATUS_USUARIO = 'auth.user.update_status';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +45,10 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto, response: Response): Promise<AuthMeDto> {
+  async register(
+    dto: RegisterDto,
+    response: Response,
+  ): Promise<UsuarioAutenticadoDto> {
     const normalizedLogin = dto.login.toLowerCase().trim();
     const existingUser = await this.userRepository.exists({
       where: { login: normalizedLogin },
@@ -65,7 +78,10 @@ export class AuthService {
     return this.toAuthMeDto(authenticatedUser);
   }
 
-  async login(dto: LoginDto, response: Response): Promise<AuthMeDto> {
+  async login(
+    dto: LoginDto,
+    response: Response,
+  ): Promise<UsuarioAutenticadoDto> {
     const user = await this.findActiveUserByLogin(dto.login);
 
     if (!user) {
@@ -88,7 +104,7 @@ export class AuthService {
   async refresh(
     refreshToken: string | undefined,
     response: Response,
-  ): Promise<AuthMeDto> {
+  ): Promise<UsuarioAutenticadoDto> {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token ausente.');
     }
@@ -146,7 +162,7 @@ export class AuthService {
     this.clearAuthCookies(response);
   }
 
-  async me(userId: number): Promise<AuthMeDto> {
+  async me(userId: number): Promise<UsuarioAutenticadoDto> {
     const user = await this.findActiveUserById(userId);
 
     if (!user) {
@@ -156,9 +172,130 @@ export class AuthService {
     return this.toAuthMeDto(user);
   }
 
+  async listRoles(): Promise<PapelUsuarioDto[]> {
+    const roles = await this.roleRepository.find({
+      order: { name: 'ASC' },
+    });
+
+    return roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+    }));
+  }
+
+  async updateProfile(
+    userId: number,
+    dto: AlterarCadastroDto,
+    permissoesUsuarioAtual: string[],
+    response: Response,
+  ): Promise<UsuarioAutenticadoDto> {
+    const user = await this.findUserByIdWithRole(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário autenticado não encontrado.');
+    }
+
+    const normalizedLogin = dto.login.toLowerCase().trim();
+    const existingUser = await this.userRepository.findOne({
+      where: { login: normalizedLogin },
+    });
+
+    if (existingUser && existingUser.id !== userId) {
+      throw new ConflictException('Já existe um usuário com esse login.');
+    }
+
+    const role = await this.roleRepository.findOne({
+      where: { id: dto.roleId },
+    });
+
+    if (!role) {
+      throw new NotFoundException(`Papel com ID ${dto.roleId} não encontrado.`);
+    }
+
+    const alterouPapel = user.roleId !== role.id;
+    const alterouStatus = user.isActive !== dto.isActive;
+
+    if (
+      alterouPapel &&
+      !permissoesUsuarioAtual.includes(PERMISSAO_ALTERAR_PAPEL_USUARIO)
+    ) {
+      throw new ForbiddenException(
+        'Você não possui permissão para alterar o papel do usuário.',
+      );
+    }
+
+    if (
+      alterouStatus &&
+      !permissoesUsuarioAtual.includes(PERMISSAO_ALTERAR_STATUS_USUARIO)
+    ) {
+      throw new ForbiddenException(
+        'Você não possui permissão para alterar o status do usuário.',
+      );
+    }
+
+    user.name = dto.name.trim();
+    user.login = normalizedLogin;
+    user.isActive = dto.isActive;
+    user.roleId = role.id;
+    user.role = role;
+
+    const savedUser = await this.userRepository.save(user);
+    const updatedUser = await this.findUserByIdWithRole(savedUser.id);
+
+    if (!updatedUser) {
+      throw new UnauthorizedException('Usuário autenticado não encontrado.');
+    }
+
+    if (!updatedUser.isActive) {
+      this.clearAuthCookies(response);
+      return this.toAuthMeDto(updatedUser);
+    }
+
+    const authenticatedUser = await this.issueSession(updatedUser, response);
+    return this.toAuthMeDto(authenticatedUser);
+  }
+
+  async updatePassword(userId: number, dto: AlterarSenhaDto): Promise<void> {
+    const user = await this.findUserByIdWithRole(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário autenticado não encontrado.');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Senha atual inválida.');
+    }
+
+    user.passwordHash = await bcrypt.hash(
+      dto.newPassword,
+      this.configService.getOrThrow<number>('AUTH_BCRYPT_ROUNDS'),
+    );
+
+    await this.userRepository.save(user);
+  }
+
   async findActiveUserById(userId: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id: userId, isActive: true },
+      relations: {
+        role: {
+          rolePermissions: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  private async findUserByIdWithRole(userId: number): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { id: userId },
       relations: {
         role: {
           rolePermissions: {
@@ -341,7 +478,7 @@ export class AuthService {
     });
   }
 
-  private toAuthMeDto(user: User): AuthMeDto {
+  private toAuthMeDto(user: User): UsuarioAutenticadoDto {
     const permissions = user.role.rolePermissions.map(
       (rolePermission: { permission: Permission }) =>
         rolePermission.permission.name,
@@ -351,8 +488,12 @@ export class AuthService {
       id: user.id,
       name: user.name,
       login: user.login,
+      isActive: user.isActive,
+      roleId: user.roleId,
       role: user.role.name,
       permissions,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }
