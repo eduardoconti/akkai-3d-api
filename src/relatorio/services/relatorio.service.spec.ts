@@ -70,6 +70,31 @@ describe('RelatorioService', () => {
     });
   });
 
+  it('deve retornar o resumo mensal do dashboard', async () => {
+    dataSource.query.mockResolvedValueOnce([
+      { mes: '1', valorVendas: '12000', valorDespesas: '4500', saldo: '7500' },
+      { mes: '2', valorVendas: '18000', valorDespesas: '5000', saldo: '13000' },
+      { mes: '3', valorVendas: '0', valorDespesas: '0', saldo: '0' },
+    ]);
+
+    const result = await service.obterResumoMensalDashboard({
+      ano: 2026,
+    });
+
+    expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [2026]);
+    expect(result).toEqual({
+      ano: 2026,
+      totalVendas: 30000,
+      totalDespesas: 9500,
+      saldo: 20500,
+      itens: [
+        { mes: 1, valorVendas: 12000, valorDespesas: 4500, saldo: 7500 },
+        { mes: 2, valorVendas: 18000, valorDespesas: 5000, saldo: 13000 },
+        { mes: 3, valorVendas: 0, valorDespesas: 0, saldo: 0 },
+      ],
+    });
+  });
+
   it('deve usar a data inicial como data final quando a data final não for informada', async () => {
     dataSource.query.mockResolvedValue([
       {
@@ -287,16 +312,14 @@ describe('RelatorioService', () => {
   });
 
   it('deve ordenar o relatório de valor dos produtos em estoque conforme filtro informado', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          totalItens: '0',
-          totalQuantidade: '0',
-          totalValor: '0',
-          totalValorTotal: '0',
-        },
-      ]);
+    dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        totalItens: '0',
+        totalQuantidade: '0',
+        totalValor: '0',
+        totalValorTotal: '0',
+      },
+    ]);
 
     await service.obterValorProdutosEstoque({
       pagina: 1,

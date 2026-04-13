@@ -6,6 +6,7 @@ import { TipoVenda } from '@venda/entities/venda.entity';
 describe('RelatorioController', () => {
   let controller: RelatorioController;
   let relatorioService: {
+    obterResumoMensalDashboard: jest.Mock;
     obterResumoVendasPorPeriodo: jest.Mock;
     obterProdutosMaisVendidosPorPeriodo: jest.Mock;
     obterValorProdutosEstoque: jest.Mock;
@@ -13,6 +14,7 @@ describe('RelatorioController', () => {
 
   beforeEach(async () => {
     relatorioService = {
+      obterResumoMensalDashboard: jest.fn(),
       obterResumoVendasPorPeriodo: jest.fn(),
       obterProdutosMaisVendidosPorPeriodo: jest.fn(),
       obterValorProdutosEstoque: jest.fn(),
@@ -29,6 +31,25 @@ describe('RelatorioController', () => {
     }).compile();
 
     controller = module.get<RelatorioController>(RelatorioController);
+  });
+
+  it('deve delegar a obtenção do resumo mensal do dashboard', async () => {
+    const filtro = { ano: 2026 };
+    const resumo = {
+      ano: 2026,
+      totalVendas: 150000,
+      totalDespesas: 47000,
+      saldo: 103000,
+      itens: [{ mes: 1, valorVendas: 12000, valorDespesas: 4500, saldo: 7500 }],
+    };
+    relatorioService.obterResumoMensalDashboard.mockResolvedValue(resumo);
+
+    const result = await controller.obterResumoMensalDashboard(filtro);
+
+    expect(relatorioService.obterResumoMensalDashboard).toHaveBeenCalledWith(
+      filtro,
+    );
+    expect(result).toEqual(resumo);
   });
 
   it('deve delegar a obtenção do resumo de vendas por período', async () => {

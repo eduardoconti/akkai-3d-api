@@ -1,5 +1,12 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsString, Matches, Min, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsString,
+  Matches,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { trimStringValue } from '../../common/transforms/trim-string.transform';
 
 export class AlterarCadastroDto {

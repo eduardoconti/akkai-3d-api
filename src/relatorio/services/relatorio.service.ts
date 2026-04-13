@@ -3,10 +3,12 @@ import { calcularOffset } from '../../common/utils/paginacao.util';
 import { DateService } from '../../common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
+  ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
   ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
+  ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
@@ -42,12 +44,77 @@ type TotalizadoresValorProdutosEstoqueRow = {
   totalValorTotal: string | number | null;
 };
 
+type ResumoMensalDashboardRow = {
+  mes: string | number;
+  valorVendas: string | number | null;
+  valorDespesas: string | number | null;
+  saldo: string | number | null;
+};
+
 @Injectable()
 export class RelatorioService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly dateService: DateService,
   ) {}
+
+  async obterResumoMensalDashboard(
+    filtro: ObterResumoMensalDashboardDto,
+  ): Promise<ResumoMensalDashboardDto> {
+    const ano = filtro.ano ?? new Date().getFullYear();
+
+    const rows: ResumoMensalDashboardRow[] = await this.dataSource.query(
+      `
+        WITH meses AS (
+          SELECT generate_series(1, 12) AS mes
+        ),
+        vendas AS (
+          SELECT
+            EXTRACT(MONTH FROM data_inclusao)::int AS mes,
+            COALESCE(SUM(valor_total), 0) AS "valorVendas"
+          FROM venda
+          WHERE EXTRACT(YEAR FROM data_inclusao) = $1
+          GROUP BY EXTRACT(MONTH FROM data_inclusao)
+        ),
+        despesas AS (
+          SELECT
+            EXTRACT(MONTH FROM data_lancamento)::int AS mes,
+            COALESCE(SUM(valor), 0) AS "valorDespesas"
+          FROM despesa
+          WHERE EXTRACT(YEAR FROM data_lancamento) = $1
+          GROUP BY EXTRACT(MONTH FROM data_lancamento)
+        )
+        SELECT
+          meses.mes AS mes,
+          COALESCE(vendas."valorVendas", 0) AS "valorVendas",
+          COALESCE(despesas."valorDespesas", 0) AS "valorDespesas",
+          COALESCE(vendas."valorVendas", 0) - COALESCE(despesas."valorDespesas", 0) AS saldo
+        FROM meses
+        LEFT JOIN vendas ON vendas.mes = meses.mes
+        LEFT JOIN despesas ON despesas.mes = meses.mes
+        ORDER BY meses.mes ASC
+      `,
+      [ano],
+    );
+
+    const itens = rows.map((row) => ({
+      mes: Number(row.mes),
+      valorVendas: Number(row.valorVendas ?? 0),
+      valorDespesas: Number(row.valorDespesas ?? 0),
+      saldo: Number(row.saldo ?? 0),
+    }));
+
+    return {
+      ano,
+      totalVendas: itens.reduce((total, item) => total + item.valorVendas, 0),
+      totalDespesas: itens.reduce(
+        (total, item) => total + item.valorDespesas,
+        0,
+      ),
+      saldo: itens.reduce((total, item) => total + item.saldo, 0),
+      itens,
+    };
+  }
 
   async obterValorProdutosEstoque(
     filtro: ObterValorProdutosEstoqueDto,

@@ -45,6 +45,51 @@ export function ApiResumoVendasPeriodoDocs() {
   );
 }
 
+export function ApiResumoMensalDashboardDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém o resumo mensal do dashboard.',
+      description:
+        'Retorna os valores consolidados de vendas, despesas e saldo para cada mês do ano informado.',
+    }),
+    ApiQuery({
+      name: 'ano',
+      required: false,
+      type: Number,
+      example: 2026,
+      description: 'Ano utilizado para consolidar os totais mensais.',
+    }),
+    ApiOkResponse({
+      description: 'Resumo mensal calculado com sucesso.',
+      schema: {
+        example: {
+          ano: 2026,
+          totalVendas: 150000,
+          totalDespesas: 47000,
+          saldo: 103000,
+          itens: [
+            {
+              mes: 1,
+              valorVendas: 12000,
+              valorDespesas: 4500,
+              saldo: 7500,
+            },
+            {
+              mes: 2,
+              valorVendas: 18000,
+              valorDespesas: 5000,
+              saldo: 13000,
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/dashboard/resumo-mensal'),
+    ApiUnauthorizedErrorResponse('/relatorio/dashboard/resumo-mensal'),
+    ApiForbiddenErrorResponse('/relatorio/dashboard/resumo-mensal'),
+  );
+}
+
 export function ApiProdutosMaisVendidosDocs() {
   return applyDecorators(
     ApiOperation({
