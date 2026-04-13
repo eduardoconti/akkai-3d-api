@@ -37,10 +37,19 @@ describe('RelatorioController', () => {
     const filtro = { ano: 2026 };
     const resumo = {
       ano: 2026,
+      totalQuantidadeItensVendidos: 14,
       totalVendas: 150000,
       totalDespesas: 47000,
       saldo: 103000,
-      itens: [{ mes: 1, valorVendas: 12000, valorDespesas: 4500, saldo: 7500 }],
+      itens: [
+        {
+          mes: 1,
+          quantidadeItensVendidos: 14,
+          valorVendas: 12000,
+          valorDespesas: 4500,
+          saldo: 7500,
+        },
+      ],
     };
     relatorioService.obterResumoMensalDashboard.mockResolvedValue(resumo);
 

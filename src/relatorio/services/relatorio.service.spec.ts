@@ -72,9 +72,27 @@ describe('RelatorioService', () => {
 
   it('deve retornar o resumo mensal do dashboard', async () => {
     dataSource.query.mockResolvedValueOnce([
-      { mes: '1', valorVendas: '12000', valorDespesas: '4500', saldo: '7500' },
-      { mes: '2', valorVendas: '18000', valorDespesas: '5000', saldo: '13000' },
-      { mes: '3', valorVendas: '0', valorDespesas: '0', saldo: '0' },
+      {
+        mes: '1',
+        quantidadeItensVendidos: '14',
+        valorVendas: '12000',
+        valorDespesas: '4500',
+        saldo: '7500',
+      },
+      {
+        mes: '2',
+        quantidadeItensVendidos: '22',
+        valorVendas: '18000',
+        valorDespesas: '5000',
+        saldo: '13000',
+      },
+      {
+        mes: '3',
+        quantidadeItensVendidos: '0',
+        valorVendas: '0',
+        valorDespesas: '0',
+        saldo: '0',
+      },
     ]);
 
     const result = await service.obterResumoMensalDashboard({
@@ -84,13 +102,32 @@ describe('RelatorioService', () => {
     expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [2026]);
     expect(result).toEqual({
       ano: 2026,
+      totalQuantidadeItensVendidos: 36,
       totalVendas: 30000,
       totalDespesas: 9500,
       saldo: 20500,
       itens: [
-        { mes: 1, valorVendas: 12000, valorDespesas: 4500, saldo: 7500 },
-        { mes: 2, valorVendas: 18000, valorDespesas: 5000, saldo: 13000 },
-        { mes: 3, valorVendas: 0, valorDespesas: 0, saldo: 0 },
+        {
+          mes: 1,
+          quantidadeItensVendidos: 14,
+          valorVendas: 12000,
+          valorDespesas: 4500,
+          saldo: 7500,
+        },
+        {
+          mes: 2,
+          quantidadeItensVendidos: 22,
+          valorVendas: 18000,
+          valorDespesas: 5000,
+          saldo: 13000,
+        },
+        {
+          mes: 3,
+          quantidadeItensVendidos: 0,
+          valorVendas: 0,
+          valorDespesas: 0,
+          saldo: 0,
+        },
       ],
     });
   });

@@ -46,6 +46,7 @@ type TotalizadoresValorProdutosEstoqueRow = {
 
 type ResumoMensalDashboardRow = {
   mes: string | number;
+  quantidadeItensVendidos: string | number | null;
   valorVendas: string | number | null;
   valorDespesas: string | number | null;
   saldo: string | number | null;
@@ -70,11 +71,20 @@ export class RelatorioService {
         ),
         vendas AS (
           SELECT
-            EXTRACT(MONTH FROM data_inclusao)::int AS mes,
-            COALESCE(SUM(valor_total), 0) AS "valorVendas"
+            EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
+            COALESCE(SUM(venda.valor_total), 0) AS "valorVendas"
           FROM venda
-          WHERE EXTRACT(YEAR FROM data_inclusao) = $1
-          GROUP BY EXTRACT(MONTH FROM data_inclusao)
+          WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
+          GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
+        ),
+        itens_vendidos AS (
+          SELECT
+            EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
+            COALESCE(SUM(item.quantidade), 0) AS "quantidadeItensVendidos"
+          FROM venda
+          INNER JOIN item_venda item ON item.id_venda = venda.id
+          WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
+          GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
         ),
         despesas AS (
           SELECT
@@ -86,11 +96,13 @@ export class RelatorioService {
         )
         SELECT
           meses.mes AS mes,
+          COALESCE(itens_vendidos."quantidadeItensVendidos", 0) AS "quantidadeItensVendidos",
           COALESCE(vendas."valorVendas", 0) AS "valorVendas",
           COALESCE(despesas."valorDespesas", 0) AS "valorDespesas",
           COALESCE(vendas."valorVendas", 0) - COALESCE(despesas."valorDespesas", 0) AS saldo
         FROM meses
         LEFT JOIN vendas ON vendas.mes = meses.mes
+        LEFT JOIN itens_vendidos ON itens_vendidos.mes = meses.mes
         LEFT JOIN despesas ON despesas.mes = meses.mes
         ORDER BY meses.mes ASC
       `,
@@ -99,6 +111,7 @@ export class RelatorioService {
 
     const itens = rows.map((row) => ({
       mes: Number(row.mes),
+      quantidadeItensVendidos: Number(row.quantidadeItensVendidos ?? 0),
       valorVendas: Number(row.valorVendas ?? 0),
       valorDespesas: Number(row.valorDespesas ?? 0),
       saldo: Number(row.saldo ?? 0),
@@ -106,6 +119,10 @@ export class RelatorioService {
 
     return {
       ano,
+      totalQuantidadeItensVendidos: itens.reduce(
+        (total, item) => total + item.quantidadeItensVendidos,
+        0,
+      ),
       totalVendas: itens.reduce((total, item) => total + item.valorVendas, 0),
       totalDespesas: itens.reduce(
         (total, item) => total + item.valorDespesas,

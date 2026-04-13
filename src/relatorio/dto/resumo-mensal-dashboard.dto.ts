@@ -13,6 +13,7 @@ export class ObterResumoMensalDashboardDto {
 
 export class ResumoMensalDashboardDto {
   ano!: number;
+  totalQuantidadeItensVendidos!: number;
   totalVendas!: number;
   totalDespesas!: number;
   saldo!: number;
