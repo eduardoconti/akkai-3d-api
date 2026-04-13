@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
@@ -145,7 +137,11 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: EntradaEstoqueDto,
   ) {
-    return await this.entradaEstoqueUseCase.execute({ idProduto: id, quantidade, origem });
+    return await this.entradaEstoqueUseCase.execute({
+      idProduto: id,
+      quantidade,
+      origem,
+    });
   }
 
   @ApiSaidaEstoqueDocs()
@@ -154,7 +150,11 @@ export class ProdutoController {
     @Param('id') id: number,
     @Body() { quantidade, origem }: SaidaEstoqueDto,
   ) {
-    return await this.saidaEstoqueUseCase.execute({ idProduto: id, quantidade, origem });
+    return await this.saidaEstoqueUseCase.execute({
+      idProduto: id,
+      quantidade,
+      origem,
+    });
   }
 
   @ApiListarMovimentacoesEstoqueDocs()
@@ -163,6 +163,9 @@ export class ProdutoController {
     @Param('id') id: number,
     @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,
   ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
-    return await this.estoqueService.listarMovimentacoesPorProduto(id, pesquisa);
+    return await this.estoqueService.listarMovimentacoesPorProduto(
+      id,
+      pesquisa,
+    );
   }
 }

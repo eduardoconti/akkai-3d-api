@@ -37,7 +37,9 @@ describe('ExcluirDespesaUseCase', () => {
       new NotFoundException('Despesa com ID 99 não encontrada.'),
     );
 
-    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(financeiroService.excluirDespesa).not.toHaveBeenCalled();
   });

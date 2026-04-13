@@ -6,7 +6,7 @@ import {
   ApiOperation,
   ApiQuery,
 } from '@nestjs/swagger';
-import { InserirFeiraDto, InserirVendaDto } from '@venda/dto';
+import { AlterarFeiraDto, InserirFeiraDto, InserirVendaDto } from '@venda/dto';
 import {
   ApiConflictErrorResponse,
   ApiUnauthorizedErrorResponse,
@@ -152,6 +152,78 @@ export function ApiListarFeirasDocs() {
       schema: { example: [FEIRA_EXEMPLO] },
     }),
     ApiUnauthorizedErrorResponse('/venda/feiras'),
+  );
+}
+
+export function ApiListarFeirasPaginadasDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista feiras com paginação.',
+      description:
+        'Retorna as feiras paginadas para a tela administrativa, com pesquisa opcional por nome, local ou descrição.',
+    }),
+    ApiPaginacaoQueryDocs(),
+    ApiOkResponse({
+      description: 'Feiras encontradas com sucesso.',
+      schema: {
+        example: {
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 1,
+          totalPaginas: 1,
+          itens: [FEIRA_EXEMPLO],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/venda/feiras/paginado'),
+    ApiUnauthorizedErrorResponse('/venda/feiras/paginado'),
+  );
+}
+
+export function ApiObterFeiraPorIdDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém uma feira por id.',
+      description: 'Retorna os dados completos da feira para edição.',
+    }),
+    ApiOkResponse({
+      description: 'Feira encontrada com sucesso.',
+      schema: { example: FEIRA_EXEMPLO },
+    }),
+    ApiUnauthorizedErrorResponse('/venda/feiras/1'),
+  );
+}
+
+export function ApiAlterarFeiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera uma feira existente.',
+      description: 'Atualiza os dados cadastrais de uma feira.',
+    }),
+    ApiBody({
+      type: AlterarFeiraDto,
+      examples: {
+        padrao: {
+          summary: 'Feira alterada',
+          value: {
+            nome: 'MAUA',
+            local: 'Praça Mauá',
+            descricao: 'Feira fixa de domingo',
+            ativa: true,
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Feira alterada com sucesso.',
+      schema: { example: FEIRA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/venda/feiras/1'),
+    ApiUnauthorizedErrorResponse('/venda/feiras/1'),
+    ApiConflictErrorResponse(
+      '/venda/feiras/1',
+      'Já existe uma feira cadastrada com este nome.',
+    ),
   );
 }
 

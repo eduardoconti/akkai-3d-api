@@ -14,9 +14,12 @@ export class AlterarCategoriaProdutoUseCase {
     private readonly categoriaProdutoService: CategoriaProdutoService,
   ) {}
 
-  async execute(input: AlterarCategoriaProdutoInput): Promise<CategoriaProduto> {
-    const categoria =
-      await this.categoriaProdutoService.garantirCategoriaPorId(input.id);
+  async execute(
+    input: AlterarCategoriaProdutoInput,
+  ): Promise<CategoriaProduto> {
+    const categoria = await this.categoriaProdutoService.garantirCategoriaPorId(
+      input.id,
+    );
 
     if (input.idAscendente !== undefined) {
       if (input.idAscendente === input.id) {

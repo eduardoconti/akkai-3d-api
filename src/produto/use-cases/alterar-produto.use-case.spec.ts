@@ -80,7 +80,13 @@ describe('AlterarProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ id: 10, nome: 'Caneca Nova', codigo: 'CN002', idCategoria: 2, valor: 3190 }),
+      useCase.execute({
+        id: 10,
+        nome: 'Caneca Nova',
+        codigo: 'CN002',
+        idCategoria: 2,
+        valor: 3190,
+      }),
     ).rejects.toThrow(
       new NotFoundException('Produto com ID 10 não encontrado'),
     );
@@ -98,7 +104,13 @@ describe('AlterarProdutoUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ id: 10, nome: 'Caneca Nova', codigo: 'CN002', idCategoria: 99, valor: 3190 }),
+      useCase.execute({
+        id: 10,
+        nome: 'Caneca Nova',
+        codigo: 'CN002',
+        idCategoria: 99,
+        valor: 3190,
+      }),
     ).rejects.toThrow(
       new NotFoundException('Categoria com ID 99 não encontrada.'),
     );

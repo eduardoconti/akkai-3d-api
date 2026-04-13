@@ -15,7 +15,9 @@ export class AlterarCarteiraUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
   async execute(input: AlterarCarteiraInput): Promise<Carteira> {
-    const carteira = await this.financeiroService.garantirCarteiraPorId(input.id);
+    const carteira = await this.financeiroService.garantirCarteiraPorId(
+      input.id,
+    );
 
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? carteira.ativa;

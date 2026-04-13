@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feira, ItemVenda, Venda } from '@venda/entities';
 import { ProdutoModule } from '@produto/produto.module';
 import {
+  AlterarFeiraUseCase,
   AlterarVendaUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
@@ -19,6 +20,7 @@ import { Carteira } from '@financeiro/entities';
     VendaService,
     FeiraService,
     InserirFeiraUseCase,
+    AlterarFeiraUseCase,
     InserirVendaUseCase,
     AlterarVendaUseCase,
     ExcluirVendaUseCase,

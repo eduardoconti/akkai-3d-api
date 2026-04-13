@@ -3,6 +3,7 @@ import { VendaController } from '@venda/controllers';
 import { Feira, TipoVenda, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import {
+  AlterarFeiraUseCase,
   AlterarVendaUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
@@ -12,16 +13,26 @@ import {
 describe('VendaController', () => {
   let controller: VendaController;
   let vendaService: { listarVendas: jest.Mock };
-  let feiraService: { listarFeiras: jest.Mock };
+  let feiraService: {
+    listarFeiras: jest.Mock;
+    pesquisarFeiras: jest.Mock;
+    garantirFeiraPorId: jest.Mock;
+  };
   let inserirFeiraUseCase: { execute: jest.Mock };
+  let alterarFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
   let alterarVendaUseCase: { execute: jest.Mock };
   let excluirVendaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     vendaService = { listarVendas: jest.fn() };
-    feiraService = { listarFeiras: jest.fn() };
+    feiraService = {
+      listarFeiras: jest.fn(),
+      pesquisarFeiras: jest.fn(),
+      garantirFeiraPorId: jest.fn(),
+    };
     inserirFeiraUseCase = { execute: jest.fn() };
+    alterarFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
     alterarVendaUseCase = { execute: jest.fn() };
     excluirVendaUseCase = { execute: jest.fn() };
@@ -44,6 +55,10 @@ describe('VendaController', () => {
         {
           provide: InserirVendaUseCase,
           useValue: inserirVendaUseCase,
+        },
+        {
+          provide: AlterarFeiraUseCase,
+          useValue: alterarFeiraUseCase,
         },
         {
           provide: AlterarVendaUseCase,
@@ -93,6 +108,25 @@ describe('VendaController', () => {
     expect(result).toEqual({ id: 1 });
   });
 
+  it('deve delegar alteração de feira', async () => {
+    alterarFeiraUseCase.execute.mockResolvedValue({ id: 2 });
+
+    const input = {
+      nome: 'Praça XV',
+      local: 'Centro',
+      descricao: 'Feira mensal',
+      ativa: true,
+    };
+
+    const result = await controller.alterarFeira(2, input);
+
+    expect(alterarFeiraUseCase.execute).toHaveBeenCalledWith({
+      id: 2,
+      ...input,
+    });
+    expect(result).toEqual({ id: 2 });
+  });
+
   it('deve delegar alteração de venda', async () => {
     alterarVendaUseCase.execute.mockResolvedValue({ id: 2 });
 
@@ -118,7 +152,7 @@ describe('VendaController', () => {
 
     await controller.excluirVenda(2);
 
-    expect(excluirVendaUseCase.execute).toHaveBeenCalledWith(2);
+    expect(excluirVendaUseCase.execute).toHaveBeenCalledWith({ id: 2 });
   });
 
   it('deve listar vendas', async () => {
@@ -159,5 +193,37 @@ describe('VendaController', () => {
 
     expect(feiraService.listarFeiras).toHaveBeenCalled();
     expect(result).toBe(feiras);
+  });
+
+  it('deve listar feiras paginadas', async () => {
+    const feiras = {
+      itens: [Object.assign(new Feira(), { id: 1 })],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    feiraService.pesquisarFeiras.mockResolvedValue(feiras);
+
+    const result = await controller.pesquisarFeiras({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(feiraService.pesquisarFeiras).toHaveBeenCalledWith({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+    expect(result).toBe(feiras);
+  });
+
+  it('deve obter feira por id', async () => {
+    const feira = Object.assign(new Feira(), { id: 3 });
+    feiraService.garantirFeiraPorId.mockResolvedValue(feira);
+
+    const result = await controller.obterFeiraPorId(3);
+
+    expect(feiraService.garantirFeiraPorId).toHaveBeenCalledWith(3);
+    expect(result).toBe(feira);
   });
 });

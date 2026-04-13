@@ -37,7 +37,11 @@ describe('AlterarCategoriaProdutoUseCase', () => {
       (value: CategoriaProduto) => Promise.resolve(value),
     );
 
-    const result = await useCase.execute({ id: 3, nome: 'FIDGET PREMIUM', idAscendente: 1 });
+    const result = await useCase.execute({
+      id: 3,
+      nome: 'FIDGET PREMIUM',
+      idAscendente: 1,
+    });
 
     expect(categoriaProdutoService.garantirCategoriaPorId).toHaveBeenCalledWith(
       3,

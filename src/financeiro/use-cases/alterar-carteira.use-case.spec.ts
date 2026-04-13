@@ -34,7 +34,11 @@ describe('AlterarCarteiraUseCase', () => {
       ativa: false,
     });
 
-    const result = await useCase.execute({ id: 1, nome: 'NUBANK PIX', ativa: false });
+    const result = await useCase.execute({
+      id: 1,
+      nome: 'NUBANK PIX',
+      ativa: false,
+    });
 
     expect(financeiroService.garantirCarteiraPorId).toHaveBeenCalledWith(1);
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
@@ -66,7 +70,11 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [MeioPagamento.PIX],
     });
 
-    await useCase.execute({ id: 1, nome: 'CAIXA', meiosPagamento: [MeioPagamento.PIX] });
+    await useCase.execute({
+      id: 1,
+      nome: 'CAIXA',
+      meiosPagamento: [MeioPagamento.PIX],
+    });
 
     expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ meiosPagamento: [MeioPagamento.PIX] }),

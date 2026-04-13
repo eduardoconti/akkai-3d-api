@@ -11,7 +11,9 @@ export interface AlterarCategoriaDespesaInput {
 export class AlterarCategoriaDespesaUseCase {
   constructor(private readonly financeiroService: FinanceiroService) {}
 
-  async execute(input: AlterarCategoriaDespesaInput): Promise<CategoriaDespesa> {
+  async execute(
+    input: AlterarCategoriaDespesaInput,
+  ): Promise<CategoriaDespesa> {
     const categoria =
       await this.financeiroService.garantirCategoriaDespesaPorId(input.id);
 

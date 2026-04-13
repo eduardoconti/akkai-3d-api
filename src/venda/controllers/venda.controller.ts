@@ -10,14 +10,17 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  AlterarFeiraDto,
   AlterarVendaDto,
   InserirFeiraDto,
   InserirVendaDto,
+  PesquisarFeirasDto,
   PesquisarVendasDto,
 } from '@venda/dto';
 import { Feira, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import {
+  AlterarFeiraUseCase,
   AlterarVendaUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
@@ -26,10 +29,13 @@ import {
 import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
+  ApiAlterarFeiraDocs,
   ApiInserirFeiraDocs,
   ApiInserirVendaDocs,
   ApiListarFeirasDocs,
+  ApiListarFeirasPaginadasDocs,
   ApiListarVendasDocs,
+  ApiObterFeiraPorIdDocs,
 } from '@venda/docs/venda-docs.decorator';
 
 @ApiProtectedController('Vendas')
@@ -39,6 +45,7 @@ export class VendaController {
     private readonly vendaService: VendaService,
     private readonly feiraService: FeiraService,
     private readonly inserirFeiraUseCase: InserirFeiraUseCase,
+    private readonly alterarFeiraUseCase: AlterarFeiraUseCase,
     private readonly inserirVendaUseCase: InserirVendaUseCase,
     private readonly alterarVendaUseCase: AlterarVendaUseCase,
     private readonly excluirVendaUseCase: ExcluirVendaUseCase,
@@ -48,6 +55,29 @@ export class VendaController {
   @Post('feiras')
   async inserirFeira(@Body() input: InserirFeiraDto): Promise<Feira> {
     return await this.inserirFeiraUseCase.execute(input);
+  }
+
+  @ApiListarFeirasPaginadasDocs()
+  @Get('feiras/paginado')
+  async pesquisarFeiras(
+    @Query() pesquisa: PesquisarFeirasDto,
+  ): Promise<ResultadoPaginado<Feira>> {
+    return await this.feiraService.pesquisarFeiras(pesquisa);
+  }
+
+  @ApiObterFeiraPorIdDocs()
+  @Get('feiras/:id')
+  async obterFeiraPorId(@Param('id', ParseIntPipe) id: number): Promise<Feira> {
+    return await this.feiraService.garantirFeiraPorId(id);
+  }
+
+  @ApiAlterarFeiraDocs()
+  @Put('feiras/:id')
+  async alterarFeira(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AlterarFeiraDto,
+  ): Promise<Feira> {
+    return await this.alterarFeiraUseCase.execute({ id, ...input });
   }
 
   @ApiInserirVendaDocs()

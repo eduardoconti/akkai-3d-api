@@ -506,7 +506,9 @@ export function ApiListarMovimentacoesEstoqueDocs() {
       description:
         'Retorna as movimentações de estoque do produto informado em ordem decrescente de data de inclusão.',
     }),
-    ApiIdParamDocs('Identificador do produto para consulta do histórico de estoque.'),
+    ApiIdParamDocs(
+      'Identificador do produto para consulta do histórico de estoque.',
+    ),
     ApiPaginacaoQueryDocs(),
     ApiPaginatedOkResponse(
       ListarMovimentacaoEstoqueDto,

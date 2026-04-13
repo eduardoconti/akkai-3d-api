@@ -121,7 +121,10 @@ describe('FinanceiroController', () => {
 
     const result = await controller.alterarCarteira(1, input);
 
-    expect(alterarCarteiraUseCase.execute).toHaveBeenCalledWith({ id: 1, ...input });
+    expect(alterarCarteiraUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      ...input,
+    });
     expect(result).toEqual({ id: 1, ...input });
   });
 
@@ -175,7 +178,10 @@ describe('FinanceiroController', () => {
     };
     const result = await controller.alterarDespesa(1, input as never);
 
-    expect(alterarDespesaUseCase.execute).toHaveBeenCalledWith({ id: 1, ...input });
+    expect(alterarDespesaUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      ...input,
+    });
     expect(result).toBe(despesa);
   });
 
@@ -219,7 +225,10 @@ describe('FinanceiroController', () => {
     const input = { nome: 'Embalagem Atualizada' };
     const result = await controller.alterarCategoriaDespesa(1, input);
 
-    expect(alterarCategoriaDespesaUseCase.execute).toHaveBeenCalledWith({ id: 1, ...input });
+    expect(alterarCategoriaDespesaUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      ...input,
+    });
     expect(result).toEqual({ id: 1, nome: 'Embalagem Atualizada' });
   });
 });

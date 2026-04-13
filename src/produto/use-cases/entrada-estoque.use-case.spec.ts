@@ -21,7 +21,11 @@ describe('EntradaEstoqueUseCase', () => {
   it('deve delegar entrada de estoque com o id do usuario logado', async () => {
     entradaEstoqueMock.mockResolvedValue(undefined);
 
-    await useCase.execute({ idProduto: 1, quantidade: 5, origem: OrigemMovimentacaoEstoque.COMPRA });
+    await useCase.execute({
+      idProduto: 1,
+      quantidade: 5,
+      origem: OrigemMovimentacaoEstoque.COMPRA,
+    });
 
     expect(entradaEstoqueMock).toHaveBeenCalledWith(
       1,
@@ -35,7 +39,11 @@ describe('EntradaEstoqueUseCase', () => {
     currentUserContext.usuarioId = 42;
     entradaEstoqueMock.mockResolvedValue(undefined);
 
-    await useCase.execute({ idProduto: 2, quantidade: 10, origem: OrigemMovimentacaoEstoque.PRODUCAO });
+    await useCase.execute({
+      idProduto: 2,
+      quantidade: 10,
+      origem: OrigemMovimentacaoEstoque.PRODUCAO,
+    });
 
     expect(entradaEstoqueMock).toHaveBeenCalledWith(
       2,
