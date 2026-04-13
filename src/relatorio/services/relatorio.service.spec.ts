@@ -286,6 +286,34 @@ describe('RelatorioService', () => {
     });
   });
 
+  it('deve ordenar o relatório de valor dos produtos em estoque conforme filtro informado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          totalItens: '0',
+          totalQuantidade: '0',
+          totalValor: '0',
+          totalValorTotal: '0',
+        },
+      ]);
+
+    await service.obterValorProdutosEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'valorTotal',
+      direcao: 'desc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining(
+        'ORDER BY COALESCE(e.quantidade_estoque, 0) * p.valor DESC, p.codigo ASC',
+      ),
+      [10, 0],
+    );
+  });
+
   it('deve retornar totalizadores zerados quando não houver produtos em estoque', async () => {
     dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
       {

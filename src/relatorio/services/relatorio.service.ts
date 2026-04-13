@@ -53,6 +53,15 @@ export class RelatorioService {
     filtro: ObterValorProdutosEstoqueDto,
   ): Promise<ValorProdutosEstoqueDto> {
     const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
+    const orderByMap = {
+      codigo: 'p.codigo',
+      nome: 'p.nome',
+      quantidade: 'COALESCE(e.quantidade_estoque, 0)',
+      valor: 'p.valor',
+      valorTotal: 'COALESCE(e.quantidade_estoque, 0) * p.valor',
+    } as const;
+    const orderBy = orderByMap[filtro.ordenarPor ?? 'codigo'];
+    const orderDirection = filtro.direcao === 'desc' ? 'DESC' : 'ASC';
 
     const rows: ValorProdutoEstoqueRow[] = await this.dataSource.query(
       `
@@ -78,7 +87,7 @@ export class RelatorioService {
         FROM produto p
         LEFT JOIN estoque e ON e.id_produto = p.id
         WHERE COALESCE(e.quantidade_estoque, 0) > 0
-        ORDER BY p.nome ASC, p.codigo ASC
+        ORDER BY ${orderBy} ${orderDirection}, p.codigo ASC
         LIMIT $1
         OFFSET $2
       `,
