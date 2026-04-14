@@ -9,9 +9,9 @@ import {
   PesquisarEstoqueDto,
   PesquisarProdutosDto,
 } from '@produto/dto';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
-import { calcularOffset } from '../../common/utils/paginacao.util';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
+import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
 export class ProdutoService {

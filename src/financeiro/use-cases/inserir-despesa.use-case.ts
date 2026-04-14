@@ -6,7 +6,7 @@ import {
   CategoriaDespesaService,
   DespesaService,
 } from '@financeiro/services';
-import { CurrentUserContext } from '../../common/services/current-user-context.service';
+import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 @Injectable()
 export class InserirDespesaUseCase {

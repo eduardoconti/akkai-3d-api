@@ -8,7 +8,7 @@ import { MovimentacaoEstoque } from '@produto/entities';
 import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DateService } from '../../common/services/date.service';
+import { DateService } from '@common/services/date.service';
 
 describe('VendaService', () => {
   let service: VendaService;

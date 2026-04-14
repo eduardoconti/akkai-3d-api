@@ -7,7 +7,7 @@ import {
   IsOptional,
   Min,
 } from 'class-validator';
-import { PesquisaPaginadaDto } from '../../common/dto/pesquisa-paginada.dto';
+import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 import { TipoVenda } from '@venda/entities/venda.entity';
 
 function normalizeIdsCategorias(value: unknown): number[] | undefined {

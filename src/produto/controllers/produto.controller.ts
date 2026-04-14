@@ -29,8 +29,8 @@ import {
   EstoqueService,
   ProdutoService,
 } from '@produto/services';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarProdutoDocs,
   ApiAlterarCategoriaDocs,

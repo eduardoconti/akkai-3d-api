@@ -35,8 +35,8 @@ import {
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
   ApiAlterarDespesaDocs,

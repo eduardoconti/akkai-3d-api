@@ -21,12 +21,12 @@ import {
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
-} from '../../common/docs/decorators/api-default-problem-responses.decorator';
-import { ApiPaginatedOkResponse } from '../../common/docs/decorators/api-paginated-ok-response.decorator';
+} from '@common/docs/decorators/api-default-problem-responses.decorator';
+import { ApiPaginatedOkResponse } from '@common/docs/decorators/api-paginated-ok-response.decorator';
 import {
   ApiIdParamDocs,
   ApiPaginacaoQueryDocs,
-} from '../../common/docs/decorators/api-query-docs.decorator';
+} from '@common/docs/decorators/api-query-docs.decorator';
 import { ApiQuery } from '@nestjs/swagger';
 
 const PRODUTO_EXEMPLO = {

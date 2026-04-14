@@ -7,7 +7,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class AlterarCadastroDto {
   @Transform(trimStringValue)

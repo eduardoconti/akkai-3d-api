@@ -1,4 +1,4 @@
-import { CurrentUserContext } from '../../common/services/current-user-context.service';
+import { CurrentUserContext } from '@common/services/current-user-context.service';
 import { OrigemMovimentacaoEstoque } from '@produto/entities';
 import { EstoqueService } from '@produto/services';
 import { SaidaEstoqueUseCase } from '@produto/use-cases';

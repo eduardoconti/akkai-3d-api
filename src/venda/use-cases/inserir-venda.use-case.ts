@@ -14,7 +14,7 @@ import {
 } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import { Injectable } from '@nestjs/common';
-import { CurrentUserContext } from '../../common/services/current-user-context.service';
+import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 export interface ExecutarInserirVendaInput {
   meioPagamento: MeioPagamento;

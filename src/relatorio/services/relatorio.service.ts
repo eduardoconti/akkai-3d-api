@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { calcularOffset } from '../../common/utils/paginacao.util';
-import { DateService } from '../../common/services/date.service';
+import { calcularOffset } from '@common/utils/paginacao.util';
+import { DateService } from '@common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
   DespesasCategoriasMesDashboardDto,

@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriaDespesa } from '@financeiro/entities';
 import { Repository } from 'typeorm';
-import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
+import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 
 @Injectable()
 export class CategoriaDespesaService {

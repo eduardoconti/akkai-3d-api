@@ -7,10 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PesquisarDespesasDto } from '@financeiro/dto';
 import { Despesa } from '@financeiro/entities';
-import { DateService } from '../../common/services/date.service';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { DateService } from '@common/services/date.service';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { Repository } from 'typeorm';
-import { calcularOffset } from '../../common/utils/paginacao.util';
+import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
 export class DespesaService {

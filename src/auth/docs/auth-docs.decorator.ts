@@ -16,8 +16,8 @@ import {
   ApiConflictErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
-} from '../../common/docs/decorators/api-default-problem-responses.decorator';
-import { ApiProblemResponses } from '../../common/docs/decorators/api-problem-responses.decorator';
+} from '@common/docs/decorators/api-default-problem-responses.decorator';
+import { ApiProblemResponses } from '@common/docs/decorators/api-problem-responses.decorator';
 
 export function ApiAuthLoginDocs() {
   return applyDecorators(

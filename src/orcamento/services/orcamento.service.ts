@@ -6,9 +6,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Orcamento } from '@orcamento/entities';
 import { PesquisarOrcamentosDto } from '@orcamento/dto';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { Repository } from 'typeorm';
-import { calcularOffset } from '../../common/utils/paginacao.util';
+import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
 export class OrcamentoService {

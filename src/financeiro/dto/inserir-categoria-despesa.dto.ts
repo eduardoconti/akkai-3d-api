@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirCategoriaDespesaDto {
   @Transform(trimStringValue)

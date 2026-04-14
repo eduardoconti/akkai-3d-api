@@ -32,8 +32,8 @@ import {
   ApiAuthUpdatePasswordDocs,
   ApiAuthUpdateProfileDocs,
 } from '@auth/docs/auth-docs.decorator';
-import { ApiAccessCookieAuth } from '../../common/docs/decorators/api-cookie-auth.decorator';
-import { ApiPublicController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import { ApiAccessCookieAuth } from '@common/docs/decorators/api-cookie-auth.decorator';
+import { ApiPublicController } from '@common/docs/decorators/api-controller-docs.decorator';
 
 type AuthenticatedRequest = {
   user?: JwtPayload;

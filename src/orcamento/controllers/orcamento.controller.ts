@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
+import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { InserirOrcamentoDto, PesquisarOrcamentosDto } from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';

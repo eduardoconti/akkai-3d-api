@@ -11,7 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { MeioPagamento } from '@venda/entities';
-import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirDespesaDto {
   @IsDateString(

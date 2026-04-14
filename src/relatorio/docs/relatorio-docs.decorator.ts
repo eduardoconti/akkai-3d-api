@@ -4,7 +4,7 @@ import {
   ApiForbiddenErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
-} from '../../common/docs/decorators/api-default-problem-responses.decorator';
+} from '@common/docs/decorators/api-default-problem-responses.decorator';
 
 export function ApiResumoVendasPeriodoDocs() {
   return applyDecorators(

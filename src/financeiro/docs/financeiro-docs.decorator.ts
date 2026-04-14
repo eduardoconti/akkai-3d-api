@@ -19,11 +19,11 @@ import {
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
-} from '../../common/docs/decorators/api-default-problem-responses.decorator';
+} from '@common/docs/decorators/api-default-problem-responses.decorator';
 import {
   ApiIdParamDocs,
   ApiPaginacaoQueryDocs,
-} from '../../common/docs/decorators/api-query-docs.decorator';
+} from '@common/docs/decorators/api-query-docs.decorator';
 
 const CARTEIRA_EXEMPLO = {
   id: 1,

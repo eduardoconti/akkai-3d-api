@@ -6,7 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Despesa } from '@financeiro/entities';
 import { DespesaService } from './despesa.service';
-import { DateService } from '../../common/services/date.service';
+import { DateService } from '@common/services/date.service';
 import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
 
 describe('DespesaService', () => {

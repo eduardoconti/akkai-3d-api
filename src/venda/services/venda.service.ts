@@ -11,9 +11,9 @@ import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { PesquisarVendasDto } from '@venda/dto';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '../../common/utils/paginacao.util';
-import { DateService } from '../../common/services/date.service';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { calcularOffset } from '@common/utils/paginacao.util';
+import { DateService } from '@common/services/date.service';
 
 @Injectable()
 export class VendaService {

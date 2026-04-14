@@ -13,7 +13,7 @@ import {
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
 import { RelatorioService } from '@relatorio/services';
-import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
+import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiProdutosMaisVendidosDocs,
   ApiDespesasCategoriasMesDashboardDocs,

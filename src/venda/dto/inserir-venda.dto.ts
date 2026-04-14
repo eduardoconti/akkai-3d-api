@@ -16,7 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { MeioPagamento, TipoVenda } from '@venda/entities';
-import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirVendaDto {
   @IsEnum(TipoVenda, {

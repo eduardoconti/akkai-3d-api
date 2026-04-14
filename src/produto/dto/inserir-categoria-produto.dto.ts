@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { trimStringValue } from '../../common/transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 import {
   IsInt,
   IsNotEmpty,

@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { RelatorioService } from '@relatorio/services';
 import { TipoVenda } from '@venda/entities/venda.entity';
-import { DateService } from '../../common/services/date.service';
+import { DateService } from '@common/services/date.service';
 
 describe('RelatorioService', () => {
   let service: RelatorioService;

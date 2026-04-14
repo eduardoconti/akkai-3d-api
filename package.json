@@ -106,6 +106,7 @@
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1",
       "^@auth/(.*)$": "<rootDir>/auth/$1",
+      "^@common/(.*)$": "<rootDir>/common/$1",
       "^@financeiro/(.*)$": "<rootDir>/financeiro/$1",
       "^@orcamento/(.*)$": "<rootDir>/orcamento/$1",
       "^@produto/(.*)$": "<rootDir>/produto/$1",

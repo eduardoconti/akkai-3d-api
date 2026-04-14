@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PesquisarFeirasDto } from '@venda/dto';
 import { Feira } from '@venda/entities';
-import { lancarExcecaoConflito } from '../../common/database/lancar-excecao-conflito';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '../../common/utils/paginacao.util';
+import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
 export class FeiraService {

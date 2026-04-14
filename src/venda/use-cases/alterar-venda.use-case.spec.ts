@@ -8,7 +8,7 @@ import {
   AlterarVendaUseCase,
   ExecutarAlterarVendaInput,
 } from '@venda/use-cases';
-import { CurrentUserContext } from '../../common/services/current-user-context.service';
+import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 describe('AlterarVendaUseCase', () => {
   let useCase: AlterarVendaUseCase;

@@ -1,5 +1,5 @@
 import { IsDateString, IsOptional } from 'class-validator';
-import { PesquisaPaginadaDto } from '../../common/dto/pesquisa-paginada.dto';
+import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 
 export class PesquisarDespesasDto extends PesquisaPaginadaDto {
   @IsOptional()

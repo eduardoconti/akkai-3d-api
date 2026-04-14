@@ -11,8 +11,8 @@ import {
   ApiConflictErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
-} from '../../common/docs/decorators/api-default-problem-responses.decorator';
-import { ApiPaginacaoQueryDocs } from '../../common/docs/decorators/api-query-docs.decorator';
+} from '@common/docs/decorators/api-default-problem-responses.decorator';
+import { ApiPaginacaoQueryDocs } from '@common/docs/decorators/api-query-docs.decorator';
 
 const FEIRA_EXEMPLO = {
   id: 1,

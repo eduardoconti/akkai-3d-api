@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CurrentUserContext } from '../../common/services/current-user-context.service';
+import { CurrentUserContext } from '@common/services/current-user-context.service';
 import {
   CarteiraService,
   CategoriaDespesaService,

@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
-import { PesquisaPaginadaDto } from '../../common/dto/pesquisa-paginada.dto';
+import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 import { TipoVenda } from '@venda/entities';
 
 export class PesquisarVendasDto extends PesquisaPaginadaDto {

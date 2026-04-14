@@ -12,8 +12,8 @@ import {
   PesquisarMovimentacoesEstoqueDto,
 } from '@produto/dto';
 import { ProdutoService } from './produto.service';
-import { ResultadoPaginado } from '../../common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '../../common/utils/paginacao.util';
+import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
 export class EstoqueService {
