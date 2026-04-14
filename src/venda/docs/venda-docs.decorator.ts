@@ -241,6 +241,27 @@ export function ApiListarVendasDocs() {
       enum: ['FEIRA', 'LOJA', 'ONLINE'],
       description: 'Filtro opcional pelo tipo da venda.',
     }),
+    ApiQuery({
+      name: 'idFeira',
+      required: false,
+      type: Number,
+      example: 1,
+      description:
+        'Filtro opcional pela feira. Só pode ser usado quando o tipo for FEIRA.',
+    }),
+    ApiQuery({
+      name: 'idCarteira',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Filtro opcional pela carteira da venda.',
+    }),
+    ApiQuery({
+      name: 'meioPagamento',
+      required: false,
+      enum: ['DIN', 'DEB', 'CRE', 'PIX'],
+      description: 'Filtro opcional pelo meio de pagamento.',
+    }),
     ApiOkResponse({
       description: 'Vendas encontradas com sucesso.',
       schema: {

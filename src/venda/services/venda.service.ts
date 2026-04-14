@@ -185,6 +185,18 @@ export class VendaService {
       });
     }
 
+    if (pesquisa.idCarteira) {
+      queryBuilder.andWhere('venda.idCarteira = :idCarteira', {
+        idCarteira: pesquisa.idCarteira,
+      });
+    }
+
+    if (pesquisa.meioPagamento) {
+      queryBuilder.andWhere('venda.meioPagamento = :meioPagamento', {
+        meioPagamento: pesquisa.meioPagamento,
+      });
+    }
+
     const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
     return {

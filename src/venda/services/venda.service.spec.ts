@@ -1,4 +1,5 @@
 import { Carteira } from '@financeiro/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import {
   BadRequestException,
   InternalServerErrorException,
@@ -288,7 +289,7 @@ describe('VendaService', () => {
     );
   });
 
-  it('deve listar vendas filtradas por período e feira', async () => {
+  it('deve listar vendas filtradas por período, feira, carteira e pagamento', async () => {
     await service.listarVendas({
       pagina: 1,
       tamanhoPagina: 10,
@@ -296,6 +297,8 @@ describe('VendaService', () => {
       dataFim: '2026-04-05',
       tipo: TipoVenda.FEIRA,
       idFeira: 7,
+      idCarteira: 2,
+      meioPagamento: MeioPagamento.PIX,
     });
 
     const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
@@ -313,6 +316,14 @@ describe('VendaService', () => {
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
       'venda.idFeira = :idFeira',
       expect.objectContaining({ idFeira: 7 }),
+    );
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      'venda.idCarteira = :idCarteira',
+      expect.objectContaining({ idCarteira: 2 }),
+    );
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      'venda.meioPagamento = :meioPagamento',
+      expect.objectContaining({ meioPagamento: MeioPagamento.PIX }),
     );
   });
 
