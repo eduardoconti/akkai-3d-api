@@ -61,6 +61,7 @@ describe('RelatorioService', () => {
         1,
       ],
     );
+    expect(dataSource.query.mock.calls[0][0]).toContain('AND item.brinde = false');
     expect(result).toEqual({
       dataInicio: '2026-03-31',
       dataFim: '2026-03-31',

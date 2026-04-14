@@ -505,6 +505,7 @@ export class RelatorioService {
               FROM item_venda item
               INNER JOIN venda venda ON venda.id = item.id_venda
               WHERE ${whereClause}
+                AND item.brinde = false
             ),
             0
           ) AS "quantidadeItens",
