@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { Feira } from '@venda/entities';
 import { Carteira } from './carteira.entity';
 import { CategoriaDespesa } from './categoria-despesa.entity';
 
@@ -19,6 +20,7 @@ export interface DespesaInput {
   idCategoria: number;
   meioPagamento: MeioPagamento;
   idCarteira: number;
+  idFeira?: number;
   observacao?: string;
 }
 
@@ -30,6 +32,7 @@ export interface CriarDespesaInput extends DespesaInput {
 @Check('ck_despesa_valor_nao_negativo', '"valor" >= 0')
 @Index('idx_despesa_id_carteira', ['idCarteira'])
 @Index('idx_despesa_id_categoria', ['idCategoria'])
+@Index('idx_despesa_id_feira', ['idFeira'])
 @Index('idx_despesa_data_lancamento', ['dataLancamento'])
 export class Despesa {
   @PrimaryGeneratedColumn({
@@ -107,6 +110,22 @@ export class Despesa {
   })
   carteira!: Carteira;
 
+  @Column({
+    type: 'integer',
+    name: 'id_feira',
+    nullable: true,
+  })
+  idFeira?: number;
+
+  @ManyToOne(() => Feira, {
+    nullable: true,
+  })
+  @JoinColumn({
+    name: 'id_feira',
+    foreignKeyConstraintName: 'fk_despesa_feira',
+  })
+  feira?: Feira | null;
+
   static criar(input: CriarDespesaInput): Despesa {
     const despesa = new Despesa();
     despesa.idUsuarioInclusao = input.idUsuarioInclusao;
@@ -121,6 +140,7 @@ export class Despesa {
     this.idCategoria = input.idCategoria;
     this.meioPagamento = input.meioPagamento;
     this.idCarteira = input.idCarteira;
+    this.idFeira = input.idFeira;
     this.observacao = input.observacao?.trim();
   }
 }

@@ -9,6 +9,7 @@ describe('Despesa', () => {
     idCategoria: 3,
     meioPagamento: MeioPagamento.PIX,
     idCarteira: 1,
+    idFeira: 9,
     observacao: '  Nota fiscal 123  ',
     idUsuarioInclusao: 7,
   };
@@ -24,6 +25,7 @@ describe('Despesa', () => {
       expect(despesa.idCategoria).toBe(input.idCategoria);
       expect(despesa.meioPagamento).toBe(MeioPagamento.PIX);
       expect(despesa.idCarteira).toBe(input.idCarteira);
+      expect(despesa.idFeira).toBe(input.idFeira);
       expect(despesa.observacao).toBe('Nota fiscal 123');
     });
 
@@ -45,6 +47,7 @@ describe('Despesa', () => {
         idCategoria: 5,
         meioPagamento: MeioPagamento.DIN,
         idCarteira: 2,
+        idFeira: 4,
       };
 
       despesa.atualizar(novoInput);
@@ -57,6 +60,7 @@ describe('Despesa', () => {
       expect(despesa.idCategoria).toBe(5);
       expect(despesa.meioPagamento).toBe(MeioPagamento.DIN);
       expect(despesa.idCarteira).toBe(2);
+      expect(despesa.idFeira).toBe(4);
       expect(despesa.observacao).toBeUndefined();
     });
 

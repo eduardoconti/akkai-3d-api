@@ -49,4 +49,10 @@ export class PesquisarDespesasDto extends PesquisaPaginadaDto {
     message: 'Cada categoria deve ser maior que zero.',
   })
   idsCategorias?: number[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'A feira deve ser um número inteiro.' })
+  @Min(1, { message: 'A feira deve ser maior que zero.' })
+  idFeira?: number;
 }

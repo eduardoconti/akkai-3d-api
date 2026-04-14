@@ -54,6 +54,12 @@ export class InserirDespesaDto {
   idCarteira!: number;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'A feira da despesa deve ser um número inteiro.' })
+  @Min(1, { message: 'A feira da despesa deve ser maior que zero.' })
+  idFeira?: number;
+
+  @IsOptional()
   @Transform(trimStringValue)
   @IsString({ message: 'A observação da despesa deve ser um texto.' })
   @MaxLength(500, {

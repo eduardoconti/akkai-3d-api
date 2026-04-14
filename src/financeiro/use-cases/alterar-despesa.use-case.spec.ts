@@ -7,6 +7,7 @@ import {
 } from '@financeiro/services';
 import { Despesa } from '@financeiro/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { FeiraService } from '@venda/services';
 
 describe('AlterarDespesaUseCase', () => {
   let useCase: AlterarDespesaUseCase;
@@ -16,6 +17,7 @@ describe('AlterarDespesaUseCase', () => {
   };
   let carteiraService: { garantirExisteCarteira: jest.Mock };
   let categoriaDespesaService: { garantirExisteCategoriaDespesa: jest.Mock };
+  let feiraService: { garantirExisteFeira: jest.Mock };
 
   const inputPadrao = {
     dataLancamento: '2026-04-01',
@@ -24,6 +26,7 @@ describe('AlterarDespesaUseCase', () => {
     idCategoria: 1,
     meioPagamento: MeioPagamento.PIX,
     idCarteira: 2,
+    idFeira: 4,
     observacao: 'Reposição',
   };
 
@@ -34,11 +37,13 @@ describe('AlterarDespesaUseCase', () => {
     };
     carteiraService = { garantirExisteCarteira: jest.fn() };
     categoriaDespesaService = { garantirExisteCategoriaDespesa: jest.fn() };
+    feiraService = { garantirExisteFeira: jest.fn() };
 
     useCase = new AlterarDespesaUseCase(
       despesaService as unknown as DespesaService,
       carteiraService as unknown as CarteiraService,
       categoriaDespesaService as unknown as CategoriaDespesaService,
+      feiraService as unknown as FeiraService,
     );
   });
 
@@ -55,6 +60,7 @@ describe('AlterarDespesaUseCase', () => {
     categoriaDespesaService.garantirExisteCategoriaDespesa.mockResolvedValue(
       undefined,
     );
+    feiraService.garantirExisteFeira.mockResolvedValue(undefined);
     despesaService.alterarDespesa.mockResolvedValue(despesaAlterada);
 
     const result = await useCase.execute({ id: 5, ...inputPadrao });
@@ -64,6 +70,7 @@ describe('AlterarDespesaUseCase', () => {
     expect(
       categoriaDespesaService.garantirExisteCategoriaDespesa,
     ).toHaveBeenCalledWith(1);
+    expect(feiraService.garantirExisteFeira).toHaveBeenCalledWith(4);
     expect(despesaService.alterarDespesa).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 5,
@@ -72,6 +79,7 @@ describe('AlterarDespesaUseCase', () => {
         idCategoria: 1,
         meioPagamento: MeioPagamento.PIX,
         idCarteira: 2,
+        idFeira: 4,
         observacao: 'Reposição',
       }),
     );
@@ -85,6 +93,7 @@ describe('AlterarDespesaUseCase', () => {
     categoriaDespesaService.garantirExisteCategoriaDespesa.mockResolvedValue(
       undefined,
     );
+    feiraService.garantirExisteFeira.mockResolvedValue(undefined);
     despesaService.alterarDespesa.mockResolvedValue(despesaExistente);
 
     await useCase.execute({ id: 5, ...inputPadrao, observacao: undefined });
@@ -133,6 +142,25 @@ describe('AlterarDespesaUseCase', () => {
     await expect(useCase.execute({ id: 5, ...inputPadrao })).rejects.toThrow(
       NotFoundException,
     );
+
+    expect(despesaService.alterarDespesa).not.toHaveBeenCalled();
+  });
+
+  it('deve lançar NotFoundException quando a feira não existir', async () => {
+    despesaService.garantirDespesaPorId.mockResolvedValue(
+      Object.assign(new Despesa(), { id: 5 }),
+    );
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    categoriaDespesaService.garantirExisteCategoriaDespesa.mockResolvedValue(
+      undefined,
+    );
+    feiraService.garantirExisteFeira.mockRejectedValue(
+      new NotFoundException('Feira com ID 77 não encontrada.'),
+    );
+
+    await expect(
+      useCase.execute({ id: 5, ...inputPadrao, idFeira: 77 }),
+    ).rejects.toThrow(NotFoundException);
 
     expect(despesaService.alterarDespesa).not.toHaveBeenCalled();
   });

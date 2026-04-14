@@ -118,11 +118,13 @@ describe('FinanceiroController', () => {
     inserirDespesaUseCase.execute.mockResolvedValue(despesa);
 
     const input = {
+      dataLancamento: '2026-04-01T00:00:00-03:00',
       descricao: 'Aluguel',
       valor: 150000,
       idCarteira: 1,
       idCategoria: 1,
       meioPagamento: 'PIX',
+      idFeira: 2,
     };
     const result = await controller.inserirDespesa(input as never);
 
@@ -160,6 +162,7 @@ describe('FinanceiroController', () => {
       idCarteira: 1,
       idCategoria: 1,
       meioPagamento: 'PIX',
+      idFeira: 2,
     };
     const result = await controller.alterarDespesa(1, input as never);
 

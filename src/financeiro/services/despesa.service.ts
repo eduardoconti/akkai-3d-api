@@ -68,6 +68,7 @@ export class DespesaService {
       .createQueryBuilder('despesa')
       .leftJoinAndSelect('despesa.carteira', 'carteira')
       .leftJoinAndSelect('despesa.categoria', 'categoria')
+      .leftJoinAndSelect('despesa.feira', 'feira')
       .orderBy('despesa.dataLancamento', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
@@ -79,6 +80,7 @@ export class DespesaService {
           OR LOWER(COALESCE(despesa.observacao, '')) LIKE :termo
           OR LOWER(carteira.nome) LIKE :termo
           OR LOWER(categoria.nome) LIKE :termo
+          OR LOWER(COALESCE(feira.nome, '')) LIKE :termo
         )`,
         { termo: `%${termo}%` },
       );
@@ -101,6 +103,12 @@ export class DespesaService {
     if (pesquisa.idsCategorias && pesquisa.idsCategorias.length > 0) {
       queryBuilder.andWhere('despesa.idCategoria IN (:...idsCategorias)', {
         idsCategorias: pesquisa.idsCategorias,
+      });
+    }
+
+    if (pesquisa.idFeira) {
+      queryBuilder.andWhere('despesa.idFeira = :idFeira', {
+        idFeira: pesquisa.idFeira,
       });
     }
 

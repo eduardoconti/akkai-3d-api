@@ -42,9 +42,15 @@ const DESPESA_EXEMPLO = {
   meioPagamento: 'PIX',
   observacao: 'Reposição semanal de filamento',
   idCarteira: 1,
+  idFeira: 2,
   carteira: {
     id: 1,
     nome: 'TON-BAU',
+    ativa: true,
+  },
+  feira: {
+    id: 2,
+    nome: 'Feira Central',
     ativa: true,
   },
 };
@@ -199,6 +205,7 @@ export function ApiInserirDespesaDocs() {
             idCategoria: 1,
             meioPagamento: 'PIX',
             idCarteira: 1,
+            idFeira: 2,
             observacao: 'Reposição semanal de filamento',
           },
         },
@@ -237,6 +244,7 @@ export function ApiAlterarDespesaDocs() {
             idCategoria: 1,
             meioPagamento: 'PIX',
             idCarteira: 1,
+            idFeira: 2,
             observacao: 'Reposição quinzenal',
           },
         },
@@ -299,6 +307,13 @@ export function ApiListarDespesasDocs() {
       type: String,
       example: '1,3',
       description: 'Lista de categorias separadas por vírgula.',
+    }),
+    ApiQuery({
+      name: 'idFeira',
+      required: false,
+      type: Number,
+      example: 2,
+      description: 'Identificador da feira vinculada à despesa.',
     }),
     ApiOkResponse({
       description: 'Despesas encontradas com sucesso.',

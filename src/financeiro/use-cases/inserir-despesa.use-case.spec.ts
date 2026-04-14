@@ -8,6 +8,7 @@ import {
 import { InserirDespesaUseCase } from '@financeiro/use-cases';
 import { Despesa } from '@financeiro/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { FeiraService } from '@venda/services';
 
 describe('InserirDespesaUseCase', () => {
   let useCase: InserirDespesaUseCase;
@@ -17,6 +18,7 @@ describe('InserirDespesaUseCase', () => {
   let garantirExisteCategoriaDespesaMock: jest.MockedFunction<
     (id: number) => Promise<void>
   >;
+  let garantirExisteFeiraMock: jest.MockedFunction<(id: number) => Promise<void>>;
   let inserirDespesaMock: jest.MockedFunction<
     (despesa: Despesa) => Promise<Despesa>
   >;
@@ -25,6 +27,7 @@ describe('InserirDespesaUseCase', () => {
   beforeEach(() => {
     garantirExisteCarteiraMock = jest.fn<Promise<void>, [number]>();
     garantirExisteCategoriaDespesaMock = jest.fn<Promise<void>, [number]>();
+    garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
     inserirDespesaMock = jest.fn<Promise<Despesa>, [Despesa]>();
     currentUserContext = { usuarioId: 7 };
 
@@ -40,10 +43,15 @@ describe('InserirDespesaUseCase', () => {
       garantirExisteCategoriaDespesa: garantirExisteCategoriaDespesaMock,
     } as unknown as CategoriaDespesaService;
 
+    const feiraService = {
+      garantirExisteFeira: garantirExisteFeiraMock,
+    } as unknown as FeiraService;
+
     useCase = new InserirDespesaUseCase(
       despesaService,
       carteiraService,
       categoriaDespesaService,
+      feiraService,
       currentUserContext as CurrentUserContext,
     );
   });
@@ -52,6 +60,7 @@ describe('InserirDespesaUseCase', () => {
     const despesaPersistida = Object.assign(new Despesa(), { id: 1 });
     garantirExisteCarteiraMock.mockResolvedValue(undefined);
     garantirExisteCategoriaDespesaMock.mockResolvedValue(undefined);
+    garantirExisteFeiraMock.mockResolvedValue(undefined);
     inserirDespesaMock.mockResolvedValue(despesaPersistida);
 
     const result = await useCase.execute({
@@ -61,11 +70,13 @@ describe('InserirDespesaUseCase', () => {
       idCategoria: 1,
       meioPagamento: MeioPagamento.PIX,
       idCarteira: 2,
+      idFeira: 4,
       observacao: 'Reposição',
     });
 
     expect(garantirExisteCarteiraMock).toHaveBeenCalledWith(2);
     expect(garantirExisteCategoriaDespesaMock).toHaveBeenCalledWith(1);
+    expect(garantirExisteFeiraMock).toHaveBeenCalledWith(4);
     expect(inserirDespesaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         descricao: 'Filamento PLA',
@@ -73,6 +84,7 @@ describe('InserirDespesaUseCase', () => {
         idCategoria: 1,
         meioPagamento: MeioPagamento.PIX,
         idCarteira: 2,
+        idFeira: 4,
         idUsuarioInclusao: 7,
         observacao: 'Reposição',
       }),
@@ -111,6 +123,26 @@ describe('InserirDespesaUseCase', () => {
         idCategoria: 99,
         meioPagamento: MeioPagamento.PIX,
         idCarteira: 2,
+      }),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('deve lançar erro quando a feira não existir', async () => {
+    garantirExisteCarteiraMock.mockResolvedValue(undefined);
+    garantirExisteCategoriaDespesaMock.mockResolvedValue(undefined);
+    garantirExisteFeiraMock.mockRejectedValue(
+      new NotFoundException('Feira com ID 77 não encontrada.'),
+    );
+
+    await expect(
+      useCase.execute({
+        dataLancamento: '2026-03-31',
+        descricao: 'Filamento PLA',
+        valor: 3500,
+        idCategoria: 1,
+        meioPagamento: MeioPagamento.PIX,
+        idCarteira: 2,
+        idFeira: 77,
       }),
     ).rejects.toThrow(NotFoundException);
   });

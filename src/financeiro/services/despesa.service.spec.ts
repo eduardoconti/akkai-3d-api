@@ -186,10 +186,16 @@ describe('DespesaService', () => {
       dataInicio: '2026-01-01',
       dataFim: '2026-01-31',
       idsCategorias: [1, 3],
+      idFeira: 9,
     });
 
-    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4);
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(5);
     expect(queryBuilder.andWhere).toHaveBeenLastCalledWith(
+      'despesa.idFeira = :idFeira',
+      { idFeira: 9 },
+    );
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(
+      4,
       'despesa.idCategoria IN (:...idsCategorias)',
       { idsCategorias: [1, 3] },
     );
