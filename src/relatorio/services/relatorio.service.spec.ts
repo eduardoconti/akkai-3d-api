@@ -41,6 +41,7 @@ describe('RelatorioService', () => {
         quantidadeItens: '12',
         descontoTotal: '1500',
         valorTotal: '25000',
+        valorLiquido: '23100',
       },
     ]);
 
@@ -70,6 +71,7 @@ describe('RelatorioService', () => {
       quantidadeItens: 12,
       descontoTotal: 1500,
       valorTotal: 25000,
+      valorLiquido: 23100,
     });
   });
 
@@ -212,6 +214,7 @@ describe('RelatorioService', () => {
         quantidadeItens: 0,
         descontoTotal: 0,
         valorTotal: 0,
+        valorLiquido: 0,
       },
     ]);
 

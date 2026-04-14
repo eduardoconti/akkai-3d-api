@@ -90,7 +90,13 @@ describe('AlterarVendaUseCase', () => {
     };
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 2,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue({
       percentual: 3,
     });
@@ -122,6 +128,8 @@ describe('AlterarVendaUseCase', () => {
         desconto: 200,
         percentualTaxa: 3,
         valorTaxa: 69,
+        percentualImposto: 4,
+        valorImposto: 92,
         valorTotal: 2300,
       }),
       [
@@ -146,7 +154,13 @@ describe('AlterarVendaUseCase', () => {
     vendaExistente.id = 6;
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     alterarVendaMock.mockResolvedValue(vendaExistente);
 

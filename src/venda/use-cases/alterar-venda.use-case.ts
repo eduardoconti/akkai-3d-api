@@ -50,10 +50,11 @@ export class AlterarVendaUseCase {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
     const venda = await this.vendaService.garantirExisteVenda(input.id);
 
-    await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
-      input.idCarteira,
-      input.meioPagamento,
-    );
+    const carteira =
+      await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+        input.idCarteira,
+        input.meioPagamento,
+      );
 
     const taxaMeioPagamentoCarteira =
       await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
@@ -108,6 +109,9 @@ export class AlterarVendaUseCase {
       idFeira: input.idFeira,
       desconto: input.desconto,
       percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
+      percentualImposto: carteira.consideraImpostoVenda
+        ? (carteira.percentualImpostoVenda ?? null)
+        : null,
       itens: itensVenda,
     });
 

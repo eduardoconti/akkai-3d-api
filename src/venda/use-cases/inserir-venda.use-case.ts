@@ -47,10 +47,11 @@ export class InserirVendaUseCase {
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
 
-    await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
-      inserirVendaInput.idCarteira,
-      inserirVendaInput.meioPagamento,
-    );
+    const carteira =
+      await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+        inserirVendaInput.idCarteira,
+        inserirVendaInput.meioPagamento,
+      );
 
     const taxaMeioPagamentoCarteira =
       await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
@@ -110,6 +111,9 @@ export class InserirVendaUseCase {
       idFeira: inserirVendaInput.idFeira,
       desconto: inserirVendaInput.desconto,
       percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
+      percentualImposto: carteira.consideraImpostoVenda
+        ? (carteira.percentualImpostoVenda ?? null)
+        : null,
       itens: itensVenda,
     };
 

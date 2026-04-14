@@ -124,6 +124,7 @@ describe('RelatorioController', () => {
       quantidadeItens: 8,
       descontoTotal: 500,
       valorTotal: 12500,
+      valorLiquido: 11750,
     };
     relatorioService.obterResumoVendasPorPeriodo.mockResolvedValue(resumo);
 

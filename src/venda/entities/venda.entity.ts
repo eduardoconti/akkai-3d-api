@@ -36,6 +36,7 @@ export interface InserirVendaInput {
   idFeira?: number;
   desconto?: number;
   percentualTaxa?: number | null;
+  percentualImposto?: number | null;
   itens: ItemVendaInput[];
 }
 @Entity('venda')
@@ -87,6 +88,21 @@ export class Venda {
 
   @Column({ type: 'integer', name: 'valor_taxa', nullable: true })
   valorTaxa?: number | null;
+
+  @Column({
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    transformer: percentualTransformer,
+    name: 'percentual_imposto',
+    nullable: true,
+  })
+  percentualImposto?: number | null;
+
+  @Column({ type: 'integer', name: 'valor_imposto', nullable: true })
+  valorImposto?: number | null;
+
+  valorLiquido?: number;
 
   @Column({ type: 'integer', name: 'id_usuario_inclusao' })
   idUsuarioInclusao!: number;
@@ -141,19 +157,32 @@ export class Venda {
     this.feira = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
     this.percentualTaxa = inserirVendaInput.percentualTaxa ?? null;
+    this.percentualImposto = inserirVendaInput.percentualImposto ?? null;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 
     this.calcularValorTotal();
     this.calcularValorTaxa();
+    this.calcularValorImposto();
+  }
+
+  private calcularValorPercentual(percentual?: number | null): number | null {
+    if (percentual === null || percentual === undefined) {
+      return null;
+    }
+
+    return Math.round((this.valorTotal * percentual) / 100);
   }
 
   private calcularValorTaxa(): void {
-    if (this.percentualTaxa === null || this.percentualTaxa === undefined) {
-      this.valorTaxa = null;
-      return;
-    }
+    this.valorTaxa = this.calcularValorPercentual(this.percentualTaxa);
+  }
 
-    this.valorTaxa = Math.round((this.valorTotal * this.percentualTaxa) / 100);
+  private calcularValorImposto(): void {
+    this.valorImposto = this.calcularValorPercentual(this.percentualImposto);
+  }
+
+  calcularValorLiquido(): number {
+    return this.valorTotal - (this.valorTaxa ?? 0) - (this.valorImposto ?? 0);
   }
 
   private calcularValorTotal(): void {

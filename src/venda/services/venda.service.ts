@@ -36,7 +36,7 @@ export class VendaService {
   }
 
   async obterVendaPorId(id: number): Promise<Venda | null> {
-    return this.vendaRepository.findOne({
+    const venda = await this.vendaRepository.findOne({
       where: { id },
       relations: {
         itens: { produto: true },
@@ -44,6 +44,8 @@ export class VendaService {
         carteira: true,
       },
     });
+
+    return venda ? this.adicionarValorLiquido(venda) : null;
   }
 
   async garantirExisteVenda(id: number): Promise<Venda> {
@@ -69,7 +71,7 @@ export class VendaService {
       this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
       await queryRunner.manager.save(movimentacaoEstoque);
       await queryRunner.commitTransaction();
-      return vendaSalva;
+      return this.adicionarValorLiquido(vendaSalva);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Erro desconhecido';
@@ -159,7 +161,15 @@ export class VendaService {
       .clone()
       .select('COALESCE(SUM(venda.valorTotal), 0)', 'valorTotal')
       .addSelect('COALESCE(SUM(venda.desconto), 0)', 'descontoTotal')
-      .getRawOne()) as { valorTotal?: string; descontoTotal?: string } | null;
+      .addSelect(
+        'COALESCE(SUM(venda.valorTotal - COALESCE(venda.valorTaxa, 0) - COALESCE(venda.valorImposto, 0)), 0)',
+        'valorLiquido',
+      )
+      .getRawOne()) as {
+      valorTotal?: string;
+      descontoTotal?: string;
+      valorLiquido?: string;
+    } | null;
 
     const [itens, totalItens] = await Promise.all([
       itensQueryBuilder.getMany(),
@@ -167,7 +177,7 @@ export class VendaService {
     ]);
 
     return {
-      itens,
+      itens: itens.map((item) => this.adicionarValorLiquido(item)),
       pagina: pesquisa.pagina,
       tamanhoPagina: pesquisa.tamanhoPagina,
       totalItens,
@@ -175,8 +185,14 @@ export class VendaService {
       totalizadores: {
         valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
         descontoTotal: Number(totalizadoresRaw?.descontoTotal ?? 0),
+        valorLiquido: Number(totalizadoresRaw?.valorLiquido ?? 0),
       },
     };
+  }
+
+  private adicionarValorLiquido(venda: Venda): Venda {
+    venda.valorLiquido = venda.calcularValorLiquido();
+    return venda;
   }
 
   private criarQueryBuilderPesquisa(

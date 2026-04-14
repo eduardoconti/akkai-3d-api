@@ -25,6 +25,8 @@ describe('InserirCarteiraUseCase', () => {
       nome: 'NUBANK PIX',
       ativa: true,
       meiosPagamento: [],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
     });
     carteiraService.salvarCarteira.mockResolvedValue(carteira);
 
@@ -38,6 +40,8 @@ describe('InserirCarteiraUseCase', () => {
         nome: 'NUBANK PIX',
         ativa: true,
         meiosPagamento: [],
+        consideraImpostoVenda: false,
+        percentualImpostoVenda: null,
       }),
     );
     expect(result).toBe(carteira);
@@ -49,6 +53,8 @@ describe('InserirCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
       meiosPagamento: [],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
     });
     carteiraService.salvarCarteira.mockResolvedValue(carteira);
 
@@ -56,6 +62,31 @@ describe('InserirCarteiraUseCase', () => {
 
     expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true, meiosPagamento: [] }),
+    );
+  });
+
+  it('deve salvar configuração de imposto quando informada', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+      meiosPagamento: [],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
+    carteiraService.salvarCarteira.mockResolvedValue(carteira);
+
+    await useCase.execute({
+      nome: 'CAIXA',
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
+
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({
+        consideraImpostoVenda: true,
+        percentualImpostoVenda: 4,
+      }),
     );
   });
 

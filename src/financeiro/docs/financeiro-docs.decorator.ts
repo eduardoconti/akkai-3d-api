@@ -32,6 +32,9 @@ const CARTEIRA_EXEMPLO = {
   id: 1,
   nome: 'TON-BAU',
   ativa: true,
+  meiosPagamento: ['PIX', 'CRE'],
+  consideraImpostoVenda: true,
+  percentualImpostoVenda: 4,
   saldoAtual: 128500,
 };
 
@@ -86,13 +89,17 @@ export function ApiInserirCarteiraDocs() {
           value: {
             nome: 'TON-BAU',
             ativa: true,
+            meiosPagamento: ['PIX', 'CRE'],
+            consideraImpostoVenda: true,
+            percentualImpostoVenda: 4,
           },
         },
       },
     }),
     ApiCreatedResponse({
       description: 'Carteira criada com sucesso.',
-      schema: { example: { id: 1, nome: 'TON-BAU', ativa: true } },
+      type: ListarCarteiraDto,
+      schema: { example: CARTEIRA_EXEMPLO },
     }),
     ApiValidationErrorResponse('/financeiro/carteiras'),
     ApiUnauthorizedErrorResponse('/financeiro/carteiras'),
@@ -130,6 +137,7 @@ export function ApiObterCarteiraPorIdDocs() {
     ApiIdParamDocs('Identificador da carteira a ser consultada.'),
     ApiOkResponse({
       description: 'Carteira encontrada com sucesso.',
+      type: ListarCarteiraDto,
       schema: { example: CARTEIRA_EXEMPLO },
     }),
     ApiUnauthorizedErrorResponse('/financeiro/carteiras/1'),
@@ -156,17 +164,25 @@ export function ApiAlterarCarteiraDocs() {
           value: {
             nome: 'TON-BAU PRINCIPAL',
             ativa: true,
+            meiosPagamento: ['PIX', 'DEB', 'CRE'],
+            consideraImpostoVenda: true,
+            percentualImpostoVenda: 4,
           },
         },
       },
     }),
     ApiOkResponse({
       description: 'Carteira alterada com sucesso.',
+      type: ListarCarteiraDto,
       schema: {
         example: {
           id: 1,
           nome: 'TON-BAU PRINCIPAL',
           ativa: true,
+          meiosPagamento: ['PIX', 'DEB', 'CRE'],
+          consideraImpostoVenda: true,
+          percentualImpostoVenda: 4,
+          saldoAtual: 128500,
         },
       },
     }),

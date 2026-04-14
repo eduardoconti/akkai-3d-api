@@ -28,6 +28,8 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
       meiosPagamento: [],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
     });
 
     carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
@@ -65,6 +67,8 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
       meiosPagamento: [],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
     });
 
     carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
@@ -90,6 +94,8 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
       meiosPagamento: [MeioPagamento.DIN, MeioPagamento.PIX],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
     });
 
     carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
@@ -100,6 +106,8 @@ describe('AlterarCarteiraUseCase', () => {
     expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({
         meiosPagamento: [MeioPagamento.DIN, MeioPagamento.PIX],
+        consideraImpostoVenda: true,
+        percentualImpostoVenda: 4,
       }),
     );
   });
@@ -119,6 +127,8 @@ describe('AlterarCarteiraUseCase', () => {
       id: 1,
       nome: 'CAIXA',
       ativa: true,
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
     });
     carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
     carteiraService.salvarCarteira.mockResolvedValue({
@@ -130,6 +140,38 @@ describe('AlterarCarteiraUseCase', () => {
 
     expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true }),
+    );
+  });
+
+  it('deve atualizar configuração de imposto quando informada', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+      meiosPagamento: [],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue({
+      ...carteira,
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
+
+    await useCase.execute({
+      id: 1,
+      nome: 'CAIXA',
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
+
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({
+        consideraImpostoVenda: true,
+        percentualImpostoVenda: 4,
+      }),
     );
   });
 });

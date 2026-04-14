@@ -8,6 +8,8 @@ export interface AlterarCarteiraInput {
   nome: string;
   ativa?: boolean;
   meiosPagamento?: MeioPagamento[];
+  consideraImpostoVenda?: boolean;
+  percentualImpostoVenda?: number | null;
 }
 
 @Injectable()
@@ -20,6 +22,13 @@ export class AlterarCarteiraUseCase {
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? carteira.ativa;
     carteira.meiosPagamento = input.meiosPagamento ?? carteira.meiosPagamento;
+    carteira.consideraImpostoVenda =
+      input.consideraImpostoVenda ?? carteira.consideraImpostoVenda;
+    carteira.percentualImpostoVenda = carteira.consideraImpostoVenda
+      ? (input.percentualImpostoVenda ??
+        carteira.percentualImpostoVenda ??
+        null)
+      : null;
 
     return this.carteiraService.salvarCarteira(carteira);
   }

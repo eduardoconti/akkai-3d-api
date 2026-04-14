@@ -17,6 +17,8 @@ type ListarCarteiraRow = {
   ativa: boolean;
   saldoAtual: string | number;
   meiosPagamento: string;
+  consideraImpostoVenda: boolean;
+  percentualImpostoVenda: string | number | null;
 };
 
 @Injectable()
@@ -68,7 +70,7 @@ export class CarteiraService {
   async garantirCarteiraAceitaMeioPagamento(
     idCarteira: number,
     meioPagamento: MeioPagamento,
-  ): Promise<void> {
+  ): Promise<Carteira> {
     const carteira = await this.obterCarteiraPorId(idCarteira);
     if (!carteira || !carteira.ativa) {
       throw new NotFoundException(
@@ -80,6 +82,8 @@ export class CarteiraService {
         `A carteira não aceita o meio de pagamento ${meioPagamento}.`,
       );
     }
+
+    return carteira;
   }
 
   async listarCarteiras(): Promise<
@@ -97,6 +101,8 @@ export class CarteiraService {
         c.nome,
         c.ativa,
         c.meios_pagamento AS "meiosPagamento",
+        c.considera_imposto_venda AS "consideraImpostoVenda",
+        c.percentual_imposto_venda AS "percentualImpostoVenda",
         (
           COALESCE(
             (
@@ -125,6 +131,11 @@ export class CarteiraService {
       ativa: row.ativa,
       saldoAtual: Number(row.saldoAtual),
       meiosPagamento: (JSON.parse(row.meiosPagamento) as MeioPagamento[]) ?? [],
+      consideraImpostoVenda: row.consideraImpostoVenda,
+      percentualImpostoVenda:
+        row.percentualImpostoVenda === null
+          ? null
+          : Number(row.percentualImpostoVenda),
     }));
   }
 

@@ -12,6 +12,10 @@ export class InserirCarteiraUseCase {
     carteira.nome = input.nome;
     carteira.ativa = input.ativa ?? true;
     carteira.meiosPagamento = input.meiosPagamento ?? [];
+    carteira.consideraImpostoVenda = input.consideraImpostoVenda ?? false;
+    carteira.percentualImpostoVenda = carteira.consideraImpostoVenda
+      ? (input.percentualImpostoVenda ?? null)
+      : null;
 
     return this.carteiraService.salvarCarteira(carteira);
   }

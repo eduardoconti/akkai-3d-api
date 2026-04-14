@@ -26,9 +26,7 @@ describe('InserirVendaUseCase', () => {
   let garantirExisteFeiraMock: jest.MockedFunction<
     (id: number) => Promise<void>
   >;
-  let garantirCarteiraAceitaMeioPagamentoMock: jest.MockedFunction<
-    (id: number, meio: MeioPagamento) => Promise<void>
-  >;
+  let garantirCarteiraAceitaMeioPagamentoMock: jest.Mock;
   let garantirExisteProdutoMock: jest.MockedFunction<
     (id: number) => Promise<Produto>
   >;
@@ -41,10 +39,7 @@ describe('InserirVendaUseCase', () => {
       [Venda, MovimentacaoEstoque[]]
     >();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
-    garantirCarteiraAceitaMeioPagamentoMock = jest.fn<
-      Promise<void>,
-      [number, MeioPagamento]
-    >();
+    garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
     currentUserContext = { usuarioId: 7 };
@@ -106,7 +101,13 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue({
       percentual: 2.5,
     });
@@ -128,6 +129,8 @@ describe('InserirVendaUseCase', () => {
         desconto: 200,
         percentualTaxa: 2.5,
         valorTaxa: 120,
+        percentualImposto: 4,
+        valorImposto: 192,
         valorTotal: 4800,
         itens: [
           expect.objectContaining({
@@ -162,7 +165,13 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.DIN],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     inserirVendaMock.mockResolvedValue(new Venda());
 
@@ -180,6 +189,8 @@ describe('InserirVendaUseCase', () => {
         desconto: 0,
         percentualTaxa: null,
         valorTaxa: null,
+        percentualImposto: null,
+        valorImposto: null,
         valorTotal: 1000,
         itens: [
           expect.objectContaining({
@@ -203,7 +214,13 @@ describe('InserirVendaUseCase', () => {
         valor: 1000,
       }),
     );
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.DIN],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     garantirExisteFeiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
@@ -243,7 +260,13 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando feira não existir', async () => {
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
     garantirExisteFeiraMock.mockRejectedValue(
       new NotFoundException('Feira com ID 99 não encontrada.'),
     );
@@ -260,7 +283,13 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando produto não existir', async () => {
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
     garantirExisteProdutoMock.mockRejectedValue(
       new NotFoundException('Produto com ID 99 não encontrado.'),
     );
@@ -277,7 +306,14 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda com item avulso sem movimentar estoque', async () => {
     inserirVendaMock.mockResolvedValue(new Venda());
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
 
     await useCase.execute({
       meioPagamento: MeioPagamento.PIX,
@@ -323,7 +359,14 @@ describe('InserirVendaUseCase', () => {
         valor: 2500,
       }),
     );
-    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute({

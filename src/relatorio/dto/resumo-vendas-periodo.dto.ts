@@ -4,4 +4,5 @@ export class ResumoVendasPeriodoDto {
   quantidadeItens!: number;
   descontoTotal!: number;
   valorTotal!: number;
+  valorLiquido!: number;
 }

@@ -56,6 +56,7 @@ describe('VendaService', () => {
       getRawOne: jest.fn().mockResolvedValue({
         valorTotal: '5000',
         descontoTotal: '200',
+        valorLiquido: '4600',
       }),
       getMany: jest
         .fn()
@@ -281,6 +282,7 @@ describe('VendaService', () => {
       totalizadores: {
         valorTotal: 5000,
         descontoTotal: 200,
+        valorLiquido: 4600,
       },
     });
   });
@@ -384,6 +386,7 @@ describe('VendaService', () => {
       getRawOne: jest.fn().mockResolvedValue({
         valorTotal: '0',
         descontoTotal: '0',
+        valorLiquido: '0',
       }),
       getMany: jest.fn().mockResolvedValue([]),
       getCount: jest.fn().mockResolvedValue(0),

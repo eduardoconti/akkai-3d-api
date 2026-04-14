@@ -11,7 +11,7 @@ export function ApiResumoVendasPeriodoDocs() {
     ApiOperation({
       summary: 'Obtém o resumo de vendas por período.',
       description:
-        'Retorna quantidade de itens vendidos, desconto total e valor total consolidado dentro do intervalo informado.',
+        'Retorna quantidade de itens vendidos, desconto total, valor bruto e valor líquido consolidado dentro do intervalo informado.',
     }),
     ApiQuery({
       name: 'dataInicio',
@@ -36,6 +36,7 @@ export function ApiResumoVendasPeriodoDocs() {
           quantidadeItens: 12,
           descontoTotal: 1500,
           valorTotal: 25000,
+          valorLiquido: 23100,
         },
       },
     }),

@@ -20,6 +20,7 @@ type ResumoVendasPeriodoRow = {
   quantidadeItens: string | number;
   descontoTotal: string | number;
   valorTotal: string | number;
+  valorLiquido: string | number;
 };
 
 type ProdutoMaisVendidoRow = {
@@ -524,7 +525,19 @@ export class RelatorioService {
               WHERE ${whereClause}
             ),
             0
-          ) AS "valorTotal"
+          ) AS "valorTotal",
+          COALESCE(
+            (
+              SELECT SUM(
+                venda.valor_total
+                - COALESCE(venda.valor_taxa, 0)
+                - COALESCE(venda.valor_imposto, 0)
+              )
+              FROM venda venda
+              WHERE ${whereClause}
+            ),
+            0
+          ) AS "valorLiquido"
       `,
       parameters,
     );
@@ -536,6 +549,7 @@ export class RelatorioService {
       quantidadeItens: Number(row?.quantidadeItens ?? 0),
       descontoTotal: Number(row?.descontoTotal ?? 0),
       valorTotal: Number(row?.valorTotal ?? 0),
+      valorLiquido: Number(row?.valorLiquido ?? 0),
     };
   }
 }
