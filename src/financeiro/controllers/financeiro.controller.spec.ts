@@ -4,15 +4,21 @@ import {
   CarteiraService,
   CategoriaDespesaService,
   DespesaService,
+  TaxaMeioPagamentoCarteiraService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
   AlterarDespesaUseCase,
+  AlterarTaxaMeioPagamentoCarteiraUseCase,
+  ExcluirCarteiraUseCase,
+  ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
+  ExcluirTaxaMeioPagamentoCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
+  InserirTaxaMeioPagamentoCarteiraUseCase,
 } from '@financeiro/use-cases';
 
 describe('FinanceiroController', () => {
@@ -23,13 +29,22 @@ describe('FinanceiroController', () => {
   };
   let despesaService: { listarDespesas: jest.Mock };
   let categoriaDespesaService: { listarCategoriasDespesa: jest.Mock };
+  let taxaMeioPagamentoCarteiraService: {
+    listarTaxasMeioPagamentoCarteira: jest.Mock;
+    garantirTaxaMeioPagamentoCarteiraPorId: jest.Mock;
+  };
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
   let alterarDespesaUseCase: { execute: jest.Mock };
+  let excluirCarteiraUseCase: { execute: jest.Mock };
   let excluirDespesaUseCase: { execute: jest.Mock };
   let inserirCategoriaDespesaUseCase: { execute: jest.Mock };
   let alterarCategoriaDespesaUseCase: { execute: jest.Mock };
+  let excluirCategoriaDespesaUseCase: { execute: jest.Mock };
+  let inserirTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
+  let alterarTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
+  let excluirTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     carteiraService = {
@@ -38,13 +53,22 @@ describe('FinanceiroController', () => {
     };
     despesaService = { listarDespesas: jest.fn() };
     categoriaDespesaService = { listarCategoriasDespesa: jest.fn() };
+    taxaMeioPagamentoCarteiraService = {
+      listarTaxasMeioPagamentoCarteira: jest.fn(),
+      garantirTaxaMeioPagamentoCarteiraPorId: jest.fn(),
+    };
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
     alterarDespesaUseCase = { execute: jest.fn() };
+    excluirCarteiraUseCase = { execute: jest.fn() };
     excluirDespesaUseCase = { execute: jest.fn() };
     inserirCategoriaDespesaUseCase = { execute: jest.fn() };
     alterarCategoriaDespesaUseCase = { execute: jest.fn() };
+    excluirCategoriaDespesaUseCase = { execute: jest.fn() };
+    inserirTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
+    alterarTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
+    excluirTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FinanceiroController],
@@ -52,10 +76,15 @@ describe('FinanceiroController', () => {
         { provide: CarteiraService, useValue: carteiraService },
         { provide: DespesaService, useValue: despesaService },
         { provide: CategoriaDespesaService, useValue: categoriaDespesaService },
+        {
+          provide: TaxaMeioPagamentoCarteiraService,
+          useValue: taxaMeioPagamentoCarteiraService,
+        },
         { provide: AlterarCarteiraUseCase, useValue: alterarCarteiraUseCase },
         { provide: InserirCarteiraUseCase, useValue: inserirCarteiraUseCase },
         { provide: InserirDespesaUseCase, useValue: inserirDespesaUseCase },
         { provide: AlterarDespesaUseCase, useValue: alterarDespesaUseCase },
+        { provide: ExcluirCarteiraUseCase, useValue: excluirCarteiraUseCase },
         { provide: ExcluirDespesaUseCase, useValue: excluirDespesaUseCase },
         {
           provide: InserirCategoriaDespesaUseCase,
@@ -64,6 +93,22 @@ describe('FinanceiroController', () => {
         {
           provide: AlterarCategoriaDespesaUseCase,
           useValue: alterarCategoriaDespesaUseCase,
+        },
+        {
+          provide: ExcluirCategoriaDespesaUseCase,
+          useValue: excluirCategoriaDespesaUseCase,
+        },
+        {
+          provide: InserirTaxaMeioPagamentoCarteiraUseCase,
+          useValue: inserirTaxaMeioPagamentoCarteiraUseCase,
+        },
+        {
+          provide: AlterarTaxaMeioPagamentoCarteiraUseCase,
+          useValue: alterarTaxaMeioPagamentoCarteiraUseCase,
+        },
+        {
+          provide: ExcluirTaxaMeioPagamentoCarteiraUseCase,
+          useValue: excluirTaxaMeioPagamentoCarteiraUseCase,
         },
       ],
     }).compile();
@@ -111,6 +156,94 @@ describe('FinanceiroController', () => {
       ...input,
     });
     expect(result).toEqual({ id: 1, ...input });
+  });
+
+  it('deve delegar exclusão de carteira', async () => {
+    excluirCarteiraUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirCarteira(1);
+
+    expect(excluirCarteiraUseCase.execute).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve delegar inserção de taxa por meio de pagamento e carteira', async () => {
+    const taxa = { id: 1, idCarteira: 1, meioPagamento: 'PIX', percentual: 2.99 };
+    const input = {
+      idCarteira: 1,
+      meioPagamento: 'PIX',
+      percentual: 2.99,
+      ativa: true,
+    };
+    inserirTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue(taxa);
+
+    const result = await controller.inserirTaxaMeioPagamentoCarteira(input as never);
+
+    expect(inserirTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith(
+      input,
+    );
+    expect(result).toBe(taxa);
+  });
+
+  it('deve listar taxas por meio de pagamento e carteira', async () => {
+    const taxas = [{ id: 1 }];
+    taxaMeioPagamentoCarteiraService.listarTaxasMeioPagamentoCarteira.mockResolvedValue(
+      taxas,
+    );
+
+    const result = await controller.listarTaxasMeioPagamentoCarteira();
+
+    expect(
+      taxaMeioPagamentoCarteiraService.listarTaxasMeioPagamentoCarteira,
+    ).toHaveBeenCalled();
+    expect(result).toBe(taxas);
+  });
+
+  it('deve obter taxa por meio de pagamento e carteira por id', async () => {
+    const taxa = { id: 1 };
+    taxaMeioPagamentoCarteiraService.garantirTaxaMeioPagamentoCarteiraPorId.mockResolvedValue(
+      taxa,
+    );
+
+    const result = await controller.obterTaxaMeioPagamentoCarteiraPorId(1);
+
+    expect(
+      taxaMeioPagamentoCarteiraService.garantirTaxaMeioPagamentoCarteiraPorId,
+    ).toHaveBeenCalledWith(1);
+    expect(result).toBe(taxa);
+  });
+
+  it('deve delegar alteração de taxa por meio de pagamento e carteira', async () => {
+    const input = {
+      idCarteira: 1,
+      meioPagamento: 'PIX',
+      percentual: 3.5,
+      ativa: false,
+    };
+    alterarTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue({
+      id: 1,
+      ...input,
+    });
+
+    const result = await controller.alterarTaxaMeioPagamentoCarteira(
+      1,
+      input as never,
+    );
+
+    expect(alterarTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      ...input,
+    });
+    expect(result).toEqual({ id: 1, ...input });
+  });
+
+  it('deve delegar exclusão de taxa por meio de pagamento e carteira', async () => {
+    excluirTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirTaxaMeioPagamentoCarteira(1);
+
+    expect(excluirTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+    });
   });
 
   it('deve delegar inserção de despesa', async () => {
@@ -220,5 +353,15 @@ describe('FinanceiroController', () => {
       ...input,
     });
     expect(result).toEqual({ id: 1, nome: 'Embalagem Atualizada' });
+  });
+
+  it('deve delegar exclusão de categoria de despesa', async () => {
+    excluirCategoriaDespesaUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirCategoriaDespesa(1);
+
+    expect(excluirCategoriaDespesaUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+    });
   });
 });

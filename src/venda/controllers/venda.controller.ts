@@ -23,6 +23,7 @@ import { FeiraService, VendaService } from '@venda/services';
 import {
   AlterarFeiraUseCase,
   AlterarVendaUseCase,
+  ExcluirFeiraUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
   InserirVendaUseCase,
@@ -50,6 +51,7 @@ export class VendaController {
     private readonly feiraService: FeiraService,
     private readonly inserirFeiraUseCase: InserirFeiraUseCase,
     private readonly alterarFeiraUseCase: AlterarFeiraUseCase,
+    private readonly excluirFeiraUseCase: ExcluirFeiraUseCase,
     private readonly inserirVendaUseCase: InserirVendaUseCase,
     private readonly alterarVendaUseCase: AlterarVendaUseCase,
     private readonly excluirVendaUseCase: ExcluirVendaUseCase,
@@ -82,6 +84,11 @@ export class VendaController {
     @Body() input: AlterarFeiraDto,
   ): Promise<Feira> {
     return await this.alterarFeiraUseCase.execute({ id, ...input });
+  }
+
+  @Delete('feiras/:id')
+  async excluirFeira(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.excluirFeiraUseCase.execute({ id });
   }
 
   @ApiInserirVendaDocs()

@@ -8,6 +8,7 @@ import { ProdutoModule } from '@produto/produto.module';
 import {
   AlterarFeiraUseCase,
   AlterarVendaUseCase,
+  ExcluirFeiraUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
   InserirVendaUseCase,
@@ -21,6 +22,7 @@ import { Carteira } from '@financeiro/entities';
     FeiraService,
     InserirFeiraUseCase,
     AlterarFeiraUseCase,
+    ExcluirFeiraUseCase,
     InserirVendaUseCase,
     AlterarVendaUseCase,
     ExcluirVendaUseCase,

@@ -9,7 +9,12 @@ import {
   RolePermission,
   User,
 } from '@auth/entities';
-import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
+import {
+  Carteira,
+  CategoriaDespesa,
+  Despesa,
+  TaxaMeioPagamentoCarteira,
+} from '@financeiro/entities';
 import {
   CategoriaProduto,
   MovimentacaoEstoque,
@@ -40,6 +45,7 @@ const entities = [
   Carteira,
   CategoriaDespesa,
   Despesa,
+  TaxaMeioPagamentoCarteira,
   User,
   Role,
   Permission,

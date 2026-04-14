@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  InternalServerErrorException,
   Injectable,
   Logger,
   NotFoundException,
@@ -125,5 +126,12 @@ export class CarteiraService {
       saldoAtual: Number(row.saldoAtual),
       meiosPagamento: (JSON.parse(row.meiosPagamento) as MeioPagamento[]) ?? [],
     }));
+  }
+
+  async excluirCarteira(id: number): Promise<void> {
+    await this.carteiraRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir carteira', error);
+      throw new InternalServerErrorException('Erro ao excluir carteira');
+    });
   }
 }

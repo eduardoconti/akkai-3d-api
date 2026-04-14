@@ -1,8 +1,21 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
   EntradaEstoqueUseCase,
+  ExcluirCategoriaProdutoUseCase,
+  ExcluirProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
   SaidaEstoqueUseCase,
@@ -53,6 +66,8 @@ export class ProdutoController {
     private readonly inserirProdutoUseCase: InserirProdutoUseCase,
     private readonly alterarProdutoUseCase: AlterarProdutoUseCase,
     private readonly alterarCategoriaProdutoUseCase: AlterarCategoriaProdutoUseCase,
+    private readonly excluirProdutoUseCase: ExcluirProdutoUseCase,
+    private readonly excluirCategoriaProdutoUseCase: ExcluirCategoriaProdutoUseCase,
     private readonly inserirCategoriaProdutoUseCase: InserirCategoriaProdutoUseCase,
     private readonly entradaEstoqueUseCase: EntradaEstoqueUseCase,
     private readonly saidaEstoqueUseCase: SaidaEstoqueUseCase,
@@ -74,6 +89,12 @@ export class ProdutoController {
     @Body() input: AlterarProdutoDto,
   ): Promise<Produto> {
     return await this.alterarProdutoUseCase.execute({ id, ...input });
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async excluirProduto(@Param('id') id: number): Promise<void> {
+    return this.excluirProdutoUseCase.execute({ id });
   }
 
   @ApiListarProdutosDocs()
@@ -123,6 +144,12 @@ export class ProdutoController {
     @Body() input: AlterarCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
     return await this.alterarCategoriaProdutoUseCase.execute({ id, ...input });
+  }
+
+  @Delete('categorias/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async excluirCategoria(@Param('id') id: number): Promise<void> {
+    return this.excluirCategoriaProdutoUseCase.execute({ id });
   }
 
   @ApiObterProdutoPorIdDocs()

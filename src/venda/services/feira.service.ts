@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PesquisarFeirasDto } from '@venda/dto';
@@ -91,5 +96,12 @@ export class FeiraService {
     }
 
     return feira;
+  }
+
+  async excluirFeira(id: number): Promise<void> {
+    await this.feiraRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir feira', error);
+      throw new InternalServerErrorException('Erro ao excluir feira');
+    });
   }
 }

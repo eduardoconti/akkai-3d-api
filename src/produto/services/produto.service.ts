@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Produto } from '@produto/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -326,5 +331,12 @@ export class ProdutoService {
       ...produto,
       quantidadeEstoque,
     };
+  }
+
+  async excluirProduto(id: number): Promise<void> {
+    await this.produtoRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir produto', error);
+      throw new InternalServerErrorException('Erro ao excluir produto');
+    });
   }
 }

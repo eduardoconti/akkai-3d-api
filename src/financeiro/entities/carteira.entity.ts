@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Venda } from '@venda/entities/venda.entity';
 import { Despesa } from './despesa.entity';
+import { TaxaMeioPagamentoCarteira } from './taxa-meio-pagamento-carteira.entity';
 
 @Entity('carteira')
 export class Carteira {
@@ -35,6 +36,9 @@ export class Carteira {
 
   @OneToMany(() => Despesa, (despesa) => despesa.carteira)
   despesas!: Despesa[];
+
+  @OneToMany(() => TaxaMeioPagamentoCarteira, (taxa) => taxa.carteira)
+  taxasMeioPagamento!: TaxaMeioPagamentoCarteira[];
 
   aceitaMeioPagamento(meioPagamento: MeioPagamento): boolean {
     return (

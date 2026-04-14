@@ -10,9 +10,12 @@ import {
 import {
   AlterarCarteiraDto,
   AlterarDespesaDto,
+  AlterarTaxaMeioPagamentoCarteiraDto,
   InserirCarteiraDto,
   InserirDespesaDto,
+  InserirTaxaMeioPagamentoCarteiraDto,
   ListarCarteiraDto,
+  ListarTaxaMeioPagamentoCarteiraDto,
 } from '@financeiro/dto';
 import {
   ApiConflictErrorResponse,
@@ -51,6 +54,19 @@ const DESPESA_EXEMPLO = {
   feira: {
     id: 2,
     nome: 'Feira Central',
+    ativa: true,
+  },
+};
+
+const TAXA_MEIO_PAGAMENTO_CARTEIRA_EXEMPLO = {
+  id: 1,
+  idCarteira: 1,
+  meioPagamento: 'PIX',
+  percentual: 2.99,
+  ativa: true,
+  carteira: {
+    id: 1,
+    nome: 'TON-BAU',
     ativa: true,
   },
 };
@@ -163,6 +179,140 @@ export function ApiAlterarCarteiraDocs() {
     ApiConflictErrorResponse(
       '/financeiro/carteiras/1',
       'Já existe uma carteira cadastrada com este nome.',
+    ),
+  );
+}
+
+export function ApiInserirTaxaMeioPagamentoCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Cadastra uma nova taxa por meio de pagamento e carteira.',
+      description:
+        'Cria uma configuração de taxa percentual vinculada a uma carteira e um meio de pagamento.',
+    }),
+    ApiBody({
+      type: InserirTaxaMeioPagamentoCarteiraDto,
+      examples: {
+        padrao: {
+          summary: 'Taxa válida',
+          value: {
+            idCarteira: 1,
+            meioPagamento: 'PIX',
+            percentual: 2.99,
+            ativa: true,
+          },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Taxa criada com sucesso.',
+      schema: { example: TAXA_MEIO_PAGAMENTO_CARTEIRA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/financeiro/taxas-meio-pagamento-carteira'),
+    ApiUnauthorizedErrorResponse('/financeiro/taxas-meio-pagamento-carteira'),
+    ApiConflictErrorResponse(
+      '/financeiro/taxas-meio-pagamento-carteira',
+      'Já existe uma taxa cadastrada para esta carteira e meio de pagamento.',
+    ),
+  );
+}
+
+export function ApiListarTaxasMeioPagamentoCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista taxas por meio de pagamento e carteira.',
+      description:
+        'Retorna todas as taxas cadastradas com a carteira vinculada.',
+    }),
+    ApiOkResponse({
+      description: 'Taxas encontradas com sucesso.',
+      schema: { example: [TAXA_MEIO_PAGAMENTO_CARTEIRA_EXEMPLO] },
+      type: ListarTaxaMeioPagamentoCarteiraDto,
+      isArray: true,
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/taxas-meio-pagamento-carteira'),
+  );
+}
+
+export function ApiObterTaxaMeioPagamentoCarteiraPorIdDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém os dados de uma taxa por meio de pagamento e carteira.',
+      description:
+        'Retorna os dados cadastrais de uma taxa específica com a carteira vinculada.',
+    }),
+    ApiIdParamDocs('Identificador da taxa a ser consultada.'),
+    ApiOkResponse({
+      description: 'Taxa encontrada com sucesso.',
+      schema: { example: TAXA_MEIO_PAGAMENTO_CARTEIRA_EXEMPLO },
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/taxas-meio-pagamento-carteira/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/taxas-meio-pagamento-carteira/999',
+      'Taxa por meio de pagamento e carteira com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiAlterarTaxaMeioPagamentoCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera os dados de uma taxa por meio de pagamento e carteira.',
+      description:
+        'Permite atualizar a carteira, o meio de pagamento, o percentual e o status da taxa.',
+    }),
+    ApiIdParamDocs('Identificador da taxa a ser alterada.'),
+    ApiBody({
+      type: AlterarTaxaMeioPagamentoCarteiraDto,
+      examples: {
+        padrao: {
+          summary: 'Alteração válida',
+          value: {
+            idCarteira: 1,
+            meioPagamento: 'PIX',
+            percentual: 3.49,
+            ativa: true,
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Taxa alterada com sucesso.',
+      schema: {
+        example: {
+          ...TAXA_MEIO_PAGAMENTO_CARTEIRA_EXEMPLO,
+          percentual: 3.49,
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/financeiro/taxas-meio-pagamento-carteira/1'),
+    ApiUnauthorizedErrorResponse('/financeiro/taxas-meio-pagamento-carteira/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/taxas-meio-pagamento-carteira/999',
+      'Taxa por meio de pagamento e carteira com ID 999 não encontrada.',
+    ),
+    ApiConflictErrorResponse(
+      '/financeiro/taxas-meio-pagamento-carteira/1',
+      'Já existe uma taxa cadastrada para esta carteira e meio de pagamento.',
+    ),
+  );
+}
+
+export function ApiExcluirTaxaMeioPagamentoCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma taxa por meio de pagamento e carteira.',
+      description:
+        'Remove uma taxa específica cadastrada para uma carteira e meio de pagamento.',
+    }),
+    ApiIdParamDocs('Identificador da taxa a ser excluída.'),
+    ApiNoContentResponse({
+      description: 'Taxa excluída com sucesso.',
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/taxas-meio-pagamento-carteira/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/taxas-meio-pagamento-carteira/999',
+      'Taxa por meio de pagamento e carteira com ID 999 não encontrada.',
     ),
   );
 }

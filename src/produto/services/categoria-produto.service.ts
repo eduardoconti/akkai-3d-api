@@ -78,4 +78,11 @@ export class CategoriaProdutoService {
     }
     return categoria;
   }
+
+  async excluirCategoria(id: number): Promise<void> {
+    await this.categoriaRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir categoria', error);
+      throw new InternalServerErrorException('Erro ao excluir categoria');
+    });
+  }
 }

@@ -7,3 +7,6 @@ export * from './listar-carteira.dto';
 export * from './pesquisar-despesas.dto';
 export * from './alterar-carteira.dto';
 export * from './totalizadores-despesas.dto';
+export * from './inserir-taxa-meio-pagamento-carteira.dto';
+export * from './alterar-taxa-meio-pagamento-carteira.dto';
+export * from './listar-taxa-meio-pagamento-carteira.dto';

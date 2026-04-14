@@ -5,3 +5,8 @@ export * from './excluir-despesa.use-case';
 export * from './inserir-categoria-despesa.use-case';
 export * from './alterar-carteira.use-case';
 export * from './alterar-categoria-despesa.use-case';
+export * from './inserir-taxa-meio-pagamento-carteira.use-case';
+export * from './alterar-taxa-meio-pagamento-carteira.use-case';
+export * from './excluir-taxa-meio-pagamento-carteira.use-case';
+export * from './excluir-carteira.use-case';
+export * from './excluir-categoria-despesa.use-case';

@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriaDespesa } from '@financeiro/entities';
 import { Repository } from 'typeorm';
@@ -55,5 +60,14 @@ export class CategoriaDespesaService {
         `Categoria de despesa com ID ${id} não encontrada.`,
       );
     }
+  }
+
+  async excluirCategoriaDespesa(id: number): Promise<void> {
+    await this.categoriaDespesaRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir categoria de despesa', error);
+      throw new InternalServerErrorException(
+        'Erro ao excluir categoria de despesa',
+      );
+    });
   }
 }
