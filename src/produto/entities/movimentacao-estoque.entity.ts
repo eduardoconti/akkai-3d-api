@@ -24,6 +24,14 @@ export enum OrigemMovimentacaoEstoque {
   PRODUCAO = 'PRODUCAO',
 }
 
+export interface CriarMovimentacaoEstoqueInput {
+  idProduto: number;
+  quantidade: number;
+  tipo: TipoMovimentacaoEstoque;
+  origem: OrigemMovimentacaoEstoque;
+  idUsuarioInclusao: number;
+}
+
 @Entity('movimentacao_estoque')
 @Check('ck_movimentacao_estoque_quantidade_positiva', '"quantidade" > 0')
 @Index('idx_movimentacao_estoque_id_produto', ['idProduto'])
@@ -93,4 +101,15 @@ export class MovimentacaoEstoque {
   itemVenda?: ItemVenda;
 
   constructor() {}
+
+  static criar(input: CriarMovimentacaoEstoqueInput): MovimentacaoEstoque {
+    const movimentacao = new MovimentacaoEstoque();
+    movimentacao.idProduto = input.idProduto;
+    movimentacao.quantidade = input.quantidade;
+    movimentacao.tipo = input.tipo;
+    movimentacao.origem = input.origem;
+    movimentacao.dataInclusao = new Date();
+    movimentacao.idUsuarioInclusao = input.idUsuarioInclusao;
+    return movimentacao;
+  }
 }

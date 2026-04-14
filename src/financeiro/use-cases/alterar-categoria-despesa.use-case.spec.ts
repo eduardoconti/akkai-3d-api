@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { CategoriaDespesa } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
+import { CategoriaDespesaService } from '@financeiro/services';
 import { AlterarCategoriaDespesaUseCase } from '@financeiro/use-cases';
 
 describe('AlterarCategoriaDespesaUseCase', () => {
@@ -12,12 +12,12 @@ describe('AlterarCategoriaDespesaUseCase', () => {
     garantirCategoriaDespesaPorIdMock = jest.fn();
     salvarCategoriaDespesaMock = jest.fn();
 
-    const financeiroService = {
+    const categoriaDespesaService = {
       garantirCategoriaDespesaPorId: garantirCategoriaDespesaPorIdMock,
       salvarCategoriaDespesa: salvarCategoriaDespesaMock,
-    } as unknown as FinanceiroService;
+    } as unknown as CategoriaDespesaService;
 
-    useCase = new AlterarCategoriaDespesaUseCase(financeiroService);
+    useCase = new AlterarCategoriaDespesaUseCase(categoriaDespesaService);
   });
 
   it('deve alterar nome da categoria de despesa', async () => {

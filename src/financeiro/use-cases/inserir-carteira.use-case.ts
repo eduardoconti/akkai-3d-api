@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InserirCarteiraDto } from '@financeiro/dto';
 import { Carteira } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
+import { CarteiraService } from '@financeiro/services';
 
 @Injectable()
 export class InserirCarteiraUseCase {
-  constructor(private readonly financeiroService: FinanceiroService) {}
+  constructor(private readonly carteiraService: CarteiraService) {}
 
   async execute(input: InserirCarteiraDto): Promise<Carteira> {
     const carteira = new Carteira();
@@ -13,6 +13,6 @@ export class InserirCarteiraUseCase {
     carteira.ativa = input.ativa ?? true;
     carteira.meiosPagamento = input.meiosPagamento ?? [];
 
-    return this.financeiroService.salvarCarteira(carteira);
+    return this.carteiraService.salvarCarteira(carteira);
   }
 }

@@ -1,39 +1,39 @@
 import { NotFoundException } from '@nestjs/common';
 import { ExcluirDespesaUseCase } from './excluir-despesa.use-case';
-import { FinanceiroService } from '@financeiro/services';
+import { DespesaService } from '@financeiro/services';
 import { Despesa } from '@financeiro/entities';
 
 describe('ExcluirDespesaUseCase', () => {
   let useCase: ExcluirDespesaUseCase;
-  let financeiroService: {
+  let despesaService: {
     garantirDespesaPorId: jest.Mock;
     excluirDespesa: jest.Mock;
   };
 
   beforeEach(() => {
-    financeiroService = {
+    despesaService = {
       garantirDespesaPorId: jest.fn(),
       excluirDespesa: jest.fn(),
     };
 
     useCase = new ExcluirDespesaUseCase(
-      financeiroService as unknown as FinanceiroService,
+      despesaService as unknown as DespesaService,
     );
   });
 
   it('deve excluir despesa quando ela existir', async () => {
     const despesa = Object.assign(new Despesa(), { id: 7 });
-    financeiroService.garantirDespesaPorId.mockResolvedValue(despesa);
-    financeiroService.excluirDespesa.mockResolvedValue(undefined);
+    despesaService.garantirDespesaPorId.mockResolvedValue(despesa);
+    despesaService.excluirDespesa.mockResolvedValue(undefined);
 
     await useCase.execute({ id: 7 });
 
-    expect(financeiroService.garantirDespesaPorId).toHaveBeenCalledWith(7);
-    expect(financeiroService.excluirDespesa).toHaveBeenCalledWith(7);
+    expect(despesaService.garantirDespesaPorId).toHaveBeenCalledWith(7);
+    expect(despesaService.excluirDespesa).toHaveBeenCalledWith(7);
   });
 
   it('deve lançar NotFoundException quando a despesa não existir', async () => {
-    financeiroService.garantirDespesaPorId.mockRejectedValue(
+    despesaService.garantirDespesaPorId.mockRejectedValue(
       new NotFoundException('Despesa com ID 99 não encontrada.'),
     );
 
@@ -41,6 +41,6 @@ describe('ExcluirDespesaUseCase', () => {
       NotFoundException,
     );
 
-    expect(financeiroService.excluirDespesa).not.toHaveBeenCalled();
+    expect(despesaService.excluirDespesa).not.toHaveBeenCalled();
   });
 });

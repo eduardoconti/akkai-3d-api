@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
+  CriarMovimentacaoEstoqueInput,
   MovimentacaoEstoque,
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
@@ -16,8 +17,6 @@ import { calcularOffset } from '../../common/utils/paginacao.util';
 
 @Injectable()
 export class EstoqueService {
-  private readonly logger = new Logger(EstoqueService.name);
-
   constructor(
     @InjectRepository(MovimentacaoEstoque)
     private readonly movimentacaoEstoqueRepository: Repository<MovimentacaoEstoque>,
@@ -35,12 +34,13 @@ export class EstoqueService {
   ): Promise<void> {
     await this.produtoService.garantirExisteProduto(id);
 
-    const movimentacao = new MovimentacaoEstoque();
-    movimentacao.idProduto = id;
-    movimentacao.quantidade = quantidade;
-    movimentacao.tipo = TipoMovimentacaoEstoque.ENTRADA;
-    movimentacao.origem = origem;
-    movimentacao.idUsuarioInclusao = idUsuarioInclusao;
+    const movimentacao = MovimentacaoEstoque.criar({
+      idProduto: id,
+      quantidade,
+      tipo: TipoMovimentacaoEstoque.ENTRADA,
+      origem,
+      idUsuarioInclusao,
+    } satisfies CriarMovimentacaoEstoqueInput);
 
     await this.movimentacaoEstoqueRepository.save(movimentacao);
   }
@@ -53,12 +53,13 @@ export class EstoqueService {
   ): Promise<void> {
     await this.produtoService.garantirExisteProduto(id);
 
-    const movimentacao = new MovimentacaoEstoque();
-    movimentacao.idProduto = id;
-    movimentacao.quantidade = quantidade;
-    movimentacao.tipo = TipoMovimentacaoEstoque.SAIDA;
-    movimentacao.origem = origem;
-    movimentacao.idUsuarioInclusao = idUsuarioInclusao;
+    const movimentacao = MovimentacaoEstoque.criar({
+      idProduto: id,
+      quantidade,
+      tipo: TipoMovimentacaoEstoque.SAIDA,
+      origem,
+      idUsuarioInclusao,
+    } satisfies CriarMovimentacaoEstoqueInput);
 
     await this.movimentacaoEstoqueRepository.save(movimentacao);
   }

@@ -1,6 +1,6 @@
 import { CategoriaDespesa } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
 import { InserirCategoriaDespesaUseCase } from '@financeiro/use-cases';
+import { CategoriaDespesaService } from '@financeiro/services';
 
 describe('InserirCategoriaDespesaUseCase', () => {
   let useCase: InserirCategoriaDespesaUseCase;
@@ -9,11 +9,11 @@ describe('InserirCategoriaDespesaUseCase', () => {
   beforeEach(() => {
     salvarCategoriaDespesaMock = jest.fn();
 
-    const financeiroService = {
+    const categoriaDespesaService = {
       salvarCategoriaDespesa: salvarCategoriaDespesaMock,
-    } as unknown as FinanceiroService;
+    } as unknown as CategoriaDespesaService;
 
-    useCase = new InserirCategoriaDespesaUseCase(financeiroService);
+    useCase = new InserirCategoriaDespesaUseCase(categoriaDespesaService);
   });
 
   it('deve criar e salvar categoria de despesa com nome fornecido', async () => {

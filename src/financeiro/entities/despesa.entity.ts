@@ -12,6 +12,20 @@ import { MeioPagamento } from '@venda/entities/venda.entity';
 import { Carteira } from './carteira.entity';
 import { CategoriaDespesa } from './categoria-despesa.entity';
 
+export interface DespesaInput {
+  dataLancamento: string;
+  descricao: string;
+  valor: number;
+  idCategoria: number;
+  meioPagamento: MeioPagamento;
+  idCarteira: number;
+  observacao?: string;
+}
+
+export interface CriarDespesaInput extends DespesaInput {
+  idUsuarioInclusao: number;
+}
+
 @Entity('despesa')
 @Check('ck_despesa_valor_nao_negativo', '"valor" >= 0')
 @Index('idx_despesa_id_carteira', ['idCarteira'])
@@ -92,4 +106,21 @@ export class Despesa {
     foreignKeyConstraintName: 'fk_despesa_carteira',
   })
   carteira!: Carteira;
+
+  static criar(input: CriarDespesaInput): Despesa {
+    const despesa = new Despesa();
+    despesa.idUsuarioInclusao = input.idUsuarioInclusao;
+    despesa.atualizar(input);
+    return despesa;
+  }
+
+  atualizar(input: DespesaInput): void {
+    this.dataLancamento = new Date(input.dataLancamento);
+    this.descricao = input.descricao.trim();
+    this.valor = input.valor;
+    this.idCategoria = input.idCategoria;
+    this.meioPagamento = input.meioPagamento;
+    this.idCarteira = input.idCarteira;
+    this.observacao = input.observacao?.trim();
+  }
 }

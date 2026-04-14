@@ -35,4 +35,11 @@ export class Carteira {
 
   @OneToMany(() => Despesa, (despesa) => despesa.carteira)
   despesas!: Despesa[];
+
+  aceitaMeioPagamento(meioPagamento: MeioPagamento): boolean {
+    return (
+      this.meiosPagamento.length === 0 ||
+      this.meiosPagamento.includes(meioPagamento)
+    );
+  }
 }

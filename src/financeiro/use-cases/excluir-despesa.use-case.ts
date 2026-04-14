@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FinanceiroService } from '@financeiro/services';
+import { DespesaService } from '@financeiro/services';
 
 export interface ExcluirDespesaInput {
   id: number;
@@ -7,10 +7,10 @@ export interface ExcluirDespesaInput {
 
 @Injectable()
 export class ExcluirDespesaUseCase {
-  constructor(private readonly financeiroService: FinanceiroService) {}
+  constructor(private readonly despesaService: DespesaService) {}
 
   async execute(input: ExcluirDespesaInput): Promise<void> {
-    const despesa = await this.financeiroService.garantirDespesaPorId(input.id);
-    await this.financeiroService.excluirDespesa(despesa.id);
+    const despesa = await this.despesaService.garantirDespesaPorId(input.id);
+    await this.despesaService.excluirDespesa(despesa.id);
   }
 }

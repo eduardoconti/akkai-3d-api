@@ -5,7 +5,7 @@ import {
   Produto,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
-import { FinanceiroService } from '@financeiro/services';
+import { CarteiraService } from '@financeiro/services';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as AtualizarVendaInput,
@@ -38,7 +38,7 @@ export class AlterarVendaUseCase {
     private readonly vendaService: VendaService,
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
-    private readonly financeiroService: FinanceiroService,
+    private readonly carteiraService: CarteiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -46,7 +46,7 @@ export class AlterarVendaUseCase {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
     const venda = await this.vendaService.garantirExisteVenda(input.id);
 
-    await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
+    await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
       input.idCarteira,
       input.meioPagamento,
     );
@@ -81,13 +81,13 @@ export class AlterarVendaUseCase {
         brinde: item.brinde,
       });
 
-      const movimentoEstoque = new MovimentacaoEstoque();
-      movimentoEstoque.idProduto = item.idProduto;
-      movimentoEstoque.quantidade = item.quantidade;
-      movimentoEstoque.tipo = TipoMovimentacaoEstoque.SAIDA;
-      movimentoEstoque.origem = OrigemMovimentacaoEstoque.VENDA;
-      movimentoEstoque.dataInclusao = new Date();
-      movimentoEstoque.idUsuarioInclusao = idUsuarioInclusao;
+      const movimentoEstoque = MovimentacaoEstoque.criar({
+        idProduto: item.idProduto,
+        quantidade: item.quantidade,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao,
+      });
       movimentacoesEstoque.push(movimentoEstoque);
     }
 

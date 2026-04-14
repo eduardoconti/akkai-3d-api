@@ -1,6 +1,10 @@
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUserContext } from '../../common/services/current-user-context.service';
-import { FinanceiroService } from '@financeiro/services';
+import {
+  CarteiraService,
+  CategoriaDespesaService,
+  DespesaService,
+} from '@financeiro/services';
 import { InserirDespesaUseCase } from '@financeiro/use-cases';
 import { Despesa } from '@financeiro/entities';
 import { MeioPagamento } from '@venda/entities';
@@ -24,14 +28,22 @@ describe('InserirDespesaUseCase', () => {
     inserirDespesaMock = jest.fn<Promise<Despesa>, [Despesa]>();
     currentUserContext = { usuarioId: 7 };
 
-    const financeiroService = {
-      garantirExisteCarteira: garantirExisteCarteiraMock,
-      garantirExisteCategoriaDespesa: garantirExisteCategoriaDespesaMock,
+    const despesaService = {
       inserirDespesa: inserirDespesaMock,
-    } as unknown as FinanceiroService;
+    } as unknown as DespesaService;
+
+    const carteiraService = {
+      garantirExisteCarteira: garantirExisteCarteiraMock,
+    } as unknown as CarteiraService;
+
+    const categoriaDespesaService = {
+      garantirExisteCategoriaDespesa: garantirExisteCategoriaDespesaMock,
+    } as unknown as CategoriaDespesaService;
 
     useCase = new InserirDespesaUseCase(
-      financeiroService,
+      despesaService,
+      carteiraService,
+      categoriaDespesaService,
       currentUserContext as CurrentUserContext,
     );
   });

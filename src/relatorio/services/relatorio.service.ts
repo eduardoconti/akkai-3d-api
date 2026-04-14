@@ -3,6 +3,7 @@ import { calcularOffset } from '../../common/utils/paginacao.util';
 import { DateService } from '../../common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
+  DespesasCategoriasMesDashboardDto,
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
@@ -10,6 +11,7 @@ import {
   ProdutosMaisVendidosPeriodoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
+  TopProdutosMesDashboardDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
 import { TipoVenda } from '@venda/entities/venda.entity';
@@ -42,6 +44,12 @@ type TotalizadoresValorProdutosEstoqueRow = {
   totalQuantidade: string | number | null;
   totalValor: string | number | null;
   totalValorTotal: string | number | null;
+};
+
+type DespesaCategoriaMesDashboardRow = {
+  idCategoria: string | number | null;
+  nomeCategoria: string | null;
+  valorTotal: string | number;
 };
 
 type ResumoMensalDashboardRow = {
@@ -130,6 +138,99 @@ export class RelatorioService {
       ),
       saldo: itens.reduce((total, item) => total + item.saldo, 0),
       itens,
+    };
+  }
+
+  async obterTopProdutosMesDashboard(): Promise<TopProdutosMesDashboardDto> {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = agora.getMonth() + 1;
+
+    const rows: ProdutoMaisVendidoRow[] = await this.dataSource.query(
+      `
+        SELECT
+          item.id_produto AS "idProduto",
+          p.codigo AS codigo,
+          item.nome_produto AS "nomeProduto",
+          categoria.id AS "categoriaId",
+          categoria.nome AS "categoriaNome",
+          SUM(item.quantidade) AS "quantidadeVendida"
+        FROM item_venda item
+        INNER JOIN venda v ON v.id = item.id_venda
+        LEFT JOIN produto p ON p.id = item.id_produto
+        LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
+        WHERE EXTRACT(YEAR FROM v.data_inclusao) = $1
+          AND EXTRACT(MONTH FROM v.data_inclusao) = $2
+          AND item.brinde = false
+        GROUP BY
+          item.id_produto,
+          p.codigo,
+          item.nome_produto,
+          categoria.id,
+          categoria.nome
+        ORDER BY
+          SUM(item.quantidade) DESC,
+          item.nome_produto ASC
+        LIMIT 5
+      `,
+      [ano, mes],
+    );
+
+    return {
+      ano,
+      mes,
+      itens: rows.map((row) => ({
+        idProduto:
+          row.idProduto === null || row.idProduto === undefined
+            ? null
+            : Number(row.idProduto),
+        codigo: row.codigo,
+        nomeProduto: row.nomeProduto,
+        categoria:
+          row.categoriaId === null || row.categoriaNome === null
+            ? null
+            : {
+                id: Number(row.categoriaId),
+                nome: row.categoriaNome,
+              },
+        quantidadeVendida: Number(row.quantidadeVendida),
+      })),
+    };
+  }
+
+  async obterDespesasCategoriasMesDashboard(): Promise<DespesasCategoriasMesDashboardDto> {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = agora.getMonth() + 1;
+
+    const rows: DespesaCategoriaMesDashboardRow[] = await this.dataSource.query(
+      `
+        SELECT
+          categoria.id AS "idCategoria",
+          COALESCE(categoria.nome, 'Sem categoria') AS "nomeCategoria",
+          COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
+        FROM despesa
+        LEFT JOIN categoria_despesa categoria ON categoria.id = despesa.id_categoria
+        WHERE EXTRACT(YEAR FROM despesa.data_lancamento) = $1
+          AND EXTRACT(MONTH FROM despesa.data_lancamento) = $2
+        GROUP BY categoria.id, categoria.nome
+        ORDER BY SUM(despesa.valor) DESC, COALESCE(categoria.nome, 'Sem categoria') ASC
+        LIMIT 5
+      `,
+      [ano, mes],
+    );
+
+    return {
+      ano,
+      mes,
+      itens: rows.map((row) => ({
+        idCategoria:
+          row.idCategoria === null || row.idCategoria === undefined
+            ? null
+            : Number(row.idCategoria),
+        nomeCategoria: row.nomeCategoria ?? 'Sem categoria',
+        valorTotal: Number(row.valorTotal),
+      })),
     };
   }
 

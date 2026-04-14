@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
+  DespesasCategoriasMesDashboardDto,
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
@@ -8,12 +9,15 @@ import {
   ProdutosMaisVendidosPeriodoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
+  TopProdutosMesDashboardDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
 import { RelatorioService } from '@relatorio/services';
 import { ApiProtectedController } from '../../common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiProdutosMaisVendidosDocs,
+  ApiDespesasCategoriasMesDashboardDocs,
+  ApiTopProdutosMesDashboardDocs,
   ApiResumoMensalDashboardDocs,
   ApiResumoVendasPeriodoDocs,
   ApiValorProdutosEstoqueDocs,
@@ -31,6 +35,20 @@ export class RelatorioController {
     @Query() filtro: ObterResumoMensalDashboardDto,
   ): Promise<ResumoMensalDashboardDto> {
     return await this.relatorioService.obterResumoMensalDashboard(filtro);
+  }
+
+  @ApiTopProdutosMesDashboardDocs()
+  @Get('dashboard/top-produtos-mes')
+  @Permissions('report.read')
+  async obterTopProdutosMesDashboard(): Promise<TopProdutosMesDashboardDto> {
+    return await this.relatorioService.obterTopProdutosMesDashboard();
+  }
+
+  @ApiDespesasCategoriasMesDashboardDocs()
+  @Get('dashboard/despesas-categorias-mes')
+  @Permissions('report.read')
+  async obterDespesasCategoriasMesDashboard(): Promise<DespesasCategoriasMesDashboardDto> {
+    return await this.relatorioService.obterDespesasCategoriasMesDashboard();
   }
 
   @ApiResumoVendasPeriodoDocs()

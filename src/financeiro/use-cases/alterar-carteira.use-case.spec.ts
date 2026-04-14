@@ -2,21 +2,24 @@ import { NotFoundException } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
 import { AlterarCarteiraUseCase } from '@financeiro/use-cases';
 import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { CarteiraService } from '@financeiro/services';
 
 describe('AlterarCarteiraUseCase', () => {
   let useCase: AlterarCarteiraUseCase;
-  let financeiroService: {
+  let carteiraService: {
     garantirCarteiraPorId: jest.Mock;
     salvarCarteira: jest.Mock;
   };
 
   beforeEach(() => {
-    financeiroService = {
+    carteiraService = {
       garantirCarteiraPorId: jest.fn(),
       salvarCarteira: jest.fn(),
     };
 
-    useCase = new AlterarCarteiraUseCase(financeiroService as never);
+    useCase = new AlterarCarteiraUseCase(
+      carteiraService as unknown as CarteiraService,
+    );
   });
 
   it('deve alterar uma carteira existente', async () => {
@@ -27,8 +30,8 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [],
     });
 
-    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
-    financeiroService.salvarCarteira.mockResolvedValue({
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue({
       ...carteira,
       nome: 'NUBANK PIX',
       ativa: false,
@@ -40,8 +43,8 @@ describe('AlterarCarteiraUseCase', () => {
       ativa: false,
     });
 
-    expect(financeiroService.garantirCarteiraPorId).toHaveBeenCalledWith(1);
-    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+    expect(carteiraService.garantirCarteiraPorId).toHaveBeenCalledWith(1);
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 1,
         nome: 'NUBANK PIX',
@@ -64,8 +67,8 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [],
     });
 
-    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
-    financeiroService.salvarCarteira.mockResolvedValue({
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue({
       ...carteira,
       meiosPagamento: [MeioPagamento.PIX],
     });
@@ -76,7 +79,7 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [MeioPagamento.PIX],
     });
 
-    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ meiosPagamento: [MeioPagamento.PIX] }),
     );
   });
@@ -89,12 +92,12 @@ describe('AlterarCarteiraUseCase', () => {
       meiosPagamento: [MeioPagamento.DIN, MeioPagamento.PIX],
     });
 
-    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
-    financeiroService.salvarCarteira.mockResolvedValue(carteira);
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue(carteira);
 
     await useCase.execute({ id: 1, nome: 'CAIXA' });
 
-    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({
         meiosPagamento: [MeioPagamento.DIN, MeioPagamento.PIX],
       }),
@@ -102,7 +105,7 @@ describe('AlterarCarteiraUseCase', () => {
   });
 
   it('deve lançar erro quando carteira não existir', async () => {
-    financeiroService.garantirCarteiraPorId.mockRejectedValue(
+    carteiraService.garantirCarteiraPorId.mockRejectedValue(
       new NotFoundException('Carteira não encontrada'),
     );
 
@@ -117,15 +120,15 @@ describe('AlterarCarteiraUseCase', () => {
       nome: 'CAIXA',
       ativa: true,
     });
-    financeiroService.garantirCarteiraPorId.mockResolvedValue(carteira);
-    financeiroService.salvarCarteira.mockResolvedValue({
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue({
       ...carteira,
       nome: 'NUBANK',
     });
 
     await useCase.execute({ id: 1, nome: 'NUBANK' });
 
-    expect(financeiroService.salvarCarteira).toHaveBeenCalledWith(
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
       expect.objectContaining({ ativa: true }),
     );
   });

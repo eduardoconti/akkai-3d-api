@@ -90,6 +90,68 @@ export function ApiResumoMensalDashboardDocs() {
   );
 }
 
+export function ApiTopProdutosMesDashboardDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém o top 5 produtos mais vendidos do mês atual.',
+      description:
+        'Retorna os cinco produtos com maior quantidade vendida no mês atual, para uso no dashboard inicial.',
+    }),
+    ApiOkResponse({
+      description: 'Top produtos do mês calculado com sucesso.',
+      schema: {
+        example: {
+          ano: 2026,
+          mes: 4,
+          itens: [
+            {
+              idProduto: 1,
+              codigo: 'CB-001',
+              nomeProduto: 'Cubo Infinito',
+              categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+              quantidadeVendida: 18,
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/dashboard/top-produtos-mes'),
+    ApiUnauthorizedErrorResponse('/relatorio/dashboard/top-produtos-mes'),
+    ApiForbiddenErrorResponse('/relatorio/dashboard/top-produtos-mes'),
+  );
+}
+
+export function ApiDespesasCategoriasMesDashboardDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém as despesas do mês por categoria para o dashboard.',
+      description:
+        'Retorna as categorias com maior valor de despesa no mês atual, para uso no dashboard inicial.',
+    }),
+    ApiOkResponse({
+      description: 'Despesas do mês por categoria calculadas com sucesso.',
+      schema: {
+        example: {
+          ano: 2026,
+          mes: 4,
+          itens: [
+            {
+              idCategoria: 1,
+              nomeCategoria: 'Insumos',
+              valorTotal: 12500,
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/dashboard/despesas-categorias-mes'),
+    ApiUnauthorizedErrorResponse(
+      '/relatorio/dashboard/despesas-categorias-mes',
+    ),
+    ApiForbiddenErrorResponse('/relatorio/dashboard/despesas-categorias-mes'),
+  );
+}
+
 export function ApiProdutosMaisVendidosDocs() {
   return applyDecorators(
     ApiOperation({

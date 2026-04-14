@@ -2,7 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinanceiroController } from '@financeiro/controllers';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
+import {
+  CarteiraService,
+  CategoriaDespesaService,
+  DespesaService,
+} from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
@@ -17,7 +21,9 @@ import {
   imports: [TypeOrmModule.forFeature([Carteira, Despesa, CategoriaDespesa])],
   controllers: [FinanceiroController],
   providers: [
-    FinanceiroService,
+    CarteiraService,
+    DespesaService,
+    CategoriaDespesaService,
     InserirCarteiraUseCase,
     AlterarCarteiraUseCase,
     InserirDespesaUseCase,
@@ -26,6 +32,6 @@ import {
     InserirCategoriaDespesaUseCase,
     AlterarCategoriaDespesaUseCase,
   ],
-  exports: [FinanceiroService],
+  exports: [CarteiraService, DespesaService, CategoriaDespesaService],
 })
 export class FinanceiroModule {}

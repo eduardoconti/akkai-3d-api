@@ -11,6 +11,7 @@ export interface InserirProdutoInput {
   idCategoria: number;
   valor: number;
 }
+
 @Injectable()
 export class InserirProdutoUseCase {
   constructor(
@@ -24,14 +25,10 @@ export class InserirProdutoUseCase {
       input.idCategoria,
     );
 
-    const novoProduto = new Produto();
-    novoProduto.nome = input.nome;
-    novoProduto.codigo = input.codigo;
-    novoProduto.descricao = input.descricao;
-    novoProduto.estoqueMinimo = input.estoqueMinimo;
-    novoProduto.idCategoria = input.idCategoria;
-    novoProduto.valor = input.valor;
-    novoProduto.idUsuarioInclusao = this.currentUserContext.usuarioId;
+    const novoProduto = Produto.criar({
+      ...input,
+      idUsuarioInclusao: this.currentUserContext.usuarioId,
+    });
 
     return await this.produtoService.salvar(novoProduto);
   }

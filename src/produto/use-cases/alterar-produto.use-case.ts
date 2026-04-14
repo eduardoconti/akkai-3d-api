@@ -26,12 +26,7 @@ export class AlterarProdutoUseCase {
       input.idCategoria,
     );
 
-    produto.nome = input.nome;
-    produto.codigo = input.codigo;
-    produto.descricao = input.descricao;
-    produto.estoqueMinimo = input.estoqueMinimo;
-    produto.idCategoria = input.idCategoria;
-    produto.valor = input.valor;
+    produto.atualizar(input);
 
     return await this.produtoService.salvar(produto);
   }

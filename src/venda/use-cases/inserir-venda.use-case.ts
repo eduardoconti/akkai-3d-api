@@ -3,7 +3,7 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
-import { FinanceiroService } from '@financeiro/services';
+import { CarteiraService } from '@financeiro/services';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as CriarVendaInput,
@@ -36,14 +36,14 @@ export class InserirVendaUseCase {
     private readonly vendaService: VendaService,
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
-    private readonly financeiroService: FinanceiroService,
+    private readonly carteiraService: CarteiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
 
-    await this.financeiroService.garantirCarteiraAceitaMeioPagamento(
+    await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
       inserirVendaInput.idCarteira,
       inserirVendaInput.meioPagamento,
     );
@@ -82,13 +82,13 @@ export class InserirVendaUseCase {
 
       itensVenda.push(itemVenda);
 
-      const movimentoEstoque = new MovimentacaoEstoque();
-      movimentoEstoque.idProduto = item.idProduto;
-      movimentoEstoque.quantidade = item.quantidade;
-      movimentoEstoque.tipo = TipoMovimentacaoEstoque.SAIDA;
-      movimentoEstoque.origem = OrigemMovimentacaoEstoque.VENDA;
-      movimentoEstoque.dataInclusao = new Date();
-      movimentoEstoque.idUsuarioInclusao = idUsuarioInclusao;
+      const movimentoEstoque = MovimentacaoEstoque.criar({
+        idProduto: item.idProduto,
+        quantidade: item.quantidade,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao,
+      });
 
       movimentacoesEstoque.push(movimentoEstoque);
     }

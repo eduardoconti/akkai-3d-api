@@ -7,6 +7,8 @@ describe('RelatorioController', () => {
   let controller: RelatorioController;
   let relatorioService: {
     obterResumoMensalDashboard: jest.Mock;
+    obterTopProdutosMesDashboard: jest.Mock;
+    obterDespesasCategoriasMesDashboard: jest.Mock;
     obterResumoVendasPorPeriodo: jest.Mock;
     obterProdutosMaisVendidosPorPeriodo: jest.Mock;
     obterValorProdutosEstoque: jest.Mock;
@@ -15,6 +17,8 @@ describe('RelatorioController', () => {
   beforeEach(async () => {
     relatorioService = {
       obterResumoMensalDashboard: jest.fn(),
+      obterTopProdutosMesDashboard: jest.fn(),
+      obterDespesasCategoriasMesDashboard: jest.fn(),
       obterResumoVendasPorPeriodo: jest.fn(),
       obterProdutosMaisVendidosPorPeriodo: jest.fn(),
       obterValorProdutosEstoque: jest.fn(),
@@ -59,6 +63,52 @@ describe('RelatorioController', () => {
       filtro,
     );
     expect(result).toEqual(resumo);
+  });
+
+  it('deve delegar a obtenção do top 5 produtos do mês no dashboard', async () => {
+    const response = {
+      ano: 2026,
+      mes: 4,
+      itens: [
+        {
+          idProduto: 1,
+          codigo: 'CB-001',
+          nomeProduto: 'Cubo Infinito',
+          categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+          quantidadeVendida: 18,
+        },
+      ],
+    };
+    relatorioService.obterTopProdutosMesDashboard.mockResolvedValue(response);
+
+    const result = await controller.obterTopProdutosMesDashboard();
+
+    expect(relatorioService.obterTopProdutosMesDashboard).toHaveBeenCalled();
+    expect(result).toEqual(response);
+  });
+
+  it('deve delegar a obtenção das despesas do mês por categoria no dashboard', async () => {
+    const response = {
+      ano: 2026,
+      mes: 4,
+      itens: [
+        {
+          idCategoria: 1,
+          nomeCategoria: 'Insumos',
+          valorTotal: 12500,
+        },
+      ],
+    };
+    relatorioService.obterDespesasCategoriasMesDashboard.mockResolvedValue(
+      response,
+    );
+
+    const result = await controller.obterDespesasCategoriasMesDashboard();
+
+    expect(
+      relatorioService.obterDespesasCategoriasMesDashboard,
+    ).toHaveBeenCalled();
+    expect(result).toEqual(response);
   });
 
   it('deve delegar a obtenção do resumo de vendas por período', async () => {

@@ -21,7 +21,11 @@ import {
   PesquisarDespesasDto,
 } from '@financeiro/dto';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
+import {
+  CarteiraService,
+  CategoriaDespesaService,
+  DespesaService,
+} from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
@@ -49,7 +53,9 @@ import {
 @Controller('financeiro')
 export class FinanceiroController {
   constructor(
-    private readonly financeiroService: FinanceiroService,
+    private readonly carteiraService: CarteiraService,
+    private readonly despesaService: DespesaService,
+    private readonly categoriaDespesaService: CategoriaDespesaService,
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
     private readonly inserirDespesaUseCase: InserirDespesaUseCase,
@@ -68,7 +74,7 @@ export class FinanceiroController {
   @ApiListarCarteirasDocs()
   @Get('carteiras')
   async listarCarteiras() {
-    return this.financeiroService.listarCarteiras();
+    return this.carteiraService.listarCarteiras();
   }
 
   @ApiObterCarteiraPorIdDocs()
@@ -76,7 +82,7 @@ export class FinanceiroController {
   async obterCarteiraPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Carteira | null> {
-    return this.financeiroService.obterCarteiraPorId(id);
+    return this.carteiraService.obterCarteiraPorId(id);
   }
 
   @ApiAlterarCarteiraDocs()
@@ -98,7 +104,7 @@ export class FinanceiroController {
   @ApiListarCategoriasDespesaDocs()
   @Get('categorias-despesa')
   async listarCategoriasDespesa(): Promise<CategoriaDespesa[]> {
-    return this.financeiroService.listarCategoriasDespesa();
+    return this.categoriaDespesaService.listarCategoriasDespesa();
   }
 
   @Put('categorias-despesa/:id')
@@ -120,7 +126,7 @@ export class FinanceiroController {
   async listarDespesas(
     @Query() pesquisa: PesquisarDespesasDto,
   ): Promise<ResultadoPaginado<Despesa>> {
-    return this.financeiroService.listarDespesas(pesquisa);
+    return this.despesaService.listarDespesas(pesquisa);
   }
 
   @ApiAlterarDespesaDocs()

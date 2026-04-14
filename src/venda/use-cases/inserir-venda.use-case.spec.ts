@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUserContext } from '../../common/services/current-user-context.service';
-import { FinanceiroService } from '@financeiro/services';
+import { CarteiraService } from '@financeiro/services';
 import {
   OrigemMovimentacaoEstoque,
   Produto,
@@ -56,16 +56,16 @@ describe('InserirVendaUseCase', () => {
       garantirExisteProduto: garantirExisteProdutoMock,
     } as unknown as ProdutoService;
 
-    const financeiroService = {
+    const carteiraService = {
       garantirCarteiraAceitaMeioPagamento:
         garantirCarteiraAceitaMeioPagamentoMock,
-    } as unknown as FinanceiroService;
+    } as unknown as CarteiraService;
 
     useCase = new InserirVendaUseCase(
       vendaService,
       feiraService,
       produtoService,
-      financeiroService,
+      carteiraService,
       currentUserContext as CurrentUserContext,
     );
   });

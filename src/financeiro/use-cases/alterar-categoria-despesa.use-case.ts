@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CategoriaDespesa } from '@financeiro/entities';
-import { FinanceiroService } from '@financeiro/services';
+import { CategoriaDespesaService } from '@financeiro/services';
 
 export interface AlterarCategoriaDespesaInput {
   id: number;
@@ -9,16 +9,20 @@ export interface AlterarCategoriaDespesaInput {
 
 @Injectable()
 export class AlterarCategoriaDespesaUseCase {
-  constructor(private readonly financeiroService: FinanceiroService) {}
+  constructor(
+    private readonly categoriaDespesaService: CategoriaDespesaService,
+  ) {}
 
   async execute(
     input: AlterarCategoriaDespesaInput,
   ): Promise<CategoriaDespesa> {
     const categoria =
-      await this.financeiroService.garantirCategoriaDespesaPorId(input.id);
+      await this.categoriaDespesaService.garantirCategoriaDespesaPorId(
+        input.id,
+      );
 
     categoria.nome = input.nome;
 
-    return this.financeiroService.salvarCategoriaDespesa(categoria);
+    return this.categoriaDespesaService.salvarCategoriaDespesa(categoria);
   }
 }

@@ -13,6 +13,19 @@ import {
 import { User } from '@auth/entities/user.entity';
 import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
 
+export interface ProdutoInput {
+  nome: string;
+  codigo: string;
+  descricao?: string;
+  estoqueMinimo?: number;
+  idCategoria: number;
+  valor: number;
+}
+
+export interface CriarProdutoInput extends ProdutoInput {
+  idUsuarioInclusao: number;
+}
+
 @Entity('produto')
 @Unique('uk_produto_codigo', ['codigo'])
 @Check('ck_produto_valor_nao_negativo', '"valor" >= 0')
@@ -69,4 +82,20 @@ export class Produto {
   itensVenda!: ItemVenda[];
 
   constructor() {}
+
+  static criar(input: CriarProdutoInput): Produto {
+    const produto = new Produto();
+    produto.idUsuarioInclusao = input.idUsuarioInclusao;
+    produto.atualizar(input);
+    return produto;
+  }
+
+  atualizar(input: ProdutoInput): void {
+    this.nome = input.nome;
+    this.codigo = input.codigo;
+    this.descricao = input.descricao;
+    this.estoqueMinimo = input.estoqueMinimo;
+    this.idCategoria = input.idCategoria;
+    this.valor = input.valor;
+  }
 }

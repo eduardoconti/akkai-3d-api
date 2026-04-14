@@ -132,6 +132,77 @@ describe('RelatorioService', () => {
     });
   });
 
+  it('deve retornar o top 5 produtos mais vendidos do mês atual para o dashboard', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+    dataSource.query.mockResolvedValueOnce([
+      {
+        idProduto: '1',
+        codigo: 'CB-001',
+        nomeProduto: 'CUBO INFINITO',
+        categoriaId: '2',
+        categoriaNome: 'IMPRESSAO 3D',
+        quantidadeVendida: '18',
+      },
+    ]);
+
+    const result = await service.obterTopProdutosMesDashboard();
+
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.any(String),
+      [2026, 4],
+    );
+    expect(result).toEqual({
+      ano: 2026,
+      mes: 4,
+      itens: [
+        {
+          idProduto: 1,
+          codigo: 'CB-001',
+          nomeProduto: 'CUBO INFINITO',
+          categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+          quantidadeVendida: 18,
+        },
+      ],
+    });
+
+    jest.useRealTimers();
+  });
+
+  it('deve retornar as despesas do mês por categoria para o dashboard', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+    dataSource.query.mockResolvedValueOnce([
+      {
+        idCategoria: '1',
+        nomeCategoria: 'Insumos',
+        valorTotal: '12500',
+      },
+    ]);
+
+    const result = await service.obterDespesasCategoriasMesDashboard();
+
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.any(String),
+      [2026, 4],
+    );
+    expect(result).toEqual({
+      ano: 2026,
+      mes: 4,
+      itens: [
+        {
+          idCategoria: 1,
+          nomeCategoria: 'Insumos',
+          valorTotal: 12500,
+        },
+      ],
+    });
+
+    jest.useRealTimers();
+  });
+
   it('deve usar a data inicial como data final quando a data final não for informada', async () => {
     dataSource.query.mockResolvedValue([
       {

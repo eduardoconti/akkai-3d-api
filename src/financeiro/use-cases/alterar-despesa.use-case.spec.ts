@@ -1,17 +1,21 @@
 import { NotFoundException } from '@nestjs/common';
 import { AlterarDespesaUseCase } from './alterar-despesa.use-case';
-import { FinanceiroService } from '@financeiro/services';
+import {
+  CarteiraService,
+  CategoriaDespesaService,
+  DespesaService,
+} from '@financeiro/services';
 import { Despesa } from '@financeiro/entities';
 import { MeioPagamento } from '@venda/entities';
 
 describe('AlterarDespesaUseCase', () => {
   let useCase: AlterarDespesaUseCase;
-  let financeiroService: {
+  let despesaService: {
     garantirDespesaPorId: jest.Mock;
-    garantirExisteCarteira: jest.Mock;
-    garantirExisteCategoriaDespesa: jest.Mock;
     alterarDespesa: jest.Mock;
   };
+  let carteiraService: { garantirExisteCarteira: jest.Mock };
+  let categoriaDespesaService: { garantirExisteCategoriaDespesa: jest.Mock };
 
   const inputPadrao = {
     dataLancamento: '2026-04-01',
@@ -24,15 +28,17 @@ describe('AlterarDespesaUseCase', () => {
   };
 
   beforeEach(() => {
-    financeiroService = {
+    despesaService = {
       garantirDespesaPorId: jest.fn(),
-      garantirExisteCarteira: jest.fn(),
-      garantirExisteCategoriaDespesa: jest.fn(),
       alterarDespesa: jest.fn(),
     };
+    carteiraService = { garantirExisteCarteira: jest.fn() };
+    categoriaDespesaService = { garantirExisteCategoriaDespesa: jest.fn() };
 
     useCase = new AlterarDespesaUseCase(
-      financeiroService as unknown as FinanceiroService,
+      despesaService as unknown as DespesaService,
+      carteiraService as unknown as CarteiraService,
+      categoriaDespesaService as unknown as CategoriaDespesaService,
     );
   });
 
@@ -44,21 +50,21 @@ describe('AlterarDespesaUseCase', () => {
       valor: 3500,
     });
 
-    financeiroService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
-    financeiroService.garantirExisteCarteira.mockResolvedValue(undefined);
-    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(
+    despesaService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    categoriaDespesaService.garantirExisteCategoriaDespesa.mockResolvedValue(
       undefined,
     );
-    financeiroService.alterarDespesa.mockResolvedValue(despesaAlterada);
+    despesaService.alterarDespesa.mockResolvedValue(despesaAlterada);
 
     const result = await useCase.execute({ id: 5, ...inputPadrao });
 
-    expect(financeiroService.garantirDespesaPorId).toHaveBeenCalledWith(5);
-    expect(financeiroService.garantirExisteCarteira).toHaveBeenCalledWith(2);
+    expect(despesaService.garantirDespesaPorId).toHaveBeenCalledWith(5);
+    expect(carteiraService.garantirExisteCarteira).toHaveBeenCalledWith(2);
     expect(
-      financeiroService.garantirExisteCategoriaDespesa,
+      categoriaDespesaService.garantirExisteCategoriaDespesa,
     ).toHaveBeenCalledWith(1);
-    expect(financeiroService.alterarDespesa).toHaveBeenCalledWith(
+    expect(despesaService.alterarDespesa).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 5,
         descricao: 'Filamento PLA',
@@ -74,22 +80,22 @@ describe('AlterarDespesaUseCase', () => {
 
   it('deve definir observacao como undefined quando não informada', async () => {
     const despesaExistente = Object.assign(new Despesa(), { id: 5 });
-    financeiroService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
-    financeiroService.garantirExisteCarteira.mockResolvedValue(undefined);
-    financeiroService.garantirExisteCategoriaDespesa.mockResolvedValue(
+    despesaService.garantirDespesaPorId.mockResolvedValue(despesaExistente);
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    categoriaDespesaService.garantirExisteCategoriaDespesa.mockResolvedValue(
       undefined,
     );
-    financeiroService.alterarDespesa.mockResolvedValue(despesaExistente);
+    despesaService.alterarDespesa.mockResolvedValue(despesaExistente);
 
     await useCase.execute({ id: 5, ...inputPadrao, observacao: undefined });
 
-    expect(financeiroService.alterarDespesa).toHaveBeenCalledWith(
+    expect(despesaService.alterarDespesa).toHaveBeenCalledWith(
       expect.objectContaining({ observacao: undefined }),
     );
   });
 
   it('deve lançar NotFoundException quando a despesa não existir', async () => {
-    financeiroService.garantirDespesaPorId.mockRejectedValue(
+    despesaService.garantirDespesaPorId.mockRejectedValue(
       new NotFoundException('Despesa com ID 99 não encontrada.'),
     );
 
@@ -97,14 +103,14 @@ describe('AlterarDespesaUseCase', () => {
       NotFoundException,
     );
 
-    expect(financeiroService.garantirExisteCarteira).not.toHaveBeenCalled();
+    expect(carteiraService.garantirExisteCarteira).not.toHaveBeenCalled();
   });
 
   it('deve lançar NotFoundException quando a carteira não existir', async () => {
-    financeiroService.garantirDespesaPorId.mockResolvedValue(
+    despesaService.garantirDespesaPorId.mockResolvedValue(
       Object.assign(new Despesa(), { id: 5 }),
     );
-    financeiroService.garantirExisteCarteira.mockRejectedValue(
+    carteiraService.garantirExisteCarteira.mockRejectedValue(
       new NotFoundException('Carteira com ID 2 não encontrada.'),
     );
 
@@ -112,15 +118,15 @@ describe('AlterarDespesaUseCase', () => {
       NotFoundException,
     );
 
-    expect(financeiroService.alterarDespesa).not.toHaveBeenCalled();
+    expect(despesaService.alterarDespesa).not.toHaveBeenCalled();
   });
 
   it('deve lançar NotFoundException quando a categoria não existir', async () => {
-    financeiroService.garantirDespesaPorId.mockResolvedValue(
+    despesaService.garantirDespesaPorId.mockResolvedValue(
       Object.assign(new Despesa(), { id: 5 }),
     );
-    financeiroService.garantirExisteCarteira.mockResolvedValue(undefined);
-    financeiroService.garantirExisteCategoriaDespesa.mockRejectedValue(
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    categoriaDespesaService.garantirExisteCategoriaDespesa.mockRejectedValue(
       new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
     );
 
@@ -128,6 +134,6 @@ describe('AlterarDespesaUseCase', () => {
       NotFoundException,
     );
 
-    expect(financeiroService.alterarDespesa).not.toHaveBeenCalled();
+    expect(despesaService.alterarDespesa).not.toHaveBeenCalled();
   });
 });

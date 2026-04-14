@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FinanceiroController } from '@financeiro/controllers';
-import { FinanceiroService } from '@financeiro/services';
+import {
+  CarteiraService,
+  CategoriaDespesaService,
+  DespesaService,
+} from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
@@ -13,12 +17,12 @@ import {
 
 describe('FinanceiroController', () => {
   let controller: FinanceiroController;
-  let financeiroService: {
+  let carteiraService: {
     listarCarteiras: jest.Mock;
-    listarDespesas: jest.Mock;
-    listarCategoriasDespesa: jest.Mock;
     obterCarteiraPorId: jest.Mock;
   };
+  let despesaService: { listarDespesas: jest.Mock };
+  let categoriaDespesaService: { listarCategoriasDespesa: jest.Mock };
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
@@ -28,12 +32,12 @@ describe('FinanceiroController', () => {
   let alterarCategoriaDespesaUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
-    financeiroService = {
+    carteiraService = {
       listarCarteiras: jest.fn(),
-      listarDespesas: jest.fn(),
-      listarCategoriasDespesa: jest.fn(),
       obterCarteiraPorId: jest.fn(),
     };
+    despesaService = { listarDespesas: jest.fn() };
+    categoriaDespesaService = { listarCategoriasDespesa: jest.fn() };
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
@@ -45,30 +49,14 @@ describe('FinanceiroController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FinanceiroController],
       providers: [
-        {
-          provide: FinanceiroService,
-          useValue: financeiroService,
-        },
-        {
-          provide: AlterarCarteiraUseCase,
-          useValue: alterarCarteiraUseCase,
-        },
-        {
-          provide: InserirCarteiraUseCase,
-          useValue: inserirCarteiraUseCase,
-        },
-        {
-          provide: InserirDespesaUseCase,
-          useValue: inserirDespesaUseCase,
-        },
-        {
-          provide: AlterarDespesaUseCase,
-          useValue: alterarDespesaUseCase,
-        },
-        {
-          provide: ExcluirDespesaUseCase,
-          useValue: excluirDespesaUseCase,
-        },
+        { provide: CarteiraService, useValue: carteiraService },
+        { provide: DespesaService, useValue: despesaService },
+        { provide: CategoriaDespesaService, useValue: categoriaDespesaService },
+        { provide: AlterarCarteiraUseCase, useValue: alterarCarteiraUseCase },
+        { provide: InserirCarteiraUseCase, useValue: inserirCarteiraUseCase },
+        { provide: InserirDespesaUseCase, useValue: inserirDespesaUseCase },
+        { provide: AlterarDespesaUseCase, useValue: alterarDespesaUseCase },
+        { provide: ExcluirDespesaUseCase, useValue: excluirDespesaUseCase },
         {
           provide: InserirCategoriaDespesaUseCase,
           useValue: inserirCategoriaDespesaUseCase,
@@ -86,10 +74,7 @@ describe('FinanceiroController', () => {
   it('deve delegar inserção de carteira', async () => {
     inserirCarteiraUseCase.execute.mockResolvedValue({ id: 1 });
 
-    const input = {
-      nome: 'CAIXA',
-    };
-
+    const input = { nome: 'CAIXA' };
     const result = await controller.inserirCarteira(input as never);
 
     expect(inserirCarteiraUseCase.execute).toHaveBeenCalledWith(input);
@@ -98,20 +83,20 @@ describe('FinanceiroController', () => {
 
   it('deve listar carteiras', async () => {
     const carteiras = [{ id: 1 }];
-    financeiroService.listarCarteiras.mockResolvedValue(carteiras);
+    carteiraService.listarCarteiras.mockResolvedValue(carteiras);
 
     const result = await controller.listarCarteiras();
 
-    expect(financeiroService.listarCarteiras).toHaveBeenCalled();
+    expect(carteiraService.listarCarteiras).toHaveBeenCalled();
     expect(result).toBe(carteiras);
   });
 
   it('deve obter carteira por id', async () => {
-    financeiroService.obterCarteiraPorId.mockResolvedValue({ id: 1 });
+    carteiraService.obterCarteiraPorId.mockResolvedValue({ id: 1 });
 
     const result = await controller.obterCarteiraPorId(1);
 
-    expect(financeiroService.obterCarteiraPorId).toHaveBeenCalledWith(1);
+    expect(carteiraService.obterCarteiraPorId).toHaveBeenCalledWith(1);
     expect(result).toEqual({ id: 1 });
   });
 
@@ -153,14 +138,14 @@ describe('FinanceiroController', () => {
       totalItens: 0,
       totalPaginas: 1,
     };
-    financeiroService.listarDespesas.mockResolvedValue(despesas);
+    despesaService.listarDespesas.mockResolvedValue(despesas);
 
     const result = await controller.listarDespesas({
       pagina: 1,
       tamanhoPagina: 10,
     } as never);
 
-    expect(financeiroService.listarDespesas).toHaveBeenCalled();
+    expect(despesaService.listarDespesas).toHaveBeenCalled();
     expect(result).toBe(despesas);
   });
 
@@ -208,11 +193,13 @@ describe('FinanceiroController', () => {
 
   it('deve listar categorias de despesa', async () => {
     const categorias = [{ id: 1, nome: 'Embalagem' }];
-    financeiroService.listarCategoriasDespesa.mockResolvedValue(categorias);
+    categoriaDespesaService.listarCategoriasDespesa.mockResolvedValue(
+      categorias,
+    );
 
     const result = await controller.listarCategoriasDespesa();
 
-    expect(financeiroService.listarCategoriasDespesa).toHaveBeenCalled();
+    expect(categoriaDespesaService.listarCategoriasDespesa).toHaveBeenCalled();
     expect(result).toBe(categorias);
   });
 
