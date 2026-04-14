@@ -1,5 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
-import { CarteiraService } from '@financeiro/services';
+import {
+  CarteiraService,
+  TaxaMeioPagamentoCarteiraService,
+} from '@financeiro/services';
 import { Produto, TipoMovimentacaoEstoque } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
@@ -17,6 +20,7 @@ describe('AlterarVendaUseCase', () => {
   let garantirExisteFeiraMock: jest.Mock;
   let garantirCarteiraAceitaMeioPagamentoMock: jest.Mock;
   let garantirExisteProdutoMock: jest.Mock;
+  let obterTaxaAtivaPorCarteiraEMeioPagamentoMock: jest.Mock;
   let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
@@ -25,6 +29,7 @@ describe('AlterarVendaUseCase', () => {
     garantirExisteFeiraMock = jest.fn();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn();
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
     currentUserContext = { usuarioId: 7 };
 
     const vendaService = {
@@ -42,11 +47,17 @@ describe('AlterarVendaUseCase', () => {
         garantirCarteiraAceitaMeioPagamentoMock,
     } as unknown as CarteiraService;
 
+    const taxaMeioPagamentoCarteiraService = {
+      obterTaxaAtivaPorCarteiraEMeioPagamento:
+        obterTaxaAtivaPorCarteiraEMeioPagamentoMock,
+    } as unknown as TaxaMeioPagamentoCarteiraService;
+
     useCase = new AlterarVendaUseCase(
       vendaService,
       feiraService,
       produtoService,
       carteiraService,
+      taxaMeioPagamentoCarteiraService,
       currentUserContext as CurrentUserContext,
     );
   });
@@ -80,6 +91,9 @@ describe('AlterarVendaUseCase', () => {
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue({
+      percentual: 3,
+    });
     garantirExisteFeiraMock.mockResolvedValue(undefined);
     garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
@@ -106,6 +120,8 @@ describe('AlterarVendaUseCase', () => {
         idCarteira: 2,
         idFeira: 3,
         desconto: 200,
+        percentualTaxa: 3,
+        valorTaxa: 69,
         valorTotal: 2300,
       }),
       [
@@ -131,6 +147,7 @@ describe('AlterarVendaUseCase', () => {
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     alterarVendaMock.mockResolvedValue(vendaExistente);
 
     await useCase.execute({
@@ -151,6 +168,8 @@ describe('AlterarVendaUseCase', () => {
   });
 
   it('deve lançar erro quando venda não existir', async () => {
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+
     garantirExisteVendaMock.mockRejectedValue(
       new NotFoundException('Venda com ID 99 não encontrada.'),
     );

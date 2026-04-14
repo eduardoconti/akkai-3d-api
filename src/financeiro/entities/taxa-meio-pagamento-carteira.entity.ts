@@ -56,7 +56,8 @@ export class TaxaMeioPagamentoCarteira {
   @ManyToOne(() => User)
   @JoinColumn({
     name: 'id_usuario_inclusao',
-    foreignKeyConstraintName: 'fk_taxa_meio_pagamento_carteira_usuario_inclusao',
+    foreignKeyConstraintName:
+      'fk_taxa_meio_pagamento_carteira_usuario_inclusao',
   })
   usuarioInclusao!: User;
 

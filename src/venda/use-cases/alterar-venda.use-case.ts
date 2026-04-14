@@ -5,7 +5,10 @@ import {
   Produto,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
-import { CarteiraService } from '@financeiro/services';
+import {
+  CarteiraService,
+  TaxaMeioPagamentoCarteiraService,
+} from '@financeiro/services';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as AtualizarVendaInput,
@@ -39,6 +42,7 @@ export class AlterarVendaUseCase {
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
     private readonly carteiraService: CarteiraService,
+    private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -50,6 +54,12 @@ export class AlterarVendaUseCase {
       input.idCarteira,
       input.meioPagamento,
     );
+
+    const taxaMeioPagamentoCarteira =
+      await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
+        input.idCarteira,
+        input.meioPagamento,
+      );
 
     if (input.idFeira !== undefined) {
       await this.feiraService.garantirExisteFeira(input.idFeira);
@@ -97,6 +107,7 @@ export class AlterarVendaUseCase {
       idCarteira: input.idCarteira,
       idFeira: input.idFeira,
       desconto: input.desconto,
+      percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
       itens: itensVenda,
     });
 

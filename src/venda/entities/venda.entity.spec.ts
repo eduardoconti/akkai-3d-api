@@ -111,6 +111,45 @@ describe('Venda', () => {
     expect(venda.valorTotal).toBe(200);
   });
 
+  it('deve calcular valor da taxa quando percentualTaxa for informado', () => {
+    const venda = Venda.criar({
+      meioPagamento: MeioPagamento.CRE,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      percentualTaxa: 5,
+      itens: [
+        {
+          idProduto: 1,
+          nomeProduto: 'Caneca',
+          quantidade: 2,
+          valorUnitario: 1000,
+        },
+      ],
+    });
+
+    expect(venda.percentualTaxa).toBe(5);
+    expect(venda.valorTaxa).toBe(100);
+  });
+
+  it('deve deixar taxa nula quando percentualTaxa não for informado', () => {
+    const venda = Venda.criar({
+      meioPagamento: MeioPagamento.CRE,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [
+        {
+          idProduto: 1,
+          nomeProduto: 'Caneca',
+          quantidade: 1,
+          valorUnitario: 1000,
+        },
+      ],
+    });
+
+    expect(venda.percentualTaxa).toBeNull();
+    expect(venda.valorTaxa).toBeNull();
+  });
+
   it('deve lançar BadRequestException quando desconto for maior que o total dos itens', () => {
     expect(() =>
       Venda.criar({

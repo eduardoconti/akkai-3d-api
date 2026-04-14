@@ -1,6 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
-import { CarteiraService } from '@financeiro/services';
+import {
+  CarteiraService,
+  TaxaMeioPagamentoCarteiraService,
+} from '@financeiro/services';
 import {
   OrigemMovimentacaoEstoque,
   Produto,
@@ -29,6 +32,7 @@ describe('InserirVendaUseCase', () => {
   let garantirExisteProdutoMock: jest.MockedFunction<
     (id: number) => Promise<Produto>
   >;
+  let obterTaxaAtivaPorCarteiraEMeioPagamentoMock: jest.Mock;
   let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
@@ -42,6 +46,7 @@ describe('InserirVendaUseCase', () => {
       [number, MeioPagamento]
     >();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
     currentUserContext = { usuarioId: 7 };
 
     const vendaService = {
@@ -61,11 +66,17 @@ describe('InserirVendaUseCase', () => {
         garantirCarteiraAceitaMeioPagamentoMock,
     } as unknown as CarteiraService;
 
+    const taxaMeioPagamentoCarteiraService = {
+      obterTaxaAtivaPorCarteiraEMeioPagamento:
+        obterTaxaAtivaPorCarteiraEMeioPagamentoMock,
+    } as unknown as TaxaMeioPagamentoCarteiraService;
+
     useCase = new InserirVendaUseCase(
       vendaService,
       feiraService,
       produtoService,
       carteiraService,
+      taxaMeioPagamentoCarteiraService,
       currentUserContext as CurrentUserContext,
     );
   });
@@ -96,6 +107,9 @@ describe('InserirVendaUseCase', () => {
       }),
     );
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue({
+      percentual: 2.5,
+    });
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute(input);
@@ -112,6 +126,8 @@ describe('InserirVendaUseCase', () => {
         idCarteira: 1,
         idFeira: undefined,
         desconto: 200,
+        percentualTaxa: 2.5,
+        valorTaxa: 120,
         valorTotal: 4800,
         itens: [
           expect.objectContaining({
@@ -147,6 +163,7 @@ describe('InserirVendaUseCase', () => {
       }),
     );
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
@@ -161,6 +178,8 @@ describe('InserirVendaUseCase', () => {
         idCarteira: 1,
         idFeira: undefined,
         desconto: 0,
+        percentualTaxa: null,
+        valorTaxa: null,
         valorTotal: 1000,
         itens: [
           expect.objectContaining({
@@ -185,6 +204,7 @@ describe('InserirVendaUseCase', () => {
       }),
     );
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue(undefined);
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
     garantirExisteFeiraMock.mockResolvedValue(undefined);
     inserirVendaMock.mockResolvedValue(new Venda());
 
@@ -206,6 +226,8 @@ describe('InserirVendaUseCase', () => {
   });
 
   it('deve lançar erro quando carteira não existir', async () => {
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+
     garantirCarteiraAceitaMeioPagamentoMock.mockRejectedValue(
       new NotFoundException('Carteira com ID 99 não encontrada.'),
     );

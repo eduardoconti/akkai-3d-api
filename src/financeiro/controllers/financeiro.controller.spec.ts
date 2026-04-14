@@ -167,7 +167,12 @@ describe('FinanceiroController', () => {
   });
 
   it('deve delegar inserção de taxa por meio de pagamento e carteira', async () => {
-    const taxa = { id: 1, idCarteira: 1, meioPagamento: 'PIX', percentual: 2.99 };
+    const taxa = {
+      id: 1,
+      idCarteira: 1,
+      meioPagamento: 'PIX',
+      percentual: 2.99,
+    };
     const input = {
       idCarteira: 1,
       meioPagamento: 'PIX',
@@ -176,11 +181,13 @@ describe('FinanceiroController', () => {
     };
     inserirTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue(taxa);
 
-    const result = await controller.inserirTaxaMeioPagamentoCarteira(input as never);
-
-    expect(inserirTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith(
-      input,
+    const result = await controller.inserirTaxaMeioPagamentoCarteira(
+      input as never,
     );
+
+    expect(
+      inserirTaxaMeioPagamentoCarteiraUseCase.execute,
+    ).toHaveBeenCalledWith(input);
     expect(result).toBe(taxa);
   });
 
@@ -229,7 +236,9 @@ describe('FinanceiroController', () => {
       input as never,
     );
 
-    expect(alterarTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith({
+    expect(
+      alterarTaxaMeioPagamentoCarteiraUseCase.execute,
+    ).toHaveBeenCalledWith({
       id: 1,
       ...input,
     });
@@ -237,11 +246,15 @@ describe('FinanceiroController', () => {
   });
 
   it('deve delegar exclusão de taxa por meio de pagamento e carteira', async () => {
-    excluirTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue(undefined);
+    excluirTaxaMeioPagamentoCarteiraUseCase.execute.mockResolvedValue(
+      undefined,
+    );
 
     await controller.excluirTaxaMeioPagamentoCarteira(1);
 
-    expect(excluirTaxaMeioPagamentoCarteiraUseCase.execute).toHaveBeenCalledWith({
+    expect(
+      excluirTaxaMeioPagamentoCarteiraUseCase.execute,
+    ).toHaveBeenCalledWith({
       id: 1,
     });
   });

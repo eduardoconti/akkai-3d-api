@@ -3,7 +3,10 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
-import { CarteiraService } from '@financeiro/services';
+import {
+  CarteiraService,
+  TaxaMeioPagamentoCarteiraService,
+} from '@financeiro/services';
 import { ProdutoService } from '@produto/services';
 import {
   InserirVendaInput as CriarVendaInput,
@@ -37,6 +40,7 @@ export class InserirVendaUseCase {
     private readonly feiraService: FeiraService,
     private readonly produtoService: ProdutoService,
     private readonly carteiraService: CarteiraService,
+    private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -47,6 +51,12 @@ export class InserirVendaUseCase {
       inserirVendaInput.idCarteira,
       inserirVendaInput.meioPagamento,
     );
+
+    const taxaMeioPagamentoCarteira =
+      await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
+        inserirVendaInput.idCarteira,
+        inserirVendaInput.meioPagamento,
+      );
 
     if (inserirVendaInput.idFeira !== undefined) {
       await this.feiraService.garantirExisteFeira(inserirVendaInput.idFeira);
@@ -99,6 +109,7 @@ export class InserirVendaUseCase {
       idCarteira: inserirVendaInput.idCarteira,
       idFeira: inserirVendaInput.idFeira,
       desconto: inserirVendaInput.desconto,
+      percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
       itens: itensVenda,
     };
 

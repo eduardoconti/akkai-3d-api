@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
@@ -17,7 +18,10 @@ export class TaxaMeioPagamentoCarteiraService {
     taxa: TaxaMeioPagamentoCarteira,
   ): Promise<TaxaMeioPagamentoCarteira> {
     return this.taxaRepository.save(taxa).catch((error: unknown) => {
-      this.logger.error('Erro ao salvar taxa por meio de pagamento e carteira', error);
+      this.logger.error(
+        'Erro ao salvar taxa por meio de pagamento e carteira',
+        error,
+      );
       lancarExcecaoConflito(
         error,
         'Já existe uma taxa cadastrada para esta carteira e meio de pagamento.',
@@ -26,7 +30,9 @@ export class TaxaMeioPagamentoCarteiraService {
     });
   }
 
-  async listarTaxasMeioPagamentoCarteira(): Promise<TaxaMeioPagamentoCarteira[]> {
+  async listarTaxasMeioPagamentoCarteira(): Promise<
+    TaxaMeioPagamentoCarteira[]
+  > {
     return this.taxaRepository.find({
       relations: { carteira: true },
       order: {
@@ -57,6 +63,15 @@ export class TaxaMeioPagamentoCarteiraService {
     }
 
     return taxa;
+  }
+
+  async obterTaxaAtivaPorCarteiraEMeioPagamento(
+    idCarteira: number,
+    meioPagamento: MeioPagamento,
+  ): Promise<TaxaMeioPagamentoCarteira | null> {
+    return this.taxaRepository.findOne({
+      where: { idCarteira, meioPagamento, ativa: true },
+    });
   }
 
   async excluirTaxaMeioPagamentoCarteira(id: number): Promise<void> {

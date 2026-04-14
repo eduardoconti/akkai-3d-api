@@ -7,9 +7,7 @@ export interface ExcluirTaxaMeioPagamentoCarteiraInput {
 
 @Injectable()
 export class ExcluirTaxaMeioPagamentoCarteiraUseCase {
-  constructor(
-    private readonly taxaService: TaxaMeioPagamentoCarteiraService,
-  ) {}
+  constructor(private readonly taxaService: TaxaMeioPagamentoCarteiraService) {}
 
   async execute(input: ExcluirTaxaMeioPagamentoCarteiraInput): Promise<void> {
     await this.taxaService.excluirTaxaMeioPagamentoCarteira(input.id);

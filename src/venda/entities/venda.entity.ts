@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  ValueTransformer,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
 import { Carteira } from '@financeiro/entities/carteira.entity';
@@ -22,12 +23,19 @@ export enum TipoVenda {
   LOJA = 'LOJA',
   ONLINE = 'ONLINE',
 }
+const percentualTransformer: ValueTransformer = {
+  to: (value?: number | null) => value,
+  from: (value: string | number | null) =>
+    value === null || value === undefined ? null : Number(value),
+};
+
 export interface InserirVendaInput {
   tipo: TipoVenda;
   meioPagamento: MeioPagamento;
   idCarteira: number;
   idFeira?: number;
   desconto?: number;
+  percentualTaxa?: number | null;
   itens: ItemVendaInput[];
 }
 @Entity('venda')
@@ -66,6 +74,19 @@ export class Venda {
 
   @Column({ type: 'integer', default: 0 })
   desconto!: number;
+
+  @Column({
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    transformer: percentualTransformer,
+    name: 'percentual_taxa',
+    nullable: true,
+  })
+  percentualTaxa?: number | null;
+
+  @Column({ type: 'integer', name: 'valor_taxa', nullable: true })
+  valorTaxa?: number | null;
 
   @Column({ type: 'integer', name: 'id_usuario_inclusao' })
   idUsuarioInclusao!: number;
@@ -119,9 +140,20 @@ export class Venda {
     this.idFeira = inserirVendaInput.idFeira;
     this.feira = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
+    this.percentualTaxa = inserirVendaInput.percentualTaxa ?? null;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 
     this.calcularValorTotal();
+    this.calcularValorTaxa();
+  }
+
+  private calcularValorTaxa(): void {
+    if (this.percentualTaxa === null || this.percentualTaxa === undefined) {
+      this.valorTaxa = null;
+      return;
+    }
+
+    this.valorTaxa = Math.round((this.valorTotal * this.percentualTaxa) / 100);
   }
 
   private calcularValorTotal(): void {
