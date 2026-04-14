@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Venda } from '@venda/entities/venda.entity';
 import { Despesa } from './despesa.entity';
 

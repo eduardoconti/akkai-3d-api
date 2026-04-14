@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Despesa } from '@financeiro/entities';
 import { DespesaService } from './despesa.service';
 import { DateService } from '@common/services/date.service';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 describe('DespesaService', () => {
   let service: DespesaService;
@@ -185,9 +185,14 @@ describe('DespesaService', () => {
       termo: 'aluguel',
       dataInicio: '2026-01-01',
       dataFim: '2026-01-31',
+      idsCategorias: [1, 3],
     });
 
-    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(3);
+    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4);
+    expect(queryBuilder.andWhere).toHaveBeenLastCalledWith(
+      'despesa.idCategoria IN (:...idsCategorias)',
+      { idsCategorias: [1, 3] },
+    );
   });
 
   it('deve retornar totalPaginas mínimo 1 quando não há despesas', async () => {

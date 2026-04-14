@@ -6,7 +6,7 @@ import {
   DespesaService,
 } from '@financeiro/services';
 import { Despesa } from '@financeiro/entities';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 describe('AlterarDespesaUseCase', () => {
   let useCase: AlterarDespesaUseCase;

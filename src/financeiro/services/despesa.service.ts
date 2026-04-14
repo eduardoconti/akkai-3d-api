@@ -98,6 +98,12 @@ export class DespesaService {
       });
     }
 
+    if (pesquisa.idsCategorias && pesquisa.idsCategorias.length > 0) {
+      queryBuilder.andWhere('despesa.idCategoria IN (:...idsCategorias)', {
+        idsCategorias: pesquisa.idsCategorias,
+      });
+    }
+
     const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
     return {

@@ -5,7 +5,7 @@ import {
   CategoriaDespesaService,
   DespesaService,
 } from '@financeiro/services';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export interface AlterarDespesaInput {
   id: number;

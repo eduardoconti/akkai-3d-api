@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
-import { MeioPagamento } from '@venda/entities/venda.entity';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Carteira } from './carteira.entity';
 import { CategoriaDespesa } from './categoria-despesa.entity';
 

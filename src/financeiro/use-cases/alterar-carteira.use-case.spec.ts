@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
 import { AlterarCarteiraUseCase } from '@financeiro/use-cases';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { CarteiraService } from '@financeiro/services';
 
 describe('AlterarCarteiraUseCase', () => {

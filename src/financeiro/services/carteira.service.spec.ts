@@ -8,7 +8,7 @@ import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Carteira } from '@financeiro/entities';
 import { CarteiraService } from './carteira.service';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 describe('CarteiraService', () => {
   let service: CarteiraService;

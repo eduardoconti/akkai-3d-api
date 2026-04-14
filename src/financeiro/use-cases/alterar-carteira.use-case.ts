@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
 import { CarteiraService } from '@financeiro/services';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export interface AlterarCarteiraInput {
   id: number;

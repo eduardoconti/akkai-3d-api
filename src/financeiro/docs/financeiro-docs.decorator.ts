@@ -293,6 +293,13 @@ export function ApiListarDespesasDocs() {
       example: '2026-04-30',
       description: 'Data final do filtro, no formato YYYY-MM-DD.',
     }),
+    ApiQuery({
+      name: 'idsCategorias',
+      required: false,
+      type: String,
+      example: '1,3',
+      description: 'Lista de categorias separadas por vírgula.',
+    }),
     ApiOkResponse({
       description: 'Despesas encontradas com sucesso.',
       schema: {

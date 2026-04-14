@@ -13,7 +13,7 @@ import { User } from '@auth/entities/user.entity';
 import { Carteira } from '@financeiro/entities/carteira.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
-import { MeioPagamento } from './meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export { MeioPagamento };
 

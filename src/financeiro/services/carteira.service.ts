@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Carteira } from '@financeiro/entities';
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { DataSource, Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 

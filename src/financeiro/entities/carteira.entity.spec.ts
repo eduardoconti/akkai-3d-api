@@ -1,4 +1,4 @@
-import { MeioPagamento } from '@venda/entities/meio-pagamento.enum';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Carteira } from './carteira.entity';
 
 describe('Carteira', () => {

@@ -10,7 +10,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirDespesaDto {

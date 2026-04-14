@@ -7,7 +7,7 @@ import {
 } from '@financeiro/services';
 import { InserirDespesaUseCase } from '@financeiro/use-cases';
 import { Despesa } from '@financeiro/entities';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 describe('InserirDespesaUseCase', () => {
   let useCase: InserirDespesaUseCase;
