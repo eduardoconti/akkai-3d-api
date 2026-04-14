@@ -4,7 +4,9 @@ export class AddFeiraToDespesa1776000000000 implements MigrationInterface {
   name = 'AddFeiraToDespesa1776000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "despesa" ADD COLUMN "id_feira" integer`);
+    await queryRunner.query(
+      `ALTER TABLE "despesa" ADD COLUMN "id_feira" integer`,
+    );
     await queryRunner.query(
       `ALTER TABLE "despesa" ADD CONSTRAINT "fk_despesa_feira" FOREIGN KEY ("id_feira") REFERENCES "feira"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );

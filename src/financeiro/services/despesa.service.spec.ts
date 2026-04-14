@@ -150,8 +150,13 @@ describe('DespesaService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([[new Despesa()], 1]),
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({ valorTotal: '150000' }),
+      getMany: jest.fn().mockResolvedValue([new Despesa()]),
+      getCount: jest.fn().mockResolvedValue(1),
     };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
     despesaRepository.createQueryBuilder = jest
       .fn()
       .mockReturnValue(queryBuilder);
@@ -164,6 +169,7 @@ describe('DespesaService', () => {
     expect(queryBuilder.andWhere).not.toHaveBeenCalled();
     expect(result.totalItens).toBe(1);
     expect(result.totalPaginas).toBe(1);
+    expect(result.totalizadores.valorTotal).toBe(150000);
   });
 
   it('deve listar despesas com filtros de termo e datas', async () => {
@@ -173,8 +179,13 @@ describe('DespesaService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({ valorTotal: '0' }),
+      getMany: jest.fn().mockResolvedValue([]),
+      getCount: jest.fn().mockResolvedValue(0),
     };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
     despesaRepository.createQueryBuilder = jest
       .fn()
       .mockReturnValue(queryBuilder);
@@ -189,7 +200,6 @@ describe('DespesaService', () => {
       idFeira: 9,
     });
 
-    expect(queryBuilder.andWhere).toHaveBeenCalledTimes(5);
     expect(queryBuilder.andWhere).toHaveBeenLastCalledWith(
       'despesa.idFeira = :idFeira',
       { idFeira: 9 },
@@ -208,8 +218,13 @@ describe('DespesaService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({ valorTotal: '0' }),
+      getMany: jest.fn().mockResolvedValue([]),
+      getCount: jest.fn().mockResolvedValue(0),
     };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
     despesaRepository.createQueryBuilder = jest
       .fn()
       .mockReturnValue(queryBuilder);

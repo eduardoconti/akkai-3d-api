@@ -18,7 +18,9 @@ describe('InserirDespesaUseCase', () => {
   let garantirExisteCategoriaDespesaMock: jest.MockedFunction<
     (id: number) => Promise<void>
   >;
-  let garantirExisteFeiraMock: jest.MockedFunction<(id: number) => Promise<void>>;
+  let garantirExisteFeiraMock: jest.MockedFunction<
+    (id: number) => Promise<void>
+  >;
   let inserirDespesaMock: jest.MockedFunction<
     (despesa: Despesa) => Promise<Despesa>
   >;

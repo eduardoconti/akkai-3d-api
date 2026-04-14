@@ -10,10 +10,11 @@ import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
-import { PesquisarVendasDto } from '@venda/dto';
-import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import { PesquisarVendasDto, TotalizadoresVendasDto } from '@venda/dto';
+import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
 import { calcularOffset } from '@common/utils/paginacao.util';
 import { DateService } from '@common/services/date.service';
+import { SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class VendaService {
@@ -128,7 +129,7 @@ export class VendaService {
 
   async listarVendas(
     pesquisa: PesquisarVendasDto,
-  ): Promise<ResultadoPaginado<Venda>> {
+  ): Promise<ResultadoPaginadoComTotalizadores<Venda, TotalizadoresVendasDto>> {
     const dataInicio = pesquisa.dataInicio;
     const dataFim = pesquisa.dataFim ?? pesquisa.dataInicio;
 
@@ -145,17 +146,48 @@ export class VendaService {
     }
 
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
-
-    const queryBuilder = this.vendaRepository
-      .createQueryBuilder('venda')
+    const filtrosQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa);
+    const itensQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa)
       .leftJoinAndSelect('venda.itens', 'item')
       .leftJoinAndSelect('item.produto', 'produto')
-      .leftJoinAndSelect('venda.feira', 'feira')
-      .leftJoinAndSelect('venda.carteira', 'carteira')
       .distinct(true)
       .orderBy('venda.id', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
+
+    const totalizadoresRaw = (await filtrosQueryBuilder
+      .clone()
+      .select('COALESCE(SUM(venda.valorTotal), 0)', 'valorTotal')
+      .addSelect('COALESCE(SUM(venda.desconto), 0)', 'descontoTotal')
+      .getRawOne()) as { valorTotal?: string; descontoTotal?: string } | null;
+
+    const [itens, totalItens] = await Promise.all([
+      itensQueryBuilder.getMany(),
+      filtrosQueryBuilder.clone().getCount(),
+    ]);
+
+    return {
+      itens,
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+      totalizadores: {
+        valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
+        descontoTotal: Number(totalizadoresRaw?.descontoTotal ?? 0),
+      },
+    };
+  }
+
+  private criarQueryBuilderPesquisa(
+    pesquisa: PesquisarVendasDto,
+  ): SelectQueryBuilder<Venda> {
+    const dataInicio = pesquisa.dataInicio;
+    const dataFim = pesquisa.dataFim ?? pesquisa.dataInicio;
+    const queryBuilder = this.vendaRepository
+      .createQueryBuilder('venda')
+      .leftJoinAndSelect('venda.feira', 'feira')
+      .leftJoinAndSelect('venda.carteira', 'carteira');
 
     if (dataInicio) {
       const range = this.dateService.toUtcDateRange(dataInicio);
@@ -197,15 +229,7 @@ export class VendaService {
       });
     }
 
-    const [itens, totalItens] = await queryBuilder.getManyAndCount();
-
-    return {
-      itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    return queryBuilder;
   }
 
   private vincularMovimentacoesAosItens(

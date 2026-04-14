@@ -5,11 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PesquisarDespesasDto } from '@financeiro/dto';
+import {
+  PesquisarDespesasDto,
+  TotalizadoresDespesasDto,
+} from '@financeiro/dto';
 import { Despesa } from '@financeiro/entities';
 import { DateService } from '@common/services/date.service';
-import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { Repository } from 'typeorm';
+import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { calcularOffset } from '@common/utils/paginacao.util';
 
 @Injectable()
@@ -60,18 +63,47 @@ export class DespesaService {
 
   async listarDespesas(
     pesquisa: PesquisarDespesasDto,
-  ): Promise<ResultadoPaginado<Despesa>> {
+  ): Promise<
+    ResultadoPaginadoComTotalizadores<Despesa, TotalizadoresDespesasDto>
+  > {
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
-    const termo = pesquisa.termo?.toLowerCase();
+    const filtrosQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa);
+    const itensQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa)
+      .orderBy('despesa.dataLancamento', 'DESC')
+      .skip(offset)
+      .take(pesquisa.tamanhoPagina);
 
+    const totalizadoresRaw = (await filtrosQueryBuilder
+      .clone()
+      .select('COALESCE(SUM(despesa.valor), 0)', 'valorTotal')
+      .getRawOne()) as { valorTotal?: string } | null;
+
+    const [itens, totalItens] = await Promise.all([
+      itensQueryBuilder.getMany(),
+      filtrosQueryBuilder.clone().getCount(),
+    ]);
+
+    return {
+      itens,
+      pagina: pesquisa.pagina,
+      tamanhoPagina: pesquisa.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+      totalizadores: {
+        valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
+      },
+    };
+  }
+
+  private criarQueryBuilderPesquisa(
+    pesquisa: PesquisarDespesasDto,
+  ): SelectQueryBuilder<Despesa> {
+    const termo = pesquisa.termo?.toLowerCase();
     const queryBuilder = this.despesaRepository
       .createQueryBuilder('despesa')
       .leftJoinAndSelect('despesa.carteira', 'carteira')
       .leftJoinAndSelect('despesa.categoria', 'categoria')
-      .leftJoinAndSelect('despesa.feira', 'feira')
-      .orderBy('despesa.dataLancamento', 'DESC')
-      .skip(offset)
-      .take(pesquisa.tamanhoPagina);
+      .leftJoinAndSelect('despesa.feira', 'feira');
 
     if (termo) {
       queryBuilder.andWhere(
@@ -112,14 +144,6 @@ export class DespesaService {
       });
     }
 
-    const [itens, totalItens] = await queryBuilder.getManyAndCount();
-
-    return {
-      itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    return queryBuilder;
   }
 }

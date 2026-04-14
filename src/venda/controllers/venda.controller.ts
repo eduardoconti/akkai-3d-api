@@ -16,6 +16,7 @@ import {
   InserirVendaDto,
   PesquisarFeirasDto,
   PesquisarVendasDto,
+  TotalizadoresVendasDto,
 } from '@venda/dto';
 import { Feira, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
@@ -26,7 +27,10 @@ import {
   InserirFeiraUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
-import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import {
+  ResultadoPaginado,
+  ResultadoPaginadoComTotalizadores,
+} from '@common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarFeiraDocs,
@@ -110,7 +114,7 @@ export class VendaController {
   @Get()
   async listarVendas(
     @Query() pesquisa: PesquisarVendasDto,
-  ): Promise<ResultadoPaginado<Venda>> {
+  ): Promise<ResultadoPaginadoComTotalizadores<Venda, TotalizadoresVendasDto>> {
     return await this.vendaService.listarVendas(pesquisa);
   }
 }

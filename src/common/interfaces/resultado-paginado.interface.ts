@@ -5,3 +5,8 @@ export interface ResultadoPaginado<T> {
   totalItens: number;
   totalPaginas: number;
 }
+
+export interface ResultadoPaginadoComTotalizadores<T, TTotalizadores>
+  extends ResultadoPaginado<T> {
+  totalizadores: TTotalizadores;
+}

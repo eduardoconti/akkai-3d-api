@@ -6,3 +6,4 @@ export * from './alterar-categoria-despesa.dto';
 export * from './listar-carteira.dto';
 export * from './pesquisar-despesas.dto';
 export * from './alterar-carteira.dto';
+export * from './totalizadores-despesas.dto';

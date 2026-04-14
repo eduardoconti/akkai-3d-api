@@ -19,6 +19,7 @@ import {
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
   PesquisarDespesasDto,
+  TotalizadoresDespesasDto,
 } from '@financeiro/dto';
 import { Carteira, CategoriaDespesa, Despesa } from '@financeiro/entities';
 import {
@@ -35,7 +36,10 @@ import {
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
 } from '@financeiro/use-cases';
-import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
+import {
+  ResultadoPaginado,
+  ResultadoPaginadoComTotalizadores,
+} from '@common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
@@ -125,7 +129,9 @@ export class FinanceiroController {
   @Get('despesas')
   async listarDespesas(
     @Query() pesquisa: PesquisarDespesasDto,
-  ): Promise<ResultadoPaginado<Despesa>> {
+  ): Promise<
+    ResultadoPaginadoComTotalizadores<Despesa, TotalizadoresDespesasDto>
+  > {
     return this.despesaService.listarDespesas(pesquisa);
   }
 

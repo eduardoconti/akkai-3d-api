@@ -50,10 +50,19 @@ describe('VendaService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      getManyAndCount: jest
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({
+        valorTotal: '5000',
+        descontoTotal: '200',
+      }),
+      getMany: jest
         .fn()
-        .mockResolvedValue([[Object.assign(new Venda(), { id: 1 })], 1]),
+        .mockResolvedValue([Object.assign(new Venda(), { id: 1 })]),
+      getCount: jest.fn().mockResolvedValue(1),
     };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
     vendaRepository = {
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
       findOne: jest.fn(),
@@ -269,6 +278,10 @@ describe('VendaService', () => {
       tamanhoPagina: 10,
       totalItens: 1,
       totalPaginas: 1,
+      totalizadores: {
+        valorTotal: 5000,
+        descontoTotal: 200,
+      },
     });
   });
 
@@ -365,8 +378,17 @@ describe('VendaService', () => {
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({
+        valorTotal: '0',
+        descontoTotal: '0',
+      }),
+      getMany: jest.fn().mockResolvedValue([]),
+      getCount: jest.fn().mockResolvedValue(0),
     };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
     vendaRepository.createQueryBuilder.mockReturnValue(queryBuilder);
 
     const result = await service.listarVendas({ pagina: 1, tamanhoPagina: 10 });
