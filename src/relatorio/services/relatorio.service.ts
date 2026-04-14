@@ -92,6 +92,7 @@ export class RelatorioService {
           FROM venda
           INNER JOIN item_venda item ON item.id_venda = venda.id
           WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
+          AND item.brinde = false
           GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
         ),
         despesas AS (
