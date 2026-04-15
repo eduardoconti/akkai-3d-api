@@ -5,6 +5,8 @@ import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
   EntradaEstoqueUseCase,
+  ExcluirCategoriaProdutoUseCase,
+  ExcluirProdutoUseCase,
   InserirCategoriaProdutoUseCase,
   InserirProdutoUseCase,
   SaidaEstoqueUseCase,
@@ -25,6 +27,8 @@ describe('ProdutoController', () => {
   let inserirProdutoUseCase: { execute: jest.Mock };
   let alterarProdutoUseCase: { execute: jest.Mock };
   let alterarCategoriaProdutoUseCase: { execute: jest.Mock };
+  let excluirProdutoUseCase: { execute: jest.Mock };
+  let excluirCategoriaProdutoUseCase: { execute: jest.Mock };
   let inserirCategoriaProdutoUseCase: { execute: jest.Mock };
   let entradaEstoqueUseCase: { execute: jest.Mock };
   let saidaEstoqueUseCase: { execute: jest.Mock };
@@ -45,6 +49,8 @@ describe('ProdutoController', () => {
     inserirProdutoUseCase = { execute: jest.fn() };
     alterarProdutoUseCase = { execute: jest.fn() };
     alterarCategoriaProdutoUseCase = { execute: jest.fn() };
+    excluirProdutoUseCase = { execute: jest.fn() };
+    excluirCategoriaProdutoUseCase = { execute: jest.fn() };
     inserirCategoriaProdutoUseCase = { execute: jest.fn() };
     entradaEstoqueUseCase = { execute: jest.fn() };
     saidaEstoqueUseCase = { execute: jest.fn() };
@@ -75,6 +81,14 @@ describe('ProdutoController', () => {
         {
           provide: AlterarCategoriaProdutoUseCase,
           useValue: alterarCategoriaProdutoUseCase,
+        },
+        {
+          provide: ExcluirProdutoUseCase,
+          useValue: excluirProdutoUseCase,
+        },
+        {
+          provide: ExcluirCategoriaProdutoUseCase,
+          useValue: excluirCategoriaProdutoUseCase,
         },
         {
           provide: InserirCategoriaProdutoUseCase,

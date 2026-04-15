@@ -37,6 +37,7 @@ export class ProdutoService {
     const orderByMap = {
       codigo: 'p.codigo',
       nome: 'p.nome',
+      estoqueMinimo: 'COALESCE(p.estoque_minimo, 0)',
     } as const;
     const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nome'];
     const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
@@ -53,6 +54,11 @@ export class ProdutoService {
           OR LOWER(c.nome) LIKE $${parametros.length}
         )
       `);
+    }
+
+    if (pesquisa.idsCategorias && pesquisa.idsCategorias.length > 0) {
+      parametros.push(pesquisa.idsCategorias);
+      filtros.push(`p.id_categoria = ANY($${parametros.length})`);
     }
 
     const whereClause =

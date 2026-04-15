@@ -144,8 +144,16 @@ export function ApiListarProdutosDocs() {
     ApiQuery({
       name: 'ordenarPor',
       required: false,
-      enum: ['nome', 'codigo'],
+      enum: ['nome', 'codigo', 'estoqueMinimo'],
       description: 'Campo usado para ordenação dos produtos.',
+    }),
+    ApiQuery({
+      name: 'idsCategorias',
+      required: false,
+      type: String,
+      example: '1,3,5',
+      description:
+        'Filtro opcional por uma ou mais categorias, separado por vírgula.',
     }),
     ApiQuery({
       name: 'direcao',

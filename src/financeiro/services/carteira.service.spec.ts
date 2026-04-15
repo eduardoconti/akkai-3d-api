@@ -198,6 +198,8 @@ describe('CarteiraService', () => {
         ativa: true,
         saldoAtual: '12000',
         meiosPagamento: '["PIX","DIN"]',
+        consideraImpostoVenda: false,
+        percentualImpostoVenda: null,
       },
     ]);
 
@@ -210,6 +212,8 @@ describe('CarteiraService', () => {
         ativa: true,
         saldoAtual: 12000,
         meiosPagamento: ['PIX', 'DIN'],
+        consideraImpostoVenda: false,
+        percentualImpostoVenda: null,
       },
     ]);
   });

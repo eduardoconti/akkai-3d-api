@@ -114,6 +114,25 @@ describe('ProdutoService', () => {
     );
   });
 
+  it('deve ordenar produtos por estoque mínimo quando solicitado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '0' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'estoqueMinimo',
+      direcao: 'asc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('ORDER BY COALESCE(p.estoque_minimo, 0) ASC'),
+      expect.any(Array),
+    );
+  });
+
   it('deve listar estoque sem retornar valor do produto', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])
@@ -174,6 +193,23 @@ describe('ProdutoService', () => {
       expect.stringContaining('WHERE'),
       expect.arrayContaining(['%caneca%']),
     );
+  });
+
+  it('deve listar produtos filtrando por categorias', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '1' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarProdutos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      idsCategorias: [2, 4],
+    });
+
+    expect(dataSource.query.mock.calls[0]?.[0]).toContain(
+      'p.id_categoria = ANY($1)',
+    );
+    expect(dataSource.query.mock.calls[0]?.[1]?.[0]).toEqual([2, 4]);
   });
 
   it('deve ordenar estoque por quantidade quando solicitado', async () => {

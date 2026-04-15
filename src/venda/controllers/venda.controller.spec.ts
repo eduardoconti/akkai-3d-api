@@ -4,6 +4,7 @@ import { Feira, TipoVenda, Venda } from '@venda/entities';
 import { FeiraService, VendaService } from '@venda/services';
 import {
   AlterarFeiraUseCase,
+  ExcluirFeiraUseCase,
   AlterarVendaUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
@@ -20,6 +21,7 @@ describe('VendaController', () => {
   };
   let inserirFeiraUseCase: { execute: jest.Mock };
   let alterarFeiraUseCase: { execute: jest.Mock };
+  let excluirFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
   let alterarVendaUseCase: { execute: jest.Mock };
   let excluirVendaUseCase: { execute: jest.Mock };
@@ -33,6 +35,7 @@ describe('VendaController', () => {
     };
     inserirFeiraUseCase = { execute: jest.fn() };
     alterarFeiraUseCase = { execute: jest.fn() };
+    excluirFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
     alterarVendaUseCase = { execute: jest.fn() };
     excluirVendaUseCase = { execute: jest.fn() };
@@ -59,6 +62,10 @@ describe('VendaController', () => {
         {
           provide: AlterarFeiraUseCase,
           useValue: alterarFeiraUseCase,
+        },
+        {
+          provide: ExcluirFeiraUseCase,
+          useValue: excluirFeiraUseCase,
         },
         {
           provide: AlterarVendaUseCase,
