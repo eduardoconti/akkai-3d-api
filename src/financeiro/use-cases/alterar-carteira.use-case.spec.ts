@@ -174,4 +174,34 @@ describe('AlterarCarteiraUseCase', () => {
       }),
     );
   });
+  it('deve zerar percentual de imposto quando a carteira não considerar imposto', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+      meiosPagamento: [],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: 4,
+    });
+
+    carteiraService.garantirCarteiraPorId.mockResolvedValue(carteira);
+    carteiraService.salvarCarteira.mockResolvedValue({
+      ...carteira,
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+
+    await useCase.execute({
+      id: 1,
+      nome: 'CAIXA',
+      consideraImpostoVenda: false,
+    });
+
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({
+        consideraImpostoVenda: false,
+        percentualImpostoVenda: null,
+      }),
+    );
+  });
 });

@@ -16,6 +16,7 @@ describe('ProdutoService', () => {
     save: jest.Mock;
     findOne: jest.Mock;
     exists: jest.Mock;
+    delete: jest.Mock;
   };
   let dataSource: {
     query: jest.Mock;
@@ -26,6 +27,7 @@ describe('ProdutoService', () => {
       save: jest.fn(),
       findOne: jest.fn(),
       exists: jest.fn(),
+      delete: jest.fn(),
     };
     dataSource = {
       query: jest.fn(),
@@ -254,6 +256,24 @@ describe('ProdutoService', () => {
     );
   });
 
+  it('deve listar estoque filtrando por termo', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([{ total: '1' }])
+      .mockResolvedValueOnce([]);
+
+    await service.listarEstoque({
+      pagina: 1,
+      tamanhoPagina: 10,
+      termo: 'Caneca',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('WHERE'),
+      expect.arrayContaining(['%caneca%']),
+    );
+  });
+
   it('deve salvar produto com sucesso', async () => {
     const produto = Object.assign(new Produto(), {
       id: 1,
@@ -356,6 +376,22 @@ describe('ProdutoService', () => {
 
     await expect(service.obterDetalheProdutoPorId(99)).rejects.toThrow(
       new NotFoundException('Produto com ID 99 não encontrado'),
+    );
+  });
+
+  it('deve excluir produto com sucesso', async () => {
+    produtoRepository.delete.mockResolvedValue(undefined);
+
+    await service.excluirProduto(1);
+
+    expect(produtoRepository.delete).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve lançar erro interno ao falhar exclusão do produto', async () => {
+    produtoRepository.delete.mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirProduto(1)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir produto'),
     );
   });
 });

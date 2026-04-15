@@ -16,8 +16,6 @@ import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
-export { MeioPagamento };
-
 export enum TipoVenda {
   FEIRA = 'FEIRA',
   LOJA = 'LOJA',

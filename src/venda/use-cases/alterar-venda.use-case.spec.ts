@@ -198,4 +198,42 @@ describe('AlterarVendaUseCase', () => {
       }),
     ).rejects.toThrow('Venda com ID 99 não encontrada.');
   });
+  it('deve manter percentual de imposto nulo quando a carteira considerar imposto sem percentual definido', async () => {
+    const vendaExistente = Venda.criar({
+      meioPagamento: MeioPagamento.DIN,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [],
+    });
+    vendaExistente.id = 7;
+
+    garantirExisteVendaMock.mockResolvedValue(vendaExistente);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+    alterarVendaMock.mockResolvedValue(vendaExistente);
+
+    await useCase.execute({
+      id: 7,
+      meioPagamento: MeioPagamento.PIX,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [
+        { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },
+      ],
+    });
+
+    expect(alterarVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        percentualImposto: null,
+        valorImposto: null,
+      }),
+      [],
+    );
+  });
 });

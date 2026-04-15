@@ -16,6 +16,7 @@ describe('CarteiraService', () => {
     save: jest.Mock;
     exists: jest.Mock;
     findOne: jest.Mock;
+    delete: jest.Mock;
   };
   let dataSource: { query: jest.Mock };
 
@@ -24,6 +25,7 @@ describe('CarteiraService', () => {
       save: jest.fn(),
       exists: jest.fn(),
       findOne: jest.fn(),
+      delete: jest.fn(),
     };
     dataSource = { query: jest.fn() };
 
@@ -216,5 +218,21 @@ describe('CarteiraService', () => {
         percentualImpostoVenda: null,
       },
     ]);
+  });
+
+  it('deve excluir carteira com sucesso', async () => {
+    carteiraRepository.delete.mockResolvedValue(undefined);
+
+    await service.excluirCarteira(1);
+
+    expect(carteiraRepository.delete).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve lançar erro interno ao falhar exclusão da carteira', async () => {
+    carteiraRepository.delete.mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirCarteira(1)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir carteira'),
+    );
   });
 });

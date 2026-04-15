@@ -15,6 +15,7 @@ describe('CategoriaDespesaService', () => {
     find: jest.Mock;
     findOne: jest.Mock;
     exists: jest.Mock;
+    delete: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -23,6 +24,7 @@ describe('CategoriaDespesaService', () => {
       find: jest.fn(),
       findOne: jest.fn(),
       exists: jest.fn(),
+      delete: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -122,6 +124,22 @@ describe('CategoriaDespesaService', () => {
 
     await expect(service.garantirExisteCategoriaDespesa(99)).rejects.toThrow(
       new NotFoundException('Categoria de despesa com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve excluir categoria de despesa com sucesso', async () => {
+    categoriaDespesaRepository.delete.mockResolvedValue(undefined);
+
+    await service.excluirCategoriaDespesa(1);
+
+    expect(categoriaDespesaRepository.delete).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve lançar erro interno ao falhar exclusão da categoria de despesa', async () => {
+    categoriaDespesaRepository.delete.mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirCategoriaDespesa(1)).rejects.toThrow(
+      InternalServerErrorException,
     );
   });
 });

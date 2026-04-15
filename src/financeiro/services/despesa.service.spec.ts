@@ -236,4 +236,29 @@ describe('DespesaService', () => {
 
     expect(result.totalPaginas).toBe(1);
   });
+  it('deve retornar totalizador zero quando a agregação vier nula', async () => {
+    const queryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      clone: jest.fn(),
+      select: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue(null),
+      getMany: jest.fn().mockResolvedValue([]),
+      getCount: jest.fn().mockResolvedValue(0),
+    };
+    queryBuilder.clone.mockImplementation(() => queryBuilder);
+    despesaRepository.createQueryBuilder = jest
+      .fn()
+      .mockReturnValue(queryBuilder);
+
+    const result = await service.listarDespesas({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(result.totalizadores.valorTotal).toBe(0);
+  });
 });

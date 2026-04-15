@@ -158,4 +158,31 @@ describe('AuthController', () => {
 
     expect(authService.updatePassword).toHaveBeenCalledWith(1, body);
   });
+
+  it('deve lançar erro ao alterar cadastro sem usuário autenticado', async () => {
+    await expect(
+      controller.updateProfile(
+        {},
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: true,
+          roleId: 1,
+        },
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(new UnauthorizedException('Usuário não autenticado.'));
+  });
+
+  it('deve lançar erro ao alterar senha sem usuário autenticado', async () => {
+    await expect(
+      controller.updatePassword(
+        {},
+        {
+          currentPassword: '123456',
+          newPassword: '654321',
+        },
+      ),
+    ).rejects.toThrow(new UnauthorizedException('Usuário não autenticado.'));
+  });
 });

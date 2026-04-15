@@ -408,4 +408,39 @@ describe('InserirVendaUseCase', () => {
     );
     expect(result).toBe(vendaPersistida);
   });
+  it('deve manter percentual de imposto nulo quando a carteira considerar imposto sem percentual definido', async () => {
+    garantirExisteProdutoMock.mockResolvedValue(
+      Object.assign(new Produto(), {
+        id: 1,
+        nome: 'Caneca',
+        codigo: 'CN001',
+        idCategoria: 1,
+        valor: 1000,
+      }),
+    );
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+    inserirVendaMock.mockResolvedValue(new Venda());
+
+    await useCase.execute({
+      meioPagamento: MeioPagamento.PIX,
+      tipo: TipoVenda.LOJA,
+      idCarteira: 1,
+      itens: [{ idProduto: 1, quantidade: 1 }],
+    });
+
+    expect(inserirVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        percentualImposto: null,
+        valorImposto: null,
+      }),
+      expect.any(Array),
+    );
+  });
 });

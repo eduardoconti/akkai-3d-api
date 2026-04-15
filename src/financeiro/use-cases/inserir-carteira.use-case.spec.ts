@@ -110,4 +110,27 @@ describe('InserirCarteiraUseCase', () => {
       }),
     );
   });
+  it('deve manter percentual de imposto nulo quando imposto estiver ativo sem percentual informado', async () => {
+    const carteira = Object.assign(new Carteira(), {
+      id: 1,
+      nome: 'CAIXA',
+      ativa: true,
+      meiosPagamento: [],
+      consideraImpostoVenda: true,
+      percentualImpostoVenda: null,
+    });
+    carteiraService.salvarCarteira.mockResolvedValue(carteira);
+
+    await useCase.execute({
+      nome: 'CAIXA',
+      consideraImpostoVenda: true,
+    });
+
+    expect(carteiraService.salvarCarteira).toHaveBeenCalledWith(
+      expect.objectContaining({
+        consideraImpostoVenda: true,
+        percentualImpostoVenda: null,
+      }),
+    );
+  });
 });

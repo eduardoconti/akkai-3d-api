@@ -13,6 +13,7 @@ describe('CategoriaProdutoService', () => {
     save: jest.Mock;
     exists: jest.Mock;
     findOne: jest.Mock;
+    delete: jest.Mock;
     createQueryBuilder: jest.Mock;
   };
   let queryBuilder: {
@@ -35,6 +36,7 @@ describe('CategoriaProdutoService', () => {
       save: jest.fn(),
       exists: jest.fn(),
       findOne: jest.fn(),
+      delete: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
     };
 
@@ -179,6 +181,22 @@ describe('CategoriaProdutoService', () => {
 
     await expect(service.garantirCategoriaPorId(99)).rejects.toThrow(
       new NotFoundException('Categoria com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve excluir categoria com sucesso', async () => {
+    categoriaRepository.delete.mockResolvedValue(undefined);
+
+    await service.excluirCategoria(1);
+
+    expect(categoriaRepository.delete).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve lançar erro interno ao falhar exclusão de categoria', async () => {
+    categoriaRepository.delete.mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirCategoria(1)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir categoria'),
     );
   });
 });

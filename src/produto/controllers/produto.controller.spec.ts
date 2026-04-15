@@ -160,6 +160,14 @@ describe('ProdutoController', () => {
     expect(result).toEqual({ id: 1 });
   });
 
+  it('deve delegar exclusão de produto', async () => {
+    excluirProdutoUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirProduto(1);
+
+    expect(excluirProdutoUseCase.execute).toHaveBeenCalledWith({ id: 1 });
+  });
+
   it('deve listar produtos', async () => {
     const resposta = {
       itens: [
@@ -290,6 +298,16 @@ describe('ProdutoController', () => {
       ...input,
     });
     expect(result).toEqual({ id: 2 });
+  });
+
+  it('deve delegar exclusão de categoria', async () => {
+    excluirCategoriaProdutoUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirCategoria(2);
+
+    expect(excluirCategoriaProdutoUseCase.execute).toHaveBeenCalledWith({
+      id: 2,
+    });
   });
 
   it('deve buscar produto por id', async () => {

@@ -134,6 +134,14 @@ describe('VendaController', () => {
     expect(result).toEqual({ id: 2 });
   });
 
+  it('deve delegar exclusão de feira', async () => {
+    excluirFeiraUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirFeira(2);
+
+    expect(excluirFeiraUseCase.execute).toHaveBeenCalledWith({ id: 2 });
+  });
+
   it('deve delegar alteração de venda', async () => {
     alterarVendaUseCase.execute.mockResolvedValue({ id: 2 });
 

@@ -163,4 +163,30 @@ describe('EstoqueService', () => {
       totalPaginas: 1,
     });
   });
+  it('deve usar "-" quando a movimentação não tiver usuário vinculado', async () => {
+    garantirExisteProdutoMock.mockResolvedValue(
+      Object.assign(new Produto(), { id: 4 }),
+    );
+    movimentacaoRepository.findAndCount.mockResolvedValue([
+      [
+        Object.assign(new MovimentacaoEstoque(), {
+          id: 12,
+          idProduto: 4,
+          quantidade: 1,
+          tipo: TipoMovimentacaoEstoque.ENTRADA,
+          origem: OrigemMovimentacaoEstoque.AJUSTE,
+          dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
+          usuarioInclusao: undefined,
+        }),
+      ],
+      1,
+    ]);
+
+    const result = await service.listarMovimentacoesPorProduto(4, {
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(result.itens[0]?.usuario).toBe('-');
+  });
 });

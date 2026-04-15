@@ -15,6 +15,7 @@ describe('FeiraService', () => {
     exists: jest.Mock;
     find: jest.Mock;
     findOne: jest.Mock;
+    delete: jest.Mock;
     createQueryBuilder: jest.Mock;
   };
 
@@ -24,6 +25,7 @@ describe('FeiraService', () => {
       exists: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
+      delete: jest.fn(),
       createQueryBuilder: jest.fn(),
     };
 
@@ -147,6 +149,25 @@ describe('FeiraService', () => {
     });
   });
 
+  it('deve pesquisar feiras sem termo', async () => {
+    const queryBuilder = {
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+    };
+    feiraRepository.createQueryBuilder.mockReturnValue(queryBuilder);
+
+    const result = await service.pesquisarFeiras({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(queryBuilder.where).not.toHaveBeenCalled();
+    expect(result.totalPaginas).toBe(1);
+  });
+
   it('deve obter feira por id', async () => {
     const feira = Object.assign(new Feira(), { id: 6, nome: 'Feira Centro' });
     feiraRepository.findOne.mockResolvedValue(feira);
@@ -169,6 +190,22 @@ describe('FeiraService', () => {
 
     await expect(service.garantirFeiraPorId(99)).rejects.toThrow(
       new NotFoundException('Feira com ID 99 não encontrada.'),
+    );
+  });
+
+  it('deve excluir feira com sucesso', async () => {
+    feiraRepository.delete.mockResolvedValue(undefined);
+
+    await service.excluirFeira(1);
+
+    expect(feiraRepository.delete).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve lançar erro interno ao falhar exclusão da feira', async () => {
+    feiraRepository.delete.mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirFeira(1)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir feira'),
     );
   });
 });

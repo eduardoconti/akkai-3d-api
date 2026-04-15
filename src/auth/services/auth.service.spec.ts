@@ -673,6 +673,26 @@ describe('AuthService', () => {
     );
   });
 
+  it('deve lançar erro quando usuário autenticado não existir ao atualizar cadastro', async () => {
+    userRepository.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: true,
+          roleId: 1,
+        },
+        ['auth.user.update_role', 'auth.user.update_status'],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(
+      new UnauthorizedException('Usuário autenticado não encontrado.'),
+    );
+  });
+
   it('deve bloquear alteração de status sem permissão', async () => {
     const user = {
       id: 1,
@@ -712,6 +732,96 @@ describe('AuthService', () => {
       new ForbiddenException(
         'Você não possui permissão para alterar o status do usuário.',
       ),
+    );
+  });
+
+  it('deve limpar cookies e retornar usuário quando ele for desativado no updateProfile', async () => {
+    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
+    const role = {
+      id: 1,
+      name: 'user',
+      description: 'Padrão',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:05:00.000Z'),
+      role,
+    } as unknown as User;
+    const updatedUser = {
+      ...user,
+      isActive: false,
+    } as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(updatedUser);
+    roleRepository.findOne.mockResolvedValue(role);
+    userRepository.save.mockResolvedValue(updatedUser);
+
+    const result = await service.updateProfile(
+      1,
+      {
+        name: 'Eduardo',
+        login: 'eduardo',
+        isActive: false,
+        roleId: 1,
+      },
+      ['auth.user.update_status'],
+      response as never,
+    );
+
+    expect(response.clearCookie).toHaveBeenCalledTimes(2);
+    expect(result).toEqual(expect.objectContaining({ id: 1, isActive: false }));
+  });
+
+  it('deve lançar erro quando não encontrar usuário atualizado após salvar cadastro', async () => {
+    const role = {
+      id: 1,
+      name: 'user',
+      description: 'Padrão',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      role,
+    } as unknown as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+    roleRepository.findOne.mockResolvedValue(role);
+    userRepository.save.mockResolvedValue(user);
+
+    await expect(
+      service.updateProfile(
+        1,
+        {
+          name: 'Eduardo',
+          login: 'eduardo',
+          isActive: true,
+          roleId: 1,
+        },
+        ['auth.user.update_role', 'auth.user.update_status'],
+        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
+      ),
+    ).rejects.toThrow(
+      new UnauthorizedException('Usuário autenticado não encontrado.'),
     );
   });
 
@@ -762,6 +872,19 @@ describe('AuthService', () => {
         newPassword: '654321',
       }),
     ).rejects.toThrow(new UnauthorizedException('Senha atual inválida.'));
+  });
+
+  it('deve lançar erro ao atualizar senha quando usuário autenticado não existir', async () => {
+    userRepository.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.updatePassword(1, {
+        currentPassword: '123456',
+        newPassword: '654321',
+      }),
+    ).rejects.toThrow(
+      new UnauthorizedException('Usuário autenticado não encontrado.'),
+    );
   });
 
   it('deve criar o role padrão quando não existir', async () => {
