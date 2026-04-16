@@ -21,6 +21,11 @@ import {
   AtualizarOrcamentoUseCase,
   InserirOrcamentoUseCase,
 } from '@orcamento/use-cases';
+import {
+  ApiAtualizarOrcamentoDocs,
+  ApiInserirOrcamentoDocs,
+  ApiListarOrcamentosDocs,
+} from '@orcamento/docs/orcamento-docs.decorator';
 
 @ApiProtectedController('Orçamentos')
 @Controller('orcamento')
@@ -31,6 +36,7 @@ export class OrcamentoController {
     private readonly atualizarOrcamentoUseCase: AtualizarOrcamentoUseCase,
   ) {}
 
+  @ApiInserirOrcamentoDocs()
   @Post()
   async inserirOrcamento(
     @Body() input: InserirOrcamentoDto,
@@ -38,6 +44,7 @@ export class OrcamentoController {
     return this.inserirOrcamentoUseCase.execute(input);
   }
 
+  @ApiAtualizarOrcamentoDocs()
   @Put(':id')
   async atualizarOrcamento(
     @Param('id', ParseIntPipe) id: number,
@@ -46,6 +53,7 @@ export class OrcamentoController {
     return this.atualizarOrcamentoUseCase.execute(id, input);
   }
 
+  @ApiListarOrcamentosDocs()
   @Get()
   async listarOrcamentos(
     @Query() pesquisa: PesquisarOrcamentosDto,

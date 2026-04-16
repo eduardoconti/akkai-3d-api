@@ -2,6 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
@@ -551,6 +552,36 @@ export function ApiListarMovimentacoesEstoqueDocs() {
     ApiNotFoundErrorResponse(
       '/produto/999/estoque/movimentacoes',
       'Produto não encontrado.',
+    ),
+  );
+}
+
+export function ApiExcluirProdutoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui um produto.',
+      description: 'Remove permanentemente um produto pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador do produto a ser excluído.'),
+    ApiNoContentResponse({ description: 'Produto excluído com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/produto/1'),
+    ApiNotFoundErrorResponse('/produto/999', 'Produto não encontrado.'),
+  );
+}
+
+export function ApiExcluirCategoriaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma categoria de produto.',
+      description:
+        'Remove permanentemente uma categoria de produto pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da categoria a ser excluída.'),
+    ApiNoContentResponse({ description: 'Categoria excluída com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/produto/categorias/1'),
+    ApiNotFoundErrorResponse(
+      '/produto/categorias/999',
+      'Categoria não encontrada.',
     ),
   );
 }

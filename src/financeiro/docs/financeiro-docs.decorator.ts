@@ -9,9 +9,11 @@ import {
 } from '@nestjs/swagger';
 import {
   AlterarCarteiraDto,
+  AlterarCategoriaDespesaDto,
   AlterarDespesaDto,
   AlterarTaxaMeioPagamentoCarteiraDto,
   InserirCarteiraDto,
+  InserirCategoriaDespesaDto,
   InserirDespesaDto,
   InserirTaxaMeioPagamentoCarteiraDto,
   ListarCarteiraDto,
@@ -333,6 +335,23 @@ export function ApiExcluirTaxaMeioPagamentoCarteiraDocs() {
   );
 }
 
+export function ApiExcluirCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma carteira.',
+      description:
+        'Remove permanentemente uma carteira pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da carteira a ser excluída.'),
+    ApiNoContentResponse({ description: 'Carteira excluída com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/financeiro/carteiras/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/carteiras/999',
+      'Carteira não encontrada.',
+    ),
+  );
+}
+
 export function ApiListarCategoriasDespesaDocs() {
   return applyDecorators(
     ApiOperation({
@@ -349,6 +368,83 @@ export function ApiListarCategoriasDespesaDocs() {
       },
     }),
     ApiUnauthorizedErrorResponse('/financeiro/categorias-despesa'),
+  );
+}
+
+export function ApiInserirCategoriaDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Cadastra uma nova categoria de despesa.',
+      description:
+        'Cria uma categoria de despesa para classificação das saídas financeiras.',
+    }),
+    ApiBody({
+      type: InserirCategoriaDespesaDto,
+      examples: {
+        padrao: {
+          summary: 'Categoria válida',
+          value: { nome: 'Matéria-prima' },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Categoria de despesa criada com sucesso.',
+      schema: { example: { id: 3, nome: 'Matéria-prima' } },
+    }),
+    ApiValidationErrorResponse('/financeiro/categorias-despesa'),
+    ApiUnauthorizedErrorResponse('/financeiro/categorias-despesa'),
+    ApiConflictErrorResponse(
+      '/financeiro/categorias-despesa',
+      'Já existe uma categoria de despesa com este nome.',
+    ),
+  );
+}
+
+export function ApiAlterarCategoriaDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera uma categoria de despesa.',
+      description: 'Permite renomear uma categoria de despesa existente.',
+    }),
+    ApiIdParamDocs('Identificador da categoria de despesa a ser alterada.'),
+    ApiBody({
+      type: AlterarCategoriaDespesaDto,
+      examples: {
+        padrao: {
+          summary: 'Alteração válida',
+          value: { nome: 'Insumos' },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Categoria de despesa alterada com sucesso.',
+      schema: { example: { id: 1, nome: 'Insumos' } },
+    }),
+    ApiValidationErrorResponse('/financeiro/categorias-despesa/1'),
+    ApiUnauthorizedErrorResponse('/financeiro/categorias-despesa/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/categorias-despesa/999',
+      'Categoria de despesa não encontrada.',
+    ),
+  );
+}
+
+export function ApiExcluirCategoriaDespesaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma categoria de despesa.',
+      description:
+        'Remove permanentemente uma categoria de despesa pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da categoria de despesa a ser excluída.'),
+    ApiNoContentResponse({
+      description: 'Categoria de despesa excluída com sucesso.',
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/categorias-despesa/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/categorias-despesa/999',
+      'Categoria de despesa não encontrada.',
+    ),
   );
 }
 

@@ -33,7 +33,7 @@ import {
   ApiAuthUpdatePasswordDocs,
   ApiAuthUpdateProfileDocs,
 } from '@auth/docs/auth-docs.decorator';
-import { ApiAccessCookieAuth } from '@common/docs/decorators/api-cookie-auth.decorator';
+import { ApiAccessBearerAuth } from '@common/docs/decorators/api-cookie-auth.decorator';
 import { ApiPublicController } from '@common/docs/decorators/api-controller-docs.decorator';
 
 type AuthenticatedRequest = {
@@ -61,7 +61,7 @@ export class AuthController {
     return this.authService.register(body);
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthRefreshDocs()
   @Public()
   @Post('refresh')
@@ -69,14 +69,14 @@ export class AuthController {
     return this.authService.refresh(body.refreshToken);
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthLogoutDocs()
   @Post('logout')
   async logout(@Body() body: LogoutDto): Promise<void> {
     await this.authService.logout(body.refreshToken);
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthMeDocs()
   @Get('me')
   async me(
@@ -89,14 +89,14 @@ export class AuthController {
     return this.authService.me(request.user.sub);
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthRolesDocs()
   @Get('roles')
   async listRoles(): Promise<PapelUsuarioDto[]> {
     return this.authService.listRoles();
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthUpdateProfileDocs()
   @Put('me')
   async updateProfile(
@@ -114,7 +114,7 @@ export class AuthController {
     );
   }
 
-  @ApiAccessCookieAuth()
+  @ApiAccessBearerAuth()
   @ApiAuthUpdatePasswordDocs()
   @Put('me/password')
   async updatePassword(

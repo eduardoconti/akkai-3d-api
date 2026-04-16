@@ -2,17 +2,27 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
 } from '@nestjs/swagger';
-import { AlterarFeiraDto, InserirFeiraDto, InserirVendaDto } from '@venda/dto';
+import {
+  AlterarFeiraDto,
+  AlterarVendaDto,
+  InserirFeiraDto,
+  InserirVendaDto,
+} from '@venda/dto';
 import {
   ApiConflictErrorResponse,
+  ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
 } from '@common/docs/decorators/api-default-problem-responses.decorator';
-import { ApiPaginacaoQueryDocs } from '@common/docs/decorators/api-query-docs.decorator';
+import {
+  ApiIdParamDocs,
+  ApiPaginacaoQueryDocs,
+} from '@common/docs/decorators/api-query-docs.decorator';
 
 const FEIRA_EXEMPLO = {
   id: 1,
@@ -286,5 +296,65 @@ export function ApiListarVendasDocs() {
     }),
     ApiValidationErrorResponse('/venda'),
     ApiUnauthorizedErrorResponse('/venda'),
+  );
+}
+
+export function ApiExcluirFeiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma feira.',
+      description: 'Remove permanentemente uma feira pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da feira a ser excluída.'),
+    ApiNoContentResponse({ description: 'Feira excluída com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/venda/feiras/1'),
+    ApiNotFoundErrorResponse('/venda/feiras/999', 'Feira não encontrada.'),
+  );
+}
+
+export function ApiAlterarVendaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera uma venda existente.',
+      description:
+        'Permite atualizar dados de uma venda, incluindo tipo, meio de pagamento, carteira, feira, desconto e itens.',
+    }),
+    ApiIdParamDocs('Identificador da venda a ser alterada.'),
+    ApiBody({
+      type: AlterarVendaDto,
+      examples: {
+        padrao: {
+          summary: 'Alteração válida',
+          value: {
+            tipo: 'FEIRA',
+            meioPagamento: 'DIN',
+            idCarteira: 1,
+            idFeira: 1,
+            desconto: 100,
+            itens: [{ idProduto: 1, quantidade: 1 }],
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Venda alterada com sucesso.',
+      schema: { example: VENDA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/venda/1'),
+    ApiUnauthorizedErrorResponse('/venda/1'),
+    ApiNotFoundErrorResponse('/venda/999', 'Venda não encontrada.'),
+  );
+}
+
+export function ApiExcluirVendaDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma venda.',
+      description: 'Remove permanentemente uma venda pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador da venda a ser excluída.'),
+    ApiNoContentResponse({ description: 'Venda excluída com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/venda/1'),
+    ApiNotFoundErrorResponse('/venda/999', 'Venda não encontrada.'),
   );
 }

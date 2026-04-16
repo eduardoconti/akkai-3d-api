@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiCookieAuth } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-export function ApiAccessCookieAuth(): MethodDecorator & ClassDecorator {
-  return applyDecorators(ApiCookieAuth('access-token'));
+export function ApiAccessBearerAuth(): MethodDecorator & ClassDecorator {
+  return applyDecorators(ApiBearerAuth('JWT'));
 }

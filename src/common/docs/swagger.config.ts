@@ -9,7 +9,7 @@ export function configurarSwagger(app: INestApplication): void {
         'API do ERP da AKKAI 3D para autenticação, vendas, produtos, estoque, carteiras, despesas e relatórios operacionais.',
         '',
         'Resumo da API:',
-        '- autenticação baseada em cookies HttpOnly com access token curto e refresh token com rotação;',
+        '- autenticação baseada em Bearer token JWT com access token de curta duração e refresh token com rotação;',
         '- respostas de erro padronizadas em RFC 7807 no formato application/problem+json;',
         '- recursos de produtos com categorias, estoque mínimo e movimentações de entrada/saída;',
         '- vendas com suporte a itens de catálogo e itens avulsos, incluindo feira e carteira financeira;',
@@ -18,22 +18,21 @@ export function configurarSwagger(app: INestApplication): void {
         '- endpoints paginados retornam os campos itens, pagina, tamanhoPagina, totalItens e totalPaginas.',
         '',
         'Autenticação:',
-        '- use POST /auth/login para iniciar sessão;',
-        '- os cookies access_token e refresh_token são emitidos pela API;',
-        '- no Swagger, após autenticar no navegador, os endpoints protegidos podem ser testados usando os mesmos cookies.',
+        '- use POST /auth/login para obter o accessToken e o refreshToken;',
+        '- envie o accessToken no cabeçalho Authorization: Bearer <token> em todas as requisições protegidas;',
+        '- use POST /auth/refresh com o refreshToken no corpo para renovar a sessão;',
+        "- clique em 'Authorize' acima e informe o accessToken para testar os endpoints protegidos no Swagger.",
       ].join('\n'),
     )
     .setVersion('1.0.0')
-    .addCookieAuth(
-      'access_token',
+    .addBearerAuth(
       {
-        type: 'apiKey',
-        in: 'cookie',
-        name: 'access_token',
-        description:
-          'Cookie HttpOnly com o access token da sessão autenticada.',
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Access token JWT obtido no login ou renovação da sessão.',
       },
-      'access-token',
+      'JWT',
     )
     .build();
 

@@ -35,6 +35,9 @@ import {
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarFeiraDocs,
+  ApiAlterarVendaDocs,
+  ApiExcluirFeiraDocs,
+  ApiExcluirVendaDocs,
   ApiInserirFeiraDocs,
   ApiInserirVendaDocs,
   ApiListarFeirasDocs,
@@ -86,6 +89,7 @@ export class VendaController {
     return await this.alterarFeiraUseCase.execute({ id, ...input });
   }
 
+  @ApiExcluirFeiraDocs()
   @Delete('feiras/:id')
   async excluirFeira(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirFeiraUseCase.execute({ id });
@@ -98,6 +102,7 @@ export class VendaController {
     return venda;
   }
 
+  @ApiAlterarVendaDocs()
   @Put(':id')
   async alterarVenda(
     @Param('id', ParseIntPipe) id: number,
@@ -106,6 +111,7 @@ export class VendaController {
     return await this.alterarVendaUseCase.execute({ id, ...alterarVendaInput });
   }
 
+  @ApiExcluirVendaDocs()
   @Delete(':id')
   async excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirVendaUseCase.execute({ id });

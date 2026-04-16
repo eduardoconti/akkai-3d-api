@@ -56,9 +56,13 @@ import {
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
+  ApiAlterarCategoriaDespesaDocs,
   ApiAlterarDespesaDocs,
+  ApiExcluirCarteiraDocs,
+  ApiExcluirCategoriaDespesaDocs,
   ApiExcluirDespesaDocs,
   ApiInserirCarteiraDocs,
+  ApiInserirCategoriaDespesaDocs,
   ApiInserirDespesaDocs,
   ApiInserirTaxaMeioPagamentoCarteiraDocs,
   ApiListarCarteirasDocs,
@@ -122,6 +126,7 @@ export class FinanceiroController {
     return this.alterarCarteiraUseCase.execute({ id, ...input });
   }
 
+  @ApiExcluirCarteiraDocs()
   @Delete('carteiras/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCarteira(@Param('id', ParseIntPipe) id: number): Promise<void> {
@@ -175,6 +180,7 @@ export class FinanceiroController {
     return this.excluirTaxaMeioPagamentoCarteiraUseCase.execute({ id });
   }
 
+  @ApiInserirCategoriaDespesaDocs()
   @Post('categorias-despesa')
   async inserirCategoriaDespesa(
     @Body() input: InserirCategoriaDespesaDto,
@@ -188,6 +194,7 @@ export class FinanceiroController {
     return this.categoriaDespesaService.listarCategoriasDespesa();
   }
 
+  @ApiAlterarCategoriaDespesaDocs()
   @Put('categorias-despesa/:id')
   async alterarCategoriaDespesa(
     @Param('id', ParseIntPipe) id: number,
@@ -196,6 +203,7 @@ export class FinanceiroController {
     return this.alterarCategoriaDespesaUseCase.execute({ id, ...input });
   }
 
+  @ApiExcluirCategoriaDespesaDocs()
   @Delete('categorias-despesa/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCategoriaDespesa(

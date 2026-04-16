@@ -48,6 +48,8 @@ import {
   ApiAlterarProdutoDocs,
   ApiAlterarCategoriaDocs,
   ApiEntradaEstoqueDocs,
+  ApiExcluirCategoriaDocs,
+  ApiExcluirProdutoDocs,
   ApiInserirCategoriaDocs,
   ApiInserirProdutoDocs,
   ApiListarEstoqueDocs,
@@ -91,6 +93,7 @@ export class ProdutoController {
     return await this.alterarProdutoUseCase.execute({ id, ...input });
   }
 
+  @ApiExcluirProdutoDocs()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirProduto(@Param('id') id: number): Promise<void> {
@@ -146,6 +149,7 @@ export class ProdutoController {
     return await this.alterarCategoriaProdutoUseCase.execute({ id, ...input });
   }
 
+  @ApiExcluirCategoriaDocs()
   @Delete('categorias/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCategoria(@Param('id') id: number): Promise<void> {

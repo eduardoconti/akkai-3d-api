@@ -8,7 +8,10 @@ import {
 import {
   AlterarCadastroDto,
   AlterarSenhaDto,
+  AuthResponseDto,
   LoginDto,
+  LogoutDto,
+  RefreshTokenDto,
   RegisterDto,
   UsuarioAutenticadoDto,
 } from '@auth/dto';
@@ -24,7 +27,7 @@ export function ApiAuthLoginDocs() {
     ApiOperation({
       summary: 'Realiza login e inicia a sessão do usuário.',
       description:
-        'Valida login e senha, emite os cookies HttpOnly `access_token` e `refresh_token` e retorna os dados básicos do usuário autenticado.',
+        'Valida login e senha e retorna o accessToken, refreshToken e os dados do usuário autenticado.',
     }),
     ApiBody({
       type: LoginDto,
@@ -40,7 +43,7 @@ export function ApiAuthLoginDocs() {
     }),
     ApiOkResponse({
       description: 'Login realizado com sucesso.',
-      type: UsuarioAutenticadoDto,
+      type: AuthResponseDto,
       schema: {
         example: {
           id: 1,
@@ -48,6 +51,8 @@ export function ApiAuthLoginDocs() {
           login: 'eduardo',
           role: 'admin',
           permissions: ['report.read', 'sales.read'],
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
       },
     }),
@@ -61,7 +66,7 @@ export function ApiAuthRegisterDocs() {
     ApiOperation({
       summary: 'Registra um novo usuário e inicia a sessão automaticamente.',
       description:
-        'Cria o usuário com papel padrão, gera os cookies HttpOnly da sessão e devolve os dados do usuário autenticado.',
+        'Cria o usuário com papel padrão e retorna o accessToken, refreshToken e os dados do usuário autenticado.',
     }),
     ApiBody({
       type: RegisterDto,
@@ -78,7 +83,7 @@ export function ApiAuthRegisterDocs() {
     }),
     ApiOkResponse({
       description: 'Usuário criado e autenticado com sucesso.',
-      type: UsuarioAutenticadoDto,
+      type: AuthResponseDto,
       schema: {
         example: {
           id: 2,
@@ -86,6 +91,8 @@ export function ApiAuthRegisterDocs() {
           login: 'eduardo',
           role: 'user',
           permissions: [],
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
       },
     }),
@@ -102,11 +109,20 @@ export function ApiAuthRefreshDocs() {
     ApiOperation({
       summary: 'Renova a sessão do usuário autenticado.',
       description:
-        'Lê o cookie `refresh_token`, valida a sessão no banco e rotaciona os tokens de autenticação.',
+        'Recebe o refreshToken no corpo da requisição, valida a sessão no banco e rotaciona os tokens de autenticação.',
+    }),
+    ApiBody({
+      type: RefreshTokenDto,
+      examples: {
+        padrao: {
+          summary: 'Refresh válido',
+          value: { refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        },
+      },
     }),
     ApiOkResponse({
       description: 'Sessão renovada com sucesso.',
-      type: UsuarioAutenticadoDto,
+      type: AuthResponseDto,
       schema: {
         example: {
           id: 1,
@@ -114,6 +130,8 @@ export function ApiAuthRefreshDocs() {
           login: 'eduardo',
           role: 'admin',
           permissions: ['report.read', 'sales.read'],
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
       },
     }),
@@ -136,7 +154,16 @@ export function ApiAuthLogoutDocs() {
     ApiOperation({
       summary: 'Encerra a sessão atual do usuário.',
       description:
-        'Revoga a sessão vinculada ao refresh token atual e limpa os cookies de autenticação.',
+        'Revoga a sessão vinculada ao refreshToken informado no corpo da requisição.',
+    }),
+    ApiBody({
+      type: LogoutDto,
+      examples: {
+        padrao: {
+          summary: 'Logout com refresh token',
+          value: { refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        },
+      },
     }),
     ApiNoContentResponse({
       description: 'Logout realizado com sucesso.',
@@ -150,7 +177,7 @@ export function ApiAuthMeDocs() {
     ApiOperation({
       summary: 'Retorna os dados do usuário autenticado.',
       description:
-        'Lê o access token do cookie HttpOnly e devolve o perfil com papel e permissões efetivas.',
+        'Lê o access token do header Authorization e devolve o perfil com papel e permissões efetivas.',
     }),
     ApiOkResponse({
       description: 'Dados do usuário autenticado.',
