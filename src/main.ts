@@ -1,8 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import cookieParser = require('cookie-parser');
 import { configurarSwagger } from '@common/docs/swagger.config';
 import { ProblemDetailsExceptionFilter } from '@common/filters/problem-details-exception.filter';
 import { criarExcecaoValidacao } from '@common/validation.exception-factory';
@@ -19,10 +17,11 @@ async function bootstrap() {
   };
 
   httpAdapter.set('trust proxy', 1);
-  app.use(cookieParser());
   app.enableCors({
     origin: corsOrigin,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
   app.useGlobalFilters(new ProblemDetailsExceptionFilter());
   configurarSwagger(app);

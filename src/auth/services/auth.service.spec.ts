@@ -70,43 +70,24 @@ describe('AuthService', () => {
           JWT_REFRESH_SECRET: 'refresh-secret',
           AUTH_ACCESS_TOKEN_TTL_MINUTES: 15,
           AUTH_REFRESH_TOKEN_TTL_DAYS: 7,
-          AUTH_COOKIE_SAME_SITE: 'lax',
         };
 
         return values[key];
       }),
-      get: jest.fn((key: string) => {
-        if (key === 'NODE_ENV') {
-          return 'development';
-        }
-
-        return undefined;
-      }),
+      get: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: getRepositoryToken(User),
-          useValue: userRepository,
-        },
-        {
-          provide: getRepositoryToken(Role),
-          useValue: roleRepository,
-        },
+        { provide: getRepositoryToken(User), useValue: userRepository },
+        { provide: getRepositoryToken(Role), useValue: roleRepository },
         {
           provide: getRepositoryToken(RefreshSession),
           useValue: refreshSessionRepository,
         },
-        {
-          provide: JwtService,
-          useValue: jwtService,
-        },
-        {
-          provide: ConfigService,
-          useValue: configService,
-        },
+        { provide: JwtService, useValue: jwtService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compile();
 
@@ -121,14 +102,11 @@ describe('AuthService', () => {
     userRepository.exists.mockResolvedValue(true);
 
     await expect(
-      service.register(
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          password: '123456',
-        },
-        { cookie: jest.fn() } as never,
-      ),
+      service.register({
+        name: 'Eduardo',
+        login: 'eduardo',
+        password: '123456',
+      }),
     ).rejects.toThrow(
       new ConflictException('Já existe um usuário com esse login.'),
     );
@@ -148,12 +126,7 @@ describe('AuthService', () => {
     } as User;
     const authenticatedUser = {
       ...user,
-      role: {
-        id: 1,
-        name: 'user',
-        rolePermissions: [],
-        users: [],
-      },
+      role: { id: 1, name: 'user', rolePermissions: [] },
     } as unknown as User;
     const savedSession = {
       id: 'session-id',
@@ -161,7 +134,6 @@ describe('AuthService', () => {
       tokenHash: '',
       expiresAt: new Date(),
     } as RefreshSession;
-    const response = { cookie: jest.fn() };
 
     userRepository.exists.mockResolvedValue(false);
     roleRepository.findOne.mockResolvedValue(role);
@@ -171,10 +143,7 @@ describe('AuthService', () => {
     refreshSessionRepository.create.mockReturnValue(savedSession);
     refreshSessionRepository.save
       .mockResolvedValueOnce(savedSession)
-      .mockResolvedValueOnce({
-        ...savedSession,
-        tokenHash: 'refresh-hash',
-      });
+      .mockResolvedValueOnce({ ...savedSession, tokenHash: 'refresh-hash' });
     jest
       .spyOn(bcrypt, 'hash')
       .mockResolvedValueOnce('password-hash' as never)
@@ -183,24 +152,18 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refresh-token');
 
-    const result = await service.register(
-      {
-        name: 'Eduardo',
-        login: 'eduardo',
-        password: '123456',
-      },
-      response as never,
-    );
+    const result = await service.register({
+      name: 'Eduardo',
+      login: 'eduardo',
+      password: '123456',
+    });
 
     expect(userRepository.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'Eduardo',
-        login: 'eduardo',
-        roleId: 1,
-      }),
+      expect.objectContaining({ name: 'Eduardo', login: 'eduardo', roleId: 1 }),
     );
-    expect(response.cookie).toHaveBeenCalledTimes(2);
-    expect(result).toEqual({
+    expect(result.accessToken).toBe('access-token');
+    expect(result.refreshToken).toBe('refresh-token');
+    expect(result).toMatchObject({
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
@@ -208,8 +171,6 @@ describe('AuthService', () => {
       roleId: 1,
       role: 'user',
       permissions: [],
-      createdAt: new Date('2026-04-13T10:00:00.000Z'),
-      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
@@ -219,24 +180,19 @@ describe('AuthService', () => {
       login: 'eduardo',
       passwordHash: 'hash',
       isActive: true,
-      role: {
-        name: 'user',
-        rolePermissions: [],
-      },
+      role: { name: 'user', rolePermissions: [] },
     });
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
     await expect(
-      service.login({ login: 'eduardo', password: '123456' }, {
-        cookie: jest.fn(),
-      } as never),
+      service.login({ login: 'eduardo', password: '123456' }),
     ).rejects.toThrow(new UnauthorizedException('Login ou senha inválidos.'));
   });
 
   it('deve lançar erro no refresh sem token', async () => {
-    await expect(
-      service.refresh(undefined, { cookie: jest.fn() } as never),
-    ).rejects.toThrow(new UnauthorizedException('Refresh token ausente.'));
+    await expect(service.refresh(undefined)).rejects.toThrow(
+      new UnauthorizedException('Refresh token ausente.'),
+    );
   });
 
   it('deve lançar erro quando usuário autenticado não existir em me', async () => {
@@ -251,9 +207,7 @@ describe('AuthService', () => {
     userRepository.findOne.mockResolvedValue(null);
 
     await expect(
-      service.login({ login: 'naoexiste', password: '123456' }, {
-        cookie: jest.fn(),
-      } as never),
+      service.login({ login: 'naoexiste', password: '123456' }),
     ).rejects.toThrow(new UnauthorizedException('Login ou senha inválidos.'));
   });
 
@@ -275,7 +229,6 @@ describe('AuthService', () => {
       tokenHash: '',
       expiresAt: new Date(),
     } as RefreshSession;
-    const response = { cookie: jest.fn() };
 
     userRepository.findOne
       .mockResolvedValueOnce(authenticatedUser)
@@ -290,13 +243,14 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refresh-token');
 
-    const result = await service.login(
-      { login: 'eduardo', password: '123456' },
-      response as never,
-    );
+    const result = await service.login({
+      login: 'eduardo',
+      password: '123456',
+    });
 
-    expect(response.cookie).toHaveBeenCalledTimes(2);
-    expect(result).toEqual({
+    expect(result.accessToken).toBe('access-token');
+    expect(result.refreshToken).toBe('refresh-token');
+    expect(result).toMatchObject({
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
@@ -304,17 +258,13 @@ describe('AuthService', () => {
       roleId: 1,
       role: 'user',
       permissions: [],
-      createdAt: new Date('2026-04-13T10:00:00.000Z'),
-      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
   it('deve lançar erro no refresh com token inválido', async () => {
     jwtService.verifyAsync.mockRejectedValue(new Error('invalid'));
 
-    await expect(
-      service.refresh('token-invalido', { cookie: jest.fn() } as never),
-    ).rejects.toThrow(
+    await expect(service.refresh('token-invalido')).rejects.toThrow(
       new UnauthorizedException('Refresh token inválido ou expirado.'),
     );
   });
@@ -330,9 +280,7 @@ describe('AuthService', () => {
       expiresAt: new Date(Date.now() + 100000),
     });
 
-    await expect(
-      service.refresh('token-valido', { cookie: jest.fn() } as never),
-    ).rejects.toThrow(
+    await expect(service.refresh('token-valido')).rejects.toThrow(
       new UnauthorizedException('Sessão inválida ou expirada.'),
     );
   });
@@ -348,9 +296,7 @@ describe('AuthService', () => {
       expiresAt: new Date(Date.now() - 1000),
     });
 
-    await expect(
-      service.refresh('token-valido', { cookie: jest.fn() } as never),
-    ).rejects.toThrow(
+    await expect(service.refresh('token-valido')).rejects.toThrow(
       new UnauthorizedException('Sessão inválida ou expirada.'),
     );
   });
@@ -369,9 +315,7 @@ describe('AuthService', () => {
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
     refreshSessionRepository.save.mockResolvedValue({});
 
-    await expect(
-      service.refresh('token-valido', { cookie: jest.fn() } as never),
-    ).rejects.toThrow(
+    await expect(service.refresh('token-valido')).rejects.toThrow(
       new UnauthorizedException('Sessão inválida ou expirada.'),
     );
   });
@@ -383,9 +327,7 @@ describe('AuthService', () => {
     });
     refreshSessionRepository.findOne.mockResolvedValue(null);
 
-    await expect(
-      service.refresh('token-valido', { cookie: jest.fn() } as never),
-    ).rejects.toThrow(
+    await expect(service.refresh('token-valido')).rejects.toThrow(
       new UnauthorizedException('Sessão inválida ou expirada.'),
     );
   });
@@ -431,9 +373,9 @@ describe('AuthService', () => {
     refreshSessionRepository.findOne.mockResolvedValue(session);
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
     refreshSessionRepository.save
-      .mockResolvedValueOnce({ ...session, revokedAt: new Date() }) // revokeSession
-      .mockResolvedValueOnce(newSession) // issueSession: save refreshSession (1st)
-      .mockResolvedValueOnce({ ...newSession, tokenHash: 'refresh-hash' }); // issueSession: save with hash (2nd)
+      .mockResolvedValueOnce({ ...session, revokedAt: new Date() })
+      .mockResolvedValueOnce(newSession)
+      .mockResolvedValueOnce({ ...newSession, tokenHash: 'refresh-hash' });
     userRepository.findOne.mockResolvedValue(authenticatedUser);
     refreshSessionRepository.create.mockReturnValue(newSession);
     jest.spyOn(bcrypt, 'hash').mockResolvedValue('refresh-hash' as never);
@@ -441,11 +383,11 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refresh-token');
 
-    const response = { cookie: jest.fn() };
-    const result = await service.refresh('token-valido', response as never);
+    const result = await service.refresh('token-valido');
 
-    expect(response.cookie).toHaveBeenCalledTimes(2);
-    expect(result).toEqual({
+    expect(result.accessToken).toBe('access-token');
+    expect(result.refreshToken).toBe('refresh-token');
+    expect(result).toMatchObject({
       id: 1,
       name: 'Eduardo',
       login: 'eduardo',
@@ -453,8 +395,6 @@ describe('AuthService', () => {
       roleId: 1,
       role: 'admin',
       permissions: ['create:produto', 'read:produto'],
-      createdAt: new Date('2026-04-13T10:00:00.000Z'),
-      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
     });
   });
 
@@ -500,7 +440,6 @@ describe('AuthService', () => {
   });
 
   it('deve atualizar o cadastro do usuário', async () => {
-    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
     const user = {
       id: 1,
       name: 'Eduardo',
@@ -536,7 +475,11 @@ describe('AuthService', () => {
     userRepository.save.mockResolvedValue(updatedUser);
     const issueSessionSpy = jest
       .spyOn(service as never, 'issueSession')
-      .mockResolvedValue(updatedUser as never);
+      .mockResolvedValue({
+        user: updatedUser,
+        accessToken: 'at',
+        refreshToken: 'rt',
+      } as never);
 
     const result = await service.updateProfile(
       1,
@@ -547,7 +490,6 @@ describe('AuthService', () => {
         roleId: 2,
       },
       ['auth.user.update_role', 'auth.user.update_status'],
-      response as never,
     );
 
     expect(userRepository.save).toHaveBeenCalledWith(
@@ -559,13 +501,45 @@ describe('AuthService', () => {
       }),
     );
     expect(issueSessionSpy).toHaveBeenCalled();
-    expect(result).toEqual(
-      expect.objectContaining({
-        login: 'eduardosilva',
-        roleId: 2,
-        role: 'admin',
-      }),
+    expect(result).toMatchObject({ login: 'eduardosilva', roleId: 2 });
+  });
+
+  it('deve retornar usuário sem tokens quando desativado no updateProfile', async () => {
+    const role = {
+      id: 1,
+      name: 'user',
+      description: 'Padrão',
+      rolePermissions: [],
+      users: [],
+    } as unknown as Role;
+    const user = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:05:00.000Z'),
+      role,
+    } as unknown as User;
+    const updatedUser = { ...user, isActive: false } as User;
+
+    userRepository.findOne
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(updatedUser);
+    roleRepository.findOne.mockResolvedValue(role);
+    userRepository.save.mockResolvedValue(updatedUser);
+
+    const result = await service.updateProfile(
+      1,
+      { name: 'Eduardo', login: 'eduardo', isActive: false, roleId: 1 },
+      ['auth.user.update_status'],
     );
+
+    expect((result as { accessToken?: string }).accessToken).toBeUndefined();
+    expect(result).toMatchObject({ id: 1, isActive: false });
   });
 
   it('deve lançar conflito ao atualizar cadastro com login já existente', async () => {
@@ -586,14 +560,8 @@ describe('AuthService', () => {
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'joao',
-          isActive: true,
-          roleId: 1,
-        },
+        { name: 'Eduardo', login: 'joao', isActive: true, roleId: 1 },
         ['auth.user.update_role', 'auth.user.update_status'],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
       new ConflictException('Já existe um usuário com esse login.'),
@@ -615,18 +583,13 @@ describe('AuthService', () => {
       .mockResolvedValueOnce(user)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(null);
+    roleRepository.findOne.mockResolvedValue(null);
 
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          isActive: true,
-          roleId: 99,
-        },
+        { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 99 },
         ['auth.user.update_role', 'auth.user.update_status'],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(new NotFoundException('Papel com ID 99 não encontrado.'));
   });
@@ -657,14 +620,8 @@ describe('AuthService', () => {
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          isActive: true,
-          roleId: 2,
-        },
+        { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 2 },
         [],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
       new ForbiddenException(
@@ -679,14 +636,8 @@ describe('AuthService', () => {
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          isActive: true,
-          roleId: 1,
-        },
+        { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 1 },
         ['auth.user.update_role', 'auth.user.update_status'],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
       new UnauthorizedException('Usuário autenticado não encontrado.'),
@@ -719,68 +670,14 @@ describe('AuthService', () => {
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          isActive: false,
-          roleId: 1,
-        },
+        { name: 'Eduardo', login: 'eduardo', isActive: false, roleId: 1 },
         [],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
       new ForbiddenException(
         'Você não possui permissão para alterar o status do usuário.',
       ),
     );
-  });
-
-  it('deve limpar cookies e retornar usuário quando ele for desativado no updateProfile', async () => {
-    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
-    const role = {
-      id: 1,
-      name: 'user',
-      description: 'Padrão',
-      rolePermissions: [],
-      users: [],
-    } as unknown as Role;
-    const user = {
-      id: 1,
-      name: 'Eduardo',
-      login: 'eduardo',
-      passwordHash: 'hash',
-      isActive: true,
-      roleId: 1,
-      createdAt: new Date('2026-04-13T10:00:00.000Z'),
-      updatedAt: new Date('2026-04-13T10:05:00.000Z'),
-      role,
-    } as unknown as User;
-    const updatedUser = {
-      ...user,
-      isActive: false,
-    } as User;
-
-    userRepository.findOne
-      .mockResolvedValueOnce(user)
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(updatedUser);
-    roleRepository.findOne.mockResolvedValue(role);
-    userRepository.save.mockResolvedValue(updatedUser);
-
-    const result = await service.updateProfile(
-      1,
-      {
-        name: 'Eduardo',
-        login: 'eduardo',
-        isActive: false,
-        roleId: 1,
-      },
-      ['auth.user.update_status'],
-      response as never,
-    );
-
-    expect(response.clearCookie).toHaveBeenCalledTimes(2);
-    expect(result).toEqual(expect.objectContaining({ id: 1, isActive: false }));
   });
 
   it('deve lançar erro quando não encontrar usuário atualizado após salvar cadastro', async () => {
@@ -811,14 +708,8 @@ describe('AuthService', () => {
     await expect(
       service.updateProfile(
         1,
-        {
-          name: 'Eduardo',
-          login: 'eduardo',
-          isActive: true,
-          roleId: 1,
-        },
+        { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 1 },
         ['auth.user.update_role', 'auth.user.update_status'],
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(
       new UnauthorizedException('Usuário autenticado não encontrado.'),
@@ -846,9 +737,7 @@ describe('AuthService', () => {
     });
 
     expect(userRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        passwordHash: 'new-hash',
-      }),
+      expect.objectContaining({ passwordHash: 'new-hash' }),
     );
   });
 
@@ -907,7 +796,6 @@ describe('AuthService', () => {
       tokenHash: '',
       expiresAt: new Date(),
     } as RefreshSession;
-    const response = { cookie: jest.fn() };
 
     userRepository.exists.mockResolvedValue(false);
     roleRepository.findOne.mockResolvedValue(null);
@@ -925,10 +813,11 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refresh-token');
 
-    await service.register(
-      { name: 'Novo', login: 'novousr', password: '123456' },
-      response as never,
-    );
+    await service.register({
+      name: 'Novo',
+      login: 'novousr',
+      password: '123456',
+    });
 
     expect(roleRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'user' }),
@@ -936,30 +825,18 @@ describe('AuthService', () => {
     expect(roleRepository.save).toHaveBeenCalled();
   });
 
-  it('deve limpar cookies no logout mesmo com token inválido', async () => {
-    const response = { clearCookie: jest.fn() };
-    jwtService.verifyAsync.mockRejectedValue(new Error('token inválido'));
-
-    await service.logout('invalid-token', response as never);
-
-    expect(response.clearCookie).toHaveBeenCalledTimes(2);
+  it('deve fazer logout sem token sem lançar erro', async () => {
+    await expect(service.logout(undefined)).resolves.toBeUndefined();
   });
 
-  it('deve fazer logout sem token e limpar cookies', async () => {
-    const response = { clearCookie: jest.fn() };
+  it('deve fazer logout sem lançar erro mesmo com token inválido', async () => {
+    jwtService.verifyAsync.mockRejectedValue(new Error('token inválido'));
 
-    await service.logout(undefined, response as never);
-
-    expect(response.clearCookie).toHaveBeenCalledTimes(2);
+    await expect(service.logout('invalid-token')).resolves.toBeUndefined();
   });
 
   it('deve fazer logout com token válido e revogar sessão', async () => {
-    const session = {
-      id: 'session-id',
-      userId: 1,
-      revokedAt: null,
-    };
-    const response = { clearCookie: jest.fn() };
+    const session = { id: 'session-id', userId: 1, revokedAt: null };
 
     jwtService.verifyAsync.mockResolvedValue({
       sub: 1,
@@ -968,13 +845,11 @@ describe('AuthService', () => {
     refreshSessionRepository.findOne.mockResolvedValue(session);
     refreshSessionRepository.save.mockResolvedValue(session);
 
-    await service.logout('token-valido', response as never);
+    await service.logout('token-valido');
 
     expect(refreshSessionRepository.save).toHaveBeenCalledWith(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       expect.objectContaining({ revokedAt: expect.any(Date) }),
     );
-    expect(response.clearCookie).toHaveBeenCalledTimes(2);
   });
 
   it('deve lançar erro quando usuário ficar inativo ao emitir sessão no login', async () => {
@@ -990,9 +865,7 @@ describe('AuthService', () => {
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 
     await expect(
-      service.login({ login: 'eduardo', password: '123456' }, {
-        cookie: jest.fn(),
-      } as never),
+      service.login({ login: 'eduardo', password: '123456' }),
     ).rejects.toThrow(
       new ForbiddenException('Usuário inativo ou inexistente.'),
     );

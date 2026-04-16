@@ -9,14 +9,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
 import { Repository } from 'typeorm';
 import {
   AlterarCadastroDto,
   AlterarSenhaDto,
+  AuthResponseDto,
   LoginDto,
-  RegisterDto,
   PapelUsuarioDto,
+  RegisterDto,
   UsuarioAutenticadoDto,
 } from '@auth/dto';
 import {
@@ -28,7 +28,6 @@ import {
 } from '@auth/entities';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
-type CookieSameSite = 'lax' | 'strict' | 'none';
 const PERMISSAO_ALTERAR_PAPEL_USUARIO = 'auth.user.update_role';
 const PERMISSAO_ALTERAR_STATUS_USUARIO = 'auth.user.update_status';
 
@@ -45,10 +44,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(
-    dto: RegisterDto,
-    response: Response,
-  ): Promise<UsuarioAutenticadoDto> {
+  async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const normalizedLogin = dto.login.toLowerCase().trim();
     const existingUser = await this.userRepository.exists({
       where: { login: normalizedLogin },
@@ -74,14 +70,15 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    const authenticatedUser = await this.issueSession(user, response);
-    return this.toAuthMeDto(authenticatedUser);
+    const {
+      user: authenticatedUser,
+      accessToken,
+      refreshToken,
+    } = await this.issueSession(user);
+    return this.toAuthResponseDto(authenticatedUser, accessToken, refreshToken);
   }
 
-  async login(
-    dto: LoginDto,
-    response: Response,
-  ): Promise<UsuarioAutenticadoDto> {
+  async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.findActiveUserByLogin(dto.login);
 
     if (!user) {
@@ -97,14 +94,15 @@ export class AuthService {
       throw new UnauthorizedException('Login ou senha inválidos.');
     }
 
-    const authenticatedUser = await this.issueSession(user, response);
-    return this.toAuthMeDto(authenticatedUser);
+    const {
+      user: authenticatedUser,
+      accessToken,
+      refreshToken,
+    } = await this.issueSession(user);
+    return this.toAuthResponseDto(authenticatedUser, accessToken, refreshToken);
   }
 
-  async refresh(
-    refreshToken: string | undefined,
-    response: Response,
-  ): Promise<UsuarioAutenticadoDto> {
+  async refresh(refreshToken: string | undefined): Promise<AuthResponseDto> {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token ausente.');
     }
@@ -136,30 +134,35 @@ export class AuthService {
 
     await this.revokeSession(session);
 
-    const authenticatedUser = await this.issueSession(session.user, response);
-    return this.toAuthMeDto(authenticatedUser);
+    const {
+      user: authenticatedUser,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    } = await this.issueSession(session.user);
+    return this.toAuthResponseDto(
+      authenticatedUser,
+      newAccessToken,
+      newRefreshToken,
+    );
   }
 
-  async logout(
-    refreshToken: string | undefined,
-    response: Response,
-  ): Promise<void> {
-    if (refreshToken) {
-      try {
-        const payload = await this.verifyRefreshToken(refreshToken);
-        const session = await this.refreshSessionRepository.findOne({
-          where: { id: payload.sessionId, userId: payload.sub },
-        });
-
-        if (session && !session.revokedAt) {
-          await this.revokeSession(session);
-        }
-      } catch {
-        // Ignora token inválido no logout para limpar cookies sempre.
-      }
+  async logout(refreshToken: string | undefined): Promise<void> {
+    if (!refreshToken) {
+      return;
     }
 
-    this.clearAuthCookies(response);
+    try {
+      const payload = await this.verifyRefreshToken(refreshToken);
+      const session = await this.refreshSessionRepository.findOne({
+        where: { id: payload.sessionId, userId: payload.sub },
+      });
+
+      if (session && !session.revokedAt) {
+        await this.revokeSession(session);
+      }
+    } catch {
+      // Ignora token inválido no logout.
+    }
   }
 
   async me(userId: number): Promise<UsuarioAutenticadoDto> {
@@ -188,8 +191,7 @@ export class AuthService {
     userId: number,
     dto: AlterarCadastroDto,
     permissoesUsuarioAtual: string[],
-    response: Response,
-  ): Promise<UsuarioAutenticadoDto> {
+  ): Promise<AuthResponseDto | UsuarioAutenticadoDto> {
     const user = await this.findUserByIdWithRole(userId);
 
     if (!user) {
@@ -248,12 +250,15 @@ export class AuthService {
     }
 
     if (!updatedUser.isActive) {
-      this.clearAuthCookies(response);
       return this.toAuthMeDto(updatedUser);
     }
 
-    const authenticatedUser = await this.issueSession(updatedUser, response);
-    return this.toAuthMeDto(authenticatedUser);
+    const {
+      user: authenticatedUser,
+      accessToken,
+      refreshToken,
+    } = await this.issueSession(updatedUser);
+    return this.toAuthResponseDto(authenticatedUser, accessToken, refreshToken);
   }
 
   async updatePassword(userId: number, dto: AlterarSenhaDto): Promise<void> {
@@ -339,7 +344,9 @@ export class AuthService {
     return this.roleRepository.save(role);
   }
 
-  private async issueSession(user: User, response: Response): Promise<User> {
+  async issueSession(
+    user: User,
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const authenticatedUser = await this.findActiveUserById(user.id);
 
     if (!authenticatedUser) {
@@ -372,9 +379,7 @@ export class AuthService {
     );
     await this.refreshSessionRepository.save(savedSession);
 
-    this.setAuthCookies(response, accessToken, refreshToken);
-
-    return authenticatedUser;
+    return { user: authenticatedUser, accessToken, refreshToken };
   }
 
   private buildJwtPayload(user: User, sessionId?: string): JwtPayload {
@@ -415,75 +420,26 @@ export class AuthService {
     return expiresAt;
   }
 
-  private setAuthCookies(
-    response: Response,
+  private toAuthResponseDto(
+    user: User,
     accessToken: string,
     refreshToken: string,
-  ): void {
-    const sameSite = this.configService.getOrThrow<string>(
-      'AUTH_COOKIE_SAME_SITE',
-    ) as CookieSameSite;
-    const cookieDomain =
-      this.configService.get<string>('AUTH_COOKIE_DOMAIN') || undefined;
-    const secureEnv = this.configService.get<string>('AUTH_COOKIE_SECURE');
-    const secure =
-      secureEnv !== undefined
-        ? secureEnv === 'true'
-        : this.configService.get<string>('NODE_ENV') === 'production';
-
-    response.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure,
-      sameSite,
-      domain: cookieDomain,
-      path: '/',
-      maxAge:
-        this.configService.getOrThrow<number>('AUTH_ACCESS_TOKEN_TTL_MINUTES') *
-        60 *
-        1000,
-    });
-
-    response.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure,
-      sameSite,
-      domain: cookieDomain,
-      path: '/',
-      maxAge:
-        this.configService.getOrThrow<number>('AUTH_REFRESH_TOKEN_TTL_DAYS') *
-        24 *
-        60 *
-        60 *
-        1000,
-    });
-  }
-
-  clearAuthCookies(response: Response): void {
-    const sameSite = this.configService.getOrThrow<string>(
-      'AUTH_COOKIE_SAME_SITE',
-    ) as CookieSameSite;
-    const cookieDomain =
-      this.configService.get<string>('AUTH_COOKIE_DOMAIN') || undefined;
-    const secureEnv = this.configService.get<string>('AUTH_COOKIE_SECURE');
-    const secure =
-      secureEnv !== undefined
-        ? secureEnv === 'true'
-        : this.configService.get<string>('NODE_ENV') === 'production';
-
-    response.clearCookie('access_token', {
-      httpOnly: true,
-      secure,
-      sameSite,
-      domain: cookieDomain,
-      path: '/',
-    });
-    response.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure,
-      sameSite,
-      domain: cookieDomain,
-      path: '/',
-    });
+  ): AuthResponseDto {
+    const dto = new AuthResponseDto();
+    dto.id = user.id;
+    dto.name = user.name;
+    dto.login = user.login;
+    dto.isActive = user.isActive;
+    dto.roleId = user.roleId;
+    dto.role = user.role.name;
+    dto.permissions = user.role.rolePermissions.map(
+      (rp: { permission: Permission }) => rp.permission.name,
+    );
+    dto.createdAt = user.createdAt;
+    dto.updatedAt = user.updatedAt;
+    dto.accessToken = accessToken;
+    dto.refreshToken = refreshToken;
+    return dto;
   }
 
   private toAuthMeDto(user: User): UsuarioAutenticadoDto {

@@ -4,3 +4,5 @@ export * from './login.dto';
 export * from './register.dto';
 export * from './alterar-senha.dto';
 export * from './alterar-cadastro.dto';
+export * from './auth-response.dto';
+export * from './refresh-token.dto';

@@ -67,6 +67,7 @@ describe('OrcamentoService', () => {
     });
 
     expect(repository.findAndCount).toHaveBeenCalledWith({
+      relations: ['feira'],
       order: { dataInclusao: 'DESC', id: 'DESC' },
       skip: 0,
       take: 10,

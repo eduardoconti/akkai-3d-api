@@ -31,49 +31,53 @@ describe('AuthController', () => {
   });
 
   it('deve delegar login', async () => {
-    const response = { cookie: jest.fn() };
     const body = { login: 'eduardo', password: '123456' };
-    authService.login.mockResolvedValue({ id: 1 });
+    authService.login.mockResolvedValue({
+      id: 1,
+      accessToken: 'at',
+      refreshToken: 'rt',
+    });
 
-    const result = await controller.login(body, response as never);
+    const result = await controller.login(body);
 
-    expect(authService.login).toHaveBeenCalledWith(body, response);
-    expect(result).toEqual({ id: 1 });
+    expect(authService.login).toHaveBeenCalledWith(body);
+    expect(result).toEqual({ id: 1, accessToken: 'at', refreshToken: 'rt' });
   });
 
   it('deve delegar registro', async () => {
-    const response = { cookie: jest.fn() };
-    const body = {
-      name: 'Eduardo',
-      login: 'eduardo',
-      password: '123456',
-    };
-    authService.register.mockResolvedValue({ id: 1 });
+    const body = { name: 'Eduardo', login: 'eduardo', password: '123456' };
+    authService.register.mockResolvedValue({
+      id: 1,
+      accessToken: 'at',
+      refreshToken: 'rt',
+    });
 
-    const result = await controller.register(body, response as never);
+    const result = await controller.register(body);
 
-    expect(authService.register).toHaveBeenCalledWith(body, response);
-    expect(result).toEqual({ id: 1 });
+    expect(authService.register).toHaveBeenCalledWith(body);
+    expect(result).toEqual({ id: 1, accessToken: 'at', refreshToken: 'rt' });
   });
 
-  it('deve delegar refresh com cookie', async () => {
-    const request = { cookies: { refresh_token: 'token' } };
-    const response = { cookie: jest.fn() };
-    authService.refresh.mockResolvedValue({ id: 1 });
+  it('deve delegar refresh com token no body', async () => {
+    const body = { refreshToken: 'token' };
+    authService.refresh.mockResolvedValue({
+      id: 1,
+      accessToken: 'at',
+      refreshToken: 'rt',
+    });
 
-    const result = await controller.refresh(request, response as never);
+    const result = await controller.refresh(body);
 
-    expect(authService.refresh).toHaveBeenCalledWith('token', response);
-    expect(result).toEqual({ id: 1 });
+    expect(authService.refresh).toHaveBeenCalledWith('token');
+    expect(result).toEqual({ id: 1, accessToken: 'at', refreshToken: 'rt' });
   });
 
-  it('deve delegar logout com cookie', async () => {
-    const request = { cookies: { refresh_token: 'token' } };
-    const response = { clearCookie: jest.fn() };
+  it('deve delegar logout com token no body', async () => {
+    const body = { refreshToken: 'token' };
 
-    await controller.logout(request, response as never);
+    await controller.logout(body);
 
-    expect(authService.logout).toHaveBeenCalledWith('token', response);
+    expect(authService.logout).toHaveBeenCalledWith('token');
   });
 
   it('deve retornar dados do usuário autenticado em me', async () => {
@@ -109,50 +113,31 @@ describe('AuthController', () => {
 
   it('deve delegar alteração de cadastro', async () => {
     const request = {
-      user: {
-        sub: 1,
-        login: 'eduardo',
-        role: 'user',
-        permissions: [],
-      },
+      user: { sub: 1, login: 'eduardo', role: 'user', permissions: [] },
     };
-    const response = { cookie: jest.fn(), clearCookie: jest.fn() };
     const body = {
       name: 'Eduardo',
       login: 'eduardo',
       isActive: true,
       roleId: 1,
     };
-    authService.updateProfile.mockResolvedValue({ id: 1 });
+    authService.updateProfile.mockResolvedValue({
+      id: 1,
+      accessToken: 'at',
+      refreshToken: 'rt',
+    });
 
-    const result = await controller.updateProfile(
-      request,
-      body,
-      response as never,
-    );
+    const result = await controller.updateProfile(request, body);
 
-    expect(authService.updateProfile).toHaveBeenCalledWith(
-      1,
-      body,
-      [],
-      response,
-    );
-    expect(result).toEqual({ id: 1 });
+    expect(authService.updateProfile).toHaveBeenCalledWith(1, body, []);
+    expect(result).toEqual({ id: 1, accessToken: 'at', refreshToken: 'rt' });
   });
 
   it('deve delegar alteração de senha', async () => {
     const request = {
-      user: {
-        sub: 1,
-        login: 'eduardo',
-        role: 'user',
-        permissions: [],
-      },
+      user: { sub: 1, login: 'eduardo', role: 'user', permissions: [] },
     };
-    const body = {
-      currentPassword: '123456',
-      newPassword: '654321',
-    };
+    const body = { currentPassword: '123456', newPassword: '654321' };
 
     await controller.updatePassword(request, body);
 
@@ -169,7 +154,6 @@ describe('AuthController', () => {
           isActive: true,
           roleId: 1,
         },
-        { cookie: jest.fn(), clearCookie: jest.fn() } as never,
       ),
     ).rejects.toThrow(new UnauthorizedException('Usuário não autenticado.'));
   });
