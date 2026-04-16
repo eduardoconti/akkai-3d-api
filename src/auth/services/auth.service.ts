@@ -425,7 +425,11 @@ export class AuthService {
     ) as CookieSameSite;
     const cookieDomain =
       this.configService.get<string>('AUTH_COOKIE_DOMAIN') || undefined;
-    const secure = this.configService.get<string>('NODE_ENV') === 'production';
+    const secureEnv = this.configService.get<string>('AUTH_COOKIE_SECURE');
+    const secure =
+      secureEnv !== undefined
+        ? secureEnv === 'true'
+        : this.configService.get<string>('NODE_ENV') === 'production';
 
     response.cookie('access_token', accessToken, {
       httpOnly: true,
@@ -460,7 +464,11 @@ export class AuthService {
     ) as CookieSameSite;
     const cookieDomain =
       this.configService.get<string>('AUTH_COOKIE_DOMAIN') || undefined;
-    const secure = this.configService.get<string>('NODE_ENV') === 'production';
+    const secureEnv = this.configService.get<string>('AUTH_COOKIE_SECURE');
+    const secure =
+      secureEnv !== undefined
+        ? secureEnv === 'true'
+        : this.configService.get<string>('NODE_ENV') === 'production';
 
     response.clearCookie('access_token', {
       httpOnly: true,

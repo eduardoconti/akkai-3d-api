@@ -72,9 +72,7 @@ describe('InserirTaxaMeioPagamentoCarteiraUseCase', () => {
         percentual: 2.99,
       }),
     ).rejects.toThrow(
-      new BadRequestException(
-        'A carteira não aceita o meio de pagamento PIX.',
-      ),
+      new BadRequestException('A carteira não aceita o meio de pagamento PIX.'),
     );
   });
 });

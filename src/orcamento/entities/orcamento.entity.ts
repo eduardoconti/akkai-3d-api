@@ -34,7 +34,12 @@ export class Orcamento {
   @Column({ type: 'varchar', name: 'nome_cliente', length: 120 })
   nomeCliente!: string;
 
-  @Column({ type: 'varchar', name: 'telefone_cliente', length: 30, nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'telefone_cliente',
+    length: 30,
+    nullable: true,
+  })
   telefoneCliente?: string;
 
   @Column({ type: 'varchar', length: 1000, nullable: true })

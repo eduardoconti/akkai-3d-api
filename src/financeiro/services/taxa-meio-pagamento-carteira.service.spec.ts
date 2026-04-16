@@ -6,10 +6,7 @@ import {
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import {
-  Carteira,
-  TaxaMeioPagamentoCarteira,
-} from '@financeiro/entities';
+import { Carteira, TaxaMeioPagamentoCarteira } from '@financeiro/entities';
 import { TaxaMeioPagamentoCarteiraService } from './taxa-meio-pagamento-carteira.service';
 
 describe('TaxaMeioPagamentoCarteiraService', () => {
@@ -131,9 +128,9 @@ describe('TaxaMeioPagamentoCarteiraService', () => {
     const taxa = Object.assign(new TaxaMeioPagamentoCarteira(), { id: 1 });
     taxaRepository.findOne.mockResolvedValue(taxa);
 
-    await expect(service.garantirTaxaMeioPagamentoCarteiraPorId(1)).resolves.toBe(
-      taxa,
-    );
+    await expect(
+      service.garantirTaxaMeioPagamentoCarteiraPorId(1),
+    ).resolves.toBe(taxa);
   });
 
   it('deve lançar erro ao garantir taxa inexistente', async () => {

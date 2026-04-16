@@ -15,8 +15,8 @@ describe('ExcluirCategoriaDespesaUseCase', () => {
     expect(
       categoriaDespesaService.garantirCategoriaDespesaPorId,
     ).toHaveBeenCalledWith(1);
-    expect(categoriaDespesaService.excluirCategoriaDespesa).toHaveBeenCalledWith(
-      1,
-    );
+    expect(
+      categoriaDespesaService.excluirCategoriaDespesa,
+    ).toHaveBeenCalledWith(1);
   });
 });

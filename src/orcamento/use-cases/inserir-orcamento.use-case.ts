@@ -27,7 +27,8 @@ export class InserirOrcamentoUseCase {
     orcamento.dataInclusao = new Date();
     orcamento.status = input.status ?? StatusOrcamento.PENDENTE;
     orcamento.tipo = input.tipo;
-    orcamento.idFeira = input.tipo === TipoOrcamento.FEIRA ? input.idFeira : undefined;
+    orcamento.idFeira =
+      input.tipo === TipoOrcamento.FEIRA ? input.idFeira : undefined;
     orcamento.valor = input.valor;
     orcamento.quantidade = input.quantidade;
 

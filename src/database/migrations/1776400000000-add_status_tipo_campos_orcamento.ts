@@ -48,9 +48,7 @@ export class AddStatusTipoCamposOrcamento1776400000000
     await queryRunner.query(
       `ALTER TABLE "orcamento" ALTER COLUMN "telefone_cliente" SET NOT NULL`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "orcamento" DROP COLUMN "quantidade"`,
-    );
+    await queryRunner.query(`ALTER TABLE "orcamento" DROP COLUMN "quantidade"`);
     await queryRunner.query(`ALTER TABLE "orcamento" DROP COLUMN "valor"`);
     await queryRunner.query(`ALTER TABLE "orcamento" DROP COLUMN "id_feira"`);
     await queryRunner.query(`ALTER TABLE "orcamento" DROP COLUMN "tipo"`);
