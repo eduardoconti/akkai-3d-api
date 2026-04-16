@@ -153,7 +153,7 @@ export class VendaService {
       .leftJoinAndSelect('venda.itens', 'item')
       .leftJoinAndSelect('item.produto', 'produto')
       .distinct(true)
-      .orderBy('venda.id', 'DESC')
+      .orderBy('venda.dataInclusao', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
 

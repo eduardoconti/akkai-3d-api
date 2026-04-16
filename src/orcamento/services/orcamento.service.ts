@@ -26,12 +26,27 @@ export class OrcamentoService {
     });
   }
 
+  async atualizarOrcamento(orcamento: Orcamento): Promise<Orcamento> {
+    return this.orcamentoRepository.save(orcamento).catch((error) => {
+      this.logger.error('Erro ao atualizar orçamento', error);
+      throw new InternalServerErrorException('Erro ao atualizar orçamento');
+    });
+  }
+
+  async buscarPorId(id: number): Promise<Orcamento | null> {
+    return this.orcamentoRepository.findOne({
+      where: { id },
+      relations: ['feira'],
+    });
+  }
+
   async listarOrcamentos(
     pesquisa: PesquisarOrcamentosDto,
   ): Promise<ResultadoPaginado<Orcamento>> {
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
 
     const [itens, totalItens] = await this.orcamentoRepository.findAndCount({
+      relations: ['feira'],
       order: {
         dataInclusao: 'DESC',
         id: 'DESC',

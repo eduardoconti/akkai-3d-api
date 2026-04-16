@@ -1,10 +1,14 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { InserirOrcamentoDto, PesquisarOrcamentosDto } from '@orcamento/dto';
+import {
+  AtualizarOrcamentoDto,
+  InserirOrcamentoDto,
+  PesquisarOrcamentosDto,
+} from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
-import { InserirOrcamentoUseCase } from '@orcamento/use-cases';
+import { AtualizarOrcamentoUseCase, InserirOrcamentoUseCase } from '@orcamento/use-cases';
 
 @ApiProtectedController('Orçamentos')
 @Controller('orcamento')
@@ -12,6 +16,7 @@ export class OrcamentoController {
   constructor(
     private readonly orcamentoService: OrcamentoService,
     private readonly inserirOrcamentoUseCase: InserirOrcamentoUseCase,
+    private readonly atualizarOrcamentoUseCase: AtualizarOrcamentoUseCase,
   ) {}
 
   @Post()
@@ -19,6 +24,14 @@ export class OrcamentoController {
     @Body() input: InserirOrcamentoDto,
   ): Promise<Orcamento> {
     return this.inserirOrcamentoUseCase.execute(input);
+  }
+
+  @Put(':id')
+  async atualizarOrcamento(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AtualizarOrcamentoDto,
+  ): Promise<Orcamento> {
+    return this.atualizarOrcamentoUseCase.execute(id, input);
   }
 
   @Get()

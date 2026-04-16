@@ -2,29 +2,27 @@ import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
   IsUrl,
   MaxLength,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 import { StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
 
-export class InserirOrcamentoDto {
+export class AtualizarOrcamentoDto {
+  @IsOptional()
   @Transform(trimStringValue)
   @IsString({ message: 'O nome do cliente deve ser um texto.' })
-  @IsNotEmpty({ message: 'O nome do cliente é obrigatório.' })
   @MinLength(2, {
     message: 'O nome do cliente deve ter pelo menos 2 caracteres.',
   })
   @MaxLength(120, {
     message: 'O nome do cliente deve ter no máximo 120 caracteres.',
   })
-  nomeCliente!: string;
+  nomeCliente?: string;
 
   @IsOptional()
   @Transform(trimStringValue)
@@ -37,10 +35,11 @@ export class InserirOrcamentoDto {
   })
   telefoneCliente?: string;
 
+  @IsOptional()
   @IsEnum(TipoOrcamento, { message: 'O tipo do orçamento é inválido.' })
-  tipo!: TipoOrcamento;
+  tipo?: TipoOrcamento;
 
-  @ValidateIf((o: InserirOrcamentoDto) => o.tipo === TipoOrcamento.FEIRA)
+  @IsOptional()
   @IsInt({ message: 'A feira deve ser um número inteiro.' })
   @IsPositive({ message: 'Selecione uma feira válida.' })
   idFeira?: number;

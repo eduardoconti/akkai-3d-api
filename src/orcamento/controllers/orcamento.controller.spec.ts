@@ -2,22 +2,31 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrcamentoController } from '@orcamento/controllers';
 import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
-import { InserirOrcamentoUseCase } from '@orcamento/use-cases';
+import {
+  AtualizarOrcamentoUseCase,
+  InserirOrcamentoUseCase,
+} from '@orcamento/use-cases';
 
 describe('OrcamentoController', () => {
   let controller: OrcamentoController;
   let orcamentoService: { listarOrcamentos: jest.Mock };
   let inserirOrcamentoUseCase: { execute: jest.Mock };
+  let atualizarOrcamentoUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
     orcamentoService = { listarOrcamentos: jest.fn() };
     inserirOrcamentoUseCase = { execute: jest.fn() };
+    atualizarOrcamentoUseCase = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrcamentoController],
       providers: [
         { provide: OrcamentoService, useValue: orcamentoService },
         { provide: InserirOrcamentoUseCase, useValue: inserirOrcamentoUseCase },
+        {
+          provide: AtualizarOrcamentoUseCase,
+          useValue: atualizarOrcamentoUseCase,
+        },
       ],
     }).compile();
 
@@ -36,9 +45,10 @@ describe('OrcamentoController', () => {
       telefoneCliente: '21999999999',
       descricao: 'Peça decorativa',
       linkSTL: 'https://exemplo.com/modelo.stl',
+      tipo: 'LOJA' as const,
     };
 
-    const result = await controller.inserirOrcamento(input);
+    const result = await controller.inserirOrcamento(input as never);
 
     expect(inserirOrcamentoUseCase.execute).toHaveBeenCalledWith(input);
     expect(result).toEqual({ id: 1 });

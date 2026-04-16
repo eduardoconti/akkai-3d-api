@@ -15,6 +15,7 @@ describe('InserirOrcamentoUseCase', () => {
       telefoneCliente: '21999999999',
       descricao: 'Peça decorativa',
       linkSTL: 'https://exemplo.com/modelo.stl',
+      tipo: 'LOJA' as never,
     });
 
     expect(inserirOrcamento).toHaveBeenCalledWith(
