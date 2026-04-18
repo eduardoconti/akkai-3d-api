@@ -56,7 +56,10 @@ type DespesaCategoriaMesDashboardRow = {
 type ResumoMensalDashboardRow = {
   mes: string | number;
   quantidadeItensVendidos: string | number | null;
+  quantidadeBrindes: string | number | null;
   valorVendas: string | number | null;
+  valorTaxas: string | number | null;
+  valorImpostos: string | number | null;
   valorDespesas: string | number | null;
   saldo: string | number | null;
 };
@@ -81,7 +84,9 @@ export class RelatorioService {
         vendas AS (
           SELECT
             EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
-            COALESCE(SUM(venda.valor_total), 0) AS "valorVendas"
+            COALESCE(SUM(venda.valor_total), 0) AS "valorVendas",
+            COALESCE(SUM(COALESCE(venda.valor_taxa, 0)), 0) AS "valorTaxas",
+            COALESCE(SUM(COALESCE(venda.valor_imposto, 0)), 0) AS "valorImpostos"
           FROM venda
           WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
           GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
@@ -89,11 +94,11 @@ export class RelatorioService {
         itens_vendidos AS (
           SELECT
             EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
-            COALESCE(SUM(item.quantidade), 0) AS "quantidadeItensVendidos"
+            COALESCE(SUM(item.quantidade), 0) AS "quantidadeItensVendidos",
+            COALESCE(SUM(CASE WHEN item.brinde = true THEN item.quantidade ELSE 0 END), 0) AS "quantidadeBrindes"
           FROM venda
           INNER JOIN item_venda item ON item.id_venda = venda.id
           WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
-          AND item.brinde = false
           GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
         ),
         despesas AS (
@@ -107,9 +112,12 @@ export class RelatorioService {
         SELECT
           meses.mes AS mes,
           COALESCE(itens_vendidos."quantidadeItensVendidos", 0) AS "quantidadeItensVendidos",
+          COALESCE(itens_vendidos."quantidadeBrindes", 0) AS "quantidadeBrindes",
           COALESCE(vendas."valorVendas", 0) AS "valorVendas",
+          COALESCE(vendas."valorTaxas", 0) AS "valorTaxas",
+          COALESCE(vendas."valorImpostos", 0) AS "valorImpostos",
           COALESCE(despesas."valorDespesas", 0) AS "valorDespesas",
-          COALESCE(vendas."valorVendas", 0) - COALESCE(despesas."valorDespesas", 0) AS saldo
+          COALESCE(vendas."valorVendas", 0) - COALESCE(vendas."valorTaxas", 0) - COALESCE(despesas."valorDespesas", 0) AS saldo
         FROM meses
         LEFT JOIN vendas ON vendas.mes = meses.mes
         LEFT JOIN itens_vendidos ON itens_vendidos.mes = meses.mes
@@ -122,7 +130,10 @@ export class RelatorioService {
     const itens = rows.map((row) => ({
       mes: Number(row.mes),
       quantidadeItensVendidos: Number(row.quantidadeItensVendidos ?? 0),
+      quantidadeBrindes: Number(row.quantidadeBrindes ?? 0),
       valorVendas: Number(row.valorVendas ?? 0),
+      valorTaxas: Number(row.valorTaxas ?? 0),
+      valorImpostos: Number(row.valorImpostos ?? 0),
       valorDespesas: Number(row.valorDespesas ?? 0),
       saldo: Number(row.saldo ?? 0),
     }));
@@ -133,7 +144,16 @@ export class RelatorioService {
         (total, item) => total + item.quantidadeItensVendidos,
         0,
       ),
+      totalQuantidadeBrindes: itens.reduce(
+        (total, item) => total + item.quantidadeBrindes,
+        0,
+      ),
       totalVendas: itens.reduce((total, item) => total + item.valorVendas, 0),
+      totalTaxas: itens.reduce((total, item) => total + item.valorTaxas, 0),
+      totalImpostos: itens.reduce(
+        (total, item) => total + item.valorImpostos,
+        0,
+      ),
       totalDespesas: itens.reduce(
         (total, item) => total + item.valorDespesas,
         0,
