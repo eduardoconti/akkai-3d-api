@@ -17,7 +17,8 @@
       "@orcamento/*": ["src/orcamento/*"],
       "@produto/*": ["src/produto/*"],
       "@relatorio/*": ["src/relatorio/*"],
-      "@venda/*": ["src/venda/*"]
+      "@venda/*": ["src/venda/*"],
+      "@assinatura/*": ["src/assinatura/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

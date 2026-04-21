@@ -9,6 +9,7 @@ import { ProdutoModule } from '@produto/produto.module';
 import { OrcamentoModule } from '@orcamento/orcamento.module';
 import { RelatorioModule } from '@relatorio/relatorio.module';
 import { VendaModule } from '@venda/venda.module';
+import { AssinaturaModule } from '@assinatura/assinatura.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './config/env.validation';
 import { getDatabaseConfigFromConfigService } from './config/database.config';
@@ -30,6 +31,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
     ProdutoModule,
     RelatorioModule,
     VendaModule,
+    AssinaturaModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>

@@ -21,6 +21,14 @@ import {
   Produto,
 } from '@produto/entities';
 import { Feira, ItemVenda, Venda } from '@venda/entities';
+import {
+  Assinante,
+  CicloAssinatura,
+  ItemCicloAssinatura,
+  ItemKitMensal,
+  KitMensal,
+  PlanoAssinatura,
+} from '@assinatura/entities';
 import { DataSourceOptions } from 'typeorm';
 
 type DatabaseEnv = {
@@ -51,6 +59,12 @@ const entities = [
   Permission,
   RolePermission,
   RefreshSession,
+  PlanoAssinatura,
+  Assinante,
+  CicloAssinatura,
+  ItemCicloAssinatura,
+  KitMensal,
+  ItemKitMensal,
 ];
 
 export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
