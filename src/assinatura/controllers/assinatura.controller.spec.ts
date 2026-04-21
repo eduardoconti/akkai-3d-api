@@ -33,10 +33,23 @@ import { AssinaturaController } from '@assinatura/controllers';
 describe('AssinaturaController', () => {
   let controller: AssinaturaController;
 
-  let planoService: { listarPlanos: jest.Mock; pesquisarPlanos: jest.Mock; garantirPlanoPorId: jest.Mock };
-  let assinanteService: { pesquisarAssinantes: jest.Mock; garantirAssinantePorId: jest.Mock };
-  let cicloService: { pesquisarCiclos: jest.Mock; garantirCicloPorId: jest.Mock };
-  let kitMensalService: { pesquisarKits: jest.Mock; garantirKitPorId: jest.Mock };
+  let planoService: {
+    listarPlanos: jest.Mock;
+    pesquisarPlanos: jest.Mock;
+    garantirPlanoPorId: jest.Mock;
+  };
+  let assinanteService: {
+    pesquisarAssinantes: jest.Mock;
+    garantirAssinantePorId: jest.Mock;
+  };
+  let cicloService: {
+    pesquisarCiclos: jest.Mock;
+    garantirCicloPorId: jest.Mock;
+  };
+  let kitMensalService: {
+    pesquisarKits: jest.Mock;
+    garantirKitPorId: jest.Mock;
+  };
 
   let inserirPlanoUseCase: { execute: jest.Mock };
   let alterarPlanoUseCase: { execute: jest.Mock };
@@ -53,10 +66,23 @@ describe('AssinaturaController', () => {
   let gerarCiclosMensaisUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
-    planoService = { listarPlanos: jest.fn(), pesquisarPlanos: jest.fn(), garantirPlanoPorId: jest.fn() };
-    assinanteService = { pesquisarAssinantes: jest.fn(), garantirAssinantePorId: jest.fn() };
-    cicloService = { pesquisarCiclos: jest.fn(), garantirCicloPorId: jest.fn() };
-    kitMensalService = { pesquisarKits: jest.fn(), garantirKitPorId: jest.fn() };
+    planoService = {
+      listarPlanos: jest.fn(),
+      pesquisarPlanos: jest.fn(),
+      garantirPlanoPorId: jest.fn(),
+    };
+    assinanteService = {
+      pesquisarAssinantes: jest.fn(),
+      garantirAssinantePorId: jest.fn(),
+    };
+    cicloService = {
+      pesquisarCiclos: jest.fn(),
+      garantirCicloPorId: jest.fn(),
+    };
+    kitMensalService = {
+      pesquisarKits: jest.fn(),
+      garantirKitPorId: jest.fn(),
+    };
 
     inserirPlanoUseCase = { execute: jest.fn() };
     alterarPlanoUseCase = { execute: jest.fn() };
@@ -91,7 +117,10 @@ describe('AssinaturaController', () => {
         { provide: InserirKitMensalUseCase, useValue: inserirKitMensalUseCase },
         { provide: AlterarKitMensalUseCase, useValue: alterarKitMensalUseCase },
         { provide: ExcluirKitMensalUseCase, useValue: excluirKitMensalUseCase },
-        { provide: GerarCiclosMensaisUseCase, useValue: gerarCiclosMensaisUseCase },
+        {
+          provide: GerarCiclosMensaisUseCase,
+          useValue: gerarCiclosMensaisUseCase,
+        },
       ],
     }).compile();
 
@@ -102,10 +131,18 @@ describe('AssinaturaController', () => {
 
   describe('inserirPlano', () => {
     it('deve delegar ao InserirPlanoUseCase', async () => {
-      const plano = Object.assign(new PlanoAssinatura(), { id: 1, nome: 'Básico', valor: 4990 });
+      const plano = Object.assign(new PlanoAssinatura(), {
+        id: 1,
+        nome: 'Básico',
+        valor: 4990,
+      });
       inserirPlanoUseCase.execute.mockResolvedValue(plano);
 
-      const result = await controller.inserirPlano({ nome: 'Básico', valor: 4990, ativo: true });
+      const result = await controller.inserirPlano({
+        nome: 'Básico',
+        valor: 4990,
+        ativo: true,
+      });
 
       expect(inserirPlanoUseCase.execute).toHaveBeenCalledWith(
         expect.objectContaining({ nome: 'Básico', valor: 4990, ativo: true }),
@@ -138,7 +175,13 @@ describe('AssinaturaController', () => {
 
   describe('pesquisarPlanos', () => {
     it('deve delegar ao PlanoService com parâmetros de pesquisa', async () => {
-      const resposta = { itens: [], pagina: 1, tamanhoPagina: 10, totalItens: 0, totalPaginas: 1 };
+      const resposta = {
+        itens: [],
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 0,
+        totalPaginas: 1,
+      };
       planoService.pesquisarPlanos.mockResolvedValue(resposta);
       const pesquisa = { pagina: 1, tamanhoPagina: 10 };
 
@@ -166,7 +209,11 @@ describe('AssinaturaController', () => {
       const plano = new PlanoAssinatura();
       alterarPlanoUseCase.execute.mockResolvedValue(plano);
 
-      const result = await controller.alterarPlano(1, { nome: 'Premium', valor: 9990, ativo: true });
+      const result = await controller.alterarPlano(1, {
+        nome: 'Premium',
+        valor: 9990,
+        ativo: true,
+      });
 
       expect(alterarPlanoUseCase.execute).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, nome: 'Premium' }),
@@ -217,13 +264,21 @@ describe('AssinaturaController', () => {
 
   describe('pesquisarAssinantes', () => {
     it('deve delegar ao AssinanteService', async () => {
-      const resposta = { itens: [], pagina: 1, tamanhoPagina: 10, totalItens: 0, totalPaginas: 1 };
+      const resposta = {
+        itens: [],
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 0,
+        totalPaginas: 1,
+      };
       assinanteService.pesquisarAssinantes.mockResolvedValue(resposta);
       const pesquisa = { pagina: 1, tamanhoPagina: 10 };
 
       const result = await controller.pesquisarAssinantes(pesquisa);
 
-      expect(assinanteService.pesquisarAssinantes).toHaveBeenCalledWith(pesquisa);
+      expect(assinanteService.pesquisarAssinantes).toHaveBeenCalledWith(
+        pesquisa,
+      );
       expect(result).toBe(resposta);
     });
   });
@@ -284,7 +339,11 @@ describe('AssinaturaController', () => {
       });
 
       expect(inserirCicloUseCase.execute).toHaveBeenCalledWith(
-        expect.objectContaining({ idAssinante: 1, mesReferencia: 4, anoReferencia: 2026 }),
+        expect.objectContaining({
+          idAssinante: 1,
+          mesReferencia: 4,
+          anoReferencia: 2026,
+        }),
       );
       expect(result).toBe(ciclo);
     });
@@ -307,7 +366,13 @@ describe('AssinaturaController', () => {
 
   describe('pesquisarCiclos', () => {
     it('deve delegar ao CicloService', async () => {
-      const resposta = { itens: [], pagina: 1, tamanhoPagina: 10, totalItens: 0, totalPaginas: 1 };
+      const resposta = {
+        itens: [],
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 0,
+        totalPaginas: 1,
+      };
       cicloService.pesquisarCiclos.mockResolvedValue(resposta);
       const pesquisa = { pagina: 1, tamanhoPagina: 10 };
 
@@ -369,11 +434,15 @@ describe('AssinaturaController', () => {
         idPlano: 1,
         mesReferencia: 4,
         anoReferencia: 2026,
-        itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+        itens: [{ idProduto: 1, quantidade: 1 }],
       });
 
       expect(inserirKitMensalUseCase.execute).toHaveBeenCalledWith(
-        expect.objectContaining({ idPlano: 1, mesReferencia: 4, anoReferencia: 2026 }),
+        expect.objectContaining({
+          idPlano: 1,
+          mesReferencia: 4,
+          anoReferencia: 2026,
+        }),
       );
       expect(result).toBe(kit);
     });
@@ -381,7 +450,13 @@ describe('AssinaturaController', () => {
 
   describe('pesquisarKits', () => {
     it('deve delegar ao KitMensalService', async () => {
-      const resposta = { itens: [], pagina: 1, tamanhoPagina: 10, totalItens: 0, totalPaginas: 1 };
+      const resposta = {
+        itens: [],
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 0,
+        totalPaginas: 1,
+      };
       kitMensalService.pesquisarKits.mockResolvedValue(resposta);
       const pesquisa = { pagina: 1, tamanhoPagina: 10 };
 
@@ -410,12 +485,12 @@ describe('AssinaturaController', () => {
       alterarKitMensalUseCase.execute.mockResolvedValue(kit);
 
       const result = await controller.alterarKitMensal(3, {
-        itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+        itens: [{ idProduto: 1, quantidade: 1 }],
       });
 
       expect(alterarKitMensalUseCase.execute).toHaveBeenCalledWith({
         id: 3,
-        itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+        itens: [{ idProduto: 1, quantidade: 1 }],
       });
       expect(result).toBe(kit);
     });
@@ -433,7 +508,10 @@ describe('AssinaturaController', () => {
 
   describe('gerarCiclosMensais', () => {
     it('deve delegar ao GerarCiclosMensaisUseCase com o id do kit', async () => {
-      gerarCiclosMensaisUseCase.execute.mockResolvedValue({ criados: 50, ignorados: 10 });
+      gerarCiclosMensaisUseCase.execute.mockResolvedValue({
+        criados: 50,
+        ignorados: 10,
+      });
 
       const result = await controller.gerarCiclosMensais(5);
 

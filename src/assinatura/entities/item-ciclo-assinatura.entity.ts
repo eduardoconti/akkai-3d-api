@@ -8,15 +8,17 @@ import {
   Unique,
 } from 'typeorm';
 import { CicloAssinatura } from './ciclo-assinatura.entity';
+import { Produto } from '@produto/entities';
 
 export interface ItemCicloAssinaturaInput {
-  nomeProduto: string;
+  idProduto: number;
   quantidade: number;
   observacao?: string;
+  nomeProduto?: string;
 }
 
 @Entity('item_ciclo_assinatura')
-@Unique('uk_item_ciclo_produto', ['idCiclo', 'nomeProduto'])
+@Unique('uk_item_ciclo_produto', ['idCiclo', 'idProduto'])
 @Check('ck_item_ciclo_quantidade_positiva', '"quantidade" > 0')
 export class ItemCicloAssinatura {
   @PrimaryGeneratedColumn({
@@ -34,8 +36,15 @@ export class ItemCicloAssinatura {
   })
   ciclo!: CicloAssinatura;
 
-  @Column({ type: 'varchar', length: 120, name: 'nome_produto' })
-  nomeProduto!: string;
+  @Column({ type: 'integer', name: 'id_produto' })
+  idProduto!: number;
+
+  @ManyToOne(() => Produto)
+  @JoinColumn({
+    name: 'id_produto',
+    foreignKeyConstraintName: 'fk_item_ciclo_assinatura_produto',
+  })
+  produto!: Produto;
 
   @Column({ type: 'integer' })
   quantidade!: number;
@@ -43,9 +52,14 @@ export class ItemCicloAssinatura {
   @Column({ type: 'text', nullable: true })
   observacao?: string;
 
+  get nomeProduto(): string | undefined {
+    return this.produto?.nome;
+  }
+
   static criar(input: ItemCicloAssinaturaInput): ItemCicloAssinatura {
     const item = new ItemCicloAssinatura();
-    item.nomeProduto = input.nomeProduto;
+    item.idProduto = input.idProduto;
+    item.produto = undefined as unknown as Produto;
     item.quantidade = input.quantidade;
     item.observacao = input.observacao;
     return item;

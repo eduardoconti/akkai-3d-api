@@ -1,23 +1,46 @@
 import { NotFoundException } from '@nestjs/common';
-import { Assinante, CicloAssinatura, CicloAssinaturaInput, StatusCiclo } from '@assinatura/entities';
+import {
+  Assinante,
+  CicloAssinatura,
+  CicloAssinaturaInput,
+  StatusCiclo,
+} from '@assinatura/entities';
 import { AssinanteService, CicloService } from '@assinatura/services';
 import { InserirCicloUseCase } from '@assinatura/use-cases';
+import { ProdutoService } from '@produto/services';
 
 describe('InserirCicloUseCase', () => {
   let useCase: InserirCicloUseCase;
-  let garantirAssinantePorIdMock: jest.MockedFunction<(id: number) => Promise<Assinante>>;
-  let salvarCicloMock: jest.MockedFunction<(c: CicloAssinatura) => Promise<CicloAssinatura>>;
+  let garantirAssinantePorIdMock: jest.MockedFunction<
+    (id: number) => Promise<Assinante>
+  >;
+  let garantirExisteProdutoMock: jest.MockedFunction<
+    (id: number) => Promise<unknown>
+  >;
+  let salvarCicloMock: jest.MockedFunction<
+    (c: CicloAssinatura) => Promise<CicloAssinatura>
+  >;
 
   beforeEach(() => {
     garantirAssinantePorIdMock = jest.fn<Promise<Assinante>, [number]>();
+    garantirExisteProdutoMock = jest.fn<Promise<unknown>, [number]>();
     salvarCicloMock = jest.fn<Promise<CicloAssinatura>, [CicloAssinatura]>();
 
-    const cicloService = { salvarCiclo: salvarCicloMock } as unknown as CicloService;
+    const cicloService = {
+      salvarCiclo: salvarCicloMock,
+    } as unknown as CicloService;
     const assinanteService = {
       garantirAssinantePorId: garantirAssinantePorIdMock,
     } as unknown as AssinanteService;
+    const produtoService = {
+      garantirExisteProduto: garantirExisteProdutoMock,
+    } as unknown as ProdutoService;
 
-    useCase = new InserirCicloUseCase(cicloService, assinanteService);
+    useCase = new InserirCicloUseCase(
+      cicloService,
+      assinanteService,
+      produtoService,
+    );
   });
 
   it('deve criar e salvar o ciclo quando o assinante existe', async () => {
@@ -26,16 +49,23 @@ describe('InserirCicloUseCase', () => {
       mesReferencia: 4,
       anoReferencia: 2026,
       status: StatusCiclo.PENDENTE,
-      itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+      itens: [{ idProduto: 1, quantidade: 1 }],
     };
-    const cicloSalvo = Object.assign(new CicloAssinatura(), { id: 10, ...input });
+    const cicloSalvo = Object.assign(new CicloAssinatura(), {
+      id: 10,
+      ...input,
+    });
 
-    garantirAssinantePorIdMock.mockResolvedValue(Object.assign(new Assinante(), { id: 1 }));
+    garantirAssinantePorIdMock.mockResolvedValue(
+      Object.assign(new Assinante(), { id: 1 }),
+    );
+    garantirExisteProdutoMock.mockResolvedValue({ id: 1 });
     salvarCicloMock.mockResolvedValue(cicloSalvo);
 
     const result = await useCase.execute(input);
 
     expect(garantirAssinantePorIdMock).toHaveBeenCalledWith(1);
+    expect(garantirExisteProdutoMock).toHaveBeenCalledWith(1);
     expect(salvarCicloMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idAssinante: 1,
@@ -56,8 +86,12 @@ describe('InserirCicloUseCase', () => {
       itens: [],
     };
 
-    garantirAssinantePorIdMock.mockResolvedValue(Object.assign(new Assinante(), { id: 1 }));
-    salvarCicloMock.mockResolvedValue(Object.assign(new CicloAssinatura(), { id: 1, ...input }));
+    garantirAssinantePorIdMock.mockResolvedValue(
+      Object.assign(new Assinante(), { id: 1 }),
+    );
+    salvarCicloMock.mockResolvedValue(
+      Object.assign(new CicloAssinatura(), { id: 1, ...input }),
+    );
 
     await useCase.execute(input);
 

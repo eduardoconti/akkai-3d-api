@@ -44,16 +44,21 @@ export class OrcamentoService {
     pesquisa: PesquisarOrcamentosDto,
   ): Promise<ResultadoPaginado<Orcamento>> {
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
+    const queryBuilder = this.orcamentoRepository
+      .createQueryBuilder('orcamento')
+      .leftJoinAndSelect('orcamento.feira', 'feira')
+      .orderBy('orcamento.dataInclusao', 'DESC')
+      .addOrderBy('orcamento.id', 'DESC')
+      .skip(offset)
+      .take(pesquisa.tamanhoPagina);
 
-    const [itens, totalItens] = await this.orcamentoRepository.findAndCount({
-      relations: ['feira'],
-      order: {
-        dataInclusao: 'DESC',
-        id: 'DESC',
-      },
-      skip: offset,
-      take: pesquisa.tamanhoPagina,
-    });
+    if (pesquisa.status?.length) {
+      queryBuilder.andWhere('orcamento.status IN (:...status)', {
+        status: pesquisa.status,
+      });
+    }
+
+    const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
     return {
       itens,

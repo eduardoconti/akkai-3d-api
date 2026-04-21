@@ -10,7 +10,7 @@ describe('CicloAssinatura', () => {
     mesReferencia: 4,
     anoReferencia: 2026,
     status: StatusCiclo.PENDENTE,
-    itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+    itens: [{ idProduto: 1, quantidade: 1 }],
   };
 
   describe('criar', () => {
@@ -23,7 +23,7 @@ describe('CicloAssinatura', () => {
       expect(ciclo.status).toBe(StatusCiclo.PENDENTE);
       expect(ciclo.itens).toHaveLength(1);
       const [primeiroItem] = ciclo.itens;
-      expect(primeiroItem!.nomeProduto).toBe('Caneca');
+      expect(primeiroItem!.idProduto).toBe(1);
       expect(primeiroItem!.quantidade).toBe(1);
       expect(ciclo.dataInclusao).toBeInstanceOf(Date);
     });
@@ -32,8 +32,8 @@ describe('CicloAssinatura', () => {
       const ciclo = CicloAssinatura.criar({
         ...input,
         itens: [
-          { nomeProduto: 'Caneca', quantidade: 1 },
-          { nomeProduto: 'Vaso', quantidade: 2 },
+          { idProduto: 1, quantidade: 1 },
+          { idProduto: 2, quantidade: 2 },
         ],
       });
 
@@ -62,13 +62,13 @@ describe('CicloAssinatura', () => {
         ...input,
         status: StatusCiclo.ENVIADO,
         codigoRastreio: 'BR123456789',
-        itens: [{ nomeProduto: 'Vaso', quantidade: 3, observacao: 'Obs' }],
+        itens: [{ idProduto: 2, quantidade: 3, observacao: 'Obs' }],
       });
 
       expect(ciclo.status).toBe(StatusCiclo.ENVIADO);
       expect(ciclo.codigoRastreio).toBe('BR123456789');
       const [item] = ciclo.itens;
-      expect(item!.nomeProduto).toBe('Vaso');
+      expect(item!.idProduto).toBe(2);
       expect(item!.quantidade).toBe(3);
     });
 

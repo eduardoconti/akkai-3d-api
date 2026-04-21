@@ -1,13 +1,26 @@
 import { NotFoundException } from '@nestjs/common';
-import { Assinante, PlanoAssinatura, StatusAssinante } from '@assinatura/entities';
+import {
+  Assinante,
+  PlanoAssinatura,
+  StatusAssinante,
+} from '@assinatura/entities';
 import { AssinanteService, PlanoService } from '@assinatura/services';
-import { AlterarAssinanteInput, AlterarAssinanteUseCase } from '@assinatura/use-cases';
+import {
+  AlterarAssinanteInput,
+  AlterarAssinanteUseCase,
+} from '@assinatura/use-cases';
 
 describe('AlterarAssinanteUseCase', () => {
   let useCase: AlterarAssinanteUseCase;
-  let garantirAssinantePorIdMock: jest.MockedFunction<(id: number) => Promise<Assinante>>;
-  let garantirPlanoPorIdMock: jest.MockedFunction<(id: number) => Promise<PlanoAssinatura>>;
-  let salvarAssinanteMock: jest.MockedFunction<(a: Assinante) => Promise<Assinante>>;
+  let garantirAssinantePorIdMock: jest.MockedFunction<
+    (id: number) => Promise<Assinante>
+  >;
+  let garantirPlanoPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<PlanoAssinatura>
+  >;
+  let salvarAssinanteMock: jest.MockedFunction<
+    (a: Assinante) => Promise<Assinante>
+  >;
 
   beforeEach(() => {
     garantirAssinantePorIdMock = jest.fn<Promise<Assinante>, [number]>();
@@ -39,10 +52,15 @@ describe('AlterarAssinanteUseCase', () => {
       idPlano: 2,
       status: StatusAssinante.PAUSADO,
     };
-    const assinanteSalvo = Object.assign(new Assinante(), { ...assinanteExistente, ...input });
+    const assinanteSalvo = Object.assign(new Assinante(), {
+      ...assinanteExistente,
+      ...input,
+    });
 
     garantirAssinantePorIdMock.mockResolvedValue(assinanteExistente);
-    garantirPlanoPorIdMock.mockResolvedValue(Object.assign(new PlanoAssinatura(), { id: 2 }));
+    garantirPlanoPorIdMock.mockResolvedValue(
+      Object.assign(new PlanoAssinatura(), { id: 2 }),
+    );
     salvarAssinanteMock.mockResolvedValue(assinanteSalvo);
 
     const result = await useCase.execute(input);
@@ -50,7 +68,10 @@ describe('AlterarAssinanteUseCase', () => {
     expect(garantirAssinantePorIdMock).toHaveBeenCalledWith(1);
     expect(garantirPlanoPorIdMock).toHaveBeenCalledWith(2);
     expect(salvarAssinanteMock).toHaveBeenCalledWith(
-      expect.objectContaining({ nome: 'João Atualizado', status: StatusAssinante.PAUSADO }),
+      expect.objectContaining({
+        nome: 'João Atualizado',
+        status: StatusAssinante.PAUSADO,
+      }),
     );
     expect(result).toBe(assinanteSalvo);
   });
@@ -61,7 +82,12 @@ describe('AlterarAssinanteUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ id: 99, nome: 'X', idPlano: 1, status: StatusAssinante.ATIVO }),
+      useCase.execute({
+        id: 99,
+        nome: 'X',
+        idPlano: 1,
+        status: StatusAssinante.ATIVO,
+      }),
     ).rejects.toThrow(NotFoundException);
 
     expect(salvarAssinanteMock).not.toHaveBeenCalled();
@@ -76,7 +102,12 @@ describe('AlterarAssinanteUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ id: 1, nome: 'X', idPlano: 99, status: StatusAssinante.ATIVO }),
+      useCase.execute({
+        id: 1,
+        nome: 'X',
+        idPlano: 99,
+        status: StatusAssinante.ATIVO,
+      }),
     ).rejects.toThrow(NotFoundException);
 
     expect(salvarAssinanteMock).not.toHaveBeenCalled();

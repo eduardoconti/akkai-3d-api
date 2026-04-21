@@ -4,12 +4,16 @@ import { InserirPlanoUseCase } from '@assinatura/use-cases';
 
 describe('InserirPlanoUseCase', () => {
   let useCase: InserirPlanoUseCase;
-  let salvarPlanoMock: jest.MockedFunction<(plano: PlanoAssinatura) => Promise<PlanoAssinatura>>;
+  let salvarPlanoMock: jest.MockedFunction<
+    (plano: PlanoAssinatura) => Promise<PlanoAssinatura>
+  >;
 
   beforeEach(() => {
     salvarPlanoMock = jest.fn<Promise<PlanoAssinatura>, [PlanoAssinatura]>();
 
-    const planoService = { salvarPlano: salvarPlanoMock } as unknown as PlanoService;
+    const planoService = {
+      salvarPlano: salvarPlanoMock,
+    } as unknown as PlanoService;
 
     useCase = new InserirPlanoUseCase(planoService);
   });
@@ -21,7 +25,10 @@ describe('InserirPlanoUseCase', () => {
       valor: 4990,
       ativo: true,
     };
-    const planoSalvo = Object.assign(new PlanoAssinatura(), { id: 1, ...input });
+    const planoSalvo = Object.assign(new PlanoAssinatura(), {
+      id: 1,
+      ...input,
+    });
     salvarPlanoMock.mockResolvedValue(planoSalvo);
 
     const result = await useCase.execute(input);

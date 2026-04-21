@@ -8,15 +8,17 @@ import {
   Unique,
 } from 'typeorm';
 import { KitMensal } from './kit-mensal.entity';
+import { Produto } from '@produto/entities';
 
 export interface ItemKitMensalInput {
-  nomeProduto: string;
+  idProduto: number;
   quantidade: number;
   observacao?: string;
+  nomeProduto?: string;
 }
 
 @Entity('item_kit_mensal')
-@Unique('uk_item_kit_mensal_produto', ['idKit', 'nomeProduto'])
+@Unique('uk_item_kit_mensal_produto', ['idKit', 'idProduto'])
 @Check('ck_item_kit_mensal_quantidade_positiva', '"quantidade" > 0')
 export class ItemKitMensal {
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_item_kit_mensal' })
@@ -32,8 +34,15 @@ export class ItemKitMensal {
   })
   kit!: KitMensal;
 
-  @Column({ type: 'varchar', length: 120, name: 'nome_produto' })
-  nomeProduto!: string;
+  @Column({ type: 'integer', name: 'id_produto' })
+  idProduto!: number;
+
+  @ManyToOne(() => Produto)
+  @JoinColumn({
+    name: 'id_produto',
+    foreignKeyConstraintName: 'fk_item_kit_mensal_produto',
+  })
+  produto!: Produto;
 
   @Column({ type: 'integer' })
   quantidade!: number;
@@ -41,9 +50,14 @@ export class ItemKitMensal {
   @Column({ type: 'text', nullable: true })
   observacao?: string;
 
+  get nomeProduto(): string | undefined {
+    return this.produto?.nome;
+  }
+
   static criar(input: ItemKitMensalInput): ItemKitMensal {
     const item = new ItemKitMensal();
-    item.nomeProduto = input.nomeProduto;
+    item.idProduto = input.idProduto;
+    item.produto = undefined as unknown as Produto;
     item.quantidade = input.quantidade;
     item.observacao = input.observacao;
     return item;

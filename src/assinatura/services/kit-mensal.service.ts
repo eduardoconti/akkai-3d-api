@@ -60,6 +60,7 @@ export class KitMensalService {
       .createQueryBuilder('kit')
       .leftJoinAndSelect('kit.plano', 'plano')
       .leftJoinAndSelect('kit.itens', 'itens')
+      .leftJoinAndSelect('itens.produto', 'produto')
       .orderBy('kit.anoReferencia', 'DESC')
       .addOrderBy('kit.mesReferencia', 'DESC')
       .skip(calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina))
@@ -91,7 +92,7 @@ export class KitMensalService {
   async obterKitPorId(id: number): Promise<KitMensal | null> {
     return this.kitRepository.findOne({
       where: { id },
-      relations: ['plano', 'itens'],
+      relations: ['plano', 'itens', 'itens.produto'],
     });
   }
 
@@ -110,7 +111,7 @@ export class KitMensalService {
   ): Promise<KitMensal | null> {
     return this.kitRepository.findOne({
       where: { idPlano, mesReferencia: mes, anoReferencia: ano },
-      relations: ['itens'],
+      relations: ['itens', 'itens.produto'],
     });
   }
 

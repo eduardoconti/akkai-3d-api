@@ -1,4 +1,8 @@
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -15,7 +19,9 @@ describe('CicloService', () => {
   };
   let dataSource: { createQueryRunner: jest.Mock };
 
-  const makeCiclo = (overrides: Partial<CicloAssinatura> = {}): CicloAssinatura =>
+  const makeCiclo = (
+    overrides: Partial<CicloAssinatura> = {},
+  ): CicloAssinatura =>
     Object.assign(new CicloAssinatura(), {
       id: 1,
       idAssinante: 1,
@@ -72,7 +78,10 @@ describe('CicloService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CicloService,
-        { provide: getRepositoryToken(CicloAssinatura), useValue: cicloRepository },
+        {
+          provide: getRepositoryToken(CicloAssinatura),
+          useValue: cicloRepository,
+        },
         { provide: DataSource, useValue: dataSource },
       ],
     }).compile();
@@ -92,9 +101,13 @@ describe('CicloService', () => {
     });
 
     it('deve lançar ConflictException quando ciclo duplicado', async () => {
-      cicloRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
+      cicloRepository.save.mockRejectedValue({
+        driverError: { code: '23505' },
+      });
 
-      await expect(service.salvarCiclo(makeCiclo())).rejects.toThrow(ConflictException);
+      await expect(service.salvarCiclo(makeCiclo())).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('deve lançar InternalServerErrorException para outros erros', async () => {
@@ -107,16 +120,21 @@ describe('CicloService', () => {
   });
 
   describe('inserirCiclosEmLote', () => {
-    const itensTemplate = [{ nomeProduto: 'Caneca', quantidade: 1 }];
+    const itensTemplate = [{ idProduto: 1, quantidade: 1 }];
 
     it('deve inserir ciclos e itens em lote e retornar contadores', async () => {
       const { queryRunner } = makeQueryRunner([
         { raw: [{ id: 10 }, { id: 11 }] }, // INSERT ciclos
-        undefined,                           // INSERT itens
+        undefined, // INSERT itens
       ]);
       dataSource.createQueryRunner.mockReturnValue(queryRunner);
 
-      const result = await service.inserirCiclosEmLote([1, 2], 4, 2026, itensTemplate);
+      const result = await service.inserirCiclosEmLote(
+        [1, 2],
+        4,
+        2026,
+        itensTemplate,
+      );
 
       expect(queryRunner.connect).toHaveBeenCalled();
       expect(queryRunner.startTransaction).toHaveBeenCalled();
@@ -132,7 +150,12 @@ describe('CicloService', () => {
       ]);
       dataSource.createQueryRunner.mockReturnValue(queryRunner);
 
-      const result = await service.inserirCiclosEmLote([1, 2, 3], 4, 2026, itensTemplate);
+      const result = await service.inserirCiclosEmLote(
+        [1, 2, 3],
+        4,
+        2026,
+        itensTemplate,
+      );
 
       expect(result).toEqual({ criados: 1, ignorados: 2 });
     });
@@ -143,7 +166,12 @@ describe('CicloService', () => {
       ]);
       dataSource.createQueryRunner.mockReturnValue(queryRunner);
 
-      const result = await service.inserirCiclosEmLote([1], 4, 2026, itensTemplate);
+      const result = await service.inserirCiclosEmLote(
+        [1],
+        4,
+        2026,
+        itensTemplate,
+      );
 
       expect(qb.execute).toHaveBeenCalledTimes(1); // somente o INSERT de ciclos
       expect(result).toEqual({ criados: 0, ignorados: 1 });
@@ -188,7 +216,12 @@ describe('CicloService', () => {
         .mockReturnValueOnce(qr1)
         .mockReturnValueOnce(qr2);
 
-      const result = await service.inserirCiclosEmLote(ids, 4, 2026, itensTemplate);
+      const result = await service.inserirCiclosEmLote(
+        ids,
+        4,
+        2026,
+        itensTemplate,
+      );
 
       expect(dataSource.createQueryRunner).toHaveBeenCalledTimes(2);
       expect(result).toEqual({ criados: 150, ignorados: 0 });
@@ -215,7 +248,10 @@ describe('CicloService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[ciclo], 1]);
 
-      const result = await service.pesquisarCiclos({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarCiclos({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.itens).toHaveLength(1);
       expect(result.totalItens).toBe(1);
@@ -226,7 +262,11 @@ describe('CicloService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarCiclos({ pagina: 1, tamanhoPagina: 10, idAssinante: 5 });
+      await service.pesquisarCiclos({
+        pagina: 1,
+        tamanhoPagina: 10,
+        idAssinante: 5,
+      });
 
       expect(qb.andWhere).toHaveBeenCalledWith(
         'ciclo.idAssinante = :idAssinante',
@@ -244,20 +284,28 @@ describe('CicloService', () => {
         status: StatusCiclo.ENVIADO,
       });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'ciclo.status = :status',
-        { status: StatusCiclo.ENVIADO },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('ciclo.status = :status', {
+        status: StatusCiclo.ENVIADO,
+      });
     });
 
     it('deve aplicar filtro de mes e ano', async () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarCiclos({ pagina: 1, tamanhoPagina: 10, mes: 4, ano: 2026 });
+      await service.pesquisarCiclos({
+        pagina: 1,
+        tamanhoPagina: 10,
+        mes: 4,
+        ano: 2026,
+      });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('ciclo.mesReferencia = :mes', { mes: 4 });
-      expect(qb.andWhere).toHaveBeenCalledWith('ciclo.anoReferencia = :ano', { ano: 2026 });
+      expect(qb.andWhere).toHaveBeenCalledWith('ciclo.mesReferencia = :mes', {
+        mes: 4,
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith('ciclo.anoReferencia = :ano', {
+        ano: 2026,
+      });
     });
   });
 
@@ -270,7 +318,7 @@ describe('CicloService', () => {
 
       expect(cicloRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['assinante', 'itens'],
+        relations: ['assinante', 'itens', 'itens.produto'],
       });
       expect(result).toBe(ciclo);
     });
@@ -314,7 +362,9 @@ describe('CicloService', () => {
     it('deve lançar InternalServerErrorException ao falhar na exclusão', async () => {
       cicloRepository.delete.mockRejectedValue(new Error('FK violation'));
 
-      await expect(service.excluirCiclo(1)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.excluirCiclo(1)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 });

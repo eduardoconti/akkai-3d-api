@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProdutoModule } from '@produto/produto.module';
 import {
   Assinante,
   CicloAssinatura,
@@ -53,6 +54,7 @@ import { AssinaturaController } from '@assinatura/controllers';
     GerarCiclosMensaisUseCase,
   ],
   imports: [
+    ProdutoModule,
     TypeOrmModule.forFeature([
       PlanoAssinatura,
       Assinante,

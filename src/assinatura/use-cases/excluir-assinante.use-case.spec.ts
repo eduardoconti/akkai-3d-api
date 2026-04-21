@@ -5,7 +5,9 @@ import { ExcluirAssinanteUseCase } from '@assinatura/use-cases';
 
 describe('ExcluirAssinanteUseCase', () => {
   let useCase: ExcluirAssinanteUseCase;
-  let garantirAssinantePorIdMock: jest.MockedFunction<(id: number) => Promise<Assinante>>;
+  let garantirAssinantePorIdMock: jest.MockedFunction<
+    (id: number) => Promise<Assinante>
+  >;
   let excluirAssinanteMock: jest.MockedFunction<(id: number) => Promise<void>>;
 
   beforeEach(() => {
@@ -21,7 +23,9 @@ describe('ExcluirAssinanteUseCase', () => {
   });
 
   it('deve excluir o assinante quando existe', async () => {
-    garantirAssinantePorIdMock.mockResolvedValue(Object.assign(new Assinante(), { id: 1 }));
+    garantirAssinantePorIdMock.mockResolvedValue(
+      Object.assign(new Assinante(), { id: 1 }),
+    );
     excluirAssinanteMock.mockResolvedValue(undefined);
 
     await expect(useCase.execute({ id: 1 })).resolves.toBeUndefined();
@@ -35,7 +39,9 @@ describe('ExcluirAssinanteUseCase', () => {
       new NotFoundException('Assinante com ID 99 não encontrado.'),
     );
 
-    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(excluirAssinanteMock).not.toHaveBeenCalled();
   });

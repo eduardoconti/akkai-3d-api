@@ -1,19 +1,32 @@
 import { NotFoundException } from '@nestjs/common';
-import { Assinante, AssinanteInput, PlanoAssinatura, StatusAssinante } from '@assinatura/entities';
+import {
+  Assinante,
+  AssinanteInput,
+  PlanoAssinatura,
+  StatusAssinante,
+} from '@assinatura/entities';
 import { AssinanteService, PlanoService } from '@assinatura/services';
 import { InserirAssinanteUseCase } from '@assinatura/use-cases';
 
 describe('InserirAssinanteUseCase', () => {
   let useCase: InserirAssinanteUseCase;
-  let garantirPlanoPorIdMock: jest.MockedFunction<(id: number) => Promise<PlanoAssinatura>>;
-  let salvarAssinanteMock: jest.MockedFunction<(a: Assinante) => Promise<Assinante>>;
+  let garantirPlanoPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<PlanoAssinatura>
+  >;
+  let salvarAssinanteMock: jest.MockedFunction<
+    (a: Assinante) => Promise<Assinante>
+  >;
 
   beforeEach(() => {
     garantirPlanoPorIdMock = jest.fn<Promise<PlanoAssinatura>, [number]>();
     salvarAssinanteMock = jest.fn<Promise<Assinante>, [Assinante]>();
 
-    const planoService = { garantirPlanoPorId: garantirPlanoPorIdMock } as unknown as PlanoService;
-    const assinanteService = { salvarAssinante: salvarAssinanteMock } as unknown as AssinanteService;
+    const planoService = {
+      garantirPlanoPorId: garantirPlanoPorIdMock,
+    } as unknown as PlanoService;
+    const assinanteService = {
+      salvarAssinante: salvarAssinanteMock,
+    } as unknown as AssinanteService;
 
     useCase = new InserirAssinanteUseCase(assinanteService, planoService);
   });
@@ -52,8 +65,12 @@ describe('InserirAssinanteUseCase', () => {
       status: StatusAssinante.ATIVO,
     };
 
-    garantirPlanoPorIdMock.mockResolvedValue(Object.assign(new PlanoAssinatura(), { id: 1 }));
-    salvarAssinanteMock.mockResolvedValue(Object.assign(new Assinante(), { id: 1, ...input }));
+    garantirPlanoPorIdMock.mockResolvedValue(
+      Object.assign(new PlanoAssinatura(), { id: 1 }),
+    );
+    salvarAssinanteMock.mockResolvedValue(
+      Object.assign(new Assinante(), { id: 1, ...input }),
+    );
 
     await useCase.execute(input);
 
@@ -68,7 +85,11 @@ describe('InserirAssinanteUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ nome: 'X', idPlano: 99, status: StatusAssinante.ATIVO }),
+      useCase.execute({
+        nome: 'X',
+        idPlano: 99,
+        status: StatusAssinante.ATIVO,
+      }),
     ).rejects.toThrow(NotFoundException);
 
     expect(salvarAssinanteMock).not.toHaveBeenCalled();

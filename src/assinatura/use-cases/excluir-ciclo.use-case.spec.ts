@@ -5,7 +5,9 @@ import { ExcluirCicloUseCase } from '@assinatura/use-cases';
 
 describe('ExcluirCicloUseCase', () => {
   let useCase: ExcluirCicloUseCase;
-  let garantirCicloPorIdMock: jest.MockedFunction<(id: number) => Promise<CicloAssinatura>>;
+  let garantirCicloPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<CicloAssinatura>
+  >;
   let excluirCicloMock: jest.MockedFunction<(id: number) => Promise<void>>;
 
   beforeEach(() => {
@@ -21,7 +23,9 @@ describe('ExcluirCicloUseCase', () => {
   });
 
   it('deve excluir o ciclo quando existe', async () => {
-    garantirCicloPorIdMock.mockResolvedValue(Object.assign(new CicloAssinatura(), { id: 1 }));
+    garantirCicloPorIdMock.mockResolvedValue(
+      Object.assign(new CicloAssinatura(), { id: 1 }),
+    );
     excluirCicloMock.mockResolvedValue(undefined);
 
     await expect(useCase.execute({ id: 1 })).resolves.toBeUndefined();
@@ -35,7 +39,9 @@ describe('ExcluirCicloUseCase', () => {
       new NotFoundException('Ciclo com ID 99 não encontrado.'),
     );
 
-    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(excluirCicloMock).not.toHaveBeenCalled();
   });

@@ -5,7 +5,7 @@ describe('KitMensal', () => {
     idPlano: 1,
     mesReferencia: 4,
     anoReferencia: 2026,
-    itens: [{ nomeProduto: 'Caneca', quantidade: 2 }],
+    itens: [{ idProduto: 1, quantidade: 2 }],
   };
 
   describe('criar', () => {
@@ -17,7 +17,7 @@ describe('KitMensal', () => {
       expect(kit.anoReferencia).toBe(2026);
       expect(kit.itens).toHaveLength(1);
       const [primeiroItem] = kit.itens;
-      expect(primeiroItem!.nomeProduto).toBe('Caneca');
+      expect(primeiroItem!.idProduto).toBe(1);
       expect(primeiroItem!.quantidade).toBe(2);
       expect(kit.dataInclusao).toBeInstanceOf(Date);
     });
@@ -26,9 +26,9 @@ describe('KitMensal', () => {
       const kit = KitMensal.criar({
         ...input,
         itens: [
-          { nomeProduto: 'Caneca', quantidade: 1 },
-          { nomeProduto: 'Almofada', quantidade: 2 },
-          { nomeProduto: 'Vaso', quantidade: 1 },
+          { idProduto: 1, quantidade: 1 },
+          { idProduto: 2, quantidade: 2 },
+          { idProduto: 3, quantidade: 1 },
         ],
       });
 
@@ -49,14 +49,14 @@ describe('KitMensal', () => {
       kit.atualizar({
         ...input,
         itens: [
-          { nomeProduto: 'Vaso', quantidade: 1 },
-          { nomeProduto: 'Almofada', quantidade: 2, observacao: 'Obs' },
+          { idProduto: 3, quantidade: 1 },
+          { idProduto: 2, quantidade: 2, observacao: 'Obs' },
         ],
       });
 
       expect(kit.itens).toHaveLength(2);
       const [vaso, almofada] = kit.itens;
-      expect(vaso!.nomeProduto).toBe('Vaso');
+      expect(vaso!.idProduto).toBe(3);
       expect(almofada!.observacao).toBe('Obs');
     });
 

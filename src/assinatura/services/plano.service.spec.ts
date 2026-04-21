@@ -1,4 +1,8 @@
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PlanoAssinatura } from '@assinatura/entities';
@@ -14,7 +18,9 @@ describe('PlanoService', () => {
     createQueryBuilder: jest.Mock;
   };
 
-  const makePlano = (overrides: Partial<PlanoAssinatura> = {}): PlanoAssinatura =>
+  const makePlano = (
+    overrides: Partial<PlanoAssinatura> = {},
+  ): PlanoAssinatura =>
     Object.assign(new PlanoAssinatura(), {
       id: 1,
       nome: 'Plano Básico',
@@ -37,7 +43,10 @@ describe('PlanoService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlanoService,
-        { provide: getRepositoryToken(PlanoAssinatura), useValue: planoRepository },
+        {
+          provide: getRepositoryToken(PlanoAssinatura),
+          useValue: planoRepository,
+        },
       ],
     }).compile();
 
@@ -57,27 +66,38 @@ describe('PlanoService', () => {
 
     it('deve lançar ConflictException quando nome duplicado', async () => {
       const plano = makePlano({ nome: 'Básico' });
-      planoRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
+      planoRepository.save.mockRejectedValue({
+        driverError: { code: '23505' },
+      });
 
-      await expect(service.salvarPlano(plano)).rejects.toThrow(ConflictException);
+      await expect(service.salvarPlano(plano)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('deve lançar InternalServerErrorException para outros erros', async () => {
       const plano = makePlano();
       planoRepository.save.mockRejectedValue(new Error('DB error'));
 
-      await expect(service.salvarPlano(plano)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.salvarPlano(plano)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 
   describe('listarPlanos', () => {
     it('deve retornar lista de planos ordenada por nome', async () => {
-      const planos = [makePlano({ nome: 'A' }), makePlano({ id: 2, nome: 'B' })];
+      const planos = [
+        makePlano({ nome: 'A' }),
+        makePlano({ id: 2, nome: 'B' }),
+      ];
       planoRepository.find.mockResolvedValue(planos);
 
       const result = await service.listarPlanos();
 
-      expect(planoRepository.find).toHaveBeenCalledWith({ order: { nome: 'ASC' } });
+      expect(planoRepository.find).toHaveBeenCalledWith({
+        order: { nome: 'ASC' },
+      });
       expect(result).toBe(planos);
     });
   });
@@ -100,7 +120,10 @@ describe('PlanoService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[plano], 1]);
 
-      const result = await service.pesquisarPlanos({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarPlanos({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.itens).toHaveLength(1);
       expect(result.totalItens).toBe(1);
@@ -112,7 +135,11 @@ describe('PlanoService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarPlanos({ pagina: 1, tamanhoPagina: 10, termo: 'Básico' });
+      await service.pesquisarPlanos({
+        pagina: 1,
+        tamanhoPagina: 10,
+        termo: 'Básico',
+      });
 
       expect(qb.where).toHaveBeenCalledWith(
         expect.stringContaining('LOWER'),
@@ -124,7 +151,10 @@ describe('PlanoService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      const result = await service.pesquisarPlanos({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarPlanos({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.totalPaginas).toBe(1);
     });
@@ -137,7 +167,9 @@ describe('PlanoService', () => {
 
       const result = await service.obterPlanoPorId(1);
 
-      expect(planoRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(planoRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(result).toBe(plano);
     });
 
@@ -180,7 +212,9 @@ describe('PlanoService', () => {
     it('deve lançar InternalServerErrorException ao falhar na exclusão', async () => {
       planoRepository.delete.mockRejectedValue(new Error('FK violation'));
 
-      await expect(service.excluirPlano(1)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.excluirPlano(1)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 });

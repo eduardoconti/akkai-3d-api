@@ -5,7 +5,9 @@ import { ExcluirKitMensalUseCase } from '@assinatura/use-cases';
 
 describe('ExcluirKitMensalUseCase', () => {
   let useCase: ExcluirKitMensalUseCase;
-  let garantirKitPorIdMock: jest.MockedFunction<(id: number) => Promise<KitMensal>>;
+  let garantirKitPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<KitMensal>
+  >;
   let excluirKitMock: jest.MockedFunction<(id: number) => Promise<void>>;
 
   beforeEach(() => {
@@ -21,7 +23,9 @@ describe('ExcluirKitMensalUseCase', () => {
   });
 
   it('deve excluir o kit quando existe', async () => {
-    garantirKitPorIdMock.mockResolvedValue(Object.assign(new KitMensal(), { id: 1 }));
+    garantirKitPorIdMock.mockResolvedValue(
+      Object.assign(new KitMensal(), { id: 1 }),
+    );
     excluirKitMock.mockResolvedValue(undefined);
 
     await expect(useCase.execute({ id: 1 })).resolves.toBeUndefined();
@@ -35,7 +39,9 @@ describe('ExcluirKitMensalUseCase', () => {
       new NotFoundException('Kit mensal com ID 99 não encontrado.'),
     );
 
-    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(excluirKitMock).not.toHaveBeenCalled();
   });

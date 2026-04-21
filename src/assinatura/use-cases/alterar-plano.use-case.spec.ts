@@ -5,8 +5,12 @@ import { AlterarPlanoInput, AlterarPlanoUseCase } from '@assinatura/use-cases';
 
 describe('AlterarPlanoUseCase', () => {
   let useCase: AlterarPlanoUseCase;
-  let garantirPlanoPorIdMock: jest.MockedFunction<(id: number) => Promise<PlanoAssinatura>>;
-  let salvarPlanoMock: jest.MockedFunction<(plano: PlanoAssinatura) => Promise<PlanoAssinatura>>;
+  let garantirPlanoPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<PlanoAssinatura>
+  >;
+  let salvarPlanoMock: jest.MockedFunction<
+    (plano: PlanoAssinatura) => Promise<PlanoAssinatura>
+  >;
 
   beforeEach(() => {
     garantirPlanoPorIdMock = jest.fn<Promise<PlanoAssinatura>, [number]>();
@@ -27,8 +31,16 @@ describe('AlterarPlanoUseCase', () => {
       valor: 4990,
       ativo: true,
     });
-    const input: AlterarPlanoInput = { id: 1, nome: 'Premium', valor: 9990, ativo: false };
-    const planoSalvo = Object.assign(new PlanoAssinatura(), { ...planoExistente, ...input });
+    const input: AlterarPlanoInput = {
+      id: 1,
+      nome: 'Premium',
+      valor: 9990,
+      ativo: false,
+    };
+    const planoSalvo = Object.assign(new PlanoAssinatura(), {
+      ...planoExistente,
+      ...input,
+    });
 
     garantirPlanoPorIdMock.mockResolvedValue(planoExistente);
     salvarPlanoMock.mockResolvedValue(planoSalvo);

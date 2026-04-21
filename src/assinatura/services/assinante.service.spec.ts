@@ -1,4 +1,8 @@
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Assinante, StatusAssinante } from '@assinatura/entities';
@@ -37,7 +41,10 @@ describe('AssinanteService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssinanteService,
-        { provide: getRepositoryToken(Assinante), useValue: assinanteRepository },
+        {
+          provide: getRepositoryToken(Assinante),
+          useValue: assinanteRepository,
+        },
       ],
     }).compile();
 
@@ -57,9 +64,13 @@ describe('AssinanteService', () => {
 
     it('deve lançar ConflictException em caso de conflito', async () => {
       const assinante = makeAssinante();
-      assinanteRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
+      assinanteRepository.save.mockRejectedValue({
+        driverError: { code: '23505' },
+      });
 
-      await expect(service.salvarAssinante(assinante)).rejects.toThrow(ConflictException);
+      await expect(service.salvarAssinante(assinante)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('deve lançar InternalServerErrorException para outros erros', async () => {
@@ -90,7 +101,10 @@ describe('AssinanteService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[assinante], 1]);
 
-      const result = await service.pesquisarAssinantes({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarAssinantes({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.itens).toHaveLength(1);
       expect(result.totalItens).toBe(1);
@@ -102,7 +116,11 @@ describe('AssinanteService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarAssinantes({ pagina: 1, tamanhoPagina: 10, termo: 'João' });
+      await service.pesquisarAssinantes({
+        pagina: 1,
+        tamanhoPagina: 10,
+        termo: 'João',
+      });
 
       expect(qb.andWhere).toHaveBeenCalledWith(
         expect.stringContaining('LOWER'),
@@ -120,29 +138,34 @@ describe('AssinanteService', () => {
         status: StatusAssinante.ATIVO,
       });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'assinante.status = :status',
-        { status: StatusAssinante.ATIVO },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('assinante.status = :status', {
+        status: StatusAssinante.ATIVO,
+      });
     });
 
     it('deve aplicar filtro de idPlano', async () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarAssinantes({ pagina: 1, tamanhoPagina: 10, idPlano: 3 });
+      await service.pesquisarAssinantes({
+        pagina: 1,
+        tamanhoPagina: 10,
+        idPlano: 3,
+      });
 
-      expect(qb.andWhere).toHaveBeenCalledWith(
-        'assinante.idPlano = :idPlano',
-        { idPlano: 3 },
-      );
+      expect(qb.andWhere).toHaveBeenCalledWith('assinante.idPlano = :idPlano', {
+        idPlano: 3,
+      });
     });
 
     it('deve calcular totalPaginas mínimo como 1', async () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      const result = await service.pesquisarAssinantes({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarAssinantes({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.totalPaginas).toBe(1);
     });
@@ -192,7 +215,10 @@ describe('AssinanteService', () => {
 
   describe('listarAssinantesPorPlano', () => {
     it('deve retornar assinantes ativos do plano ordenados por nome', async () => {
-      const assinantes = [makeAssinante(), makeAssinante({ id: 2, nome: 'Maria' })];
+      const assinantes = [
+        makeAssinante(),
+        makeAssinante({ id: 2, nome: 'Maria' }),
+      ];
       assinanteRepository.find.mockResolvedValue(assinantes);
 
       const result = await service.listarAssinantesPorPlano(1);
@@ -224,7 +250,9 @@ describe('AssinanteService', () => {
     it('deve lançar InternalServerErrorException ao falhar na exclusão', async () => {
       assinanteRepository.delete.mockRejectedValue(new Error('FK violation'));
 
-      await expect(service.excluirAssinante(1)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.excluirAssinante(1)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 });

@@ -20,7 +20,11 @@ describe('PlanoAssinatura', () => {
     });
 
     it('deve criar plano sem campos opcionais', () => {
-      const plano = PlanoAssinatura.criar({ nome: 'Básico', valor: 2990, ativo: true });
+      const plano = PlanoAssinatura.criar({
+        nome: 'Básico',
+        valor: 2990,
+        ativo: true,
+      });
 
       expect(plano.descricao).toBeUndefined();
     });
@@ -30,7 +34,12 @@ describe('PlanoAssinatura', () => {
     it('deve atualizar todos os campos do plano', () => {
       const plano = PlanoAssinatura.criar(input);
 
-      plano.atualizar({ nome: 'Plano Premium', descricao: 'Novo desc', valor: 9990, ativo: false });
+      plano.atualizar({
+        nome: 'Plano Premium',
+        descricao: 'Novo desc',
+        valor: 9990,
+        ativo: false,
+      });
 
       expect(plano.nome).toBe('Plano Premium');
       expect(plano.descricao).toBe('Novo desc');

@@ -1,4 +1,8 @@
-import { Assinante, AssinanteInput, StatusAssinante } from '@assinatura/entities';
+import {
+  Assinante,
+  AssinanteInput,
+  StatusAssinante,
+} from '@assinatura/entities';
 
 describe('Assinante', () => {
   const input: AssinanteInput = {
@@ -24,7 +28,11 @@ describe('Assinante', () => {
     });
 
     it('deve criar assinante sem campos opcionais', () => {
-      const assinante = Assinante.criar({ nome: 'Maria', idPlano: 2, status: StatusAssinante.PAUSADO });
+      const assinante = Assinante.criar({
+        nome: 'Maria',
+        idPlano: 2,
+        status: StatusAssinante.PAUSADO,
+      });
 
       expect(assinante.email).toBeUndefined();
       expect(assinante.telefone).toBeUndefined();
@@ -36,7 +44,11 @@ describe('Assinante', () => {
     it('deve atualizar os campos do assinante', () => {
       const assinante = Assinante.criar(input);
 
-      assinante.atualizar({ ...input, nome: 'Maria Souza', status: StatusAssinante.CANCELADO });
+      assinante.atualizar({
+        ...input,
+        nome: 'Maria Souza',
+        status: StatusAssinante.CANCELADO,
+      });
 
       expect(assinante.nome).toBe('Maria Souza');
       expect(assinante.status).toBe(StatusAssinante.CANCELADO);

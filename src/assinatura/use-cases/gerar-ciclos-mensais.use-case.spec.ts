@@ -1,14 +1,28 @@
 import { Assinante, KitMensal, StatusAssinante } from '@assinatura/entities';
-import { AssinanteService, CicloService, KitMensalService } from '@assinatura/services';
+import { ItemKitMensal } from '@assinatura/entities';
+import {
+  AssinanteService,
+  CicloService,
+  KitMensalService,
+} from '@assinatura/services';
 import { InserirCiclosEmLoteResult } from '@assinatura/services';
 import { GerarCiclosMensaisUseCase } from '@assinatura/use-cases';
 
 describe('GerarCiclosMensaisUseCase', () => {
   let useCase: GerarCiclosMensaisUseCase;
-  let garantirKitPorIdMock: jest.MockedFunction<(id: number) => Promise<KitMensal>>;
-  let listarAssinantesPorPlanoMock: jest.MockedFunction<(idPlano: number) => Promise<Assinante[]>>;
+  let garantirKitPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<KitMensal>
+  >;
+  let listarAssinantesPorPlanoMock: jest.MockedFunction<
+    (idPlano: number) => Promise<Assinante[]>
+  >;
   let inserirCiclosEmLoteMock: jest.MockedFunction<
-    (ids: number[], mes: number, ano: number, itens: unknown[]) => Promise<InserirCiclosEmLoteResult>
+    (
+      ids: number[],
+      mes: number,
+      ano: number,
+      itens: unknown[],
+    ) => Promise<InserirCiclosEmLoteResult>
   >;
 
   const makeKit = (overrides: Partial<KitMensal> = {}): KitMensal =>
@@ -18,8 +32,12 @@ describe('GerarCiclosMensaisUseCase', () => {
       mesReferencia: 4,
       anoReferencia: 2026,
       itens: [
-        { nomeProduto: 'Caneca', quantidade: 1 },
-        { nomeProduto: 'Vaso', quantidade: 2, observacao: 'Delicado' },
+        Object.assign(new ItemKitMensal(), { idProduto: 1, quantidade: 1 }),
+        Object.assign(new ItemKitMensal(), {
+          idProduto: 2,
+          quantidade: 2,
+          observacao: 'Delicado',
+        }),
       ],
       ...overrides,
     });
@@ -44,12 +62,20 @@ describe('GerarCiclosMensaisUseCase', () => {
       inserirCiclosEmLote: inserirCiclosEmLoteMock,
     } as unknown as CicloService;
 
-    useCase = new GerarCiclosMensaisUseCase(kitMensalService, assinanteService, cicloService);
+    useCase = new GerarCiclosMensaisUseCase(
+      kitMensalService,
+      assinanteService,
+      cicloService,
+    );
   });
 
   it('deve gerar ciclos para todos os assinantes ativos do plano', async () => {
     const kit = makeKit();
-    const assinantes = [makeAssinante(10), makeAssinante(11), makeAssinante(12)];
+    const assinantes = [
+      makeAssinante(10),
+      makeAssinante(11),
+      makeAssinante(12),
+    ];
 
     garantirKitPorIdMock.mockResolvedValue(kit);
     listarAssinantesPorPlanoMock.mockResolvedValue(assinantes);
@@ -64,8 +90,8 @@ describe('GerarCiclosMensaisUseCase', () => {
       4,
       2026,
       [
-        { nomeProduto: 'Caneca', quantidade: 1, observacao: undefined },
-        { nomeProduto: 'Vaso', quantidade: 2, observacao: 'Delicado' },
+        { idProduto: 1, quantidade: 1, observacao: undefined },
+        { idProduto: 2, quantidade: 2, observacao: 'Delicado' },
       ],
     );
     expect(result).toEqual({ criados: 3, ignorados: 0 });

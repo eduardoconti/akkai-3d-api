@@ -49,7 +49,7 @@ export class CicloService {
     mesReferencia: number,
     anoReferencia: number,
     itensTemplate: Array<{
-      nomeProduto: string;
+      idProduto: number;
       quantidade: number;
       observacao?: string;
     }>,
@@ -90,7 +90,7 @@ export class CicloService {
           const itemValues = insertedIds.flatMap((idCiclo) =>
             itensTemplate.map((item) => ({
               idCiclo,
-              nomeProduto: item.nomeProduto,
+              idProduto: item.idProduto,
               quantidade: item.quantidade,
               observacao: item.observacao,
             })),
@@ -127,6 +127,7 @@ export class CicloService {
       .createQueryBuilder('ciclo')
       .leftJoinAndSelect('ciclo.assinante', 'assinante')
       .leftJoinAndSelect('ciclo.itens', 'itens')
+      .leftJoinAndSelect('itens.produto', 'produto')
       .orderBy('ciclo.anoReferencia', 'DESC')
       .addOrderBy('ciclo.mesReferencia', 'DESC')
       .skip(calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina))
@@ -164,7 +165,7 @@ export class CicloService {
   async obterCicloPorId(id: number): Promise<CicloAssinatura | null> {
     return this.cicloRepository.findOne({
       where: { id },
-      relations: ['assinante', 'itens'],
+      relations: ['assinante', 'itens', 'itens.produto'],
     });
   }
 

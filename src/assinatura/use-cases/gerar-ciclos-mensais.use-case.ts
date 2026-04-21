@@ -33,7 +33,7 @@ export class GerarCiclosMensaisUseCase {
       kit.mesReferencia,
       kit.anoReferencia,
       kit.itens.map((item) => ({
-        nomeProduto: item.nomeProduto,
+        idProduto: item.idProduto,
         quantidade: item.quantidade,
         observacao: item.observacao,
       })),

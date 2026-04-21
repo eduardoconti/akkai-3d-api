@@ -1,4 +1,8 @@
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ItemKitMensal, KitMensal } from '@assinatura/entities';
@@ -41,7 +45,10 @@ describe('KitMensalService', () => {
       providers: [
         KitMensalService,
         { provide: getRepositoryToken(KitMensal), useValue: kitRepository },
-        { provide: getRepositoryToken(ItemKitMensal), useValue: itemKitRepository },
+        {
+          provide: getRepositoryToken(ItemKitMensal),
+          useValue: itemKitRepository,
+        },
       ],
     }).compile();
 
@@ -62,13 +69,17 @@ describe('KitMensalService', () => {
     it('deve lançar ConflictException quando kit duplicado para o mesmo plano/mês/ano', async () => {
       kitRepository.save.mockRejectedValue({ driverError: { code: '23505' } });
 
-      await expect(service.salvarKit(makeKit())).rejects.toThrow(ConflictException);
+      await expect(service.salvarKit(makeKit())).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('deve lançar InternalServerErrorException para outros erros', async () => {
       kitRepository.save.mockRejectedValue(new Error('DB error'));
 
-      await expect(service.salvarKit(makeKit())).rejects.toThrow(InternalServerErrorException);
+      await expect(service.salvarKit(makeKit())).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 
@@ -76,7 +87,10 @@ describe('KitMensalService', () => {
     it('deve excluir itens antigos e salvar os novos', async () => {
       const kit = makeKit();
       const novosItens = [
-        Object.assign(new ItemKitMensal(), { nomeProduto: 'Caneca', quantidade: 1 }),
+        Object.assign(new ItemKitMensal(), {
+          idProduto: 1,
+          quantidade: 1,
+        }),
       ];
       itemKitRepository.delete.mockResolvedValue({ affected: 0 });
       kitRepository.save.mockResolvedValue({ ...kit, itens: novosItens });
@@ -84,7 +98,9 @@ describe('KitMensalService', () => {
       const result = await service.atualizarItensKit(kit, novosItens);
 
       expect(itemKitRepository.delete).toHaveBeenCalledWith({ idKit: kit.id });
-      expect(kitRepository.save).toHaveBeenCalledWith(expect.objectContaining({ itens: novosItens }));
+      expect(kitRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ itens: novosItens }),
+      );
       expect(result).toBeDefined();
     });
 
@@ -128,7 +144,10 @@ describe('KitMensalService', () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[kit], 1]);
 
-      const result = await service.pesquisarKits({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarKits({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.itens).toHaveLength(1);
       expect(result.totalItens).toBe(1);
@@ -141,24 +160,38 @@ describe('KitMensalService', () => {
 
       await service.pesquisarKits({ pagina: 1, tamanhoPagina: 10, idPlano: 2 });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('kit.idPlano = :idPlano', { idPlano: 2 });
+      expect(qb.andWhere).toHaveBeenCalledWith('kit.idPlano = :idPlano', {
+        idPlano: 2,
+      });
     });
 
     it('deve aplicar filtro de mes e ano', async () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      await service.pesquisarKits({ pagina: 1, tamanhoPagina: 10, mes: 4, ano: 2026 });
+      await service.pesquisarKits({
+        pagina: 1,
+        tamanhoPagina: 10,
+        mes: 4,
+        ano: 2026,
+      });
 
-      expect(qb.andWhere).toHaveBeenCalledWith('kit.mesReferencia = :mes', { mes: 4 });
-      expect(qb.andWhere).toHaveBeenCalledWith('kit.anoReferencia = :ano', { ano: 2026 });
+      expect(qb.andWhere).toHaveBeenCalledWith('kit.mesReferencia = :mes', {
+        mes: 4,
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith('kit.anoReferencia = :ano', {
+        ano: 2026,
+      });
     });
 
     it('deve calcular totalPaginas mínimo como 1', async () => {
       const qb = makeQb();
       qb.getManyAndCount.mockResolvedValue([[], 0]);
 
-      const result = await service.pesquisarKits({ pagina: 1, tamanhoPagina: 10 });
+      const result = await service.pesquisarKits({
+        pagina: 1,
+        tamanhoPagina: 10,
+      });
 
       expect(result.totalPaginas).toBe(1);
     });
@@ -173,7 +206,7 @@ describe('KitMensalService', () => {
 
       expect(kitRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['plano', 'itens'],
+        relations: ['plano', 'itens', 'itens.produto'],
       });
       expect(result).toBe(kit);
     });
@@ -215,7 +248,7 @@ describe('KitMensalService', () => {
 
       expect(kitRepository.findOne).toHaveBeenCalledWith({
         where: { idPlano: 1, mesReferencia: 4, anoReferencia: 2026 },
-        relations: ['itens'],
+        relations: ['itens', 'itens.produto'],
       });
       expect(result).toBe(kit);
     });
@@ -240,7 +273,9 @@ describe('KitMensalService', () => {
     it('deve lançar InternalServerErrorException ao falhar na exclusão', async () => {
       kitRepository.delete.mockRejectedValue(new Error('FK violation'));
 
-      await expect(service.excluirKit(1)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.excluirKit(1)).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 });

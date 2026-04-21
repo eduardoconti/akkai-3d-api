@@ -2,46 +2,62 @@ import { NotFoundException } from '@nestjs/common';
 import { ItemKitMensal, KitMensal } from '@assinatura/entities';
 import { KitMensalService } from '@assinatura/services';
 import { AlterarKitMensalUseCase } from '@assinatura/use-cases';
+import { ProdutoService } from '@produto/services';
 
 describe('AlterarKitMensalUseCase', () => {
   let useCase: AlterarKitMensalUseCase;
-  let garantirKitPorIdMock: jest.MockedFunction<(id: number) => Promise<KitMensal>>;
+  let garantirKitPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<KitMensal>
+  >;
+  let garantirExisteProdutoMock: jest.MockedFunction<
+    (id: number) => Promise<unknown>
+  >;
   let atualizarItensKitMock: jest.MockedFunction<
     (kit: KitMensal, itens: ItemKitMensal[]) => Promise<KitMensal>
   >;
 
   beforeEach(() => {
     garantirKitPorIdMock = jest.fn<Promise<KitMensal>, [number]>();
-    atualizarItensKitMock = jest.fn<Promise<KitMensal>, [KitMensal, ItemKitMensal[]]>();
+    garantirExisteProdutoMock = jest.fn<Promise<unknown>, [number]>();
+    atualizarItensKitMock = jest.fn<
+      Promise<KitMensal>,
+      [KitMensal, ItemKitMensal[]]
+    >();
 
     const kitMensalService = {
       garantirKitPorId: garantirKitPorIdMock,
       atualizarItensKit: atualizarItensKitMock,
     } as unknown as KitMensalService;
+    const produtoService = {
+      garantirExisteProduto: garantirExisteProdutoMock,
+    } as unknown as ProdutoService;
 
-    useCase = new AlterarKitMensalUseCase(kitMensalService);
+    useCase = new AlterarKitMensalUseCase(kitMensalService, produtoService);
   });
 
   it('deve alterar os itens do kit quando existe', async () => {
     const kit = Object.assign(new KitMensal(), { id: 1, itens: [] });
     const kitAtualizado = Object.assign(new KitMensal(), {
       ...kit,
-      itens: [Object.assign(new ItemKitMensal(), { nomeProduto: 'Caneca', quantidade: 1 })],
+      itens: [
+        Object.assign(new ItemKitMensal(), { idProduto: 1, quantidade: 1 }),
+      ],
     });
 
     garantirKitPorIdMock.mockResolvedValue(kit);
+    garantirExisteProdutoMock.mockResolvedValue({ id: 1 });
     atualizarItensKitMock.mockResolvedValue(kitAtualizado);
 
     const result = await useCase.execute({
       id: 1,
-      itens: [{ nomeProduto: 'Caneca', quantidade: 1 }],
+      itens: [{ idProduto: 1, quantidade: 1 }],
     });
 
     expect(garantirKitPorIdMock).toHaveBeenCalledWith(1);
     expect(atualizarItensKitMock).toHaveBeenCalledWith(
       kit,
       expect.arrayContaining([
-        expect.objectContaining({ nomeProduto: 'Caneca', quantidade: 1 }),
+        expect.objectContaining({ idProduto: 1, quantidade: 1 }),
       ]),
     );
     expect(result).toBe(kitAtualizado);
@@ -51,12 +67,13 @@ describe('AlterarKitMensalUseCase', () => {
     const kit = Object.assign(new KitMensal(), { id: 1, itens: [] });
     atualizarItensKitMock.mockResolvedValue(kit);
     garantirKitPorIdMock.mockResolvedValue(kit);
+    garantirExisteProdutoMock.mockResolvedValue({ id: 1 });
 
     await useCase.execute({
       id: 1,
       itens: [
-        { nomeProduto: 'Vaso', quantidade: 2, observacao: 'Delicado' },
-        { nomeProduto: 'Caneca', quantidade: 1 },
+        { idProduto: 2, quantidade: 2, observacao: 'Delicado' },
+        { idProduto: 1, quantidade: 1 },
       ],
     });
 
@@ -72,9 +89,9 @@ describe('AlterarKitMensalUseCase', () => {
       new NotFoundException('Kit mensal com ID 99 não encontrado.'),
     );
 
-    await expect(
-      useCase.execute({ id: 99, itens: [] }),
-    ).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99, itens: [] })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(atualizarItensKitMock).not.toHaveBeenCalled();
   });

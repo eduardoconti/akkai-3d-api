@@ -4,7 +4,6 @@ import {
   IsArray,
   IsEnum,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   Max,
@@ -16,13 +15,11 @@ import { StatusCiclo } from '@assinatura/entities';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class AlterarItemCicloDto {
-  @Transform(trimStringValue)
-  @IsString({ message: 'O nome do produto deve ser um texto.' })
-  @IsNotEmpty({ message: 'O nome do produto é obrigatório.' })
-  @MaxLength(120, {
-    message: 'O nome do produto deve ter no máximo 120 caracteres.',
-  })
-  nomeProduto!: string;
+  @Type(() => Number)
+  @IsInt({ message: 'O produto deve ser um número inteiro.' })
+  @Min(1, { message: 'O produto deve ser maior que zero.' })
+  @Max(2147483647, { message: 'O produto ultrapassa o limite permitido.' })
+  idProduto!: number;
 
   @Type(() => Number)
   @IsInt({ message: 'A quantidade deve ser um número inteiro.' })

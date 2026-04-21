@@ -5,7 +5,9 @@ import { ExcluirPlanoUseCase } from '@assinatura/use-cases';
 
 describe('ExcluirPlanoUseCase', () => {
   let useCase: ExcluirPlanoUseCase;
-  let garantirPlanoPorIdMock: jest.MockedFunction<(id: number) => Promise<PlanoAssinatura>>;
+  let garantirPlanoPorIdMock: jest.MockedFunction<
+    (id: number) => Promise<PlanoAssinatura>
+  >;
   let excluirPlanoMock: jest.MockedFunction<(id: number) => Promise<void>>;
 
   beforeEach(() => {
@@ -36,7 +38,9 @@ describe('ExcluirPlanoUseCase', () => {
       new NotFoundException('Plano com ID 99 não encontrado.'),
     );
 
-    await expect(useCase.execute({ id: 99 })).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute({ id: 99 })).rejects.toThrow(
+      NotFoundException,
+    );
 
     expect(excluirPlanoMock).not.toHaveBeenCalled();
   });
