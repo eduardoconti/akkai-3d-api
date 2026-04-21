@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Orcamento } from '@orcamento/entities';
+import { Orcamento, StatusOrcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -8,14 +8,14 @@ describe('OrcamentoService', () => {
   let service: OrcamentoService;
   let repository: {
     save: jest.Mock;
-    findAndCount: jest.Mock;
+    createQueryBuilder: jest.Mock;
     delete: jest.Mock;
   };
 
   beforeEach(async () => {
     repository = {
       save: jest.fn(),
-      findAndCount: jest.fn(),
+      createQueryBuilder: jest.fn(),
       delete: jest.fn(),
     };
 
@@ -58,22 +58,34 @@ describe('OrcamentoService', () => {
   });
 
   it('deve listar orçamentos paginados', async () => {
-    repository.findAndCount.mockResolvedValue([
-      [Object.assign(new Orcamento(), { id: 1 })],
-      1,
-    ]);
+    const qb = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getManyAndCount: jest
+        .fn()
+        .mockResolvedValue([[Object.assign(new Orcamento(), { id: 1 })], 1]),
+    };
+    repository.createQueryBuilder.mockReturnValue(qb);
 
     const result = await service.listarOrcamentos({
       pagina: 1,
       tamanhoPagina: 10,
     });
 
-    expect(repository.findAndCount).toHaveBeenCalledWith({
-      relations: ['feira'],
-      order: { dataInclusao: 'DESC', id: 'DESC' },
-      skip: 0,
-      take: 10,
-    });
+    expect(repository.createQueryBuilder).toHaveBeenCalledWith('orcamento');
+    expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+      'orcamento.feira',
+      'feira',
+    );
+    expect(qb.orderBy).toHaveBeenCalledWith('orcamento.dataInclusao', 'DESC');
+    expect(qb.addOrderBy).toHaveBeenCalledWith('orcamento.id', 'DESC');
+    expect(qb.skip).toHaveBeenCalledWith(0);
+    expect(qb.take).toHaveBeenCalledWith(10);
+    expect(qb.getManyAndCount).toHaveBeenCalled();
     expect(result).toEqual({
       itens: [expect.objectContaining({ id: 1 })],
       pagina: 1,
@@ -81,6 +93,32 @@ describe('OrcamentoService', () => {
       totalItens: 1,
       totalPaginas: 1,
     });
+  });
+
+  it('deve aplicar filtro de status ao listar orçamentos paginados', async () => {
+    const qb = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+    };
+    repository.createQueryBuilder.mockReturnValue(qb);
+
+    await service.listarOrcamentos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      status: [StatusOrcamento.PENDENTE, StatusOrcamento.APROVADO],
+    });
+
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      'orcamento.status IN (:...status)',
+      {
+        status: [StatusOrcamento.PENDENTE, StatusOrcamento.APROVADO],
+      },
+    );
   });
 
   it('deve lançar erro ao falhar exclusão de orçamento', async () => {
