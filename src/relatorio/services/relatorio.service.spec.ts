@@ -110,6 +110,9 @@ describe('RelatorioService', () => {
       totalQuantidadeItensVendidos: 36,
       totalVendas: 30000,
       totalDespesas: 9500,
+      totalImpostos: 0,
+      totalTaxas: 0,
+      totalQuantidadeBrindes: 0,
       saldo: 20500,
       itens: [
         {
@@ -118,6 +121,9 @@ describe('RelatorioService', () => {
           valorVendas: 12000,
           valorDespesas: 4500,
           saldo: 7500,
+          quantidadeBrindes: 0,
+          valorTaxas: 0,
+          valorImpostos: 0,
         },
         {
           mes: 2,
@@ -125,6 +131,9 @@ describe('RelatorioService', () => {
           valorVendas: 18000,
           valorDespesas: 5000,
           saldo: 13000,
+          quantidadeBrindes: 0,
+          valorTaxas: 0,
+          valorImpostos: 0,
         },
         {
           mes: 3,
@@ -132,6 +141,9 @@ describe('RelatorioService', () => {
           valorVendas: 0,
           valorDespesas: 0,
           saldo: 0,
+          quantidadeBrindes: 0,
+          valorTaxas: 0,
+          valorImpostos: 0,
         },
       ],
     });
