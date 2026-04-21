@@ -63,4 +63,11 @@ export class OrcamentoService {
       totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
     };
   }
+
+  async excluirOrcamento(id: number): Promise<void> {
+    await this.orcamentoRepository.delete({ id }).catch((error) => {
+      this.logger.error('Erro ao excluir orçamento', error);
+      throw new InternalServerErrorException('Erro ao excluir orçamento');
+    });
+  }
 }

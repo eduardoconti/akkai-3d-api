@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -23,6 +24,7 @@ import {
 } from '@orcamento/use-cases';
 import {
   ApiAtualizarOrcamentoDocs,
+  ApiExcluirOrcamentoDocs,
   ApiInserirOrcamentoDocs,
   ApiListarOrcamentosDocs,
 } from '@orcamento/docs/orcamento-docs.decorator';
@@ -59,5 +61,11 @@ export class OrcamentoController {
     @Query() pesquisa: PesquisarOrcamentosDto,
   ): Promise<ResultadoPaginado<Orcamento>> {
     return this.orcamentoService.listarOrcamentos(pesquisa);
+  }
+
+  @ApiExcluirOrcamentoDocs()
+  @Delete(':id')
+  async excluirOrcamento(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.orcamentoService.excluirOrcamento(id);
   }
 }

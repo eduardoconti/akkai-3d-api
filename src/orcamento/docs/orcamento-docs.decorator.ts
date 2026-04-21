@@ -135,3 +135,16 @@ export function ApiListarOrcamentosDocs() {
     ApiUnauthorizedErrorResponse('/orcamento'),
   );
 }
+
+export function ApiExcluirOrcamentoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui um orçamento existente.',
+      description: 'Remove um orçamento do sistema pelo seu identificador.',
+    }),
+    ApiIdParamDocs('Identificador do orçamento a ser excluído.'),
+    ApiOkResponse({ description: 'Orçamento excluído com sucesso.' }),
+    ApiUnauthorizedErrorResponse('/orcamento/1'),
+    ApiNotFoundErrorResponse('/orcamento/999', 'Orçamento não encontrado.'),
+  );
+}

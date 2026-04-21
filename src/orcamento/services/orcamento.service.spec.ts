@@ -9,12 +9,14 @@ describe('OrcamentoService', () => {
   let repository: {
     save: jest.Mock;
     findAndCount: jest.Mock;
+    delete: jest.Mock;
   };
 
   beforeEach(async () => {
     repository = {
       save: jest.fn(),
       findAndCount: jest.fn(),
+      delete: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -79,5 +81,21 @@ describe('OrcamentoService', () => {
       totalItens: 1,
       totalPaginas: 1,
     });
+  });
+
+  it('deve lançar erro ao falhar exclusão de orçamento', async () => {
+    repository.delete = jest.fn().mockRejectedValue(new Error('falha'));
+
+    await expect(service.excluirOrcamento(1)).rejects.toThrow(
+      new InternalServerErrorException('Erro ao excluir orçamento'),
+    );
+  });
+
+  it('deve excluir orçamento', async () => {
+    repository.delete = jest.fn().mockResolvedValue(undefined);
+
+    await service.excluirOrcamento(1);
+
+    expect(repository.delete).toHaveBeenCalledWith({ id: 1 });
   });
 });

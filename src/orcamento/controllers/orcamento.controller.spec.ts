@@ -9,12 +9,18 @@ import {
 
 describe('OrcamentoController', () => {
   let controller: OrcamentoController;
-  let orcamentoService: { listarOrcamentos: jest.Mock };
+  let orcamentoService: {
+    listarOrcamentos: jest.Mock;
+    excluirOrcamento: jest.Mock;
+  };
   let inserirOrcamentoUseCase: { execute: jest.Mock };
   let atualizarOrcamentoUseCase: { execute: jest.Mock };
 
   beforeEach(async () => {
-    orcamentoService = { listarOrcamentos: jest.fn() };
+    orcamentoService = {
+      listarOrcamentos: jest.fn(),
+      excluirOrcamento: jest.fn(),
+    };
     inserirOrcamentoUseCase = { execute: jest.fn() };
     atualizarOrcamentoUseCase = { execute: jest.fn() };
 
@@ -74,5 +80,13 @@ describe('OrcamentoController', () => {
       tamanhoPagina: 10,
     });
     expect(result).toBe(response);
+  });
+
+  it('deve delegar exclusão de orçamento', async () => {
+    orcamentoService.excluirOrcamento = jest.fn().mockResolvedValue(undefined);
+
+    await controller.excluirOrcamento(1);
+
+    expect(orcamentoService.excluirOrcamento).toHaveBeenCalledWith(1);
   });
 });
