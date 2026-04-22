@@ -4,11 +4,13 @@ import { DateService } from '@common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
   DespesasCategoriasMesDashboardDto,
+  ObterRelatorioProducaoDto,
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
   ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
+  RelatorioProducaoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
   TopProdutosMesDashboardDto,
@@ -47,6 +49,20 @@ type TotalizadoresValorProdutosEstoqueRow = {
   totalValorTotal: string | number | null;
 };
 
+type ProducaoProdutoRow = {
+  codigo: string;
+  nome: string;
+  quantidadeProduzida: string | number;
+  valorUnitario: string | number;
+  valorEstimado: string | number;
+};
+
+type TotalizadoresRelatorioProducaoRow = {
+  totalItens: string | number;
+  totalQuantidadeProduzida: string | number | null;
+  totalValorEstimado: string | number | null;
+};
+
 type DespesaCategoriaMesDashboardRow = {
   idCategoria: string | number | null;
   nomeCategoria: string | null;
@@ -70,6 +86,120 @@ export class RelatorioService {
     private readonly dataSource: DataSource,
     private readonly dateService: DateService,
   ) {}
+
+  async obterRelatorioProducao(
+    filtro: ObterRelatorioProducaoDto,
+  ): Promise<RelatorioProducaoDto> {
+    const dataInicio = filtro.dataInicio;
+    const dataFim = filtro.dataFim ?? filtro.dataInicio;
+
+    if (dataFim < dataInicio) {
+      throw new BadRequestException(
+        'A data final não pode ser menor que a data inicial.',
+      );
+    }
+
+    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
+    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+    const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
+    const orderByMap = {
+      codigo: 'p.codigo',
+      nome: 'p.nome',
+      quantidadeProduzida: '"quantidadeProduzida"',
+      valorEstimado: '"valorEstimado"',
+    } as const;
+    const orderBy = orderByMap[filtro.ordenarPor ?? 'quantidadeProduzida'];
+    const orderDirection = filtro.direcao === 'asc' ? 'ASC' : 'DESC';
+    const diasNoPeriodo =
+      Math.floor(
+        (Date.parse(`${dataFim}T00:00:00Z`) -
+          Date.parse(`${dataInicio}T00:00:00Z`)) /
+          86400000,
+      ) + 1;
+
+    const rows: ProducaoProdutoRow[] = await this.dataSource.query(
+      `
+        SELECT
+          p.codigo AS codigo,
+          p.nome AS nome,
+          SUM(mov.quantidade) AS "quantidadeProduzida",
+          p.valor AS "valorUnitario",
+          SUM(mov.quantidade) * p.valor AS "valorEstimado"
+        FROM movimentacao_estoque mov
+        INNER JOIN produto p ON p.id = mov.id_produto
+        WHERE mov.tipo = 'E'
+          AND mov.origem = 'PRODUCAO'
+          AND mov.data_inclusao BETWEEN $1 AND $2
+        GROUP BY p.id, p.codigo, p.nome, p.valor
+        ORDER BY ${orderBy} ${orderDirection}, p.codigo ASC
+        LIMIT $3
+        OFFSET $4
+      `,
+      [rangeInicio.start, rangeFim.end, filtro.tamanhoPagina, offset],
+    );
+
+    const totalizadores: TotalizadoresRelatorioProducaoRow[] =
+      await this.dataSource.query(
+        `
+          SELECT
+            COUNT(*)::int AS "totalItens",
+            COALESCE(SUM(producoes."quantidadeProduzida"), 0) AS "totalQuantidadeProduzida",
+            COALESCE(SUM(producoes."valorEstimado"), 0) AS "totalValorEstimado"
+          FROM (
+            SELECT
+              p.id,
+              SUM(mov.quantidade) AS "quantidadeProduzida",
+              SUM(mov.quantidade) * p.valor AS "valorEstimado"
+            FROM movimentacao_estoque mov
+            INNER JOIN produto p ON p.id = mov.id_produto
+            WHERE mov.tipo = 'E'
+              AND mov.origem = 'PRODUCAO'
+              AND mov.data_inclusao BETWEEN $1 AND $2
+            GROUP BY p.id, p.valor
+          ) producoes
+        `,
+        [rangeInicio.start, rangeFim.end],
+      );
+
+    const totais = totalizadores[0];
+    const totalItens = Number(totais?.totalItens ?? 0);
+    const totalQuantidadeProduzida = Number(
+      totais?.totalQuantidadeProduzida ?? 0,
+    );
+    const totalValorEstimado = Number(totais?.totalValorEstimado ?? 0);
+
+    return {
+      dataInicio,
+      dataFim,
+      diasNoPeriodo,
+      pagina: filtro.pagina,
+      tamanhoPagina: filtro.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
+      totalQuantidadeProduzida,
+      totalValorEstimado,
+      mediaQuantidadePorDia:
+        diasNoPeriodo > 0 ? totalQuantidadeProduzida / diasNoPeriodo : 0,
+      mediaValorPorDia:
+        diasNoPeriodo > 0 ? totalValorEstimado / diasNoPeriodo : 0,
+      itens: rows.map((row) => {
+        const quantidadeProduzida = Number(row.quantidadeProduzida ?? 0);
+        const valorEstimado = Number(row.valorEstimado ?? 0);
+
+        return {
+          codigo: row.codigo,
+          nome: row.nome,
+          quantidadeProduzida,
+          valorUnitario: Number(row.valorUnitario ?? 0),
+          valorEstimado,
+          mediaQuantidadePorDia:
+            diasNoPeriodo > 0 ? quantidadeProduzida / diasNoPeriodo : 0,
+          mediaValorPorDia:
+            diasNoPeriodo > 0 ? valorEstimado / diasNoPeriodo : 0,
+        };
+      }),
+    };
+  }
 
   async obterResumoMensalDashboard(
     filtro: ObterResumoMensalDashboardDto,

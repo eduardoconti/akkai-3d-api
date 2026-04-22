@@ -12,6 +12,7 @@ describe('RelatorioController', () => {
     obterResumoVendasPorPeriodo: jest.Mock;
     obterProdutosMaisVendidosPorPeriodo: jest.Mock;
     obterValorProdutosEstoque: jest.Mock;
+    obterRelatorioProducao: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -22,6 +23,7 @@ describe('RelatorioController', () => {
       obterResumoVendasPorPeriodo: jest.fn(),
       obterProdutosMaisVendidosPorPeriodo: jest.fn(),
       obterValorProdutosEstoque: jest.fn(),
+      obterRelatorioProducao: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -195,6 +197,37 @@ describe('RelatorioController', () => {
     const result = await controller.obterValorProdutosEstoque(filtro);
 
     expect(relatorioService.obterValorProdutosEstoque).toHaveBeenCalledWith(
+      filtro,
+    );
+    expect(result).toEqual(response);
+  });
+
+  it('deve delegar a obtenção do relatório de produção', async () => {
+    const filtro = {
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-30',
+      pagina: 1,
+      tamanhoPagina: 10,
+    };
+    const response = {
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-30',
+      diasNoPeriodo: 30,
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidadeProduzida: 12,
+      totalValorEstimado: 24000,
+      mediaQuantidadePorDia: 0.4,
+      mediaValorPorDia: 800,
+      itens: [],
+    };
+    relatorioService.obterRelatorioProducao.mockResolvedValue(response);
+
+    const result = await controller.obterRelatorioProducao(filtro);
+
+    expect(relatorioService.obterRelatorioProducao).toHaveBeenCalledWith(
       filtro,
     );
     expect(result).toEqual(response);

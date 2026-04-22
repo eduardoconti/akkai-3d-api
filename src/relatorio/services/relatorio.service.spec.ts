@@ -240,6 +240,81 @@ describe('RelatorioService', () => {
     ]);
   });
 
+  it('deve retornar o relatório de produção do período informado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          codigo: 'CB-001',
+          nome: 'Cubo Infinito',
+          quantidadeProduzida: '12',
+          valorUnitario: '2500',
+          valorEstimado: '30000',
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          totalItens: '1',
+          totalQuantidadeProduzida: '12',
+          totalValorEstimado: '30000',
+        },
+      ]);
+
+    const result = await service.obterRelatorioProducao({
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-06',
+      pagina: 1,
+      tamanhoPagina: 10,
+      ordenarPor: 'quantidadeProduzida',
+      direcao: 'desc',
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("mov.origem = 'PRODUCAO'"),
+      ['2026-04-01 00:00:00.000', '2026-04-06 23:59:59.999', 10, 0],
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('COUNT(*)::int AS "totalItens"'),
+      ['2026-04-01 00:00:00.000', '2026-04-06 23:59:59.999'],
+    );
+    expect(result).toEqual({
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-06',
+      diasNoPeriodo: 6,
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidadeProduzida: 12,
+      totalValorEstimado: 30000,
+      mediaQuantidadePorDia: 2,
+      mediaValorPorDia: 5000,
+      itens: [
+        {
+          codigo: 'CB-001',
+          nome: 'Cubo Infinito',
+          quantidadeProduzida: 12,
+          valorUnitario: 2500,
+          valorEstimado: 30000,
+          mediaQuantidadePorDia: 2,
+          mediaValorPorDia: 5000,
+        },
+      ],
+    });
+  });
+
+  it('deve lançar erro quando a data final for menor que a data inicial no relatório de produção', async () => {
+    await expect(
+      service.obterRelatorioProducao({
+        dataInicio: '2026-04-10',
+        dataFim: '2026-04-01',
+        pagina: 1,
+        tamanhoPagina: 10,
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
   it('deve lançar erro quando a data final for menor que a data inicial', async () => {
     await expect(
       service.obterResumoVendasPorPeriodo({

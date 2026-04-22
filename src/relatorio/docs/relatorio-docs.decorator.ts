@@ -304,3 +304,85 @@ export function ApiValorProdutosEstoqueDocs() {
     ApiForbiddenErrorResponse('/relatorio/estoque/valor-produtos'),
   );
 }
+
+export function ApiRelatorioProducaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém o relatório de produção por período.',
+      description:
+        'Retorna as peças produzidas a partir das movimentações de estoque com origem PRODUCAO, incluindo quantidade produzida, valor estimado com base no valor atual do produto e médias diárias no período.',
+    }),
+    ApiQuery({
+      name: 'pagina',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Página desejada da consulta.',
+    }),
+    ApiQuery({
+      name: 'tamanhoPagina',
+      required: false,
+      type: Number,
+      example: 10,
+      description: 'Quantidade máxima de itens por página.',
+    }),
+    ApiQuery({
+      name: 'dataInicio',
+      required: false,
+      type: String,
+      example: '2026-04-01',
+      description: 'Data inicial do período, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'dataFim',
+      required: false,
+      type: String,
+      example: '2026-04-30',
+      description: 'Data final do período, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'ordenarPor',
+      required: false,
+      enum: ['codigo', 'nome', 'quantidadeProduzida', 'valorEstimado'],
+      description: 'Campo usado para ordenação do relatório.',
+    }),
+    ApiQuery({
+      name: 'direcao',
+      required: false,
+      enum: ['asc', 'desc'],
+      description: 'Direção da ordenação.',
+    }),
+    ApiOkResponse({
+      description: 'Relatório calculado com sucesso.',
+      schema: {
+        example: {
+          dataInicio: '2026-04-01',
+          dataFim: '2026-04-30',
+          diasNoPeriodo: 30,
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 2,
+          totalPaginas: 1,
+          totalQuantidadeProduzida: 30,
+          totalValorEstimado: 54000,
+          mediaQuantidadePorDia: 1,
+          mediaValorPorDia: 1800,
+          itens: [
+            {
+              codigo: 'CB-001',
+              nome: 'Cubo Infinito',
+              quantidadeProduzida: 18,
+              valorUnitario: 2000,
+              valorEstimado: 36000,
+              mediaQuantidadePorDia: 0.6,
+              mediaValorPorDia: 1200,
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/producao'),
+    ApiUnauthorizedErrorResponse('/relatorio/producao'),
+    ApiForbiddenErrorResponse('/relatorio/producao'),
+  );
+}

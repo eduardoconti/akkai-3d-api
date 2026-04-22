@@ -2,11 +2,13 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   DespesasCategoriasMesDashboardDto,
+  ObterRelatorioProducaoDto,
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
   ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
+  RelatorioProducaoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
   TopProdutosMesDashboardDto,
@@ -16,6 +18,7 @@ import { RelatorioService } from '@relatorio/services';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiProdutosMaisVendidosDocs,
+  ApiRelatorioProducaoDocs,
   ApiDespesasCategoriasMesDashboardDocs,
   ApiTopProdutosMesDashboardDocs,
   ApiResumoMensalDashboardDocs,
@@ -78,5 +81,14 @@ export class RelatorioController {
     @Query() filtro: ObterValorProdutosEstoqueDto,
   ): Promise<ValorProdutosEstoqueDto> {
     return await this.relatorioService.obterValorProdutosEstoque(filtro);
+  }
+
+  @ApiRelatorioProducaoDocs()
+  @Get('producao')
+  @Permissions('report.read')
+  async obterRelatorioProducao(
+    @Query() filtro: ObterRelatorioProducaoDto,
+  ): Promise<RelatorioProducaoDto> {
+    return await this.relatorioService.obterRelatorioProducao(filtro);
   }
 }
