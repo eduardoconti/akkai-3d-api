@@ -102,6 +102,25 @@ describe('PlanoService', () => {
     });
   });
 
+  describe('listarPlanosAtivos', () => {
+    it('deve retornar apenas os planos ativos ordenados por nome', async () => {
+      const planos = [
+        makePlano({ nome: 'Clube Criativo', ativo: true }),
+        makePlano({ id: 2, nome: 'Colecao Akkai', ativo: true }),
+      ];
+      planoRepository.find.mockResolvedValue(planos);
+
+      const result = await service.listarPlanosAtivos();
+
+      expect(planoRepository.find).toHaveBeenCalledWith({
+        where: { ativo: true },
+        order: { nome: 'ASC' },
+        select: ['id', 'nome', 'descricao', 'valor', 'ativo'],
+      });
+      expect(result).toBe(planos);
+    });
+  });
+
   describe('pesquisarPlanos', () => {
     const makeQb = () => {
       const qb = {

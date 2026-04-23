@@ -9,7 +9,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const corsOrigin = configService.getOrThrow<string>('CORS_ORIGIN');
+  const corsOrigins = configService
+    .getOrThrow<string>('CORS_ORIGIN')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
   const isProduction =
     configService.getOrThrow<string>('NODE_ENV') === 'production';
   const httpAdapter = app.getHttpAdapter().getInstance() as {
@@ -18,7 +22,7 @@ async function bootstrap() {
 
   httpAdapter.set('trust proxy', 1);
   app.enableCors({
-    origin: corsOrigin,
+    origin: corsOrigins,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

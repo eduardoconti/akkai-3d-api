@@ -30,10 +30,13 @@ import {
   InserirKitMensalUseCase,
   InserirPlanoUseCase,
 } from '@assinatura/use-cases';
-import { AssinaturaController } from '@assinatura/controllers';
+import {
+  AssinaturaController,
+  PublicAssinaturaController,
+} from '@assinatura/controllers';
 
 @Module({
-  controllers: [AssinaturaController],
+  controllers: [AssinaturaController, PublicAssinaturaController],
   providers: [
     PlanoService,
     AssinanteService,
