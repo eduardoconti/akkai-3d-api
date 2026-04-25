@@ -23,16 +23,18 @@ export class InserirProdutoDto {
   })
   nome!: string;
 
-  @Transform(trimStringValue)
-  @IsString({ message: 'O código do produto deve ser um texto.' })
   @IsNotEmpty({ message: 'O código do produto é obrigatório.' })
-  @MinLength(2, {
-    message: 'O código do produto deve ter pelo menos 2 caracteres.',
+  @Type(() => Number)
+  @IsInt({
+    message: 'O código do produto deve ser um número inteiro.',
   })
-  @MaxLength(40, {
-    message: 'O código do produto deve ter no máximo 40 caracteres.',
+  @Min(1, {
+    message: 'O código do produto deve ser maior que zero.',
   })
-  codigo!: string;
+  @Max(2147483647, {
+    message: 'O código do produto ultrapassa o limite permitido.',
+  })
+  codigo!: number;
 
   @IsOptional()
   @Transform(trimStringValue)

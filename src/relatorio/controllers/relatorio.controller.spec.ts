@@ -74,7 +74,7 @@ describe('RelatorioController', () => {
       itens: [
         {
           idProduto: 1,
-          codigo: 'CB-001',
+          codigo: 3001,
           nomeProduto: 'Cubo Infinito',
           categoria: { id: 2, nome: 'IMPRESSAO 3D' },
           quantidadeVendida: 18,
@@ -184,7 +184,7 @@ describe('RelatorioController', () => {
       totalValorTotal: 20000,
       itens: [
         {
-          codigo: 'CB-001',
+          codigo: 3001,
           nome: 'Cubo Infinito',
           quantidade: 8,
           valor: 2500,

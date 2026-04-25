@@ -15,7 +15,7 @@ import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
 
 export interface ProdutoInput {
   nome: string;
-  codigo: string;
+  codigo: number;
   descricao?: string;
   estoqueMinimo?: number;
   idCategoria: number;
@@ -28,6 +28,7 @@ export interface CriarProdutoInput extends ProdutoInput {
 
 @Entity('produto')
 @Unique('uk_produto_codigo', ['codigo'])
+@Check('ck_produto_codigo_positivo', '"codigo" > 0')
 @Check('ck_produto_valor_nao_negativo', '"valor" >= 0')
 @Check(
   'ck_produto_estoque_minimo_nao_negativo',
@@ -43,8 +44,8 @@ export class Produto {
   @Column({ type: 'varchar', length: 120 })
   nome!: string;
 
-  @Column({ type: 'varchar', length: 40 })
-  codigo!: string;
+  @Column({ type: 'integer' })
+  codigo!: number;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   descricao?: string;

@@ -96,7 +96,7 @@ describe('InserirVendaUseCase', () => {
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 1,
         valor: 2500,
       }),
@@ -160,7 +160,7 @@ describe('InserirVendaUseCase', () => {
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 1,
         valor: 1000,
       }),
@@ -209,7 +209,7 @@ describe('InserirVendaUseCase', () => {
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 1,
         valor: 1000,
       }),
@@ -354,7 +354,7 @@ describe('InserirVendaUseCase', () => {
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 1,
         valor: 2500,
       }),
@@ -413,7 +413,7 @@ describe('InserirVendaUseCase', () => {
       Object.assign(new Produto(), {
         id: 1,
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 1,
         valor: 1000,
       }),

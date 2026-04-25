@@ -156,7 +156,7 @@ describe('RelatorioService', () => {
     dataSource.query.mockResolvedValueOnce([
       {
         idProduto: '1',
-        codigo: 'CB-001',
+        codigo: '3001',
         nomeProduto: 'CUBO INFINITO',
         categoriaId: '2',
         categoriaNome: 'IMPRESSAO 3D',
@@ -176,7 +176,7 @@ describe('RelatorioService', () => {
       itens: [
         {
           idProduto: 1,
-          codigo: 'CB-001',
+          codigo: 3001,
           nomeProduto: 'CUBO INFINITO',
           categoria: { id: 2, nome: 'IMPRESSAO 3D' },
           quantidadeVendida: 18,
@@ -244,7 +244,7 @@ describe('RelatorioService', () => {
     dataSource.query
       .mockResolvedValueOnce([
         {
-          codigo: 'CB-001',
+          codigo: '3001',
           nome: 'Cubo Infinito',
           quantidadeProduzida: '12',
           valorUnitario: '2500',
@@ -292,7 +292,7 @@ describe('RelatorioService', () => {
       mediaValorPorDia: 5000,
       itens: [
         {
-          codigo: 'CB-001',
+          codigo: 3001,
           nome: 'Cubo Infinito',
           quantidadeProduzida: 12,
           valorUnitario: 2500,
@@ -339,7 +339,7 @@ describe('RelatorioService', () => {
       .mockResolvedValueOnce([
         {
           idProduto: '1',
-          codigo: 'CB-001',
+          codigo: '3001',
           nomeProduto: 'CUBO INFINITO',
           categoriaId: '2',
           categoriaNome: 'IMPRESSAO 3D',
@@ -369,7 +369,7 @@ describe('RelatorioService', () => {
       itens: [
         {
           idProduto: 1,
-          codigo: 'CB-001',
+          codigo: 3001,
           nomeProduto: 'CUBO INFINITO',
           categoria: {
             id: 2,
@@ -470,7 +470,7 @@ describe('RelatorioService', () => {
     dataSource.query
       .mockResolvedValueOnce([
         {
-          codigo: 'CB-001',
+          codigo: '3001',
           nome: 'Cubo Infinito',
           quantidade: '8',
           valor: '2500',
@@ -502,7 +502,7 @@ describe('RelatorioService', () => {
       totalValorTotal: 20000,
       itens: [
         {
-          codigo: 'CB-001',
+          codigo: 3001,
           nome: 'Cubo Infinito',
           quantidade: 8,
           valor: 2500,

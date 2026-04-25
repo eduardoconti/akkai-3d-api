@@ -1,6 +1,6 @@
 export class ProdutoMaisVendidoDto {
   idProduto?: number | null;
-  codigo?: string | null;
+  codigo?: number | null;
   nomeProduto!: string;
   categoria?: {
     id: number;

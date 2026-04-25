@@ -61,7 +61,7 @@ describe('ProdutoService', () => {
         {
           id: '1',
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: '1001',
           descricao: 'Modelo geek',
           id_categoria: '2',
           estoque_minimo: '3',
@@ -82,7 +82,7 @@ describe('ProdutoService', () => {
         {
           id: 1,
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
           estoqueMinimo: 3,
@@ -142,7 +142,7 @@ describe('ProdutoService', () => {
         {
           id: '1',
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: '1001',
           descricao: 'Modelo geek',
           id_categoria: '2',
           estoque_minimo: '3',
@@ -163,7 +163,7 @@ describe('ProdutoService', () => {
         {
           id: 1,
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
           estoqueMinimo: 3,
@@ -194,6 +194,9 @@ describe('ProdutoService', () => {
       1,
       expect.stringContaining('WHERE'),
       expect.arrayContaining(['%caneca%']),
+    );
+    expect(dataSource.query.mock.calls[0]?.[0]).toContain(
+      'p.codigo::text LIKE $1',
     );
   });
 
@@ -272,12 +275,15 @@ describe('ProdutoService', () => {
       expect.stringContaining('WHERE'),
       expect.arrayContaining(['%caneca%']),
     );
+    expect(dataSource.query.mock.calls[0]?.[0]).toContain(
+      'p.codigo::text LIKE $1',
+    );
   });
 
   it('deve salvar produto com sucesso', async () => {
     const produto = Object.assign(new Produto(), {
       id: 1,
-      codigo: 'CAN001',
+      codigo: 1001,
     });
     produtoRepository.save.mockResolvedValue(produto);
 
@@ -317,18 +323,18 @@ describe('ProdutoService', () => {
   });
 
   it('deve lançar conflito ao inserir produto com código duplicado', async () => {
-    const produto = Object.assign(new Produto(), { codigo: 'CAN001' });
+    const produto = Object.assign(new Produto(), { codigo: 1001 });
     produtoRepository.save.mockRejectedValue({
       driverError: { code: '23505' },
     });
 
     await expect(service.salvar(produto)).rejects.toThrow(
-      new ConflictException('Código CAN001 já existe'),
+      new ConflictException('Código 1001 já existe'),
     );
   });
 
   it('deve lançar erro interno ao falhar salvamento de produto', async () => {
-    const produto = Object.assign(new Produto(), { codigo: 'CAN001' });
+    const produto = Object.assign(new Produto(), { codigo: 1001 });
     produtoRepository.save.mockRejectedValue(new Error('falha'));
 
     await expect(service.salvar(produto)).rejects.toThrow(
@@ -351,7 +357,7 @@ describe('ProdutoService', () => {
     const produto = Object.assign(new Produto(), {
       id: 1,
       nome: 'Caneca',
-      codigo: 'CAN001',
+      codigo: 1001,
       valor: 2500,
       categoria: { id: 2, nome: 'Canecas' },
     });

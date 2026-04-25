@@ -49,7 +49,7 @@ export class ProdutoService {
       filtros.push(`
         (
           LOWER(p.nome) LIKE $${parametros.length}
-          OR LOWER(p.codigo) LIKE $${parametros.length}
+          OR p.codigo::text LIKE $${parametros.length}
           OR LOWER(COALESCE(p.descricao, '')) LIKE $${parametros.length}
           OR LOWER(c.nome) LIKE $${parametros.length}
         )
@@ -81,7 +81,7 @@ export class ProdutoService {
       Array<{
         id: string;
         nome: string;
-        codigo: string;
+        codigo: string | number;
         descricao: string | null;
         id_categoria: string;
         estoque_minimo: string | null;
@@ -115,7 +115,7 @@ export class ProdutoService {
       itens: produtos.map((produto) => ({
         id: Number(produto.id),
         nome: produto.nome,
-        codigo: produto.codigo,
+        codigo: Number(produto.codigo),
         descricao: produto.descricao ?? undefined,
         idCategoria: Number(produto.id_categoria),
         estoqueMinimo:
@@ -188,7 +188,7 @@ export class ProdutoService {
       filtros.push(`
         (
           LOWER(p.nome) LIKE $${parametros.length}
-          OR LOWER(p.codigo) LIKE $${parametros.length}
+          OR p.codigo::text LIKE $${parametros.length}
           OR LOWER(COALESCE(p.descricao, '')) LIKE $${parametros.length}
           OR LOWER(c.nome) LIKE $${parametros.length}
         )
@@ -215,7 +215,7 @@ export class ProdutoService {
       Array<{
         id: string;
         nome: string;
-        codigo: string;
+        codigo: string | number;
         descricao: string | null;
         id_categoria: string;
         estoque_minimo: string | null;
@@ -264,7 +264,7 @@ export class ProdutoService {
     const itens = produtos.map((produto) => ({
       id: Number(produto.id),
       nome: produto.nome,
-      codigo: produto.codigo,
+      codigo: Number(produto.codigo),
       descricao: produto.descricao ?? undefined,
       idCategoria: Number(produto.id_categoria),
       estoqueMinimo:

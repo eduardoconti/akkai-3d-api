@@ -129,7 +129,7 @@ describe('ProdutoController', () => {
 
     const input = {
       nome: 'Caneca',
-      codigo: 'CAN001',
+      codigo: 1001,
       idCategoria: 1,
       valor: 2500,
     };
@@ -145,7 +145,7 @@ describe('ProdutoController', () => {
 
     const input = {
       nome: 'Caneca Premium',
-      codigo: 'CAN002',
+      codigo: 1002,
       descricao: 'Nova versao',
       idCategoria: 2,
       valor: 3500,
@@ -174,7 +174,7 @@ describe('ProdutoController', () => {
         {
           id: 1,
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
           estoqueMinimo: 3,
@@ -229,7 +229,7 @@ describe('ProdutoController', () => {
         {
           id: 1,
           nome: 'Caneca',
-          codigo: 'CAN001',
+          codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
           estoqueMinimo: 3,
@@ -314,7 +314,7 @@ describe('ProdutoController', () => {
     const detalhe: DetalheProdutoDto = {
       id: 1,
       nome: 'Caneca',
-      codigo: 'CAN001',
+      codigo: 1001,
       idCategoria: 1,
       valor: 2500,
       categoria: { id: 1, nome: 'Canecas' },

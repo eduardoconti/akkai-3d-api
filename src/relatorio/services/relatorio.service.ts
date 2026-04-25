@@ -27,7 +27,7 @@ type ResumoVendasPeriodoRow = {
 
 type ProdutoMaisVendidoRow = {
   idProduto: string | number | null;
-  codigo: string | null;
+  codigo: string | number | null;
   nomeProduto: string;
   categoriaId: string | number | null;
   categoriaNome: string | null;
@@ -35,7 +35,7 @@ type ProdutoMaisVendidoRow = {
 };
 
 type ValorProdutoEstoqueRow = {
-  codigo: string;
+  codigo: string | number;
   nome: string;
   quantidade: string | number;
   valor: string | number;
@@ -50,7 +50,7 @@ type TotalizadoresValorProdutosEstoqueRow = {
 };
 
 type ProducaoProdutoRow = {
-  codigo: string;
+  codigo: string | number;
   nome: string;
   quantidadeProduzida: string | number;
   valorUnitario: string | number;
@@ -187,7 +187,7 @@ export class RelatorioService {
         const valorEstimado = Number(row.valorEstimado ?? 0);
 
         return {
-          codigo: row.codigo,
+          codigo: Number(row.codigo),
           nome: row.nome,
           quantidadeProduzida,
           valorUnitario: Number(row.valorUnitario ?? 0),
@@ -336,7 +336,7 @@ export class RelatorioService {
           row.idProduto === null || row.idProduto === undefined
             ? null
             : Number(row.idProduto),
-        codigo: row.codigo,
+        codigo: row.codigo === null ? null : Number(row.codigo),
         nomeProduto: row.nomeProduto,
         categoria:
           row.categoriaId === null || row.categoriaNome === null
@@ -470,7 +470,7 @@ export class RelatorioService {
       totalValor: Number(totais?.totalValor ?? 0),
       totalValorTotal: Number(totais?.totalValorTotal ?? 0),
       itens: rows.map((row) => ({
-        codigo: row.codigo,
+        codigo: Number(row.codigo),
         nome: row.nome,
         quantidade: Number(row.quantidade),
         valor: Number(row.valor),
@@ -594,7 +594,7 @@ export class RelatorioService {
           row.idProduto === null || row.idProduto === undefined
             ? null
             : Number(row.idProduto),
-        codigo: row.codigo,
+        codigo: row.codigo === null ? null : Number(row.codigo),
         nomeProduto: row.nomeProduto,
         categoria:
           row.categoriaId === null || row.categoriaNome === null

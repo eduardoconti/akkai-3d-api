@@ -3,7 +3,7 @@ import { CriarProdutoInput, Produto, ProdutoInput } from './produto.entity';
 describe('Produto', () => {
   const input: CriarProdutoInput = {
     nome: 'Caneca Geek',
-    codigo: 'CAN-001',
+    codigo: 1001,
     descricao: 'Caneca temática',
     estoqueMinimo: 5,
     idCategoria: 1,
@@ -38,7 +38,7 @@ describe('Produto', () => {
       const produto = Produto.criar(input);
       const novoInput: ProdutoInput = {
         nome: 'Vaso Decorativo',
-        codigo: 'VAS-002',
+        codigo: 2002,
         idCategoria: 2,
         valor: 8000,
       };

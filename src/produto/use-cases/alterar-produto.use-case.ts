@@ -5,7 +5,7 @@ import { CategoriaProdutoService, ProdutoService } from '@produto/services';
 export interface AlterarProdutoInput {
   id: number;
   nome: string;
-  codigo: string;
+  codigo: number;
   descricao?: string;
   estoqueMinimo?: number;
   idCategoria: number;
