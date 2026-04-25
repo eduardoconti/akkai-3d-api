@@ -37,7 +37,7 @@ describe('AlterarProdutoUseCase', () => {
     const input: AlterarProdutoInput = {
       id: 10,
       nome: 'Caneca Nova',
-      codigo: 'CN002',
+      codigo: 1002,
       descricao: 'Caneca de ceramica atualizada',
       estoqueMinimo: 5,
       idCategoria: 2,
@@ -64,7 +64,7 @@ describe('AlterarProdutoUseCase', () => {
       expect.objectContaining({
         id: 10,
         nome: 'Caneca Nova',
-        codigo: 'CN002',
+        codigo: 1002,
         descricao: 'Caneca de ceramica atualizada',
         estoqueMinimo: 5,
         idCategoria: 2,
@@ -83,7 +83,7 @@ describe('AlterarProdutoUseCase', () => {
       useCase.execute({
         id: 10,
         nome: 'Caneca Nova',
-        codigo: 'CN002',
+        codigo: 1002,
         idCategoria: 2,
         valor: 3190,
       }),
@@ -107,7 +107,7 @@ describe('AlterarProdutoUseCase', () => {
       useCase.execute({
         id: 10,
         nome: 'Caneca Nova',
-        codigo: 'CN002',
+        codigo: 1002,
         idCategoria: 99,
         valor: 3190,
       }),

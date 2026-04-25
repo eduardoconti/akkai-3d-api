@@ -6,7 +6,7 @@ class CategoriaProdutoResumoDto {
 export class DetalheProdutoDto {
   id!: number;
   nome!: string;
-  codigo!: string;
+  codigo!: number;
   descricao?: string;
   idCategoria!: number;
   estoqueMinimo?: number;

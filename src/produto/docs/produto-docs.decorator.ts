@@ -33,7 +33,7 @@ import { ApiQuery } from '@nestjs/swagger';
 const PRODUTO_EXEMPLO = {
   id: 1,
   nome: 'Cubo Infinito',
-  codigo: 'FT001',
+  codigo: 4001,
   descricao: 'Brinquedo articulado impresso em 3D.',
   idCategoria: 2,
   estoqueMinimo: 5,
@@ -58,7 +58,7 @@ export function ApiInserirProdutoDocs() {
           summary: 'Produto válido',
           value: {
             nome: 'Cubo Infinito',
-            codigo: 'FT001',
+            codigo: 4001,
             descricao: 'Brinquedo articulado impresso em 3D.',
             idCategoria: 2,
             valor: 2200,
@@ -72,7 +72,7 @@ export function ApiInserirProdutoDocs() {
         example: {
           id: 1,
           nome: 'Cubo Infinito',
-          codigo: 'FT001',
+          codigo: 4001,
           descricao: 'Brinquedo articulado impresso em 3D.',
           idCategoria: 2,
           estoqueMinimo: null,
@@ -104,7 +104,7 @@ export function ApiAlterarProdutoDocs() {
           summary: 'Alteração válida',
           value: {
             nome: 'Cubo Infinito Premium',
-            codigo: 'FT001',
+            codigo: 4001,
             descricao: 'Versão premium do cubo infinito.',
             idCategoria: 2,
             valor: 2500,
@@ -175,7 +175,7 @@ export function ApiListarProdutosDocs() {
           {
             id: 2,
             nome: 'Bola Fidget',
-            codigo: 'FT002',
+            codigo: 4002,
             descricao: 'Brinquedo sensorial.',
             idCategoria: 3,
             estoqueMinimo: 3,
@@ -225,7 +225,7 @@ export function ApiListarEstoqueDocs() {
           {
             id: 1,
             nome: 'Cubo Infinito',
-            codigo: 'FT001',
+            codigo: 4001,
             descricao: 'Brinquedo articulado impresso em 3D.',
             idCategoria: 2,
             estoqueMinimo: 5,
@@ -238,7 +238,7 @@ export function ApiListarEstoqueDocs() {
           {
             id: 2,
             nome: 'Bola Fidget',
-            codigo: 'FT002',
+            codigo: 4002,
             descricao: 'Brinquedo sensorial.',
             idCategoria: 3,
             estoqueMinimo: 3,

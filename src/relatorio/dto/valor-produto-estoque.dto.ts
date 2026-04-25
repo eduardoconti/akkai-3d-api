@@ -1,5 +1,5 @@
 export class ValorProdutoEstoqueDto {
-  codigo!: string;
+  codigo!: number;
   nome!: string;
   quantidade!: number;
   valor!: number;

@@ -35,7 +35,7 @@ describe('InserirProdutoUseCase', () => {
   it('deve inserir produto quando a categoria existe', async () => {
     const input: InserirProdutoInput = {
       nome: 'Caneca',
-      codigo: 'CN001',
+      codigo: 1001,
       descricao: 'Caneca de ceramica',
       estoqueMinimo: 5,
       idCategoria: 1,
@@ -59,7 +59,7 @@ describe('InserirProdutoUseCase', () => {
     expect(salvarMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         descricao: 'Caneca de ceramica',
         estoqueMinimo: 5,
         idCategoria: 1,
@@ -78,7 +78,7 @@ describe('InserirProdutoUseCase', () => {
     await expect(
       useCase.execute({
         nome: 'Caneca',
-        codigo: 'CN001',
+        codigo: 1001,
         idCategoria: 99,
         valor: 2590,
       }),

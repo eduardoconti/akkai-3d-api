@@ -1,5 +1,5 @@
 export class ProducaoProdutoDto {
-  codigo!: string;
+  codigo!: number;
   nome!: string;
   quantidadeProduzida!: number;
   valorUnitario!: number;

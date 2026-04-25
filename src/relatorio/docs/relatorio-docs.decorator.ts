@@ -107,7 +107,7 @@ export function ApiTopProdutosMesDashboardDocs() {
           itens: [
             {
               idProduto: 1,
-              codigo: 'CB-001',
+              codigo: 3001,
               nomeProduto: 'Cubo Infinito',
               categoria: { id: 2, nome: 'IMPRESSAO 3D' },
               quantidadeVendida: 18,
@@ -282,14 +282,14 @@ export function ApiValorProdutosEstoqueDocs() {
           totalValorTotal: 35500,
           itens: [
             {
-              codigo: 'CB-001',
+              codigo: 3001,
               nome: 'Cubo Infinito',
               quantidade: 10,
               valor: 2500,
               valorTotal: 25000,
             },
             {
-              codigo: 'BL-010',
+              codigo: 3010,
               nome: 'Bola Fidget',
               quantidade: 5,
               valor: 2000,
@@ -369,7 +369,7 @@ export function ApiRelatorioProducaoDocs() {
           mediaValorPorDia: 1800,
           itens: [
             {
-              codigo: 'CB-001',
+              codigo: 3001,
               nome: 'Cubo Infinito',
               quantidadeProduzida: 18,
               valorUnitario: 2000,
