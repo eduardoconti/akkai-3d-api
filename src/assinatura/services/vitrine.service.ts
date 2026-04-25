@@ -31,8 +31,8 @@ export interface KitVitrineDto {
 }
 
 export interface VitrineDto {
-  plans: PlanoVitrineDto[];
-  monthlyKit: KitVitrineDto | null;
+  planos: PlanoVitrineDto[];
+  kitMensal: KitVitrineDto | null;
 }
 
 @Injectable()
@@ -48,7 +48,7 @@ export class VitrineService {
       this.kitMensalService.obterKitVitrineAtivo(),
     ]);
 
-    const plans: PlanoVitrineDto[] = planos.map((p) => ({
+    const planosMapeados: PlanoVitrineDto[] = planos.map((p) => ({
       id: p.id,
       slug: p.slug,
       nome: p.nome,
@@ -62,7 +62,7 @@ export class VitrineService {
       beneficios: p.beneficios ?? [],
     }));
 
-    const monthlyKit: KitVitrineDto | null = kitAtivo
+    const kitMensal: KitVitrineDto | null = kitAtivo
       ? {
           id: kitAtivo.id,
           referencia: `${MESES[kitAtivo.mesReferencia - 1]} ${kitAtivo.anoReferencia}`,
@@ -73,6 +73,6 @@ export class VitrineService {
         }
       : null;
 
-    return { plans, monthlyKit };
+    return { planos: planosMapeados, kitMensal };
   }
 }
