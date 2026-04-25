@@ -39,8 +39,7 @@ export class PlanoService {
   async listarPlanosAtivos(): Promise<PlanoAssinatura[]> {
     return this.planoRepository.find({
       where: { ativo: true },
-      order: { nome: 'ASC' },
-      select: ['id', 'nome', 'descricao', 'valor', 'ativo'],
+      order: { valor: 'ASC' },
     });
   }
 

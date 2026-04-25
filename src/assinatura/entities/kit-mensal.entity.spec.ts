@@ -40,39 +40,63 @@ describe('KitMensal', () => {
 
       expect(kit.itens).toHaveLength(0);
     });
-  });
 
-  describe('atualizar', () => {
-    it('deve atualizar os itens do kit', () => {
-      const kit = KitMensal.criar(input);
+    it('deve criar kit sem itens quando itens não informado', () => {
+      const kit = KitMensal.criar({ ...input, itens: undefined });
 
-      kit.atualizar({
+      expect(kit.itens).toHaveLength(0);
+    });
+
+    it('deve criar kit com campos de vitrine', () => {
+      const kit = KitMensal.criar({
         ...input,
-        itens: [
-          { idProduto: 3, quantidade: 1 },
-          { idProduto: 2, quantidade: 2, observacao: 'Obs' },
-        ],
+        titulo: 'Kit Dinossauros',
+        descricao: 'Descrição do kit',
+        chamada: 'Chamada de ação',
+        ativo: true,
+        itensVitrine: ['🦕 T-Rex', '🦴 Mini colecionável'],
       });
 
-      expect(kit.itens).toHaveLength(2);
-      const [vaso, almofada] = kit.itens;
-      expect(vaso!.idProduto).toBe(3);
-      expect(almofada!.observacao).toBe('Obs');
+      expect(kit.titulo).toBe('Kit Dinossauros');
+      expect(kit.ativo).toBe(true);
+      expect(kit.itensVitrine).toHaveLength(2);
     });
+  });
 
-    it('deve limpar a relação plano ao atualizar', () => {
+  describe('atualizarVitrine', () => {
+    it('deve atualizar campos de vitrine', () => {
       const kit = KitMensal.criar(input);
 
-      kit.atualizar(input);
+      kit.atualizarVitrine({
+        titulo: 'Novo título',
+        ativo: true,
+        itensVitrine: ['Item A'],
+      });
 
-      expect(kit.plano).toBeUndefined();
+      expect(kit.titulo).toBe('Novo título');
+      expect(kit.ativo).toBe(true);
+      expect(kit.itensVitrine).toEqual(['Item A']);
     });
 
-    it('deve não alterar dataInclusao ao atualizar', () => {
+    it('deve não alterar campos não informados', () => {
+      const kit = KitMensal.criar({
+        ...input,
+        titulo: 'Título original',
+        ativo: false,
+      });
+
+      kit.atualizarVitrine({ descricao: 'Nova descrição' });
+
+      expect(kit.titulo).toBe('Título original');
+      expect(kit.ativo).toBe(false);
+      expect(kit.descricao).toBe('Nova descrição');
+    });
+
+    it('deve não alterar dataInclusao', () => {
       const kit = KitMensal.criar(input);
       const dataOriginal = kit.dataInclusao;
 
-      kit.atualizar({ ...input, itens: [] });
+      kit.atualizarVitrine({ titulo: 'Qualquer' });
 
       expect(kit.dataInclusao).toBe(dataOriginal);
     });

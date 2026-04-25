@@ -111,6 +111,12 @@ export class AssinaturaController {
       descricao: input.descricao,
       valor: input.valor,
       ativo: input.ativo ?? true,
+      slug: input.slug,
+      resumo: input.resumo,
+      destaque: input.destaque,
+      faixaEtaria: input.faixaEtaria,
+      itensInclusos: input.itensInclusos,
+      beneficios: input.beneficios,
     });
   }
 
@@ -142,7 +148,19 @@ export class AssinaturaController {
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarPlanoDto,
   ): Promise<PlanoAssinatura> {
-    return this.alterarPlanoUseCase.execute({ id, ...input });
+    return this.alterarPlanoUseCase.execute({
+      id,
+      nome: input.nome,
+      descricao: input.descricao,
+      valor: input.valor,
+      ativo: input.ativo,
+      slug: input.slug,
+      resumo: input.resumo,
+      destaque: input.destaque,
+      faixaEtaria: input.faixaEtaria,
+      itensInclusos: input.itensInclusos,
+      beneficios: input.beneficios,
+    });
   }
 
   @ApiExcluirPlanoDocs()
@@ -252,6 +270,11 @@ export class AssinaturaController {
       mesReferencia: input.mesReferencia,
       anoReferencia: input.anoReferencia,
       itens: input.itens,
+      titulo: input.titulo,
+      descricao: input.descricao,
+      chamada: input.chamada,
+      ativo: input.ativo,
+      itensVitrine: input.itensVitrine,
     });
   }
 
@@ -277,7 +300,15 @@ export class AssinaturaController {
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarKitMensalDto,
   ): Promise<KitMensal> {
-    return this.alterarKitMensalUseCase.execute({ id, itens: input.itens });
+    return this.alterarKitMensalUseCase.execute({
+      id,
+      itens: input.itens,
+      titulo: input.titulo,
+      descricao: input.descricao,
+      chamada: input.chamada,
+      ativo: input.ativo,
+      itensVitrine: input.itensVitrine,
+    });
   }
 
   @ApiExcluirKitMensalDocs()

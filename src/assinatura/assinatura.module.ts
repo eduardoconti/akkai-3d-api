@@ -14,6 +14,7 @@ import {
   CicloService,
   KitMensalService,
   PlanoService,
+  VitrineService,
 } from '@assinatura/services';
 import {
   AlterarAssinanteUseCase,
@@ -42,6 +43,7 @@ import {
     AssinanteService,
     CicloService,
     KitMensalService,
+    VitrineService,
     InserirPlanoUseCase,
     AlterarPlanoUseCase,
     ExcluirPlanoUseCase,

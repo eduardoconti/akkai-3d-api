@@ -115,6 +115,23 @@ export class KitMensalService {
     });
   }
 
+  async obterKitVitrineAtivo(): Promise<KitMensal | null> {
+    return this.kitRepository.findOne({ where: { ativo: true } });
+  }
+
+  async desativarTodosKits(): Promise<void> {
+    await this.kitRepository
+      .createQueryBuilder()
+      .update(KitMensal)
+      .set({ ativo: false })
+      .where('"ativo" = TRUE')
+      .execute()
+      .catch((error) => {
+        this.logger.error('Erro ao desativar kits', error);
+        throw new InternalServerErrorException('Erro ao desativar kits mensais');
+      });
+  }
+
   async excluirKit(id: number): Promise<void> {
     await this.kitRepository.delete({ id }).catch((error) => {
       this.logger.error('Erro ao excluir kit mensal', error);
