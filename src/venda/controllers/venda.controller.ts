@@ -15,11 +15,17 @@ import {
   InserirFeiraDto,
   InserirVendaDto,
   PesquisarFeirasDto,
+  PesquisarPrecosProdutosFeiraDto,
   PesquisarVendasDto,
+  SalvarPrecoProdutoFeiraDto,
   TotalizadoresVendasDto,
 } from '@venda/dto';
-import { Feira, Venda } from '@venda/entities';
-import { FeiraService, VendaService } from '@venda/services';
+import { Feira, PrecoProdutoFeira, Venda } from '@venda/entities';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import {
   AlterarFeiraUseCase,
   AlterarVendaUseCase,
@@ -58,6 +64,7 @@ export class VendaController {
     private readonly inserirVendaUseCase: InserirVendaUseCase,
     private readonly alterarVendaUseCase: AlterarVendaUseCase,
     private readonly excluirVendaUseCase: ExcluirVendaUseCase,
+    private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
   ) {}
 
   @ApiInserirFeiraDocs()
@@ -72,6 +79,36 @@ export class VendaController {
     @Query() pesquisa: PesquisarFeirasDto,
   ): Promise<ResultadoPaginado<Feira>> {
     return await this.feiraService.pesquisarFeiras(pesquisa);
+  }
+
+  @Get('precos-produtos-feira/paginado')
+  async pesquisarPrecosProdutosFeira(
+    @Query() pesquisa: PesquisarPrecosProdutosFeiraDto,
+  ): Promise<ResultadoPaginado<PrecoProdutoFeira>> {
+    return await this.precoProdutoFeiraService.pesquisarPrecos(pesquisa);
+  }
+
+  @Get('feiras/:id/precos-produtos')
+  async listarPrecosProdutosFeira(
+    @Param('id', ParseIntPipe) idFeira: number,
+  ): Promise<PrecoProdutoFeira[]> {
+    return await this.precoProdutoFeiraService.listarPorFeira(idFeira);
+  }
+
+  @Put('feiras/:id/precos-produtos')
+  async salvarPrecoProdutoFeira(
+    @Param('id', ParseIntPipe) idFeira: number,
+    @Body() input: SalvarPrecoProdutoFeiraDto,
+  ): Promise<PrecoProdutoFeira> {
+    return await this.precoProdutoFeiraService.salvarPreco(idFeira, input);
+  }
+
+  @Delete('feiras/:id/precos-produtos/:idProduto')
+  async excluirPrecoProdutoFeira(
+    @Param('id', ParseIntPipe) idFeira: number,
+    @Param('idProduto', ParseIntPipe) idProduto: number,
+  ): Promise<void> {
+    await this.precoProdutoFeiraService.excluirPreco(idFeira, idProduto);
   }
 
   @ApiObterFeiraPorIdDocs()

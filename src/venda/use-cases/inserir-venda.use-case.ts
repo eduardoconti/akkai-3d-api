@@ -15,7 +15,11 @@ import {
   Venda,
   ItemVenda,
 } from '@venda/entities';
-import { FeiraService, VendaService } from '@venda/services';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import { Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 
@@ -41,6 +45,7 @@ export class InserirVendaUseCase {
     private readonly produtoService: ProdutoService,
     private readonly carteiraService: CarteiraService,
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
+    private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -82,12 +87,19 @@ export class InserirVendaUseCase {
       const produto = await this.produtoService.garantirExisteProduto(
         item.idProduto,
       );
+      const valorProduto =
+        await this.precoProdutoFeiraService.obterValorProdutoParaFeira(
+          inserirVendaInput.tipo === TipoVenda.FEIRA
+            ? inserirVendaInput.idFeira
+            : undefined,
+          produto,
+        );
 
       const itemVenda = ItemVenda.criar({
         idProduto: item.idProduto,
         nomeProduto: produto.nome,
         quantidade: item.quantidade,
-        valorUnitario: produto.valor,
+        valorUnitario: valorProduto,
         brinde: item.brinde,
       });
 

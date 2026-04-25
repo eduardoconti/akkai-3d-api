@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ItemKitMensal, ItemKitMensalInput, KitMensal } from '@assinatura/entities';
+import {
+  ItemKitMensal,
+  ItemKitMensalInput,
+  KitMensal,
+} from '@assinatura/entities';
 import { KitMensalService } from '@assinatura/services';
 import { ProdutoService } from '@produto/services';
 

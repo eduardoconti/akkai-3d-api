@@ -17,7 +17,9 @@ export class InserirPlanoDto {
   @Transform(trimStringValue)
   @IsString({ message: 'O nome do plano deve ser um texto.' })
   @IsNotEmpty({ message: 'O nome do plano é obrigatório.' })
-  @MaxLength(120, { message: 'O nome do plano deve ter no máximo 120 caracteres.' })
+  @MaxLength(120, {
+    message: 'O nome do plano deve ter no máximo 120 caracteres.',
+  })
   nome!: string;
 
   @IsOptional()
@@ -28,7 +30,9 @@ export class InserirPlanoDto {
   @Type(() => Number)
   @IsInt({ message: 'O valor do plano deve ser informado em centavos.' })
   @Min(1, { message: 'O valor do plano deve ser maior que zero.' })
-  @Max(100000000, { message: 'O valor do plano ultrapassa o limite permitido.' })
+  @Max(100000000, {
+    message: 'O valor do plano ultrapassa o limite permitido.',
+  })
   valor!: number;
 
   @IsOptional()
@@ -59,7 +63,9 @@ export class InserirPlanoDto {
   @IsOptional()
   @Transform(trimStringValue)
   @IsString({ message: 'A faixa etária deve ser um texto.' })
-  @MaxLength(120, { message: 'A faixa etária deve ter no máximo 120 caracteres.' })
+  @MaxLength(120, {
+    message: 'A faixa etária deve ter no máximo 120 caracteres.',
+  })
   faixaEtaria?: string;
 
   @IsOptional()

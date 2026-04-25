@@ -12,7 +12,11 @@ import {
 import { ProdutoService } from '@produto/services';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
-import { FeiraService, VendaService } from '@venda/services';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import {
   ExecutarInserirVendaInput,
   InserirVendaUseCase,
@@ -31,6 +35,9 @@ describe('InserirVendaUseCase', () => {
     (id: number) => Promise<Produto>
   >;
   let obterTaxaAtivaPorCarteiraEMeioPagamentoMock: jest.Mock;
+  let obterValorProdutoParaFeiraMock: jest.MockedFunction<
+    (idFeira: number | undefined, produto: Produto) => Promise<number>
+  >;
   let currentUserContext: { usuarioId: number };
 
   beforeEach(() => {
@@ -42,6 +49,9 @@ describe('InserirVendaUseCase', () => {
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
+    obterValorProdutoParaFeiraMock = jest.fn(
+      async (_idFeira: number | undefined, produto: Produto) => produto.valor,
+    );
     currentUserContext = { usuarioId: 7 };
 
     const vendaService = {
@@ -66,12 +76,17 @@ describe('InserirVendaUseCase', () => {
         obterTaxaAtivaPorCarteiraEMeioPagamentoMock,
     } as unknown as TaxaMeioPagamentoCarteiraService;
 
+    const precoProdutoFeiraService = {
+      obterValorProdutoParaFeira: obterValorProdutoParaFeiraMock,
+    } as unknown as PrecoProdutoFeiraService;
+
     useCase = new InserirVendaUseCase(
       vendaService,
       feiraService,
       produtoService,
       carteiraService,
       taxaMeioPagamentoCarteiraService,
+      precoProdutoFeiraService,
       currentUserContext as CurrentUserContext,
     );
   });
@@ -153,6 +168,52 @@ describe('InserirVendaUseCase', () => {
       ],
     );
     expect(result).toBe(vendaPersistida);
+  });
+
+  it('deve usar preço específico da feira para item de catálogo', async () => {
+    const produto = Object.assign(new Produto(), {
+      id: 1,
+      nome: 'Caneca',
+      codigo: 1001,
+      idCategoria: 1,
+      valor: 1000,
+    });
+
+    garantirExisteProdutoMock.mockResolvedValue(produto);
+    obterValorProdutoParaFeiraMock.mockResolvedValue(1500);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.DIN],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+    garantirExisteFeiraMock.mockResolvedValue(undefined);
+    inserirVendaMock.mockResolvedValue(new Venda());
+
+    await useCase.execute({
+      meioPagamento: MeioPagamento.DIN,
+      tipo: TipoVenda.FEIRA,
+      idCarteira: 1,
+      idFeira: 3,
+      itens: [{ idProduto: 1, quantidade: 2 }],
+    });
+
+    expect(obterValorProdutoParaFeiraMock).toHaveBeenCalledWith(3, produto);
+    expect(inserirVendaMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        valorTotal: 3000,
+        itens: [
+          expect.objectContaining({
+            idProduto: 1,
+            valorUnitario: 1500,
+            valorTotal: 3000,
+          }),
+        ],
+      }),
+      expect.any(Array),
+    );
   });
 
   it('deve usar desconto zero quando nao informado', async () => {

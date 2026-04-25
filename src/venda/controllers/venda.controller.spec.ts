@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VendaController } from '@venda/controllers';
-import { Feira, TipoVenda, Venda } from '@venda/entities';
-import { FeiraService, VendaService } from '@venda/services';
+import { Feira, PrecoProdutoFeira, TipoVenda, Venda } from '@venda/entities';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import {
   AlterarFeiraUseCase,
   ExcluirFeiraUseCase,
@@ -25,6 +29,12 @@ describe('VendaController', () => {
   let inserirVendaUseCase: { execute: jest.Mock };
   let alterarVendaUseCase: { execute: jest.Mock };
   let excluirVendaUseCase: { execute: jest.Mock };
+  let precoProdutoFeiraService: {
+    pesquisarPrecos: jest.Mock;
+    listarPorFeira: jest.Mock;
+    salvarPreco: jest.Mock;
+    excluirPreco: jest.Mock;
+  };
 
   beforeEach(async () => {
     vendaService = { listarVendas: jest.fn() };
@@ -39,6 +49,12 @@ describe('VendaController', () => {
     inserirVendaUseCase = { execute: jest.fn() };
     alterarVendaUseCase = { execute: jest.fn() };
     excluirVendaUseCase = { execute: jest.fn() };
+    precoProdutoFeiraService = {
+      pesquisarPrecos: jest.fn(),
+      listarPorFeira: jest.fn(),
+      salvarPreco: jest.fn(),
+      excluirPreco: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [VendaController],
@@ -74,6 +90,10 @@ describe('VendaController', () => {
         {
           provide: ExcluirVendaUseCase,
           useValue: excluirVendaUseCase,
+        },
+        {
+          provide: PrecoProdutoFeiraService,
+          useValue: precoProdutoFeiraService,
         },
       ],
     }).compile();
@@ -230,6 +250,66 @@ describe('VendaController', () => {
       tamanhoPagina: 10,
     });
     expect(result).toBe(feiras);
+  });
+
+  it('deve pesquisar preços de produtos por feira', async () => {
+    const precos = {
+      itens: [Object.assign(new PrecoProdutoFeira(), { id: 1 })],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    const pesquisa = {
+      pagina: 1,
+      tamanhoPagina: 10,
+      idFeira: 3,
+      termo: 'caneca',
+      ordenarPor: 'codigo' as const,
+      direcao: 'asc' as const,
+    };
+    precoProdutoFeiraService.pesquisarPrecos = jest
+      .fn()
+      .mockResolvedValue(precos);
+
+    const result = await controller.pesquisarPrecosProdutosFeira(pesquisa);
+
+    expect(precoProdutoFeiraService.pesquisarPrecos).toHaveBeenCalledWith(
+      pesquisa,
+    );
+    expect(result).toBe(precos);
+  });
+
+  it('deve listar preços de produtos por feira', async () => {
+    const precos = [Object.assign(new PrecoProdutoFeira(), { id: 1 })];
+    precoProdutoFeiraService.listarPorFeira.mockResolvedValue(precos);
+
+    const result = await controller.listarPrecosProdutosFeira(3);
+
+    expect(precoProdutoFeiraService.listarPorFeira).toHaveBeenCalledWith(3);
+    expect(result).toBe(precos);
+  });
+
+  it('deve salvar preço de produto por feira', async () => {
+    const input = { idProduto: 10, valor: 1500 };
+    const preco = Object.assign(new PrecoProdutoFeira(), input, {
+      id: 1,
+      idFeira: 3,
+    });
+    precoProdutoFeiraService.salvarPreco.mockResolvedValue(preco);
+
+    const result = await controller.salvarPrecoProdutoFeira(3, input);
+
+    expect(precoProdutoFeiraService.salvarPreco).toHaveBeenCalledWith(3, input);
+    expect(result).toBe(preco);
+  });
+
+  it('deve excluir preço de produto por feira', async () => {
+    precoProdutoFeiraService.excluirPreco.mockResolvedValue(undefined);
+
+    await controller.excluirPrecoProdutoFeira(3, 10);
+
+    expect(precoProdutoFeiraService.excluirPreco).toHaveBeenCalledWith(3, 10);
   });
 
   it('deve obter feira por id', async () => {

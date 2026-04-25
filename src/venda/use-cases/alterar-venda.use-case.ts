@@ -16,7 +16,11 @@ import {
   TipoVenda,
   Venda,
 } from '@venda/entities';
-import { FeiraService, VendaService } from '@venda/services';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 export interface ExecutarAlterarVendaInput {
@@ -43,6 +47,7 @@ export class AlterarVendaUseCase {
     private readonly produtoService: ProdutoService,
     private readonly carteiraService: CarteiraService,
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
+    private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -83,12 +88,17 @@ export class AlterarVendaUseCase {
       const produto: Produto = await this.produtoService.garantirExisteProduto(
         item.idProduto,
       );
+      const valorProduto =
+        await this.precoProdutoFeiraService.obterValorProdutoParaFeira(
+          input.tipo === TipoVenda.FEIRA ? input.idFeira : undefined,
+          produto,
+        );
 
       itensVenda.push({
         idProduto: item.idProduto,
         nomeProduto: produto.nome,
         quantidade: item.quantidade,
-        valorUnitario: produto.valor,
+        valorUnitario: valorProduto,
         brinde: item.brinde,
       });
 

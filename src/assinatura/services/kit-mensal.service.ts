@@ -128,7 +128,9 @@ export class KitMensalService {
       .execute()
       .catch((error) => {
         this.logger.error('Erro ao desativar kits', error);
-        throw new InternalServerErrorException('Erro ao desativar kits mensais');
+        throw new InternalServerErrorException(
+          'Erro ao desativar kits mensais',
+        );
       });
   }
 

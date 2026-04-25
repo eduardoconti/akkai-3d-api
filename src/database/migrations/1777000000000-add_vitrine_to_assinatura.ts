@@ -47,9 +47,7 @@ export class AddVitrineToAssinatura1777000000000 implements MigrationInterface {
          DROP COLUMN "titulo"`,
     );
 
-    await queryRunner.query(
-      `DROP INDEX "public"."uk_plano_assinatura_slug"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."uk_plano_assinatura_slug"`);
 
     await queryRunner.query(
       `ALTER TABLE "plano_assinatura"

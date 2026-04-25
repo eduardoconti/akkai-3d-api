@@ -20,7 +20,7 @@ import {
   MovimentacaoEstoque,
   Produto,
 } from '@produto/entities';
-import { Feira, ItemVenda, Venda } from '@venda/entities';
+import { Feira, ItemVenda, PrecoProdutoFeira, Venda } from '@venda/entities';
 import {
   Assinante,
   CicloAssinatura,
@@ -47,6 +47,7 @@ const entities = [
   Venda,
   ItemVenda,
   Feira,
+  PrecoProdutoFeira,
   Produto,
   MovimentacaoEstoque,
   CategoriaProduto,

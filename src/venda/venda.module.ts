@@ -1,9 +1,13 @@
 import { FinanceiroModule } from '@financeiro/financeiro.module';
 import { Module } from '@nestjs/common';
 import { VendaController } from '@venda/controllers';
-import { FeiraService, VendaService } from '@venda/services';
+import {
+  FeiraService,
+  PrecoProdutoFeiraService,
+  VendaService,
+} from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Feira, ItemVenda, Venda } from '@venda/entities';
+import { Feira, ItemVenda, PrecoProdutoFeira, Venda } from '@venda/entities';
 import { ProdutoModule } from '@produto/produto.module';
 import {
   AlterarFeiraUseCase,
@@ -20,6 +24,7 @@ import { Carteira } from '@financeiro/entities';
   providers: [
     VendaService,
     FeiraService,
+    PrecoProdutoFeiraService,
     InserirFeiraUseCase,
     AlterarFeiraUseCase,
     ExcluirFeiraUseCase,
@@ -30,7 +35,13 @@ import { Carteira } from '@financeiro/entities';
   imports: [
     ProdutoModule,
     FinanceiroModule,
-    TypeOrmModule.forFeature([Venda, ItemVenda, Feira, Carteira]),
+    TypeOrmModule.forFeature([
+      Venda,
+      ItemVenda,
+      Feira,
+      PrecoProdutoFeira,
+      Carteira,
+    ]),
   ],
 })
 export class VendaModule {}

@@ -1,4 +1,11 @@
-import { Check, Column, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Check,
+  Column,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 export interface PlanoAssinaturaInput {
   nome: string;
@@ -24,7 +31,10 @@ export class PlanoAssinatura {
   @Column({ type: 'varchar', length: 120 })
   nome!: string;
 
-  @Index('uk_plano_assinatura_slug', { unique: true, where: '"slug" IS NOT NULL' })
+  @Index('uk_plano_assinatura_slug', {
+    unique: true,
+    where: '"slug" IS NOT NULL',
+  })
   @Column({ type: 'varchar', length: 100, nullable: true })
   slug?: string;
 
@@ -43,7 +53,12 @@ export class PlanoAssinatura {
   @Column({ type: 'boolean', default: false })
   destaque!: boolean;
 
-  @Column({ type: 'varchar', length: 120, nullable: true, name: 'faixa_etaria' })
+  @Column({
+    type: 'varchar',
+    length: 120,
+    nullable: true,
+    name: 'faixa_etaria',
+  })
   faixaEtaria?: string;
 
   @Column({ type: 'simple-json', nullable: true, name: 'itens_inclusos' })
@@ -81,7 +96,8 @@ export class PlanoAssinatura {
     this.descricao = input.descricao;
     this.valor = input.valor;
     this.ativo = input.ativo;
-    this.slug = input.slug ?? this.slug ?? PlanoAssinatura.gerarSlug(input.nome);
+    this.slug =
+      input.slug ?? this.slug ?? PlanoAssinatura.gerarSlug(input.nome);
     this.resumo = input.resumo ?? this.resumo;
     this.destaque = input.destaque ?? this.destaque ?? false;
     this.faixaEtaria = input.faixaEtaria ?? this.faixaEtaria;

@@ -25,7 +25,11 @@ export interface KitMensalInput {
 }
 
 @Entity('kit_mensal')
-@Unique('uk_kit_mensal_plano_mes_ano', ['idPlano', 'mesReferencia', 'anoReferencia'])
+@Unique('uk_kit_mensal_plano_mes_ano', [
+  'idPlano',
+  'mesReferencia',
+  'anoReferencia',
+])
 @Index('idx_kit_mensal_id_plano', ['idPlano'])
 export class KitMensal {
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_kit_mensal' })
@@ -35,7 +39,10 @@ export class KitMensal {
   idPlano!: number;
 
   @ManyToOne(() => PlanoAssinatura)
-  @JoinColumn({ name: 'id_plano', foreignKeyConstraintName: 'fk_kit_mensal_plano_assinatura' })
+  @JoinColumn({
+    name: 'id_plano',
+    foreignKeyConstraintName: 'fk_kit_mensal_plano_assinatura',
+  })
   plano!: PlanoAssinatura;
 
   @Column({ type: 'integer', name: 'mes_referencia' })
@@ -81,11 +88,17 @@ export class KitMensal {
     return kit;
   }
 
-  atualizarVitrine(input: Pick<KitMensalInput, 'titulo' | 'descricao' | 'chamada' | 'ativo' | 'itensVitrine'>): void {
+  atualizarVitrine(
+    input: Pick<
+      KitMensalInput,
+      'titulo' | 'descricao' | 'chamada' | 'ativo' | 'itensVitrine'
+    >,
+  ): void {
     if (input.titulo !== undefined) this.titulo = input.titulo;
     if (input.descricao !== undefined) this.descricao = input.descricao;
     if (input.chamada !== undefined) this.chamada = input.chamada;
     if (input.ativo !== undefined) this.ativo = input.ativo;
-    if (input.itensVitrine !== undefined) this.itensVitrine = input.itensVitrine;
+    if (input.itensVitrine !== undefined)
+      this.itensVitrine = input.itensVitrine;
   }
 }

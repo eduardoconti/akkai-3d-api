@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { PrecoProdutoFeira } from './preco-produto-feira.entity';
 import { Venda } from './venda.entity';
 
 @Entity('feira')
@@ -29,4 +30,7 @@ export class Feira {
 
   @OneToMany(() => Venda, (venda) => venda.feira)
   vendas!: Venda[];
+
+  @OneToMany(() => PrecoProdutoFeira, (preco) => preco.feira)
+  precosProdutos!: PrecoProdutoFeira[];
 }

@@ -103,7 +103,7 @@ describe('PlanoService', () => {
   });
 
   describe('listarPlanosAtivos', () => {
-    it('deve retornar apenas os planos ativos ordenados por nome', async () => {
+    it('deve retornar apenas os planos ativos ordenados por valor', async () => {
       const planos = [
         makePlano({ nome: 'Clube Criativo', ativo: true }),
         makePlano({ id: 2, nome: 'Colecao Akkai', ativo: true }),
@@ -114,8 +114,7 @@ describe('PlanoService', () => {
 
       expect(planoRepository.find).toHaveBeenCalledWith({
         where: { ativo: true },
-        order: { nome: 'ASC' },
-        select: ['id', 'nome', 'descricao', 'valor', 'ativo'],
+        order: { valor: 'ASC' },
       });
       expect(result).toBe(planos);
     });
