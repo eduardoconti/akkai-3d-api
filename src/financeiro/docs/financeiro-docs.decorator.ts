@@ -546,7 +546,7 @@ export function ApiListarDespesasDocs() {
     ApiOperation({
       summary: 'Lista despesas com paginação.',
       description:
-        'Retorna despesas paginadas com filtros opcionais por termo e intervalo de datas.',
+        'Retorna despesas paginadas com filtros opcionais por termo, intervalo de datas, categoria, carteira e feira.',
     }),
     ApiPaginacaoQueryDocs(),
     ApiQuery({
@@ -576,6 +576,13 @@ export function ApiListarDespesasDocs() {
       type: Number,
       example: 2,
       description: 'Identificador da feira vinculada à despesa.',
+    }),
+    ApiQuery({
+      name: 'idCarteira',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Identificador da carteira vinculada à despesa.',
     }),
     ApiOkResponse({
       description: 'Despesas encontradas com sucesso.',

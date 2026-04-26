@@ -197,6 +197,7 @@ describe('DespesaService', () => {
       dataInicio: '2026-01-01',
       dataFim: '2026-01-31',
       idsCategorias: [1, 3],
+      idCarteira: 4,
       idFeira: 9,
     });
 
@@ -208,6 +209,11 @@ describe('DespesaService', () => {
       4,
       'despesa.idCategoria IN (:...idsCategorias)',
       { idsCategorias: [1, 3] },
+    );
+    expect(queryBuilder.andWhere).toHaveBeenNthCalledWith(
+      5,
+      'despesa.idCarteira = :idCarteira',
+      { idCarteira: 4 },
     );
   });
 

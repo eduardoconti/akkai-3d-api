@@ -138,6 +138,12 @@ export class DespesaService {
       });
     }
 
+    if (pesquisa.idCarteira) {
+      queryBuilder.andWhere('despesa.idCarteira = :idCarteira', {
+        idCarteira: pesquisa.idCarteira,
+      });
+    }
+
     if (pesquisa.idFeira) {
       queryBuilder.andWhere('despesa.idFeira = :idFeira', {
         idFeira: pesquisa.idFeira,
