@@ -24,4 +24,9 @@ export const envValidationSchema = Joi.object({
   AUTH_COOKIE_DOMAIN: Joi.string().allow('').default(''),
   AUTH_BCRYPT_ROUNDS: Joi.number().integer().min(10).max(15).default(12),
   APP_TZ_OFFSET: Joi.number().integer().min(-12).max(14).default(-3),
+  ASSINATURA_CICLO_BATCH_SIZE: Joi.number()
+    .integer()
+    .min(1)
+    .max(1000)
+    .default(100),
 }).unknown(true);

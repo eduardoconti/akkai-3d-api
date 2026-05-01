@@ -1,0 +1,210 @@
+# Claude Code Rules for akkai-3d
+
+## Architecture & Structure
+
+### Module Structure
+- Each domain module MUST have: `controllers/`, `services/`, `use-cases/`, `entities/`, `dto/`, `docs/`
+- Services contain business logic; use-cases orchestrate complex flows
+- Never mix presentation logic with business logic
+- Modules should be independent; use imports to manage dependencies
+
+### Path Aliases (Required)
+- ALWAYS use path aliases (@auth/*, @venda/*, @produto/*, etc) instead of ../../../
+- Import order: external libraries → path aliases → local files
+- Update tsconfig.json paths when adding new modules
+- Jest moduleNameMapper in package.json mirrors tsconfig paths
+
+## Design Principles: OOP, SOLID & DRY
+
+### Single Responsibility Principle (SRP)
+- **One class, one reason to change**
+- Services handle business logic
+- Controllers handle HTTP only
+- Use-cases orchestrate complex workflows
+- Repositories handle data access
+- Guards/filters handle cross-cutting concerns (auth, validation, error handling)
+- Example: Don't put database logic in a service that should only handle calculations
+
+### Open/Closed Principle (OCP)
+- **Open for extension, closed for modification**
+- Use inheritance and interfaces for extensibility
+- Create new classes instead of modifying existing ones
+- Use NestJS dependency injection (Providers) for flexibility
+- Example: Create `BaseService` for common logic instead of copy-pasting
+
+### Liskov Substitution Principle (LSP)
+- Subtypes must be substitutable for parent types
+- Interfaces must be properly implemented
+- Don't break contracts in subclasses
+- Example: All repositories should follow the same interface pattern
+
+### Interface Segregation Principle (ISP)
+- Create specific, small interfaces instead of fat general ones
+- Clients shouldn't depend on interfaces they don't use
+- Example: `IVendaRepository` with vendas-specific methods, not a generic `IRepository`
+
+### Dependency Inversion Principle (DIP)
+- Depend on abstractions (interfaces), not concrete implementations
+- Use NestJS constructor injection for dependencies
+- Use providers for testability and flexibility
+- Example: Inject `IVendaRepository` interface, not `VendaRepository` class directly
+
+### DRY (Don't Repeat Yourself)
+- **No copy-pasted code**
+- Extract common logic to helper methods/services
+- Use inheritance for shared behavior
+- Common validation/transformation → common modules
+- Repeated patterns → reusable decorators or utilities
+- Example: Don't duplicate date formatting in multiple services; create a utility function
+
+## Code Quality Standards
+
+### DTOs & Validation
+- MANDATORY: use `class-validator` decorators in all DTOs
+- Use: @IsString(), @IsNumber(), @IsEmail(), @IsOptional(), @IsUUID(), @IsArray(), etc
+- DTOs never contain business logic
+- Add @ApiProperty() decorators for Swagger documentation
+- Validation error messages should be user-friendly
+
+### TypeORM & Database
+- ALWAYS use TypeORM entities + repositories (never raw queries)
+- Use lazy loading (lazy: true) for heavy relationships
+- Create migrations for EVERY schema change (no synchronize: true in production)
+- Foreign keys must have explicit onDelete: 'CASCADE' or 'SET NULL'
+- Paginate list endpoints (never SELECT * without LIMIT)
+- Use TypeORM query builder for complex queries over raw SQL
+- Entities must have proper indexes for frequently queried fields
+- **NEW ENTITIES MUST BE ADDED to the entities array in `src/config/database.config.ts`** (critical - easy to forget!)
+- Export all entities from module's `index.ts` file for clean imports
+
+### Exceptions & Error Handling
+- Throw NestJS exceptions (NotFoundException, BadRequestException, ConflictException, etc)
+- ProblemDetailsExceptionFilter automatically formats responses
+- Never silently catch errors with empty .catch()
+- Log errors with context for debugging
+- Don't throw generic Error; use typed NestJS exceptions
+
+### Testing
+- **MANDATORY: .spec.ts file for EVERY service and controller**
+- **MANDATORY: All public methods must be covered by tests**
+- Target minimum 80% overall code coverage (npm run test:cov)
+- Critical modules require 90%+ coverage: auth, venda, financeiro, produto
+- Use @nestjs/testing with Test.createTestingModule()
+- Don't mock database in repository unit tests (test with real entities)
+- Test both happy path and error cases
+- **maxWorkers=1 is ENFORCED in jest.config.js** — prevents concurrency issues (shared resources, database access)
+  - All tests automatically use maxWorkers=1, no need to add the flag
+  - Jest will fail if someone tries to change this setting
+- Run tests with: npm run test
+- Run single test: npm run test -- filename.spec.ts
+- Check coverage: npm run test:cov
+- If coverage drops below target, code review should reject the PR
+
+## Naming Conventions
+
+**ALL classes, methods, properties, and variables MUST be in Portuguese.**
+
+- **Entities**: PascalCase singular in Portuguese (Venda, Produto, Assinante, Carteira, not vendas or sales)
+- **Controllers**: *Controller (VendaController, ProdutoController)
+- **Services**: *Service (VendaService, FeiraService)
+- **Use-cases**: VerbNounUseCase (InserirVendaUseCase, AlterarFeiraUseCase, ExcluirVendaUseCase)
+- **DTOs**: *Dto suffix (CriarVendaDto, AtualizarProdutoDto, FiltrarVendaDto)
+- **Variables/properties**: camelCase Portuguese (nomeVenda, preçoProduto, dataInicio, statusAtivo)
+- **Methods**: camelCase Portuguese, start with verb (criarVenda, obterPorId, alterarCarteira, listarPorFeira, validarEstoque)
+- **Boolean methods/properties**: start with é/tem/pode (éAtivo, temPermissão, podeExcluir)
+- **Comments & strings**: Portuguese (comments should explain the WHY, not the WHAT)
+- **Do NOT mix English and Portuguese** in the same file/class
+- **Database column names**: snake_case Portuguese (nome_venda, preco_produto, data_inicio)
+
+## Configuration & Environment
+
+- NEVER hardcode values (URLs, keys, timeouts, ports, paths)
+- All config via ConfigService from @nestjs/config
+- Validate env variables in src/config/env.validation.ts at startup
+- Environment variables checked on bootstrap - fail fast
+- Sensitive data (passwords, keys) never committed to git
+
+## Best Practices
+
+### Async Code
+- MANDATORY: use async/await (not .then() chains)
+- Add `void` prefix to unawaited Promises (void this.sendEmail())
+- Never forget await on async operations
+
+### Swagger Documentation
+- Add @ApiOperation() to all endpoint methods
+- Add @ApiResponse() for success and error cases
+- Document DTOs with @ApiProperty()
+- Keep Swagger synchronized with code
+- Swagger available at /api/docs
+
+### Code Style & Formatting
+- Run `npm run format` (Prettier auto-format before committing)
+- Run `npm run lint` (ESLint with auto-fix before committing)
+- Always commit formatted code
+- TypeScript strict mode enabled - no any types without // @ts-ignore comment
+
+### Git Commits (Portuguese)
+- Pattern: `type: description`
+- Types: feat (feature), fix (bugfix), refactor (code restructure), test (tests), docs (documentation), chore (maintenance)
+- Examples: `feat: adiciona filtro por carteira`, `fix: corrige erro de validação`, `refactor: simplifica lógica de venda`
+- Commit messages are the primary communication to teammates
+
+## Claude Never Commits Code
+
+**CRITICAL RULE: Claude should NEVER create commits. Always let the user commit.**
+
+- Never use `git commit` or `git add`
+- Claude prepares changes but user must stage and commit
+- User retains full control of what gets committed
+- This prevents accidentally committing incomplete work or wrong changes
+
+---
+
+## Before Every Commit (User Checklist)
+
+- [ ] **Tests written for ALL new/modified public methods** (services, controllers)
+- [ ] `npm run test` all passing (no skipped/pending tests)
+- [ ] `npm run test:cov` coverage >= 80% overall (90%+ for auth, venda, financeiro, produto)
+- [ ] **ALL classes, methods, and properties are in Portuguese** (no English names)
+- [ ] **Code follows OOP, SOLID, and DRY principles** (no code duplication)
+- [ ] Each class has single responsibility (SRP)
+- [ ] Use interfaces for dependencies (DIP)
+- [ ] Use path aliases for all imports (@venda/*, @auth/*, etc)
+- [ ] All DTOs have class-validator decorators
+- [ ] **NEW ENTITIES added to entities array in `src/config/database.config.ts`** (if created new entity)
+- [ ] `npm run lint` passed (with auto-fix applied)
+- [ ] `npm run format` applied (code is formatted)
+- [ ] Migrations created (if database schema changed)
+- [ ] Swagger decorators added to new/modified endpoints
+- [ ] No hardcoded config values (use ConfigService)
+- [ ] No console.log() in production code (use logger)
+- [ ] Commit message in Portuguese with type prefix
+
+## Module-Specific Guidelines
+
+### Auth Module
+- JWT secrets never logged or exposed
+- Password hashing uses bcrypt
+- Roles and permissions checked via decorators
+- Refresh tokens managed separately from access tokens
+
+### Venda (Sales) Module
+- Use-cases for complex sales workflows (inserir, alterar, excluir)
+- PrecoProdutoFeira sync logic in services
+- Feira (market) filtering critical for venda listings
+
+### Produto (Product) Module
+- MovimentacaoEstoque (stock movement) must be transactional
+- CategoriaProduto hierarchy validation
+- Stock levels validated before sales
+
+### Assinatura (Subscription) Module
+- CicloAssinatura (cycle) lifecycle management
+- KitMensal (monthly kit) item relationships
+- Plan changes handled with use-cases
+
+### Financeiro (Financial) Module
+- Carteira (wallet) transactions logged
+- TaxaMeioPagamentoCarteira (payment method tax) applied correctly
+- Despesa (expense) categorization mandatory

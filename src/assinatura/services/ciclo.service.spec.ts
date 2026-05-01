@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -83,6 +84,10 @@ describe('CicloService', () => {
           useValue: cicloRepository,
         },
         { provide: DataSource, useValue: dataSource },
+        {
+          provide: ConfigService,
+          useValue: { getOrThrow: jest.fn(() => 100) },
+        },
       ],
     }).compile();
 

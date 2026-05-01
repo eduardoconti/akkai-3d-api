@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { trimStringValue } from '../transforms/trim-string.transform';
+import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class PesquisaPaginadaDto {
   @IsOptional()

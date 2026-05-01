@@ -5,7 +5,7 @@ import {
   getSchemaPath,
   type ApiResponseOptions,
 } from '@nestjs/swagger';
-import { ProblemDetailsDto } from '../dto/problem-details.dto';
+import { ProblemDetailsDto } from '@common/docs/dto/problem-details.dto';
 
 export type ProblemResponseConfig = {
   status: HttpStatus;

@@ -32,11 +32,11 @@ export class AtualizarOrcamentoUseCase {
     }
 
     if (input.status !== undefined) {
-      orcamento.status = input.status as StatusOrcamento;
+      orcamento.status = input.status;
     }
 
     if (input.tipo !== undefined) {
-      orcamento.tipo = input.tipo as TipoOrcamento;
+      orcamento.tipo = input.tipo;
       if (input.tipo !== TipoOrcamento.FEIRA) {
         orcamento.idFeira = undefined;
         orcamento.feira = null;

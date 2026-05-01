@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { toUtcDateRange } from '../utils/date.util';
+import { toUtcDateRange } from '@common/utils/date.util';
 
 @Injectable()
 export class DateService {

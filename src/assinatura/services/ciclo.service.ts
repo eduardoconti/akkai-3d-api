@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import {
@@ -16,8 +17,6 @@ import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito'
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { calcularOffset } from '@common/utils/paginacao.util';
 
-const LOTE_SIZE = 100;
-
 export interface InserirCiclosEmLoteResult {
   criados: number;
   ignorados: number;
@@ -26,12 +25,18 @@ export interface InserirCiclosEmLoteResult {
 @Injectable()
 export class CicloService {
   private readonly logger = new Logger(CicloService.name);
+  private readonly loteSize: number;
 
   constructor(
     private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
     @InjectRepository(CicloAssinatura)
     private readonly cicloRepository: Repository<CicloAssinatura>,
-  ) {}
+  ) {
+    this.loteSize = this.configService.getOrThrow<number>(
+      'ASSINATURA_CICLO_BATCH_SIZE',
+    );
+  }
 
   async salvarCiclo(ciclo: CicloAssinatura): Promise<CicloAssinatura> {
     return this.cicloRepository.save(ciclo).catch((error: unknown) => {
@@ -57,8 +62,8 @@ export class CicloService {
     let criados = 0;
     let ignorados = 0;
 
-    for (let i = 0; i < idsAssinantes.length; i += LOTE_SIZE) {
-      const lote = idsAssinantes.slice(i, i + LOTE_SIZE);
+    for (let i = 0; i < idsAssinantes.length; i += this.loteSize) {
+      const lote = idsAssinantes.slice(i, i + this.loteSize);
 
       const cicloValues = lote.map((idAssinante) => ({
         idAssinante,
