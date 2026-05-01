@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
+import { ItemVenda, PagamentoVenda, TipoVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
@@ -41,7 +41,7 @@ export class VendaService {
       relations: {
         itens: { produto: true },
         feira: true,
-        carteira: true,
+        pagamentos: { carteira: true },
       },
     });
 
@@ -92,6 +92,7 @@ export class VendaService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      await queryRunner.manager.delete(PagamentoVenda, { idVenda: venda.id });
       await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
       const vendaSalva = await queryRunner.manager.save(venda);
       this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
@@ -115,6 +116,7 @@ export class VendaService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      await queryRunner.manager.delete(PagamentoVenda, { idVenda: venda.id });
       await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
       await queryRunner.manager.delete(Venda, { id: venda.id });
       await queryRunner.commitTransaction();
@@ -149,7 +151,7 @@ export class VendaService {
 
     const offset = calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina);
     const filtrosQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa);
-    const itensQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa)
+    const itensQueryBuilder = this.criarQueryBuilderPesquisa(pesquisa, true)
       .leftJoinAndSelect('venda.itens', 'item')
       .leftJoinAndSelect('item.produto', 'produto')
       .distinct(true)
@@ -162,7 +164,11 @@ export class VendaService {
       .select('COALESCE(SUM(venda.valorTotal), 0)', 'valorTotal')
       .addSelect('COALESCE(SUM(venda.desconto), 0)', 'descontoTotal')
       .addSelect(
-        'COALESCE(SUM(venda.valorTotal - COALESCE(venda.valorTaxa, 0) - COALESCE(venda.valorImposto, 0)), 0)',
+        `COALESCE(SUM(venda.valorTotal - COALESCE((
+          SELECT SUM(COALESCE(pagamento_total.valor_taxa, 0) + COALESCE(pagamento_total.valor_imposto, 0))
+          FROM pagamento_venda pagamento_total
+          WHERE pagamento_total.id_venda = venda.id
+        ), 0)), 0)`,
         'valorLiquido',
       )
       .getRawOne()) as {
@@ -197,13 +203,18 @@ export class VendaService {
 
   private criarQueryBuilderPesquisa(
     pesquisa: PesquisarVendasDto,
+    incluirRelacoes = false,
   ): SelectQueryBuilder<Venda> {
     const dataInicio = pesquisa.dataInicio;
     const dataFim = pesquisa.dataFim ?? pesquisa.dataInicio;
-    const queryBuilder = this.vendaRepository
-      .createQueryBuilder('venda')
-      .leftJoinAndSelect('venda.feira', 'feira')
-      .leftJoinAndSelect('venda.carteira', 'carteira');
+    const queryBuilder = this.vendaRepository.createQueryBuilder('venda');
+
+    if (incluirRelacoes) {
+      queryBuilder
+        .leftJoinAndSelect('venda.feira', 'feira')
+        .leftJoinAndSelect('venda.pagamentos', 'pagamento')
+        .leftJoinAndSelect('pagamento.carteira', 'carteira');
+    }
 
     if (dataInicio) {
       const range = this.dateService.toUtcDateRange(dataInicio);
@@ -234,15 +245,27 @@ export class VendaService {
     }
 
     if (pesquisa.idCarteira) {
-      queryBuilder.andWhere('venda.idCarteira = :idCarteira', {
-        idCarteira: pesquisa.idCarteira,
-      });
+      queryBuilder.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM pagamento_venda pagamento_filtro
+          WHERE pagamento_filtro.id_venda = venda.id
+            AND pagamento_filtro.id_carteira = :idCarteira
+        )`,
+        { idCarteira: pesquisa.idCarteira },
+      );
     }
 
     if (pesquisa.meioPagamento) {
-      queryBuilder.andWhere('venda.meioPagamento = :meioPagamento', {
-        meioPagamento: pesquisa.meioPagamento,
-      });
+      queryBuilder.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM pagamento_venda pagamento_filtro
+          WHERE pagamento_filtro.id_venda = venda.id
+            AND pagamento_filtro.meio_pagamento = :meioPagamento
+        )`,
+        { meioPagamento: pesquisa.meioPagamento },
+      );
     }
 
     return queryBuilder;

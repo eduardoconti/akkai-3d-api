@@ -5,9 +5,7 @@ import { ExcluirVendaUseCase } from '@venda/use-cases';
 describe('ExcluirVendaUseCase', () => {
   it('deve excluir venda sem criar movimentos de ajuste', async () => {
     const vendaExistente = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [
         {
           idProduto: 10,
@@ -15,6 +13,9 @@ describe('ExcluirVendaUseCase', () => {
           quantidade: 2,
           valorUnitario: 1000,
         },
+      ],
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 2000 },
       ],
     });
     vendaExistente.id = 5;

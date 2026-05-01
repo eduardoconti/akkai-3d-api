@@ -8,39 +8,27 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  ValueTransformer,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
-import { Carteira } from '@financeiro/entities/carteira.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
-import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { PagamentoVenda, PagamentoVendaInput } from './pagamento-venda.entity';
 
 export enum TipoVenda {
   FEIRA = 'FEIRA',
   LOJA = 'LOJA',
   ONLINE = 'ONLINE',
 }
-const percentualTransformer: ValueTransformer = {
-  to: (value?: number | null) => value,
-  from: (value: string | number | null) =>
-    value === null || value === undefined ? null : Number(value),
-};
-
 export interface InserirVendaInput {
   tipo: TipoVenda;
-  meioPagamento: MeioPagamento;
-  idCarteira: number;
   idFeira?: number;
   desconto?: number;
-  percentualTaxa?: number | null;
-  percentualImposto?: number | null;
   itens: ItemVendaInput[];
+  pagamentos: PagamentoVendaInput[];
 }
 @Entity('venda')
 @Check('ck_venda_desconto_nao_negativo', '"desconto" >= 0')
 @Check('ck_venda_valor_total_nao_negativo', '"valor_total" >= 0')
-@Index('idx_venda_id_carteira', ['idCarteira'])
 @Index('idx_venda_id_feira', ['idFeira'])
 @Index('idx_venda_data_inclusao', ['dataInclusao'])
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
@@ -63,42 +51,8 @@ export class Venda {
   @Column({ type: 'enum', enum: TipoVenda, enumName: 'tipo_venda_enum' })
   tipo!: TipoVenda;
 
-  @Column({
-    type: 'enum',
-    enum: MeioPagamento,
-    enumName: 'meio_pagamento_venda_enum',
-    name: 'meio_pagamento',
-  })
-  meioPagamento!: MeioPagamento;
-
   @Column({ type: 'integer', default: 0 })
   desconto!: number;
-
-  @Column({
-    type: 'numeric',
-    precision: 5,
-    scale: 2,
-    transformer: percentualTransformer,
-    name: 'percentual_taxa',
-    nullable: true,
-  })
-  percentualTaxa?: number | null;
-
-  @Column({ type: 'integer', name: 'valor_taxa', nullable: true })
-  valorTaxa?: number | null;
-
-  @Column({
-    type: 'numeric',
-    precision: 5,
-    scale: 2,
-    transformer: percentualTransformer,
-    name: 'percentual_imposto',
-    nullable: true,
-  })
-  percentualImposto?: number | null;
-
-  @Column({ type: 'integer', name: 'valor_imposto', nullable: true })
-  valorImposto?: number | null;
 
   valorLiquido?: number;
 
@@ -111,16 +65,6 @@ export class Venda {
     foreignKeyConstraintName: 'fk_venda_usuario_inclusao',
   })
   usuarioInclusao!: User;
-
-  @Column({ type: 'integer', name: 'id_carteira', nullable: true })
-  idCarteira?: number;
-
-  @ManyToOne(() => Carteira, (carteira) => carteira.vendas, { nullable: true })
-  @JoinColumn({
-    name: 'id_carteira',
-    foreignKeyConstraintName: 'fk_venda_carteira',
-  })
-  carteira?: Carteira;
 
   @Column({ type: 'integer', name: 'id_feira', nullable: true })
   idFeira?: number;
@@ -137,6 +81,11 @@ export class Venda {
   })
   itens!: ItemVenda[];
 
+  @OneToMany(() => PagamentoVenda, (pagamento) => pagamento.venda, {
+    cascade: true,
+  })
+  pagamentos!: PagamentoVenda[];
+
   constructor() {}
 
   static criar(inserirVendaInput: InserirVendaInput): Venda {
@@ -148,39 +97,29 @@ export class Venda {
 
   atualizar(inserirVendaInput: InserirVendaInput): void {
     this.tipo = inserirVendaInput.tipo;
-    this.meioPagamento = inserirVendaInput.meioPagamento;
-    this.idCarteira = inserirVendaInput.idCarteira;
-    this.carteira = undefined;
     this.idFeira = inserirVendaInput.idFeira;
     this.feira = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
-    this.percentualTaxa = inserirVendaInput.percentualTaxa ?? null;
-    this.percentualImposto = inserirVendaInput.percentualImposto ?? null;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 
     this.calcularValorTotal();
-    this.calcularValorTaxa();
-    this.calcularValorImposto();
-  }
-
-  private calcularValorPercentual(percentual?: number | null): number | null {
-    if (percentual === null || percentual === undefined) {
-      return null;
-    }
-
-    return Math.round((this.valorTotal * percentual) / 100);
-  }
-
-  private calcularValorTaxa(): void {
-    this.valorTaxa = this.calcularValorPercentual(this.percentualTaxa);
-  }
-
-  private calcularValorImposto(): void {
-    this.valorImposto = this.calcularValorPercentual(this.percentualImposto);
+    this.pagamentos = inserirVendaInput.pagamentos.map((pagamento) =>
+      PagamentoVenda.criar(pagamento),
+    );
+    this.validarPagamentos();
   }
 
   calcularValorLiquido(): number {
-    return this.valorTotal - (this.valorTaxa ?? 0) - (this.valorImposto ?? 0);
+    const totalTaxas = (this.pagamentos ?? []).reduce(
+      (total, pagamento) => total + (pagamento.valorTaxa ?? 0),
+      0,
+    );
+    const totalImpostos = (this.pagamentos ?? []).reduce(
+      (total, pagamento) => total + (pagamento.valorImposto ?? 0),
+      0,
+    );
+
+    return this.valorTotal - totalTaxas - totalImpostos;
   }
 
   private calcularValorTotal(): void {
@@ -196,5 +135,18 @@ export class Venda {
     }
 
     this.valorTotal = totalItens - this.desconto;
+  }
+
+  private validarPagamentos(): void {
+    const totalPagamentos = this.pagamentos.reduce(
+      (total, pagamento) => total + pagamento.valor,
+      0,
+    );
+
+    if (totalPagamentos !== this.valorTotal) {
+      throw new BadRequestException(
+        'A soma dos pagamentos deve ser igual ao valor total da venda.',
+      );
+    }
   }
 }

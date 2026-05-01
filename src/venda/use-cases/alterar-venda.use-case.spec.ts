@@ -28,6 +28,16 @@ describe('AlterarVendaUseCase', () => {
   let obterValorProdutoParaFeiraMock: jest.Mock;
   let currentUserContext: { usuarioId: number };
 
+  const criarPagamentoInput = (
+    valor: number,
+    meioPagamento = MeioPagamento.PIX,
+    idCarteira = 1,
+  ) => ({
+    idCarteira,
+    meioPagamento,
+    valor,
+  });
+
   beforeEach(() => {
     alterarVendaMock = jest.fn();
     garantirExisteVendaMock = jest.fn();
@@ -36,7 +46,8 @@ describe('AlterarVendaUseCase', () => {
     garantirExisteProdutoMock = jest.fn();
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
     obterValorProdutoParaFeiraMock = jest.fn(
-      async (_idFeira: number | undefined, produto: Produto) => produto.valor,
+      (_idFeira: number | undefined, produto: Produto) =>
+        Promise.resolve(produto.valor),
     );
     currentUserContext = { usuarioId: 7 };
 
@@ -77,9 +88,7 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve alterar venda recriando itens e movimentos da própria venda', async () => {
     const vendaExistente = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       desconto: 0,
       itens: [
         {
@@ -89,17 +98,17 @@ describe('AlterarVendaUseCase', () => {
           valorUnitario: 1000,
         },
       ],
+      pagamentos: [criarPagamentoInput(2000, MeioPagamento.DIN)],
     });
     vendaExistente.id = 5;
 
     const input: ExecutarAlterarVendaInput = {
       id: 5,
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 2,
       idFeira: 3,
       desconto: 200,
       itens: [{ idProduto: 20, quantidade: 1 }],
+      pagamentos: [criarPagamentoInput(2300, MeioPagamento.PIX, 2)],
     };
 
     garantirExisteVendaMock.mockResolvedValue(vendaExistente);
@@ -135,15 +144,20 @@ describe('AlterarVendaUseCase', () => {
       expect.objectContaining({
         id: 5,
         tipo: TipoVenda.FEIRA,
-        meioPagamento: MeioPagamento.PIX,
-        idCarteira: 2,
         idFeira: 3,
         desconto: 200,
-        percentualTaxa: 3,
-        valorTaxa: 69,
-        percentualImposto: 4,
-        valorImposto: 92,
         valorTotal: 2300,
+        pagamentos: [
+          expect.objectContaining({
+            idCarteira: 2,
+            meioPagamento: MeioPagamento.PIX,
+            valor: 2300,
+            percentualTaxa: 3,
+            valorTaxa: 69,
+            percentualImposto: 4,
+            valorImposto: 92,
+          }),
+        ],
       }),
       [
         expect.objectContaining({
@@ -159,10 +173,9 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve usar preço específico da feira ao alterar item de catálogo', async () => {
     const vendaExistente = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [],
+      pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
     });
     vendaExistente.id = 8;
     const produto = Object.assign(new Produto(), {
@@ -187,11 +200,10 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 8,
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 2,
       idFeira: 3,
       itens: [{ idProduto: 20, quantidade: 2 }],
+      pagamentos: [criarPagamentoInput(6400, MeioPagamento.PIX, 2)],
     });
 
     expect(obterValorProdutoParaFeiraMock).toHaveBeenCalledWith(3, produto);
@@ -213,10 +225,9 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve alterar venda com item avulso sem movimentar estoque', async () => {
     const vendaExistente = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [],
+      pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
     });
     vendaExistente.id = 6;
 
@@ -233,12 +244,11 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 6,
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [
         { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },
       ],
+      pagamentos: [criarPagamentoInput(3000)],
     });
 
     expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
@@ -258,19 +268,17 @@ describe('AlterarVendaUseCase', () => {
     await expect(
       useCase.execute({
         id: 99,
-        meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.LOJA,
-        idCarteira: 1,
         itens: [{ idProduto: 1, quantidade: 1 }],
+        pagamentos: [criarPagamentoInput(1000)],
       }),
     ).rejects.toThrow('Venda com ID 99 não encontrada.');
   });
   it('deve manter percentual de imposto nulo quando a carteira considerar imposto sem percentual definido', async () => {
     const vendaExistente = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [],
+      pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
     });
     vendaExistente.id = 7;
 
@@ -287,18 +295,21 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 7,
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [
         { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },
       ],
+      pagamentos: [criarPagamentoInput(3000)],
     });
 
     expect(alterarVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        percentualImposto: null,
-        valorImposto: null,
+        pagamentos: [
+          expect.objectContaining({
+            percentualImposto: null,
+            valorImposto: null,
+          }),
+        ],
       }),
       [],
     );

@@ -106,9 +106,9 @@ export class CarteiraService {
         (
           COALESCE(
             (
-              SELECT SUM(v.valor_total)
-              FROM venda v
-              WHERE v.id_carteira = c.id
+              SELECT SUM(p.valor)
+              FROM pagamento_venda p
+              WHERE p.id_carteira = c.id
             ),
             0
           ) -

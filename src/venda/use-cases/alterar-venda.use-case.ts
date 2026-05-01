@@ -25,9 +25,7 @@ import { CurrentUserContext } from '@common/services/current-user-context.servic
 
 export interface ExecutarAlterarVendaInput {
   id: number;
-  meioPagamento: MeioPagamento;
   tipo: TipoVenda;
-  idCarteira: number;
   idFeira?: number;
   desconto?: number;
   itens: {
@@ -36,6 +34,11 @@ export interface ExecutarAlterarVendaInput {
     idProduto?: number;
     nomeProduto?: string;
     valorUnitario?: number;
+  }[];
+  pagamentos: {
+    idCarteira: number;
+    meioPagamento: MeioPagamento;
+    valor: number;
   }[];
 }
 
@@ -54,18 +57,7 @@ export class AlterarVendaUseCase {
   async execute(input: ExecutarAlterarVendaInput): Promise<Venda> {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
     const venda = await this.vendaService.garantirExisteVenda(input.id);
-
-    const carteira =
-      await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
-        input.idCarteira,
-        input.meioPagamento,
-      );
-
-    const taxaMeioPagamentoCarteira =
-      await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
-        input.idCarteira,
-        input.meioPagamento,
-      );
+    const pagamentos = await this.criarPagamentos(input.pagamentos);
 
     if (input.idFeira !== undefined) {
       await this.feiraService.garantirExisteFeira(input.idFeira);
@@ -113,18 +105,45 @@ export class AlterarVendaUseCase {
     }
 
     venda.atualizar({
-      meioPagamento: input.meioPagamento,
       tipo: input.tipo,
-      idCarteira: input.idCarteira,
       idFeira: input.idFeira,
       desconto: input.desconto,
-      percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
-      percentualImposto: carteira.consideraImpostoVenda
-        ? (carteira.percentualImpostoVenda ?? null)
-        : null,
       itens: itensVenda,
+      pagamentos,
     });
 
     return await this.vendaService.alterarVenda(venda, movimentacoesEstoque);
+  }
+
+  private async criarPagamentos(
+    pagamentosInput: ExecutarAlterarVendaInput['pagamentos'],
+  ): Promise<AtualizarVendaInput['pagamentos']> {
+    const pagamentos: AtualizarVendaInput['pagamentos'] = [];
+
+    for (const pagamento of pagamentosInput) {
+      const carteira =
+        await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+          pagamento.idCarteira,
+          pagamento.meioPagamento,
+        );
+
+      const taxaMeioPagamentoCarteira =
+        await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
+          pagamento.idCarteira,
+          pagamento.meioPagamento,
+        );
+
+      pagamentos.push({
+        idCarteira: pagamento.idCarteira,
+        meioPagamento: pagamento.meioPagamento,
+        valor: pagamento.valor,
+        percentualTaxa: taxaMeioPagamentoCarteira?.percentual ?? null,
+        percentualImposto: carteira.consideraImpostoVenda
+          ? (carteira.percentualImpostoVenda ?? null)
+          : null,
+      });
+    }
+
+    return pagamentos;
   }
 }

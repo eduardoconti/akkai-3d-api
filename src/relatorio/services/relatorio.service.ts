@@ -215,8 +215,16 @@ export class RelatorioService {
           SELECT
             EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
             COALESCE(SUM(venda.valor_total), 0) AS "valorVendas",
-            COALESCE(SUM(COALESCE(venda.valor_taxa, 0)), 0) AS "valorTaxas",
-            COALESCE(SUM(COALESCE(venda.valor_imposto, 0)), 0) AS "valorImpostos"
+            COALESCE(SUM((
+              SELECT COALESCE(SUM(COALESCE(pagamento.valor_taxa, 0)), 0)
+              FROM pagamento_venda pagamento
+              WHERE pagamento.id_venda = venda.id
+            )), 0) AS "valorTaxas",
+            COALESCE(SUM((
+              SELECT COALESCE(SUM(COALESCE(pagamento.valor_imposto, 0)), 0)
+              FROM pagamento_venda pagamento
+              WHERE pagamento.id_venda = venda.id
+            )), 0) AS "valorImpostos"
           FROM venda
           WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
           GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
@@ -680,8 +688,11 @@ export class RelatorioService {
             (
               SELECT SUM(
                 venda.valor_total
-                - COALESCE(venda.valor_taxa, 0)
-                - COALESCE(venda.valor_imposto, 0)
+                - COALESCE((
+                  SELECT SUM(COALESCE(pagamento.valor_taxa, 0) + COALESCE(pagamento.valor_imposto, 0))
+                  FROM pagamento_venda pagamento
+                  WHERE pagamento.id_venda = venda.id
+                ), 0)
               )
               FROM venda venda
               WHERE ${whereClause}

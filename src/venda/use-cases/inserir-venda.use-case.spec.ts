@@ -40,6 +40,16 @@ describe('InserirVendaUseCase', () => {
   >;
   let currentUserContext: { usuarioId: number };
 
+  const criarPagamentoInput = (
+    valor: number,
+    meioPagamento = MeioPagamento.PIX,
+    idCarteira = 1,
+  ) => ({
+    idCarteira,
+    meioPagamento,
+    valor,
+  });
+
   beforeEach(() => {
     inserirVendaMock = jest.fn<
       Promise<Venda>,
@@ -50,7 +60,8 @@ describe('InserirVendaUseCase', () => {
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock = jest.fn();
     obterValorProdutoParaFeiraMock = jest.fn(
-      async (_idFeira: number | undefined, produto: Produto) => produto.valor,
+      (_idFeira: number | undefined, produto: Produto) =>
+        Promise.resolve(produto.valor),
     );
     currentUserContext = { usuarioId: 7 };
 
@@ -93,9 +104,7 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda e movimentacoes de estoque corretamente', async () => {
     const input: ExecutarInserirVendaInput = {
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       desconto: 200,
       itens: [
         {
@@ -103,6 +112,7 @@ describe('InserirVendaUseCase', () => {
           quantidade: 2,
         },
       ],
+      pagamentos: [criarPagamentoInput(4800)],
     };
     const vendaPersistida = new Venda();
     vendaPersistida.id = 1;
@@ -138,15 +148,20 @@ describe('InserirVendaUseCase', () => {
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         tipo: TipoVenda.LOJA,
-        meioPagamento: MeioPagamento.PIX,
-        idCarteira: 1,
         idFeira: undefined,
         desconto: 200,
-        percentualTaxa: 2.5,
-        valorTaxa: 120,
-        percentualImposto: 4,
-        valorImposto: 192,
         valorTotal: 4800,
+        pagamentos: [
+          expect.objectContaining({
+            idCarteira: 1,
+            meioPagamento: MeioPagamento.PIX,
+            valor: 4800,
+            percentualTaxa: 2.5,
+            valorTaxa: 120,
+            percentualImposto: 4,
+            valorImposto: 192,
+          }),
+        ],
         itens: [
           expect.objectContaining({
             idProduto: 1,
@@ -193,11 +208,10 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 2 }],
+      pagamentos: [criarPagamentoInput(3000, MeioPagamento.DIN)],
     });
 
     expect(obterValorProdutoParaFeiraMock).toHaveBeenCalledWith(3, produto);
@@ -237,22 +251,27 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       itens: [{ idProduto: 1, quantidade: 1 }],
+      pagamentos: [criarPagamentoInput(1000, MeioPagamento.DIN)],
     });
 
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        idCarteira: 1,
         idFeira: undefined,
         desconto: 0,
-        percentualTaxa: null,
-        valorTaxa: null,
-        percentualImposto: null,
-        valorImposto: null,
         valorTotal: 1000,
+        pagamentos: [
+          expect.objectContaining({
+            idCarteira: 1,
+            meioPagamento: MeioPagamento.DIN,
+            valor: 1000,
+            percentualTaxa: null,
+            valorTaxa: null,
+            percentualImposto: null,
+            valorImposto: null,
+          }),
+        ],
         itens: [
           expect.objectContaining({
             idProduto: 1,
@@ -287,11 +306,10 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 1 }],
+      pagamentos: [criarPagamentoInput(1000, MeioPagamento.DIN)],
     });
 
     expect(garantirExisteFeiraMock).toHaveBeenCalledWith(3);
@@ -312,10 +330,9 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
-        meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.LOJA,
-        idCarteira: 99,
         itens: [{ idProduto: 1, quantidade: 1 }],
+        pagamentos: [criarPagamentoInput(1000, MeioPagamento.PIX, 99)],
       }),
     ).rejects.toThrow('Carteira com ID 99 não encontrada.');
   });
@@ -334,11 +351,10 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
-        meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.FEIRA,
-        idCarteira: 1,
         idFeira: 99,
         itens: [{ idProduto: 1, quantidade: 1 }],
+        pagamentos: [criarPagamentoInput(1000)],
       }),
     ).rejects.toThrow('Feira com ID 99 não encontrada.');
   });
@@ -357,10 +373,9 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
-        meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.LOJA,
-        idCarteira: 1,
         itens: [{ idProduto: 99, quantidade: 1 }],
+        pagamentos: [criarPagamentoInput(1000)],
       }),
     ).rejects.toThrow('Produto com ID 99 não encontrado.');
   });
@@ -377,9 +392,7 @@ describe('InserirVendaUseCase', () => {
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
 
     await useCase.execute({
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       itens: [
         {
           nomeProduto: 'Peca personalizada',
@@ -387,6 +400,7 @@ describe('InserirVendaUseCase', () => {
           quantidade: 1,
         },
       ],
+      pagamentos: [criarPagamentoInput(4500)],
     });
 
     expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
@@ -431,9 +445,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute({
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [
         {
           idProduto: 1,
@@ -441,6 +453,7 @@ describe('InserirVendaUseCase', () => {
           brinde: true,
         },
       ],
+      pagamentos: [criarPagamentoInput(0)],
     });
 
     expect(inserirVendaMock).toHaveBeenCalledWith(
@@ -490,16 +503,19 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
-      meioPagamento: MeioPagamento.PIX,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [{ idProduto: 1, quantidade: 1 }],
+      pagamentos: [criarPagamentoInput(1000)],
     });
 
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        percentualImposto: null,
-        valorImposto: null,
+        pagamentos: [
+          expect.objectContaining({
+            percentualImposto: null,
+            valorImposto: null,
+          }),
+        ],
       }),
       expect.any(Array),
     );

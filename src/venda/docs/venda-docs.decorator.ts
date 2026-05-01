@@ -36,22 +36,29 @@ const VENDA_EXEMPLO = {
   id: 27,
   dataInclusao: '2026-04-01T22:58:00.000Z',
   valorTotal: 2200,
-  percentualTaxa: 2.99,
-  valorTaxa: 66,
-  percentualImposto: 4,
-  valorImposto: 88,
   valorLiquido: 2046,
   tipo: 'FEIRA',
-  meioPagamento: 'PIX',
   desconto: 0,
-  idCarteira: 1,
-  carteira: {
-    id: 1,
-    nome: 'TON-BAU',
-    ativa: true,
-  },
   idFeira: 1,
   feira: FEIRA_EXEMPLO,
+  pagamentos: [
+    {
+      id: 15,
+      idVenda: 27,
+      idCarteira: 1,
+      meioPagamento: 'PIX',
+      valor: 2200,
+      percentualTaxa: 2.99,
+      valorTaxa: 66,
+      percentualImposto: 4,
+      valorImposto: 88,
+      carteira: {
+        id: 1,
+        nome: 'TON-BAU',
+        ativa: true,
+      },
+    },
+  ],
   itens: [
     {
       id: 101,
@@ -104,7 +111,7 @@ export function ApiInserirVendaDocs() {
     ApiOperation({
       summary: 'Registra uma nova venda.',
       description:
-        'Cria uma venda com itens de catálogo ou itens avulsos, associando carteira financeira e feira quando aplicável.',
+        'Cria uma venda com itens de catálogo ou itens avulsos, associando um ou dois pagamentos e feira quando aplicável.',
     }),
     ApiBody({
       type: InserirVendaDto,
@@ -113,8 +120,6 @@ export function ApiInserirVendaDocs() {
           summary: 'Venda com item de catálogo',
           value: {
             tipo: 'FEIRA',
-            meioPagamento: 'PIX',
-            idCarteira: 1,
             idFeira: 1,
             desconto: 0,
             itens: [
@@ -123,20 +128,23 @@ export function ApiInserirVendaDocs() {
                 quantidade: 1,
               },
             ],
+            pagamentos: [{ idCarteira: 1, meioPagamento: 'PIX', valor: 2200 }],
           },
         },
         avulso: {
           summary: 'Venda com item avulso',
           value: {
             tipo: 'LOJA',
-            meioPagamento: 'DIN',
-            idCarteira: 1,
             itens: [
               {
                 nomeProduto: 'Peça personalizada',
                 valorUnitario: 4500,
                 quantidade: 1,
               },
+            ],
+            pagamentos: [
+              { idCarteira: 1, meioPagamento: 'DIN', valor: 3000 },
+              { idCarteira: 2, meioPagamento: 'PIX', valor: 1500 },
             ],
           },
         },
@@ -269,13 +277,13 @@ export function ApiListarVendasDocs() {
       required: false,
       type: Number,
       example: 1,
-      description: 'Filtro opcional pela carteira da venda.',
+      description: 'Filtro opcional pela carteira usada em algum pagamento.',
     }),
     ApiQuery({
       name: 'meioPagamento',
       required: false,
       enum: ['DIN', 'DEB', 'CRE', 'PIX'],
-      description: 'Filtro opcional pelo meio de pagamento.',
+      description: 'Filtro opcional por meio usado em algum pagamento.',
     }),
     ApiOkResponse({
       description: 'Vendas encontradas com sucesso.',
@@ -317,7 +325,7 @@ export function ApiAlterarVendaDocs() {
     ApiOperation({
       summary: 'Altera uma venda existente.',
       description:
-        'Permite atualizar dados de uma venda, incluindo tipo, meio de pagamento, carteira, feira, desconto e itens.',
+        'Permite atualizar dados de uma venda, incluindo tipo, pagamentos, feira, desconto e itens.',
     }),
     ApiIdParamDocs('Identificador da venda a ser alterada.'),
     ApiBody({
@@ -327,11 +335,10 @@ export function ApiAlterarVendaDocs() {
           summary: 'Alteração válida',
           value: {
             tipo: 'FEIRA',
-            meioPagamento: 'DIN',
-            idCarteira: 1,
             idFeira: 1,
             desconto: 100,
             itens: [{ idProduto: 1, quantidade: 1 }],
+            pagamentos: [{ idCarteira: 1, meioPagamento: 'DIN', valor: 2100 }],
           },
         },
       },

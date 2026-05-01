@@ -123,10 +123,9 @@ describe('VendaController', () => {
     inserirVendaUseCase.execute.mockResolvedValue({ id: 1 });
 
     const input = {
-      meioPagamento: 'PIX',
       tipo: 'LOJA',
-      idCarteira: 1,
       itens: [{ idProduto: 1, quantidade: 1 }],
+      pagamentos: [{ idCarteira: 1, meioPagamento: 'PIX', valor: 1000 }],
     };
 
     const result = await controller.inserirVenda(input as never);
@@ -166,11 +165,10 @@ describe('VendaController', () => {
     alterarVendaUseCase.execute.mockResolvedValue({ id: 2 });
 
     const input = {
-      meioPagamento: 'PIX',
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 2 }],
+      pagamentos: [{ idCarteira: 1, meioPagamento: 'PIX', valor: 2000 }],
     };
 
     const result = await controller.alterarVenda(2, input as never);

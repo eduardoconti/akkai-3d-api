@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
-import { ItemVenda, TipoVenda, Venda } from '@venda/entities';
+import { ItemVenda, PagamentoVenda, TipoVenda, Venda } from '@venda/entities';
 import { VendaService } from '@venda/services';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateService } from '@common/services/date.service';
@@ -155,7 +155,12 @@ describe('VendaService', () => {
 
     const result = await service.alterarVenda(venda, [movimentacao]);
 
-    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(1, ItemVenda, {
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(
+      1,
+      PagamentoVenda,
+      { idVenda: 1 },
+    );
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(2, ItemVenda, {
       idVenda: 1,
     });
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
@@ -172,10 +177,15 @@ describe('VendaService', () => {
 
     await service.excluirVenda(venda);
 
-    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(1, ItemVenda, {
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(
+      1,
+      PagamentoVenda,
+      { idVenda: 1 },
+    );
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(2, ItemVenda, {
       idVenda: 1,
     });
-    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(2, Venda, {
+    expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(3, Venda, {
       id: 1,
     });
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
@@ -211,7 +221,7 @@ describe('VendaService', () => {
       relations: {
         itens: { produto: true },
         feira: true,
-        carteira: true,
+        pagamentos: { carteira: true },
       },
     });
     expect(result).toEqual(expect.objectContaining({ id: 3 }));
@@ -333,11 +343,13 @@ describe('VendaService', () => {
       expect.objectContaining({ idFeira: 7 }),
     );
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-      'venda.idCarteira = :idCarteira',
+      expect.stringContaining('pagamento_filtro.id_carteira = :idCarteira'),
       expect.objectContaining({ idCarteira: 2 }),
     );
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-      'venda.meioPagamento = :meioPagamento',
+      expect.stringContaining(
+        'pagamento_filtro.meio_pagamento = :meioPagamento',
+      ),
       expect.objectContaining({ meioPagamento: MeioPagamento.PIX }),
     );
   });

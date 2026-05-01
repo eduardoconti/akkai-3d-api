@@ -1,30 +1,13 @@
-import { Carteira } from '@financeiro/entities/carteira.entity';
 import {
   ItemVenda,
   ItemVendaInput,
   MeioPagamento,
+  PagamentoVenda,
   TipoVenda,
   Venda,
 } from '@venda/entities';
 
 describe('Venda', () => {
-  it('deve limpar a relação carteira ao chamar atualizar', () => {
-    const venda = new Venda();
-    venda.carteira = Object.assign(new Carteira(), { id: 1 });
-    venda.idCarteira = 1;
-    venda.itens = [];
-
-    venda.atualizar({
-      meioPagamento: MeioPagamento.PIX,
-      tipo: TipoVenda.LOJA,
-      idCarteira: 2,
-      itens: [],
-    });
-
-    expect(venda.carteira).toBeUndefined();
-    expect(venda.idCarteira).toBe(2);
-  });
-
   it('deve limpar a relação feira ao chamar atualizar', () => {
     const venda = new Venda();
     venda.feira = { id: 5 } as never;
@@ -32,10 +15,11 @@ describe('Venda', () => {
     venda.itens = [];
 
     venda.atualizar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [],
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 0 },
+      ],
     });
 
     expect(venda.feira).toBeUndefined();
@@ -67,11 +51,12 @@ describe('Venda', () => {
     });
 
     const venda = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       desconto: 10,
       itens,
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 190 },
+      ],
     });
 
     expect(venda.valorTotal).toBe(190);
@@ -102,21 +87,19 @@ describe('Venda', () => {
     });
 
     const venda = Venda.criar({
-      meioPagamento: MeioPagamento.DIN,
       tipo: TipoVenda.FEIRA,
-      idCarteira: 1,
       itens,
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 200 },
+      ],
     });
 
     expect(venda.valorTotal).toBe(200);
   });
 
-  it('deve calcular valor da taxa quando percentualTaxa for informado', () => {
+  it('deve calcular valor da taxa no pagamento quando percentualTaxa for informado', () => {
     const venda = Venda.criar({
-      meioPagamento: MeioPagamento.CRE,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
-      percentualTaxa: 5,
       itens: [
         {
           idProduto: 1,
@@ -125,17 +108,23 @@ describe('Venda', () => {
           valorUnitario: 1000,
         },
       ],
+      pagamentos: [
+        {
+          idCarteira: 1,
+          meioPagamento: MeioPagamento.CRE,
+          valor: 2000,
+          percentualTaxa: 5,
+        },
+      ],
     });
 
-    expect(venda.percentualTaxa).toBe(5);
-    expect(venda.valorTaxa).toBe(100);
+    expect(venda.pagamentos[0]?.percentualTaxa).toBe(5);
+    expect(venda.pagamentos[0]?.valorTaxa).toBe(100);
   });
 
-  it('deve deixar taxa nula quando percentualTaxa não for informado', () => {
+  it('deve deixar taxa do pagamento nula quando percentualTaxa não for informado', () => {
     const venda = Venda.criar({
-      meioPagamento: MeioPagamento.CRE,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
       itens: [
         {
           idProduto: 1,
@@ -144,18 +133,18 @@ describe('Venda', () => {
           valorUnitario: 1000,
         },
       ],
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.CRE, valor: 1000 },
+      ],
     });
 
-    expect(venda.percentualTaxa).toBeNull();
-    expect(venda.valorTaxa).toBeNull();
+    expect(venda.pagamentos[0]?.percentualTaxa).toBeNull();
+    expect(venda.pagamentos[0]?.valorTaxa).toBeNull();
   });
 
-  it('deve calcular valor do imposto quando percentualImposto for informado', () => {
+  it('deve calcular valor do imposto no pagamento quando percentualImposto for informado', () => {
     const venda = Venda.criar({
-      meioPagamento: MeioPagamento.CRE,
       tipo: TipoVenda.LOJA,
-      idCarteira: 1,
-      percentualImposto: 4,
       itens: [
         {
           idProduto: 1,
@@ -164,18 +153,61 @@ describe('Venda', () => {
           valorUnitario: 1000,
         },
       ],
+      pagamentos: [
+        {
+          idCarteira: 1,
+          meioPagamento: MeioPagamento.CRE,
+          valor: 2000,
+          percentualImposto: 4,
+        },
+      ],
     });
 
-    expect(venda.percentualImposto).toBe(4);
-    expect(venda.valorImposto).toBe(80);
+    expect(venda.pagamentos[0]?.percentualImposto).toBe(4);
+    expect(venda.pagamentos[0]?.valorImposto).toBe(80);
+  });
+
+  it('deve calcular valor líquido descontando taxas e impostos dos pagamentos', () => {
+    const venda = Object.assign(new Venda(), {
+      valorTotal: 2000,
+      pagamentos: [
+        Object.assign(new PagamentoVenda(), {
+          valorTaxa: 50,
+          valorImposto: 80,
+        }),
+        Object.assign(new PagamentoVenda(), {
+          valorTaxa: 30,
+          valorImposto: 40,
+        }),
+      ],
+    });
+
+    expect(venda.calcularValorLiquido()).toBe(1800);
+  });
+
+  it('deve lançar BadRequestException quando soma dos pagamentos divergir do total', () => {
+    expect(() =>
+      Venda.criar({
+        tipo: TipoVenda.LOJA,
+        itens: [
+          {
+            idProduto: 1,
+            nomeProduto: 'Caneca',
+            quantidade: 1,
+            valorUnitario: 500,
+          },
+        ],
+        pagamentos: [
+          { idCarteira: 1, meioPagamento: MeioPagamento.PIX, valor: 400 },
+        ],
+      }),
+    ).toThrow('A soma dos pagamentos deve ser igual ao valor total da venda.');
   });
 
   it('deve lançar BadRequestException quando desconto for maior que o total dos itens', () => {
     expect(() =>
       Venda.criar({
-        meioPagamento: MeioPagamento.PIX,
         tipo: TipoVenda.LOJA,
-        idCarteira: 1,
         desconto: 1000,
         itens: [
           {
@@ -184,6 +216,9 @@ describe('Venda', () => {
             quantidade: 1,
             valorUnitario: 500,
           },
+        ],
+        pagamentos: [
+          { idCarteira: 1, meioPagamento: MeioPagamento.PIX, valor: 0 },
         ],
       }),
     ).toThrow('O desconto não pode ser maior que o valor total dos itens.');

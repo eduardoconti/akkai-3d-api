@@ -7,7 +7,13 @@ import {
   VendaService,
 } from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Feira, ItemVenda, PrecoProdutoFeira, Venda } from '@venda/entities';
+import {
+  Feira,
+  ItemVenda,
+  PagamentoVenda,
+  PrecoProdutoFeira,
+  Venda,
+} from '@venda/entities';
 import { ProdutoModule } from '@produto/produto.module';
 import {
   AlterarFeiraUseCase,
@@ -38,6 +44,7 @@ import { Carteira } from '@financeiro/entities';
     TypeOrmModule.forFeature([
       Venda,
       ItemVenda,
+      PagamentoVenda,
       Feira,
       PrecoProdutoFeira,
       Carteira,

@@ -24,19 +24,6 @@ export class InserirVendaDto {
   })
   tipo!: TipoVenda;
 
-  @IsEnum(MeioPagamento, {
-    message: 'O meio de pagamento deve ser DIN, DEB, CRE ou PIX.',
-  })
-  meioPagamento!: MeioPagamento;
-
-  @Type(() => Number)
-  @IsInt({ message: 'A carteira da venda deve ser um número inteiro.' })
-  @Min(1, { message: 'A carteira da venda deve ser maior que zero.' })
-  @Max(2147483647, {
-    message: 'A carteira da venda ultrapassa o limite permitido.',
-  })
-  idCarteira!: number;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'A feira da venda deve ser um número inteiro.' })
@@ -65,6 +52,42 @@ export class InserirVendaDto {
   @ValidateNested({ each: true })
   @Type(() => InserirItemVendaDto)
   itens!: InserirItemVendaDto[];
+
+  @IsArray({
+    message: 'Os pagamentos da venda devem ser enviados em uma lista.',
+  })
+  @ArrayMinSize(1, {
+    message: 'A venda deve possuir ao menos 1 pagamento.',
+  })
+  @ArrayMaxSize(2, {
+    message: 'A venda deve possuir no máximo 2 pagamentos.',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => InserirPagamentoVendaDto)
+  pagamentos!: InserirPagamentoVendaDto[];
+}
+
+export class InserirPagamentoVendaDto {
+  @Type(() => Number)
+  @IsInt({ message: 'A carteira do pagamento deve ser um número inteiro.' })
+  @Min(1, { message: 'A carteira do pagamento deve ser maior que zero.' })
+  @Max(2147483647, {
+    message: 'A carteira do pagamento ultrapassa o limite permitido.',
+  })
+  idCarteira!: number;
+
+  @IsEnum(MeioPagamento, {
+    message: 'O meio de pagamento deve ser DIN, DEB, CRE ou PIX.',
+  })
+  meioPagamento!: MeioPagamento;
+
+  @Type(() => Number)
+  @IsInt({ message: 'O valor do pagamento deve ser informado em centavos.' })
+  @Min(0, { message: 'O valor do pagamento não pode ser negativo.' })
+  @Max(1000000, {
+    message: 'O valor do pagamento deve ser de no máximo R$ 10.000,00.',
+  })
+  valor!: number;
 }
 
 export class InserirItemVendaDto {
