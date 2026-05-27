@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { FeiraService } from '@venda/services';
 import { ExcluirFeiraUseCase } from './excluir-feira.use-case';
 

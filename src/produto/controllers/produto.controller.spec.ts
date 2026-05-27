@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProdutoController } from '@produto/controllers';
-import { CategoriaProduto, OrigemMovimentacaoEstoque } from '@produto/entities';
+import {
+  CategoriaProduto,
+  OrigemMovimentacaoEstoque,
+  TipoMovimentacaoEstoque,
+} from '@produto/entities';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
@@ -366,8 +370,8 @@ describe('ProdutoController', () => {
           idProduto: 1,
           usuario: 'Eduardo',
           quantidade: 2,
-          tipo: 'S',
-          origem: 'VENDA',
+          tipo: TipoMovimentacaoEstoque.SAIDA,
+          origem: OrigemMovimentacaoEstoque.VENDA,
           dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
         },
       ] satisfies ListarMovimentacaoEstoqueDto[],

@@ -3,6 +3,11 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { Orcamento } from '@orcamento/entities';
 import {
+  Consignacao,
+  ItemConsignacao,
+  Revendedor,
+} from '@consignacao/entities';
+import {
   Permission,
   RefreshSession,
   Role,
@@ -73,6 +78,9 @@ const entities = [
   ItemCicloAssinatura,
   KitMensal,
   ItemKitMensal,
+  Revendedor,
+  Consignacao,
+  ItemConsignacao,
 ];
 
 export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
