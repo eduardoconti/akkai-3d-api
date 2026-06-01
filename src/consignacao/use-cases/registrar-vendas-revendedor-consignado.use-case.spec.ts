@@ -4,13 +4,13 @@ import {
   TaxaMeioPagamentoCarteiraService,
 } from '@financeiro/services';
 import { MeioPagamento } from '@venda/entities';
-import { RegistrarVendasConsignadasUseCase } from './registrar-vendas-consignadas.use-case';
+import { RegistrarVendasRevendedorConsignadoUseCase } from './registrar-vendas-revendedor-consignado.use-case';
 
-describe('RegistrarVendasConsignadasUseCase', () => {
-  it('deve registrar vendas em lote', async () => {
-    const resposta = { id: 1, itens: [] };
+describe('RegistrarVendasRevendedorConsignadoUseCase', () => {
+  it('deve registrar vendas por revendedor com dados financeiros', async () => {
+    const resposta = [{ id: 1, itens: [] }];
     const consignacaoService = {
-      registrarVendas: jest.fn().mockResolvedValue(resposta),
+      registrarVendasPorRevendedor: jest.fn().mockResolvedValue(resposta),
     };
     const carteiraService = {
       garantirCarteiraAceitaMeioPagamento: jest.fn().mockResolvedValue({
@@ -24,7 +24,7 @@ describe('RegistrarVendasConsignadasUseCase', () => {
         .mockResolvedValue({ percentual: 2 }),
     };
     const currentUserContext = { usuarioId: 7 };
-    const useCase = new RegistrarVendasConsignadasUseCase(
+    const useCase = new RegistrarVendasRevendedorConsignadoUseCase(
       consignacaoService as unknown as ConsignacaoService,
       carteiraService as unknown as CarteiraService,
       taxaMeioPagamentoCarteiraService as unknown as TaxaMeioPagamentoCarteiraService,
@@ -32,8 +32,8 @@ describe('RegistrarVendasConsignadasUseCase', () => {
     );
 
     const resultado = await useCase.execute({
-      idConsignacao: 1,
-      idCarteira: 3,
+      idRevendedor: 3,
+      idCarteira: 4,
       meioPagamento: MeioPagamento.PIX,
       itens: [
         { idProduto: 10, quantidade: 2 },
@@ -44,18 +44,20 @@ describe('RegistrarVendasConsignadasUseCase', () => {
     expect(resultado).toBe(resposta);
     expect(
       carteiraService.garantirCarteiraAceitaMeioPagamento,
-    ).toHaveBeenCalledWith(3, MeioPagamento.PIX);
+    ).toHaveBeenCalledWith(4, MeioPagamento.PIX);
     expect(
       taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento,
-    ).toHaveBeenCalledWith(3, MeioPagamento.PIX);
-    expect(consignacaoService.registrarVendas).toHaveBeenCalledWith(
-      1,
+    ).toHaveBeenCalledWith(4, MeioPagamento.PIX);
+    expect(
+      consignacaoService.registrarVendasPorRevendedor,
+    ).toHaveBeenCalledWith(
+      3,
       [
         { idProduto: 10, quantidade: 2 },
         { idProduto: 20, quantidade: 1 },
       ],
       {
-        idCarteira: 3,
+        idCarteira: 4,
         meioPagamento: MeioPagamento.PIX,
         percentualTaxa: 2,
         percentualImposto: 5,

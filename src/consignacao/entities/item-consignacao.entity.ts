@@ -14,6 +14,7 @@ import { Consignacao } from './consignacao.entity';
 export interface CriarItemConsignacaoInput {
   idProduto: number;
   quantidadeEnviada: number;
+  valorUnitario: number;
 }
 
 @Entity('item_consignacao')
@@ -37,6 +38,10 @@ export interface CriarItemConsignacaoInput {
   'ck_item_consignacao_quantidades_movimentadas_validas',
   '"quantidade_vendida" + "quantidade_devolvida" <= "quantidade_enviada"',
 )
+@Check(
+  'ck_item_consignacao_valor_unitario_nao_negativo',
+  '"valor_unitario" >= 0',
+)
 @Index('idx_item_consignacao_id_consignacao', ['idConsignacao'])
 @Index('idx_item_consignacao_id_produto', ['idProduto'])
 export class ItemConsignacao {
@@ -59,6 +64,9 @@ export class ItemConsignacao {
 
   @Column({ type: 'integer', name: 'quantidade_devolvida', default: 0 })
   quantidadeDevolvida!: number;
+
+  @Column({ type: 'integer', name: 'valor_unitario' })
+  valorUnitario!: number;
 
   @ManyToOne(() => Consignacao, (consignacao) => consignacao.itens, {
     onDelete: 'CASCADE',
@@ -88,6 +96,7 @@ export class ItemConsignacao {
     item.quantidadeEnviada = input.quantidadeEnviada;
     item.quantidadeVendida = 0;
     item.quantidadeDevolvida = 0;
+    item.valorUnitario = input.valorUnitario;
     return item;
   }
 }

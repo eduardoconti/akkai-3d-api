@@ -20,7 +20,7 @@ import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirVendaDto {
   @IsEnum(TipoVenda, {
-    message: 'O tipo da venda deve ser FEIRA, LOJA ou ONLINE.',
+    message: 'O tipo da venda deve ser FEIRA, LOJA, ONLINE ou CONSIGNACAO.',
   })
   tipo!: TipoVenda;
 
@@ -37,8 +37,8 @@ export class InserirVendaDto {
   @Type(() => Number)
   @IsInt({ message: 'O desconto da venda deve ser informado em centavos.' })
   @Min(0, { message: 'O desconto da venda não pode ser negativo.' })
-  @Max(10000, {
-    message: 'O desconto da venda deve ser de no máximo R$ 100,00.',
+  @Max(50000, {
+    message: 'O desconto da venda deve ser de no máximo R$ 500,00.',
   })
   desconto?: number;
 

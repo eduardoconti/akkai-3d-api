@@ -28,6 +28,7 @@ import {
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
+  RegistrarVendasRevendedorConsignadoUseCase,
   RegistrarVendasConsignadasUseCase,
 } from '@consignacao/use-cases';
 import {
@@ -39,6 +40,7 @@ import {
   ApiObterConsignacaoPorIdDocs,
   ApiObterRevendedorPorIdDocs,
   ApiRegistrarDevolucaoConsignadaDocs,
+  ApiRegistrarVendasRevendedorConsignadoDocs,
   ApiRegistrarVendasConsignadasDocs,
 } from '@consignacao/docs/consignacao-docs.decorator';
 
@@ -52,6 +54,7 @@ export class ConsignacaoController {
     private readonly alterarRevendedorUseCase: AlterarRevendedorUseCase,
     private readonly inserirConsignacaoUseCase: InserirConsignacaoUseCase,
     private readonly registrarVendasConsignadasUseCase: RegistrarVendasConsignadasUseCase,
+    private readonly registrarVendasRevendedorConsignadoUseCase: RegistrarVendasRevendedorConsignadoUseCase,
     private readonly registrarDevolucaoConsignadaUseCase: RegistrarDevolucaoConsignadaUseCase,
   ) {}
 
@@ -88,6 +91,20 @@ export class ConsignacaoController {
     return this.alterarRevendedorUseCase.execute({ id, ...input });
   }
 
+  @ApiRegistrarVendasRevendedorConsignadoDocs()
+  @Post('revendedores/:id/vendas')
+  async registrarVendasRevendedorConsignado(
+    @Param('id', ParseIntPipe) idRevendedor: number,
+    @Body() input: RegistrarVendasConsignadasDto,
+  ): Promise<DetalheConsignacaoDto[]> {
+    return this.registrarVendasRevendedorConsignadoUseCase.execute({
+      idRevendedor,
+      idCarteira: input.idCarteira,
+      meioPagamento: input.meioPagamento,
+      itens: input.itens,
+    });
+  }
+
   @ApiInserirConsignacaoDocs()
   @Post()
   async inserirConsignacao(
@@ -120,6 +137,8 @@ export class ConsignacaoController {
   ): Promise<DetalheConsignacaoDto> {
     return this.registrarVendasConsignadasUseCase.execute({
       idConsignacao,
+      idCarteira: input.idCarteira,
+      meioPagamento: input.meioPagamento,
       itens: input.itens,
     });
   }

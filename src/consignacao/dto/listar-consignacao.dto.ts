@@ -16,6 +16,7 @@ export class ItemConsignacaoDto {
   quantidadeVendida!: number;
   quantidadeDevolvida!: number;
   quantidadeDisponivel!: number;
+  valorUnitario!: number;
 }
 
 export class ListarConsignacaoDto {

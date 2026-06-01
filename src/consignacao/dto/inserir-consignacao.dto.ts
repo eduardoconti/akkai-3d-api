@@ -4,6 +4,8 @@ import {
   ArrayMinSize,
   IsArray,
   IsInt,
+  IsOptional,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -26,6 +28,21 @@ export class InserirItemConsignacaoDto {
   @IsInt({ message: 'A quantidade enviada deve ser um número inteiro.' })
   @Min(1, { message: 'A quantidade enviada deve ser maior que zero.' })
   quantidade!: number;
+
+  @ApiProperty({
+    example: 2500,
+    required: false,
+    description:
+      'Valor unitário em centavos combinado para venda consignada. Quando omitido, usa o valor atual do produto.',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'O valor unitário deve ser informado em centavos.' })
+  @Min(0, { message: 'O valor unitário não pode ser negativo.' })
+  @Max(1000000, {
+    message: 'O valor unitário deve ser de no máximo R$ 10.000,00.',
+  })
+  valorUnitario?: number;
 }
 
 export class InserirConsignacaoDto {

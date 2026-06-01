@@ -49,10 +49,7 @@ import {
   InserirDespesaUseCase,
   InserirTaxaMeioPagamentoCarteiraUseCase,
 } from '@financeiro/use-cases';
-import {
-  ResultadoPaginado,
-  ResultadoPaginadoComTotalizadores,
-} from '@common/interfaces/resultado-paginado.interface';
+import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,

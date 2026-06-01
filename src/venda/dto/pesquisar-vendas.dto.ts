@@ -25,7 +25,7 @@ export class PesquisarVendasDto extends PesquisaPaginadaDto {
 
   @IsOptional()
   @IsEnum(TipoVenda, {
-    message: 'O tipo da venda deve ser FEIRA, LOJA ou ONLINE.',
+    message: 'O tipo da venda deve ser FEIRA, LOJA, ONLINE ou CONSIGNACAO.',
   })
   tipo?: TipoVenda;
 

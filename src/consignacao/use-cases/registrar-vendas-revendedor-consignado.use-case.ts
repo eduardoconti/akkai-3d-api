@@ -11,15 +11,15 @@ import {
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 import { MeioPagamento } from '@venda/entities';
 
-export interface RegistrarVendasConsignadasInput {
-  idConsignacao: number;
+export interface RegistrarVendasRevendedorConsignadoInput {
+  idRevendedor: number;
   idCarteira: number;
   meioPagamento: MeioPagamento;
   itens: RegistrarItemVendaConsignadaDto[];
 }
 
 @Injectable()
-export class RegistrarVendasConsignadasUseCase {
+export class RegistrarVendasRevendedorConsignadoUseCase {
   constructor(
     private readonly consignacaoService: ConsignacaoService,
     private readonly carteiraService: CarteiraService,
@@ -28,8 +28,8 @@ export class RegistrarVendasConsignadasUseCase {
   ) {}
 
   async execute(
-    input: RegistrarVendasConsignadasInput,
-  ): Promise<DetalheConsignacaoDto> {
+    input: RegistrarVendasRevendedorConsignadoInput,
+  ): Promise<DetalheConsignacaoDto[]> {
     const carteira =
       await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
         input.idCarteira,
@@ -41,8 +41,8 @@ export class RegistrarVendasConsignadasUseCase {
         input.meioPagamento,
       );
 
-    return this.consignacaoService.registrarVendas(
-      input.idConsignacao,
+    return this.consignacaoService.registrarVendasPorRevendedor(
+      input.idRevendedor,
       input.itens,
       {
         idCarteira: input.idCarteira,

@@ -12,10 +12,12 @@ import {
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
+  RegistrarVendasRevendedorConsignadoUseCase,
   RegistrarVendasConsignadasUseCase,
 } from '@consignacao/use-cases';
 import { ProdutoModule } from '@produto/produto.module';
 import { MovimentacaoEstoque } from '@produto/entities';
+import { FinanceiroModule } from '@financeiro/financeiro.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { MovimentacaoEstoque } from '@produto/entities';
       MovimentacaoEstoque,
     ]),
     ProdutoModule,
+    FinanceiroModule,
   ],
   controllers: [ConsignacaoController],
   providers: [
@@ -35,6 +38,7 @@ import { MovimentacaoEstoque } from '@produto/entities';
     AlterarRevendedorUseCase,
     InserirConsignacaoUseCase,
     RegistrarVendasConsignadasUseCase,
+    RegistrarVendasRevendedorConsignadoUseCase,
     RegistrarDevolucaoConsignadaUseCase,
   ],
   exports: [RevendedorService, ConsignacaoService],

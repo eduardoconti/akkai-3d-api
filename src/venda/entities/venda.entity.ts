@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
+import { Consignacao } from '@consignacao/entities/consignacao.entity';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
 import { PagamentoVenda, PagamentoVendaInput } from './pagamento-venda.entity';
@@ -18,10 +19,12 @@ export enum TipoVenda {
   FEIRA = 'FEIRA',
   LOJA = 'LOJA',
   ONLINE = 'ONLINE',
+  CONSIGNACAO = 'CONSIGNACAO',
 }
 export interface InserirVendaInput {
   tipo: TipoVenda;
   idFeira?: number;
+  idConsignacao?: number;
   desconto?: number;
   itens: ItemVendaInput[];
   pagamentos: PagamentoVendaInput[];
@@ -76,6 +79,16 @@ export class Venda {
   })
   feira?: Feira;
 
+  @Column({ type: 'integer', name: 'id_consignacao', nullable: true })
+  idConsignacao?: number;
+
+  @ManyToOne(() => Consignacao, { nullable: true })
+  @JoinColumn({
+    name: 'id_consignacao',
+    foreignKeyConstraintName: 'fk_venda_consignacao',
+  })
+  consignacao?: Consignacao;
+
   @OneToMany(() => ItemVenda, (itemVenda) => itemVenda.venda, {
     cascade: true,
   })
@@ -98,7 +111,9 @@ export class Venda {
   atualizar(inserirVendaInput: InserirVendaInput): void {
     this.tipo = inserirVendaInput.tipo;
     this.idFeira = inserirVendaInput.idFeira;
+    this.idConsignacao = inserirVendaInput.idConsignacao;
     this.feira = undefined;
+    this.consignacao = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 

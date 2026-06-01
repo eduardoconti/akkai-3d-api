@@ -118,6 +118,22 @@ export function ApiRegistrarVendasConsignadasDocs() {
   );
 }
 
+export function ApiRegistrarVendasRevendedorConsignadoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Registra vendas consignadas pelo revendedor.',
+      description:
+        'Lança a lista semanal de produtos vendidos e baixa automaticamente das consignações abertas mais antigas do revendedor.',
+    }),
+    ApiBody({ type: RegistrarVendasConsignadasDto }),
+    ApiOkResponse({
+      description: 'Vendas consignadas do revendedor registradas com sucesso.',
+    }),
+    ApiValidationErrorResponse('/consignacao/revendedores/1/vendas'),
+    ApiUnauthorizedErrorResponse('/consignacao/revendedores/1/vendas'),
+  );
+}
+
 export function ApiRegistrarDevolucaoConsignadaDocs() {
   return applyDecorators(
     ApiOperation({ summary: 'Registra devolução de um item consignado.' }),

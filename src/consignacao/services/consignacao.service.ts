@@ -27,6 +27,25 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
+import {
+  ItemVendaInput,
+  MeioPagamento,
+  PagamentoVendaInput,
+  TipoVenda,
+  Venda,
+} from '@venda/entities';
+
+export interface RegistrarPagamentoVendaConsignadaInput {
+  idCarteira: number;
+  meioPagamento: MeioPagamento;
+  percentualTaxa?: number | null;
+  percentualImposto?: number | null;
+}
+
+interface RegistroVendaConsignadaAgrupado {
+  consignacao: Consignacao;
+  itensVenda: ItemVendaInput[];
+}
 
 @Injectable()
 export class ConsignacaoService {
@@ -143,10 +162,13 @@ export class ConsignacaoService {
   async registrarVendas(
     idConsignacao: number,
     itensVendidos: RegistrarItemVendaConsignadaDto[],
+    pagamento: RegistrarPagamentoVendaConsignadaInput,
+    idUsuarioInclusao: number,
   ): Promise<DetalheConsignacaoDto> {
     this.validarProdutosVendidosUnicos(itensVendidos);
     const consignacao =
       await this.garantirConsignacaoAbertaComItens(idConsignacao);
+    const itensVenda: ItemVendaInput[] = [];
 
     for (const itemVendido of itensVendidos) {
       const item = consignacao.itens.find(
@@ -162,11 +184,24 @@ export class ConsignacaoService {
 
       this.validarSaldoDisponivel(item, itemVendido.quantidade, 'venda');
       item.quantidadeVendida += itemVendido.quantidade;
+      itensVenda.push(this.criarItemVendaInput(item, itemVendido.quantidade));
     }
+
+    const venda = this.criarVendaConsignada(
+      idConsignacao,
+      itensVenda,
+      pagamento,
+      idUsuarioInclusao,
+    );
+    const consignacaoFechada = this.fecharConsignacaoSeSemSaldo(consignacao);
 
     await this.dataSource
       .transaction(async (manager) => {
         await manager.save(ItemConsignacao, consignacao.itens);
+        if (consignacaoFechada) {
+          await manager.save(Consignacao, consignacao);
+        }
+        await manager.save(Venda, venda);
       })
       .catch((error) => {
         this.logger.error('Erro ao registrar vendas consignadas', error);
@@ -178,6 +213,121 @@ export class ConsignacaoService {
     return this.garantirDetalheConsignacao(idConsignacao);
   }
 
+  async registrarVendasPorRevendedor(
+    idRevendedor: number,
+    itensVendidos: RegistrarItemVendaConsignadaDto[],
+    pagamento: RegistrarPagamentoVendaConsignadaInput,
+    idUsuarioInclusao: number,
+  ): Promise<DetalheConsignacaoDto[]> {
+    this.validarProdutosVendidosUnicos(itensVendidos);
+    const consignacoes =
+      await this.listarConsignacoesAbertasPorRevendedor(idRevendedor);
+    const registrosPorConsignacao = new Map<
+      number,
+      RegistroVendaConsignadaAgrupado
+    >();
+    const itensAlterados = new Set<ItemConsignacao>();
+
+    for (const itemVendido of itensVendidos) {
+      const itensProduto = consignacoes.flatMap((consignacao) =>
+        consignacao.itens.filter(
+          (itemConsignacao) =>
+            itemConsignacao.idProduto === itemVendido.idProduto,
+        ),
+      );
+
+      if (itensProduto.length === 0) {
+        throw new NotFoundException(
+          `Produto com ID ${itemVendido.idProduto} não encontrado nas consignações abertas do revendedor.`,
+        );
+      }
+
+      const quantidadeDisponivelProduto = itensProduto.reduce(
+        (total, item) => total + item.quantidadeDisponivel,
+        0,
+      );
+
+      if (quantidadeDisponivelProduto < itemVendido.quantidade) {
+        throw new BadRequestException(
+          `Saldo disponível insuficiente para o produto com ID ${itemVendido.idProduto} nas consignações abertas do revendedor. Disponível: ${quantidadeDisponivelProduto}. Solicitado: ${itemVendido.quantidade}.`,
+        );
+      }
+
+      let quantidadeRestante = itemVendido.quantidade;
+
+      for (const consignacao of consignacoes) {
+        if (quantidadeRestante === 0) {
+          break;
+        }
+
+        const item = consignacao.itens.find(
+          (itemConsignacao) =>
+            itemConsignacao.idProduto === itemVendido.idProduto &&
+            itemConsignacao.quantidadeDisponivel > 0,
+        );
+
+        if (!item) {
+          continue;
+        }
+
+        const quantidadeBaixada = Math.min(
+          quantidadeRestante,
+          item.quantidadeDisponivel,
+        );
+        item.quantidadeVendida += quantidadeBaixada;
+        itensAlterados.add(item);
+        quantidadeRestante -= quantidadeBaixada;
+
+        const registro = this.obterRegistroVendaConsignada(
+          registrosPorConsignacao,
+          consignacao,
+        );
+        registro.itensVenda.push(
+          this.criarItemVendaInput(item, quantidadeBaixada),
+        );
+      }
+    }
+
+    const vendas = Array.from(registrosPorConsignacao.values()).map(
+      (registro) =>
+        this.criarVendaConsignada(
+          registro.consignacao.id,
+          registro.itensVenda,
+          pagamento,
+          idUsuarioInclusao,
+        ),
+    );
+    const idsConsignacoesAlteradas = Array.from(registrosPorConsignacao.keys());
+    const consignacoesAlteradas = Array.from(
+      registrosPorConsignacao.values(),
+    ).map((registro) => registro.consignacao);
+    const consignacoesFechadas = consignacoesAlteradas.filter((consignacao) =>
+      this.fecharConsignacaoSeSemSaldo(consignacao),
+    );
+
+    await this.dataSource
+      .transaction(async (manager) => {
+        await manager.save(ItemConsignacao, Array.from(itensAlterados));
+        if (consignacoesFechadas.length > 0) {
+          await manager.save(Consignacao, consignacoesFechadas);
+        }
+        await manager.save(Venda, vendas);
+      })
+      .catch((error) => {
+        this.logger.error(
+          'Erro ao registrar vendas consignadas por revendedor',
+          error,
+        );
+        throw new InternalServerErrorException(
+          'Erro ao registrar vendas consignadas',
+        );
+      });
+
+    return Promise.all(
+      idsConsignacoesAlteradas.map((id) => this.garantirDetalheConsignacao(id)),
+    );
+  }
+
   async registrarDevolucao(
     idConsignacao: number,
     idItem: number,
@@ -187,6 +337,10 @@ export class ConsignacaoService {
     const item = await this.garantirItemAberto(idConsignacao, idItem);
     this.validarSaldoDisponivel(item, quantidade, 'devolução');
     item.quantidadeDevolvida += quantidade;
+    this.sincronizarItemNaConsignacao(item);
+    const consignacaoFechada = this.fecharConsignacaoSeSemSaldo(
+      item.consignacao,
+    );
     const movimentacao = MovimentacaoEstoque.criar({
       idProduto: item.idProduto,
       quantidade,
@@ -198,6 +352,9 @@ export class ConsignacaoService {
     await this.dataSource
       .transaction(async (manager) => {
         await manager.save(ItemConsignacao, item);
+        if (consignacaoFechada) {
+          await manager.save(Consignacao, item.consignacao);
+        }
         await manager.save(MovimentacaoEstoque, movimentacao);
       })
       .catch((error) => {
@@ -216,7 +373,11 @@ export class ConsignacaoService {
   ): Promise<ItemConsignacao> {
     const item = await this.itemConsignacaoRepository.findOne({
       where: { id: idItem, idConsignacao },
-      relations: { consignacao: true },
+      relations: {
+        consignacao: {
+          itens: true,
+        },
+      },
     });
 
     if (!item) {
@@ -237,7 +398,11 @@ export class ConsignacaoService {
   ): Promise<Consignacao> {
     const consignacao = await this.consignacaoRepository.findOne({
       where: { id: idConsignacao },
-      relations: { itens: true },
+      relations: {
+        itens: {
+          produto: true,
+        },
+      },
     });
 
     if (!consignacao) {
@@ -253,6 +418,37 @@ export class ConsignacaoService {
     }
 
     return consignacao;
+  }
+
+  private async listarConsignacoesAbertasPorRevendedor(
+    idRevendedor: number,
+  ): Promise<Consignacao[]> {
+    const consignacoes = await this.consignacaoRepository.find({
+      where: {
+        idRevendedor,
+        status: StatusConsignacao.ABERTA,
+      },
+      relations: {
+        itens: {
+          produto: true,
+        },
+      },
+      order: {
+        dataInclusao: 'ASC',
+        id: 'ASC',
+        itens: {
+          id: 'ASC',
+        },
+      },
+    });
+
+    if (consignacoes.length === 0) {
+      throw new BadRequestException(
+        'O revendedor não possui consignações abertas para registrar vendas.',
+      );
+    }
+
+    return consignacoes;
   }
 
   private validarSaldoDisponivel(
@@ -283,6 +479,97 @@ export class ConsignacaoService {
     }
   }
 
+  private sincronizarItemNaConsignacao(item: ItemConsignacao): void {
+    const itemConsignacao = (item.consignacao.itens ?? []).find(
+      (itemAtual) => itemAtual.id === item.id,
+    );
+
+    if (!itemConsignacao) {
+      return;
+    }
+
+    itemConsignacao.quantidadeVendida = item.quantidadeVendida;
+    itemConsignacao.quantidadeDevolvida = item.quantidadeDevolvida;
+  }
+
+  private fecharConsignacaoSeSemSaldo(consignacao: Consignacao): boolean {
+    const itens = consignacao.itens ?? [];
+    const temItens = itens.length > 0;
+    const semSaldo = itens.every((item) => item.quantidadeDisponivel === 0);
+
+    if (
+      temItens &&
+      semSaldo &&
+      consignacao.status === StatusConsignacao.ABERTA
+    ) {
+      consignacao.status = StatusConsignacao.FECHADA;
+      return true;
+    }
+
+    return false;
+  }
+
+  private obterRegistroVendaConsignada(
+    registros: Map<number, RegistroVendaConsignadaAgrupado>,
+    consignacao: Consignacao,
+  ): RegistroVendaConsignadaAgrupado {
+    const registroExistente = registros.get(consignacao.id);
+
+    if (registroExistente) {
+      return registroExistente;
+    }
+
+    const registro: RegistroVendaConsignadaAgrupado = {
+      consignacao,
+      itensVenda: [],
+    };
+    registros.set(consignacao.id, registro);
+    return registro;
+  }
+
+  private criarItemVendaInput(
+    item: ItemConsignacao,
+    quantidade: number,
+  ): ItemVendaInput {
+    return {
+      idProduto: item.idProduto,
+      nomeProduto: item.produto.nome,
+      quantidade,
+      valorUnitario: item.valorUnitario,
+      brinde: false,
+    };
+  }
+
+  private criarVendaConsignada(
+    idConsignacao: number,
+    itensVenda: ItemVendaInput[],
+    pagamento: RegistrarPagamentoVendaConsignadaInput,
+    idUsuarioInclusao: number,
+  ): Venda {
+    const valorTotal = itensVenda.reduce(
+      (total, item) => total + item.quantidade * item.valorUnitario,
+      0,
+    );
+    const pagamentos: PagamentoVendaInput[] = [
+      {
+        idCarteira: pagamento.idCarteira,
+        meioPagamento: pagamento.meioPagamento,
+        valor: valorTotal,
+        percentualTaxa: pagamento.percentualTaxa ?? null,
+        percentualImposto: pagamento.percentualImposto ?? null,
+      },
+    ];
+    const venda = Venda.criar({
+      tipo: TipoVenda.CONSIGNACAO,
+      idConsignacao,
+      itens: itensVenda,
+      pagamentos,
+    });
+    venda.idUsuarioInclusao = idUsuarioInclusao;
+
+    return venda;
+  }
+
   private mapearListagem(consignacao: Consignacao): ListarConsignacaoDto {
     const totais = this.calcularTotais(consignacao.itens ?? []);
 
@@ -310,6 +597,7 @@ export class ConsignacaoService {
       quantidadeVendida: item.quantidadeVendida,
       quantidadeDevolvida: item.quantidadeDevolvida,
       quantidadeDisponivel: item.quantidadeDisponivel,
+      valorUnitario: item.valorUnitario,
     };
   }
 

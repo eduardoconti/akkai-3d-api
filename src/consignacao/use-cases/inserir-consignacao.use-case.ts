@@ -49,6 +49,7 @@ export class InserirConsignacaoUseCase {
         ItemConsignacao.criar({
           idProduto: itemInput.idProduto,
           quantidadeEnviada: itemInput.quantidade,
+          valorUnitario: itemInput.valorUnitario ?? produto.valor,
         }),
       );
 

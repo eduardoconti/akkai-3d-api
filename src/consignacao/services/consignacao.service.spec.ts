@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import {
   Consignacao,
@@ -11,6 +11,7 @@ import {
   MovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
+import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import { ConsignacaoService } from './consignacao.service';
 
 type GerenciadorTransacaoTeste = {
@@ -21,7 +22,7 @@ type CallbackTransacaoTeste = (manager: GerenciadorTransacaoTeste) => unknown;
 
 describe('ConsignacaoService', () => {
   let service: ConsignacaoService;
-  let consignacaoRepository: { findOne: jest.Mock };
+  let consignacaoRepository: { find: jest.Mock; findOne: jest.Mock };
   let itemConsignacaoRepository: {
     findOne: jest.Mock;
   };
@@ -30,7 +31,7 @@ describe('ConsignacaoService', () => {
   };
 
   beforeEach(() => {
-    consignacaoRepository = { findOne: jest.fn() };
+    consignacaoRepository = { find: jest.fn(), findOne: jest.fn() };
     itemConsignacaoRepository = {
       findOne: jest.fn(),
     };
@@ -51,7 +52,12 @@ describe('ConsignacaoService', () => {
     const manager = { save: jest.fn() };
     const consignacao = criarConsignacaoComItens([
       criarItemConsignacao({ id: 2, idProduto: 10, quantidadeEnviada: 5 }),
-      criarItemConsignacao({ id: 3, idProduto: 20, quantidadeEnviada: 4 }),
+      criarItemConsignacao({
+        id: 3,
+        idProduto: 20,
+        quantidadeEnviada: 4,
+        valorUnitario: 4000,
+      }),
     ]);
 
     dataSource.transaction.mockImplementation((callback) =>
@@ -61,10 +67,20 @@ describe('ConsignacaoService', () => {
       .mockResolvedValueOnce(consignacao)
       .mockResolvedValueOnce(criarConsignacaoDetalhe());
 
-    await service.registrarVendas(1, [
-      { idProduto: 10, quantidade: 2 },
-      { idProduto: 20, quantidade: 3 },
-    ]);
+    await service.registrarVendas(
+      1,
+      [
+        { idProduto: 10, quantidade: 2 },
+        { idProduto: 20, quantidade: 3 },
+      ],
+      {
+        idCarteira: 4,
+        meioPagamento: MeioPagamento.PIX,
+        percentualTaxa: 2,
+        percentualImposto: 5,
+      },
+      7,
+    );
 
     expect(manager.save).toHaveBeenCalledWith(
       ItemConsignacao,
@@ -79,17 +95,206 @@ describe('ConsignacaoService', () => {
         }),
       ]),
     );
+    expect(manager.save).toHaveBeenCalledWith(
+      Venda,
+      expect.objectContaining({
+        tipo: TipoVenda.CONSIGNACAO,
+        idConsignacao: 1,
+        idUsuarioInclusao: 7,
+        valorTotal: 17000,
+        pagamentos: [
+          expect.objectContaining({
+            idCarteira: 4,
+            meioPagamento: MeioPagamento.PIX,
+            valor: 17000,
+            percentualTaxa: 2,
+            percentualImposto: 5,
+          }),
+        ],
+      }),
+    );
   });
 
   it('deve impedir vendas em lote com produto repetido', async () => {
     await expect(
-      service.registrarVendas(1, [
-        { idProduto: 10, quantidade: 1 },
-        { idProduto: 10, quantidade: 2 },
-      ]),
+      service.registrarVendas(
+        1,
+        [
+          { idProduto: 10, quantidade: 1 },
+          { idProduto: 10, quantidade: 2 },
+        ],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     expect(consignacaoRepository.findOne).not.toHaveBeenCalled();
+    expect(dataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deve fechar a consignação ao registrar venda de todo o saldo disponível', async () => {
+    const manager = { save: jest.fn() };
+    const consignacao = criarConsignacaoComItens([
+      criarItemConsignacao({ id: 2, idProduto: 10, quantidadeEnviada: 2 }),
+    ]);
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne
+      .mockResolvedValueOnce(consignacao)
+      .mockResolvedValueOnce(
+        criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
+      );
+
+    await service.registrarVendas(
+      1,
+      [{ idProduto: 10, quantidade: 2 }],
+      { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+      7,
+    );
+
+    expect(consignacao.status).toBe(StatusConsignacao.FECHADA);
+    expect(manager.save).toHaveBeenCalledWith(
+      Consignacao,
+      expect.objectContaining({
+        id: 1,
+        status: StatusConsignacao.FECHADA,
+      }),
+    );
+  });
+
+  it('deve registrar vendas por revendedor usando as consignações mais antigas', async () => {
+    const manager = { save: jest.fn() };
+    const consignacaoAntiga = criarConsignacaoComItens(
+      [
+        criarItemConsignacao({
+          id: 2,
+          idConsignacao: 1,
+          idProduto: 10,
+          quantidadeEnviada: 5,
+          quantidadeVendida: 3,
+          valorUnitario: 2500,
+        }),
+      ],
+      { id: 1, dataInclusao: new Date('2026-01-01T00:00:00.000Z') },
+    );
+    const consignacaoNova = criarConsignacaoComItens(
+      [
+        criarItemConsignacao({
+          id: 3,
+          idConsignacao: 2,
+          idProduto: 10,
+          quantidadeEnviada: 5,
+          valorUnitario: 3000,
+        }),
+      ],
+      { id: 2, dataInclusao: new Date('2026-01-08T00:00:00.000Z') },
+    );
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.find.mockResolvedValue([
+      consignacaoAntiga,
+      consignacaoNova,
+    ]);
+    consignacaoRepository.findOne
+      .mockResolvedValueOnce(criarConsignacaoDetalhe({ id: 1 }))
+      .mockResolvedValueOnce(criarConsignacaoDetalhe({ id: 2 }));
+
+    await service.registrarVendasPorRevendedor(
+      3,
+      [{ idProduto: 10, quantidade: 4 }],
+      {
+        idCarteira: 4,
+        meioPagamento: MeioPagamento.PIX,
+        percentualTaxa: 2,
+        percentualImposto: 5,
+      },
+      7,
+    );
+
+    expect(consignacaoAntiga.itens[0]?.quantidadeVendida).toBe(5);
+    expect(consignacaoNova.itens[0]?.quantidadeVendida).toBe(2);
+    expect(manager.save).toHaveBeenCalledWith(
+      Consignacao,
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          status: StatusConsignacao.FECHADA,
+        }),
+      ]),
+    );
+    expect(manager.save).toHaveBeenCalledWith(
+      Venda,
+      expect.arrayContaining([
+        expect.objectContaining({
+          tipo: TipoVenda.CONSIGNACAO,
+          idConsignacao: 1,
+          idUsuarioInclusao: 7,
+          valorTotal: 5000,
+        }),
+        expect.objectContaining({
+          tipo: TipoVenda.CONSIGNACAO,
+          idConsignacao: 2,
+          idUsuarioInclusao: 7,
+          valorTotal: 6000,
+        }),
+      ]),
+    );
+  });
+
+  it('deve informar quando produto não existe nas consignações abertas do revendedor', async () => {
+    consignacaoRepository.find.mockResolvedValue([
+      criarConsignacaoComItens([
+        criarItemConsignacao({ idProduto: 10, quantidadeEnviada: 5 }),
+      ]),
+    ]);
+
+    await expect(
+      service.registrarVendasPorRevendedor(
+        3,
+        [{ idProduto: 45, quantidade: 1 }],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      service.registrarVendasPorRevendedor(
+        3,
+        [{ idProduto: 45, quantidade: 1 }],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
+    ).rejects.toThrow(
+      'Produto com ID 45 não encontrado nas consignações abertas do revendedor.',
+    );
+    expect(dataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deve informar saldo disponível quando venda por revendedor exceder o saldo', async () => {
+    consignacaoRepository.find.mockResolvedValue([
+      criarConsignacaoComItens([
+        criarItemConsignacao({
+          idProduto: 10,
+          quantidadeEnviada: 5,
+          quantidadeVendida: 4,
+        }),
+      ]),
+    ]);
+
+    await expect(
+      service.registrarVendasPorRevendedor(
+        3,
+        [{ idProduto: 10, quantidade: 2 }],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
+    ).rejects.toThrow(
+      'Saldo disponível insuficiente para o produto com ID 10 nas consignações abertas do revendedor. Disponível: 1. Solicitado: 2.',
+    );
     expect(dataSource.transaction).not.toHaveBeenCalled();
   });
 
@@ -105,7 +310,12 @@ describe('ConsignacaoService', () => {
     );
 
     await expect(
-      service.registrarVendas(1, [{ idProduto: 10, quantidade: 2 }]),
+      service.registrarVendas(
+        1,
+        [{ idProduto: 10, quantidade: 2 }],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     expect(dataSource.transaction).not.toHaveBeenCalled();
@@ -138,27 +348,66 @@ describe('ConsignacaoService', () => {
       }),
     );
   });
+
+  it('deve fechar a consignação ao devolver todo o saldo disponível', async () => {
+    const manager = { save: jest.fn() };
+    const item = criarItemConsignacao({
+      idProduto: 20,
+      quantidadeEnviada: 3,
+      quantidadeVendida: 2,
+    });
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    itemConsignacaoRepository.findOne.mockResolvedValue(item);
+    consignacaoRepository.findOne.mockResolvedValue(
+      criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
+    );
+
+    await service.registrarDevolucao(1, 2, 1, 7);
+
+    expect(item.consignacao.status).toBe(StatusConsignacao.FECHADA);
+    expect(manager.save).toHaveBeenCalledWith(
+      Consignacao,
+      expect.objectContaining({
+        id: 1,
+        status: StatusConsignacao.FECHADA,
+      }),
+    );
+  });
 });
 
 function criarItemConsignacao(
   parcial: Partial<ItemConsignacao> = {},
 ): ItemConsignacao {
-  return Object.assign(new ItemConsignacao(), {
+  const item = Object.assign(new ItemConsignacao(), {
     id: 2,
     idConsignacao: 1,
     idProduto: 10,
     quantidadeEnviada: 5,
     quantidadeVendida: 0,
     quantidadeDevolvida: 0,
+    valorUnitario: 2500,
     consignacao: {
       id: 1,
       status: StatusConsignacao.ABERTA,
     },
+    produto: {
+      id: parcial.idProduto ?? 10,
+      nome: `Produto ${parcial.idProduto ?? 10}`,
+      codigo: parcial.idProduto ?? 10,
+    },
     ...parcial,
   });
+
+  item.consignacao.itens ??= [item];
+  return item;
 }
 
-function criarConsignacaoDetalhe(): Consignacao {
+function criarConsignacaoDetalhe(
+  parcial: Partial<Consignacao> = {},
+): Consignacao {
   const item = criarItemConsignacao({ quantidadeVendida: 0 });
   item.produto = {
     id: item.idProduto,
@@ -177,13 +426,20 @@ function criarConsignacaoDetalhe(): Consignacao {
       status: StatusRevendedor.ATIVO,
     },
     itens: [item],
+    ...parcial,
   });
 }
 
-function criarConsignacaoComItens(itens: ItemConsignacao[]): Consignacao {
+function criarConsignacaoComItens(
+  itens: ItemConsignacao[],
+  parcial: Partial<Consignacao> = {},
+): Consignacao {
   return Object.assign(new Consignacao(), {
     id: 1,
+    idRevendedor: 3,
     status: StatusConsignacao.ABERTA,
+    dataInclusao: new Date('2026-01-01T00:00:00.000Z'),
     itens,
+    ...parcial,
   });
 }

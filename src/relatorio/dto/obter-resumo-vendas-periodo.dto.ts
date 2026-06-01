@@ -23,7 +23,7 @@ export class ObterResumoVendasPeriodoDto {
 
   @IsOptional()
   @IsEnum(TipoVenda, {
-    message: 'O tipo de venda deve ser FEIRA, LOJA ou ONLINE.',
+    message: 'O tipo de venda deve ser FEIRA, LOJA, ONLINE ou CONSIGNACAO.',
   })
   tipoVenda?: TipoVenda;
 

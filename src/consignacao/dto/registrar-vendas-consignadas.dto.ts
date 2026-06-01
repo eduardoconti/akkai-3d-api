@@ -3,10 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
+  IsEnum,
   IsInt,
   Min,
   ValidateNested,
 } from 'class-validator';
+import { MeioPagamento } from '@venda/entities';
 
 export class RegistrarItemVendaConsignadaDto {
   @ApiProperty({
@@ -29,6 +31,25 @@ export class RegistrarItemVendaConsignadaDto {
 }
 
 export class RegistrarVendasConsignadasDto {
+  @ApiProperty({
+    example: 1,
+    description: 'Carteira que receberá o valor das vendas consignadas.',
+  })
+  @Type(() => Number)
+  @IsInt({ message: 'A carteira do pagamento deve ser um número inteiro.' })
+  @Min(1, { message: 'A carteira do pagamento deve ser maior que zero.' })
+  idCarteira!: number;
+
+  @ApiProperty({
+    enum: MeioPagamento,
+    example: MeioPagamento.PIX,
+    description: 'Meio de pagamento utilizado pelo revendedor.',
+  })
+  @IsEnum(MeioPagamento, {
+    message: 'O meio de pagamento deve ser DIN, DEB, CRE ou PIX.',
+  })
+  meioPagamento!: MeioPagamento;
+
   @ApiProperty({
     type: [RegistrarItemVendaConsignadaDto],
     description:
