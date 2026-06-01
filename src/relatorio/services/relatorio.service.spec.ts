@@ -8,15 +8,35 @@ import { DateService } from '@common/services/date.service';
 describe('RelatorioService', () => {
   let service: RelatorioService;
   let dataSource: { query: jest.Mock };
-  const dateServiceMock = {
-    toUtcDateRange: (d: string) => ({
-      start: `${d} 00:00:00.000`,
-      end: `${d} 23:59:59.999`,
-    }),
+  let dateServiceMock: {
+    toUtcDateRange: jest.Mock;
+    obterAnoMesAtualLocal: jest.Mock;
+    obterIntervaloUtcMes: jest.Mock;
   };
 
   beforeEach(async () => {
     dataSource = { query: jest.fn() };
+    dateServiceMock = {
+      toUtcDateRange: jest.fn((d: string) => ({
+        start: `${d} 00:00:00.000`,
+        end: `${d} 23:59:59.999`,
+      })),
+      obterAnoMesAtualLocal: jest.fn().mockReturnValue({
+        ano: 2026,
+        mes: 4,
+      }),
+      obterIntervaloUtcMes: jest.fn((ano: number, mes: number) => {
+        const mesFormatado = String(mes).padStart(2, '0');
+        const ultimoDia = String(
+          new Date(Date.UTC(ano, mes, 0)).getUTCDate(),
+        ).padStart(2, '0');
+
+        return {
+          start: `${ano}-${mesFormatado}-01 00:00:00.000`,
+          end: `${ano}-${mesFormatado}-${ultimoDia} 23:59:59.999`,
+        };
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -62,9 +82,8 @@ describe('RelatorioService', () => {
         1,
       ],
     );
-    expect(dataSource.query.mock.calls[0][0]).toContain(
-      'AND item.brinde = false',
-    );
+    const [consultaResumo] = dataSource.query.mock.calls[0] as [string];
+    expect(consultaResumo).toContain('AND item.brinde = false');
     expect(result).toEqual({
       dataInicio: '2026-03-31',
       dataFim: '2026-03-31',
@@ -104,7 +123,15 @@ describe('RelatorioService', () => {
       ano: 2026,
     });
 
-    expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [2026]);
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.not.stringContaining('EXTRACT('),
+      expect.arrayContaining([
+        '2026-01-01 00:00:00.000',
+        '2026-01-31 23:59:59.999',
+        '2026-12-01 00:00:00.000',
+        '2026-12-31 23:59:59.999',
+      ]),
+    );
     expect(result).toEqual({
       ano: 2026,
       totalQuantidadeItensVendidos: 36,
@@ -149,10 +176,22 @@ describe('RelatorioService', () => {
     });
   });
 
-  it('deve retornar o top 5 produtos mais vendidos do mês atual para o dashboard', async () => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+  it('deve usar ano local atual no resumo mensal quando o filtro não informar ano', async () => {
+    dateServiceMock.obterAnoMesAtualLocal.mockReturnValue({
+      ano: 2025,
+      mes: 12,
+    });
+    dataSource.query.mockResolvedValueOnce([]);
 
+    const result = await service.obterResumoMensalDashboard({});
+
+    expect(dateServiceMock.obterAnoMesAtualLocal).toHaveBeenCalled();
+    expect(dateServiceMock.obterIntervaloUtcMes).toHaveBeenCalledWith(2025, 1);
+    expect(dateServiceMock.obterIntervaloUtcMes).toHaveBeenCalledWith(2025, 12);
+    expect(result.ano).toBe(2025);
+  });
+
+  it('deve retornar o top 5 produtos mais vendidos do mês atual para o dashboard', async () => {
     dataSource.query.mockResolvedValueOnce([
       {
         idProduto: '1',
@@ -166,10 +205,10 @@ describe('RelatorioService', () => {
 
     const result = await service.obterTopProdutosMesDashboard();
 
-    expect(dataSource.query).toHaveBeenCalledWith(
-      expect.any(String),
-      [2026, 4],
-    );
+    expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [
+      '2026-04-01 00:00:00.000',
+      '2026-04-30 23:59:59.999',
+    ]);
     expect(result).toEqual({
       ano: 2026,
       mes: 4,
@@ -183,14 +222,9 @@ describe('RelatorioService', () => {
         },
       ],
     });
-
-    jest.useRealTimers();
   });
 
   it('deve retornar as despesas do mês por categoria para o dashboard', async () => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
-
     dataSource.query.mockResolvedValueOnce([
       {
         idCategoria: '1',
@@ -201,10 +235,10 @@ describe('RelatorioService', () => {
 
     const result = await service.obterDespesasCategoriasMesDashboard();
 
-    expect(dataSource.query).toHaveBeenCalledWith(
-      expect.any(String),
-      [2026, 4],
-    );
+    expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [
+      '2026-04-01 00:00:00.000',
+      '2026-04-30 23:59:59.999',
+    ]);
     expect(result).toEqual({
       ano: 2026,
       mes: 4,
@@ -216,8 +250,6 @@ describe('RelatorioService', () => {
         },
       ],
     });
-
-    jest.useRealTimers();
   });
 
   it('deve usar a data inicial como data final quando a data final não for informada', async () => {

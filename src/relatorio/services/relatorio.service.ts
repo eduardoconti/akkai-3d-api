@@ -204,65 +204,83 @@ export class RelatorioService {
   async obterResumoMensalDashboard(
     filtro: ObterResumoMensalDashboardDto,
   ): Promise<ResumoMensalDashboardDto> {
-    const ano = filtro.ano ?? new Date().getFullYear();
+    const ano = filtro.ano ?? this.dateService.obterAnoMesAtualLocal().ano;
+    const intervalosMeses = Array.from({ length: 12 }, (_, index) => ({
+      mes: index + 1,
+      intervalo: this.dateService.obterIntervaloUtcMes(ano, index + 1),
+    }));
+    const valoresMeses = intervalosMeses
+      .map(
+        ({ mes }, index) =>
+          `(${mes}, $${index * 2 + 1}::timestamp, $${
+            index * 2 + 2
+          }::timestamp)`,
+      )
+      .join(', ');
+    const parametrosMeses = intervalosMeses.flatMap(({ intervalo }) => [
+      intervalo.start,
+      intervalo.end,
+    ]);
 
     const rows: ResumoMensalDashboardRow[] = await this.dataSource.query(
       `
-        WITH meses AS (
-          SELECT generate_series(1, 12) AS mes
-        ),
-        vendas AS (
-          SELECT
-            EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
-            COALESCE(SUM(venda.valor_total), 0) AS "valorVendas",
-            COALESCE(SUM((
-              SELECT COALESCE(SUM(COALESCE(pagamento.valor_taxa, 0)), 0)
-              FROM pagamento_venda pagamento
-              WHERE pagamento.id_venda = venda.id
-            )), 0) AS "valorTaxas",
-            COALESCE(SUM((
-              SELECT COALESCE(SUM(COALESCE(pagamento.valor_imposto, 0)), 0)
-              FROM pagamento_venda pagamento
-              WHERE pagamento.id_venda = venda.id
-            )), 0) AS "valorImpostos"
-          FROM venda
-          WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
-          GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
-        ),
-        itens_vendidos AS (
-          SELECT
-            EXTRACT(MONTH FROM venda.data_inclusao)::int AS mes,
-            COALESCE(SUM(item.quantidade), 0) AS "quantidadeItensVendidos",
-            COALESCE(SUM(CASE WHEN item.brinde = true THEN item.quantidade ELSE 0 END), 0) AS "quantidadeBrindes"
-          FROM venda
-          INNER JOIN item_venda item ON item.id_venda = venda.id
-          WHERE EXTRACT(YEAR FROM venda.data_inclusao) = $1
-          GROUP BY EXTRACT(MONTH FROM venda.data_inclusao)
-        ),
-        despesas AS (
-          SELECT
-            EXTRACT(MONTH FROM data_lancamento)::int AS mes,
-            COALESCE(SUM(valor), 0) AS "valorDespesas"
-          FROM despesa
-          WHERE EXTRACT(YEAR FROM data_lancamento) = $1
-          GROUP BY EXTRACT(MONTH FROM data_lancamento)
+        WITH meses(mes, data_inicio, data_fim) AS (
+          VALUES ${valoresMeses}
         )
         SELECT
           meses.mes AS mes,
-          COALESCE(itens_vendidos."quantidadeItensVendidos", 0) AS "quantidadeItensVendidos",
-          COALESCE(itens_vendidos."quantidadeBrindes", 0) AS "quantidadeBrindes",
-          COALESCE(vendas."valorVendas", 0) AS "valorVendas",
-          COALESCE(vendas."valorTaxas", 0) AS "valorTaxas",
-          COALESCE(vendas."valorImpostos", 0) AS "valorImpostos",
-          COALESCE(despesas."valorDespesas", 0) AS "valorDespesas",
-          COALESCE(vendas."valorVendas", 0) - COALESCE(vendas."valorTaxas", 0) - COALESCE(despesas."valorDespesas", 0) AS saldo
+          COALESCE((
+            SELECT SUM(item.quantidade)
+            FROM venda
+            INNER JOIN item_venda item ON item.id_venda = venda.id
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "quantidadeItensVendidos",
+          COALESCE((
+            SELECT SUM(CASE WHEN item.brinde = true THEN item.quantidade ELSE 0 END)
+            FROM venda
+            INNER JOIN item_venda item ON item.id_venda = venda.id
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "quantidadeBrindes",
+          COALESCE((
+            SELECT SUM(venda.valor_total)
+            FROM venda
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "valorVendas",
+          COALESCE((
+            SELECT SUM(COALESCE(pagamento.valor_taxa, 0))
+            FROM venda
+            LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "valorTaxas",
+          COALESCE((
+            SELECT SUM(COALESCE(pagamento.valor_imposto, 0))
+            FROM venda
+            LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "valorImpostos",
+          COALESCE((
+            SELECT SUM(despesa.valor)
+            FROM despesa
+            WHERE despesa.data_lancamento BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "valorDespesas",
+          COALESCE((
+            SELECT SUM(venda.valor_total)
+            FROM venda
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) - COALESCE((
+            SELECT SUM(COALESCE(pagamento.valor_taxa, 0))
+            FROM venda
+            LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
+            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) - COALESCE((
+            SELECT SUM(despesa.valor)
+            FROM despesa
+            WHERE despesa.data_lancamento BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS saldo
         FROM meses
-        LEFT JOIN vendas ON vendas.mes = meses.mes
-        LEFT JOIN itens_vendidos ON itens_vendidos.mes = meses.mes
-        LEFT JOIN despesas ON despesas.mes = meses.mes
         ORDER BY meses.mes ASC
       `,
-      [ano],
+      parametrosMeses,
     );
 
     const itens = rows.map((row) => ({
@@ -302,9 +320,8 @@ export class RelatorioService {
   }
 
   async obterTopProdutosMesDashboard(): Promise<TopProdutosMesDashboardDto> {
-    const agora = new Date();
-    const ano = agora.getFullYear();
-    const mes = agora.getMonth() + 1;
+    const { ano, mes } = this.dateService.obterAnoMesAtualLocal();
+    const rangeMes = this.dateService.obterIntervaloUtcMes(ano, mes);
 
     const rows: ProdutoMaisVendidoRow[] = await this.dataSource.query(
       `
@@ -319,8 +336,7 @@ export class RelatorioService {
         INNER JOIN venda v ON v.id = item.id_venda
         LEFT JOIN produto p ON p.id = item.id_produto
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
-        WHERE EXTRACT(YEAR FROM v.data_inclusao) = $1
-          AND EXTRACT(MONTH FROM v.data_inclusao) = $2
+        WHERE v.data_inclusao BETWEEN $1 AND $2
           AND item.brinde = false
         GROUP BY
           item.id_produto,
@@ -333,7 +349,7 @@ export class RelatorioService {
           item.nome_produto ASC
         LIMIT 5
       `,
-      [ano, mes],
+      [rangeMes.start, rangeMes.end],
     );
 
     return {
@@ -359,9 +375,8 @@ export class RelatorioService {
   }
 
   async obterDespesasCategoriasMesDashboard(): Promise<DespesasCategoriasMesDashboardDto> {
-    const agora = new Date();
-    const ano = agora.getFullYear();
-    const mes = agora.getMonth() + 1;
+    const { ano, mes } = this.dateService.obterAnoMesAtualLocal();
+    const rangeMes = this.dateService.obterIntervaloUtcMes(ano, mes);
 
     const rows: DespesaCategoriaMesDashboardRow[] = await this.dataSource.query(
       `
@@ -371,13 +386,12 @@ export class RelatorioService {
           COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
         FROM despesa
         LEFT JOIN categoria_despesa categoria ON categoria.id = despesa.id_categoria
-        WHERE EXTRACT(YEAR FROM despesa.data_lancamento) = $1
-          AND EXTRACT(MONTH FROM despesa.data_lancamento) = $2
+        WHERE despesa.data_lancamento BETWEEN $1 AND $2
         GROUP BY categoria.id, categoria.nome
         ORDER BY SUM(despesa.valor) DESC, COALESCE(categoria.nome, 'Sem categoria') ASC
         LIMIT 5
       `,
-      [ano, mes],
+      [rangeMes.start, rangeMes.end],
     );
 
     return {

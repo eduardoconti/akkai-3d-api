@@ -26,6 +26,26 @@ describe('DateService', () => {
     expect(result.end).toBe('2026-04-05 02:59:59.999');
   });
 
+  it('deve obter mês local atual respeitando offset negativo', () => {
+    const service = buildService(-3);
+
+    const result = service.obterAnoMesAtualLocal(
+      new Date('2026-06-01T00:52:00.000Z'),
+    );
+
+    expect(result).toEqual({ ano: 2026, mes: 5 });
+  });
+
+  it('deve obter intervalo UTC do mês local', () => {
+    const service = buildService(-3);
+    const result = service.obterIntervaloUtcMes(2026, 5);
+
+    expect(result).toEqual({
+      start: '2026-05-01 03:00:00.000',
+      end: '2026-06-01 02:59:59.999',
+    });
+  });
+
   it('deve ser instanciável via NestJS DI', async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
