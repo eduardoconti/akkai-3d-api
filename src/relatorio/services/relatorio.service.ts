@@ -554,7 +554,9 @@ export class RelatorioService {
           categoria.nome
         ORDER BY
           SUM(item.quantidade) DESC,
-          item.nome_produto ASC
+          item.nome_produto ASC,
+          item.id_produto ASC,
+          categoria.id ASC
         LIMIT $${parameters.length + 1}
         OFFSET $${parameters.length + 2}
       `,
