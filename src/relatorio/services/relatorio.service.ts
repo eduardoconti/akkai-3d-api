@@ -336,8 +336,7 @@ export class RelatorioService {
         INNER JOIN venda v ON v.id = item.id_venda
         LEFT JOIN produto p ON p.id = item.id_produto
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
-        WHERE v.data_venda BETWEEN $1 AND $2
-          AND item.brinde = false
+        WHERE v.data_venda BETWEEN $1 AND $2 AND item.brinde = false AND item.id_produto IS NOT NULL
         GROUP BY
           item.id_produto,
           p.codigo,
@@ -526,7 +525,9 @@ export class RelatorioService {
       rangeInicio.start,
       rangeFim.end,
     ];
-    const conditions = ['v.data_venda BETWEEN $1 AND $2'];
+    const conditions = [
+      'v.data_venda BETWEEN $1 AND $2 AND item.brinde = false AND item.id_produto IS NOT NULL',
+    ];
 
     if (filtro.tipoVenda) {
       parameters.push(filtro.tipoVenda);
@@ -544,7 +545,6 @@ export class RelatorioService {
     }
 
     const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
-
     const rows: ProdutoMaisVendidoRow[] = await this.dataSource.query(
       `
         SELECT
@@ -559,7 +559,6 @@ export class RelatorioService {
         LEFT JOIN produto p ON p.id = item.id_produto
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
         WHERE ${conditions.join(' AND ')}
-          AND item.brinde = false
         GROUP BY
           item.id_produto,
           p.codigo,
@@ -593,7 +592,6 @@ export class RelatorioService {
             LEFT JOIN produto p ON p.id = item.id_produto
             LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
             WHERE ${conditions.join(' AND ')}
-              AND item.brinde = false
             GROUP BY
               item.id_produto,
               p.codigo,
