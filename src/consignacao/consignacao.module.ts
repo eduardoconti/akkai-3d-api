@@ -6,14 +6,17 @@ import {
   ItemConsignacao,
   Revendedor,
 } from '@consignacao/entities';
-import { ConsignacaoService, RevendedorService } from '@consignacao/services';
+import {
+  ConsignacaoPdfService,
+  ConsignacaoService,
+  RevendedorService,
+} from '@consignacao/services';
 import {
   AlterarRevendedorUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
   RegistrarVendasRevendedorConsignadoUseCase,
-  RegistrarVendasConsignadasUseCase,
 } from '@consignacao/use-cases';
 import { ProdutoModule } from '@produto/produto.module';
 import { MovimentacaoEstoque } from '@produto/entities';
@@ -34,10 +37,10 @@ import { FinanceiroModule } from '@financeiro/financeiro.module';
   providers: [
     RevendedorService,
     ConsignacaoService,
+    ConsignacaoPdfService,
     InserirRevendedorUseCase,
     AlterarRevendedorUseCase,
     InserirConsignacaoUseCase,
-    RegistrarVendasConsignadasUseCase,
     RegistrarVendasRevendedorConsignadoUseCase,
     RegistrarDevolucaoConsignadaUseCase,
   ],

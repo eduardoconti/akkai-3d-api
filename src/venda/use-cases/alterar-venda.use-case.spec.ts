@@ -18,6 +18,8 @@ import {
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 describe('AlterarVendaUseCase', () => {
+  const dataVenda = '2026-04-01T12:00:00.000Z';
+
   let useCase: AlterarVendaUseCase;
   let alterarVendaMock: jest.Mock;
   let garantirExisteVendaMock: jest.Mock;
@@ -88,6 +90,7 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve alterar venda recriando itens e movimentos da própria venda', async () => {
     const vendaExistente = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       desconto: 0,
       itens: [
@@ -104,6 +107,7 @@ describe('AlterarVendaUseCase', () => {
 
     const input: ExecutarAlterarVendaInput = {
       id: 5,
+      dataVenda: '2026-04-02T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
       desconto: 200,
@@ -173,6 +177,7 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve usar preço específico da feira ao alterar item de catálogo', async () => {
     const vendaExistente = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [],
       pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
@@ -200,6 +205,7 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 8,
+      dataVenda: '2026-04-02T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
       itens: [{ idProduto: 20, quantidade: 2 }],
@@ -225,6 +231,7 @@ describe('AlterarVendaUseCase', () => {
 
   it('deve alterar venda com item avulso sem movimentar estoque', async () => {
     const vendaExistente = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [],
       pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
@@ -244,6 +251,7 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 6,
+      dataVenda: '2026-04-02T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       itens: [
         { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },
@@ -268,6 +276,7 @@ describe('AlterarVendaUseCase', () => {
     await expect(
       useCase.execute({
         id: 99,
+        dataVenda: '2026-04-02T12:00:00.000Z',
         tipo: TipoVenda.LOJA,
         itens: [{ idProduto: 1, quantidade: 1 }],
         pagamentos: [criarPagamentoInput(1000)],
@@ -276,6 +285,7 @@ describe('AlterarVendaUseCase', () => {
   });
   it('deve manter percentual de imposto nulo quando a carteira considerar imposto sem percentual definido', async () => {
     const vendaExistente = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [],
       pagamentos: [criarPagamentoInput(0, MeioPagamento.DIN)],
@@ -295,6 +305,7 @@ describe('AlterarVendaUseCase', () => {
 
     await useCase.execute({
       id: 7,
+      dataVenda: '2026-04-02T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       itens: [
         { nomeProduto: 'Peça avulsa', valorUnitario: 3000, quantidade: 1 },

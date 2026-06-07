@@ -22,13 +22,16 @@ export class InserirConsignacaoUseCase {
   ) {}
 
   async execute(input: InserirConsignacaoDto): Promise<DetalheConsignacaoDto> {
-    await this.revendedorService.garantirRevendedorAtivo(input.idRevendedor);
+    const revendedor = await this.revendedorService.garantirRevendedorAtivo(
+      input.idRevendedor,
+    );
     this.validarProdutosUnicos(input);
 
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
     const consignacao = Consignacao.criar({
       idRevendedor: input.idRevendedor,
       idUsuarioInclusao,
+      percentualDesconto: revendedor.percentualDesconto,
     });
 
     const itens: ItemConsignacao[] = [];

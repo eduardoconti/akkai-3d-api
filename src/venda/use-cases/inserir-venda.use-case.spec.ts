@@ -104,6 +104,7 @@ describe('InserirVendaUseCase', () => {
 
   it('deve criar venda e movimentacoes de estoque corretamente', async () => {
     const input: ExecutarInserirVendaInput = {
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       desconto: 200,
       itens: [
@@ -208,6 +209,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 2 }],
@@ -251,6 +253,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       itens: [{ idProduto: 1, quantidade: 1 }],
       pagamentos: [criarPagamentoInput(1000, MeioPagamento.DIN)],
@@ -306,6 +309,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 1 }],
@@ -330,6 +334,7 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
+        dataVenda: '2026-04-01T12:00:00.000Z',
         tipo: TipoVenda.LOJA,
         itens: [{ idProduto: 1, quantidade: 1 }],
         pagamentos: [criarPagamentoInput(1000, MeioPagamento.PIX, 99)],
@@ -351,6 +356,7 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
+        dataVenda: '2026-04-01T12:00:00.000Z',
         tipo: TipoVenda.FEIRA,
         idFeira: 99,
         itens: [{ idProduto: 1, quantidade: 1 }],
@@ -373,6 +379,7 @@ describe('InserirVendaUseCase', () => {
 
     await expect(
       useCase.execute({
+        dataVenda: '2026-04-01T12:00:00.000Z',
         tipo: TipoVenda.LOJA,
         itens: [{ idProduto: 99, quantidade: 1 }],
         pagamentos: [criarPagamentoInput(1000)],
@@ -392,6 +399,7 @@ describe('InserirVendaUseCase', () => {
     obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
 
     await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       itens: [
         {
@@ -445,6 +453,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(vendaPersistida);
 
     const result = await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       itens: [
         {
@@ -503,6 +512,7 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock.mockResolvedValue(new Venda());
 
     await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       itens: [{ idProduto: 1, quantidade: 1 }],
       pagamentos: [criarPagamentoInput(1000)],

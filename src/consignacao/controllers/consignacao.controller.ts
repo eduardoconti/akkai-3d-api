@@ -7,7 +7,10 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import {
@@ -22,14 +25,17 @@ import {
   RegistrarVendasConsignadasDto,
 } from '@consignacao/dto';
 import { Revendedor } from '@consignacao/entities';
-import { ConsignacaoService, RevendedorService } from '@consignacao/services';
+import {
+  ConsignacaoPdfService,
+  ConsignacaoService,
+  RevendedorService,
+} from '@consignacao/services';
 import {
   AlterarRevendedorUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
   RegistrarVendasRevendedorConsignadoUseCase,
-  RegistrarVendasConsignadasUseCase,
 } from '@consignacao/use-cases';
 import {
   ApiAlterarRevendedorDocs,
@@ -39,9 +45,9 @@ import {
   ApiListarRevendedoresDocs,
   ApiObterConsignacaoPorIdDocs,
   ApiObterRevendedorPorIdDocs,
+  ApiRelatorioConsignacaoPdfDocs,
   ApiRegistrarDevolucaoConsignadaDocs,
   ApiRegistrarVendasRevendedorConsignadoDocs,
-  ApiRegistrarVendasConsignadasDocs,
 } from '@consignacao/docs/consignacao-docs.decorator';
 
 @ApiProtectedController('Consignação')
@@ -50,10 +56,10 @@ export class ConsignacaoController {
   constructor(
     private readonly revendedorService: RevendedorService,
     private readonly consignacaoService: ConsignacaoService,
+    private readonly consignacaoPdfService: ConsignacaoPdfService,
     private readonly inserirRevendedorUseCase: InserirRevendedorUseCase,
     private readonly alterarRevendedorUseCase: AlterarRevendedorUseCase,
     private readonly inserirConsignacaoUseCase: InserirConsignacaoUseCase,
-    private readonly registrarVendasConsignadasUseCase: RegistrarVendasConsignadasUseCase,
     private readonly registrarVendasRevendedorConsignadoUseCase: RegistrarVendasRevendedorConsignadoUseCase,
     private readonly registrarDevolucaoConsignadaUseCase: RegistrarDevolucaoConsignadaUseCase,
   ) {}
@@ -129,18 +135,24 @@ export class ConsignacaoController {
     return this.consignacaoService.garantirDetalheConsignacao(id);
   }
 
-  @ApiRegistrarVendasConsignadasDocs()
-  @Post(':id/vendas')
-  async registrarVendasConsignadas(
-    @Param('id', ParseIntPipe) idConsignacao: number,
-    @Body() input: RegistrarVendasConsignadasDto,
-  ): Promise<DetalheConsignacaoDto> {
-    return this.registrarVendasConsignadasUseCase.execute({
-      idConsignacao,
-      idCarteira: input.idCarteira,
-      meioPagamento: input.meioPagamento,
-      itens: input.itens,
-    });
+  @ApiRelatorioConsignacaoPdfDocs()
+  @Get(':id/pdf')
+  async obterRelatorioConsignacaoPdf(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const consignacao =
+      await this.consignacaoService.garantirDetalheConsignacao(id);
+    const relatorio = this.consignacaoPdfService.gerarRelatorio(consignacao);
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${relatorio.nomeArquivo}"`,
+    );
+    response.setHeader('Content-Length', relatorio.buffer.length);
+
+    return new StreamableFile(relatorio.buffer);
   }
 
   @ApiRegistrarDevolucaoConsignadaDocs()

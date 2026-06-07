@@ -123,6 +123,7 @@ describe('VendaController', () => {
     inserirVendaUseCase.execute.mockResolvedValue({ id: 1 });
 
     const input = {
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: 'LOJA',
       itens: [{ idProduto: 1, quantidade: 1 }],
       pagamentos: [{ idCarteira: 1, meioPagamento: 'PIX', valor: 1000 }],
@@ -165,6 +166,7 @@ describe('VendaController', () => {
     alterarVendaUseCase.execute.mockResolvedValue({ id: 2 });
 
     const input = {
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
       itens: [{ idProduto: 1, quantidade: 2 }],

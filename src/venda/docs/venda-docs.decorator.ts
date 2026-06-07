@@ -34,6 +34,7 @@ const FEIRA_EXEMPLO = {
 
 const VENDA_EXEMPLO = {
   id: 27,
+  dataVenda: '2026-04-01T12:00:00.000Z',
   dataInclusao: '2026-04-01T22:58:00.000Z',
   valorTotal: 2200,
   valorLiquido: 2046,
@@ -119,6 +120,7 @@ export function ApiInserirVendaDocs() {
         catalogo: {
           summary: 'Venda com item de catálogo',
           value: {
+            dataVenda: '2026-04-01T12:00:00.000Z',
             tipo: 'FEIRA',
             idFeira: 1,
             desconto: 0,
@@ -134,6 +136,7 @@ export function ApiInserirVendaDocs() {
         avulso: {
           summary: 'Venda com item avulso',
           value: {
+            dataVenda: '2026-04-01T12:00:00.000Z',
             tipo: 'LOJA',
             itens: [
               {

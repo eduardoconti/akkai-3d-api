@@ -24,6 +24,7 @@ import { Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 
 export interface ExecutarInserirVendaInput {
+  dataVenda: string;
   tipo: TipoVenda;
   idFeira?: number;
   desconto?: number;
@@ -109,6 +110,7 @@ export class InserirVendaUseCase {
     }
 
     const vendaInput: CriarVendaInput = {
+      dataVenda: inserirVendaInput.dataVenda,
       tipo: inserirVendaInput.tipo,
       idFeira: inserirVendaInput.idFeira,
       desconto: inserirVendaInput.desconto,

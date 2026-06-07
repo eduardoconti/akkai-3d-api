@@ -1,8 +1,9 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import {
   Consignacao,
   ItemConsignacao,
+  Revendedor,
   StatusConsignacao,
   StatusRevendedor,
 } from '@consignacao/entities';
@@ -48,122 +49,6 @@ describe('ConsignacaoService', () => {
     );
   });
 
-  it('deve registrar vendas em lote quando houver saldo disponível', async () => {
-    const manager = { save: jest.fn() };
-    const consignacao = criarConsignacaoComItens([
-      criarItemConsignacao({ id: 2, idProduto: 10, quantidadeEnviada: 5 }),
-      criarItemConsignacao({
-        id: 3,
-        idProduto: 20,
-        quantidadeEnviada: 4,
-        valorUnitario: 4000,
-      }),
-    ]);
-
-    dataSource.transaction.mockImplementation((callback) =>
-      Promise.resolve(callback(manager)),
-    );
-    consignacaoRepository.findOne
-      .mockResolvedValueOnce(consignacao)
-      .mockResolvedValueOnce(criarConsignacaoDetalhe());
-
-    await service.registrarVendas(
-      1,
-      [
-        { idProduto: 10, quantidade: 2 },
-        { idProduto: 20, quantidade: 3 },
-      ],
-      {
-        idCarteira: 4,
-        meioPagamento: MeioPagamento.PIX,
-        percentualTaxa: 2,
-        percentualImposto: 5,
-      },
-      7,
-    );
-
-    expect(manager.save).toHaveBeenCalledWith(
-      ItemConsignacao,
-      expect.arrayContaining([
-        expect.objectContaining({
-          idProduto: 10,
-          quantidadeVendida: 2,
-        }),
-        expect.objectContaining({
-          idProduto: 20,
-          quantidadeVendida: 3,
-        }),
-      ]),
-    );
-    expect(manager.save).toHaveBeenCalledWith(
-      Venda,
-      expect.objectContaining({
-        tipo: TipoVenda.CONSIGNACAO,
-        idConsignacao: 1,
-        idUsuarioInclusao: 7,
-        valorTotal: 17000,
-        pagamentos: [
-          expect.objectContaining({
-            idCarteira: 4,
-            meioPagamento: MeioPagamento.PIX,
-            valor: 17000,
-            percentualTaxa: 2,
-            percentualImposto: 5,
-          }),
-        ],
-      }),
-    );
-  });
-
-  it('deve impedir vendas em lote com produto repetido', async () => {
-    await expect(
-      service.registrarVendas(
-        1,
-        [
-          { idProduto: 10, quantidade: 1 },
-          { idProduto: 10, quantidade: 2 },
-        ],
-        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
-        7,
-      ),
-    ).rejects.toBeInstanceOf(BadRequestException);
-
-    expect(consignacaoRepository.findOne).not.toHaveBeenCalled();
-    expect(dataSource.transaction).not.toHaveBeenCalled();
-  });
-
-  it('deve fechar a consignação ao registrar venda de todo o saldo disponível', async () => {
-    const manager = { save: jest.fn() };
-    const consignacao = criarConsignacaoComItens([
-      criarItemConsignacao({ id: 2, idProduto: 10, quantidadeEnviada: 2 }),
-    ]);
-
-    dataSource.transaction.mockImplementation((callback) =>
-      Promise.resolve(callback(manager)),
-    );
-    consignacaoRepository.findOne
-      .mockResolvedValueOnce(consignacao)
-      .mockResolvedValueOnce(
-        criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
-      );
-
-    await service.registrarVendas(
-      1,
-      [{ idProduto: 10, quantidade: 2 }],
-      { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
-      7,
-    );
-
-    expect(consignacao.status).toBe(StatusConsignacao.FECHADA);
-    expect(manager.save).toHaveBeenCalledWith(
-      Consignacao,
-      expect.objectContaining({
-        id: 1,
-        status: StatusConsignacao.FECHADA,
-      }),
-    );
-  });
-
   it('deve registrar vendas por revendedor usando as consignações mais antigas', async () => {
     const manager = { save: jest.fn() };
     const consignacaoAntiga = criarConsignacaoComItens(
@@ -177,7 +62,11 @@ describe('ConsignacaoService', () => {
           valorUnitario: 2500,
         }),
       ],
-      { id: 1, dataInclusao: new Date('2026-01-01T00:00:00.000Z') },
+      {
+        id: 1,
+        dataInclusao: new Date('2026-01-01T00:00:00.000Z'),
+        revendedor: criarRevendedorConsignacao({ percentualDesconto: 20 }),
+      },
     );
     const consignacaoNova = criarConsignacaoComItens(
       [
@@ -189,7 +78,11 @@ describe('ConsignacaoService', () => {
           valorUnitario: 3000,
         }),
       ],
-      { id: 2, dataInclusao: new Date('2026-01-08T00:00:00.000Z') },
+      {
+        id: 2,
+        dataInclusao: new Date('2026-01-08T00:00:00.000Z'),
+        revendedor: criarRevendedorConsignacao({ percentualDesconto: 20 }),
+      },
     );
 
     dataSource.transaction.mockImplementation((callback) =>
@@ -233,13 +126,13 @@ describe('ConsignacaoService', () => {
           tipo: TipoVenda.CONSIGNACAO,
           idConsignacao: 1,
           idUsuarioInclusao: 7,
-          valorTotal: 5000,
+          valorTotal: 4000,
         }),
         expect.objectContaining({
           tipo: TipoVenda.CONSIGNACAO,
           idConsignacao: 2,
           idUsuarioInclusao: 7,
-          valorTotal: 6000,
+          valorTotal: 4800,
         }),
       ]),
     );
@@ -295,29 +188,6 @@ describe('ConsignacaoService', () => {
     ).rejects.toThrow(
       'Saldo disponível insuficiente para o produto com ID 10 nas consignações abertas do revendedor. Disponível: 1. Solicitado: 2.',
     );
-    expect(dataSource.transaction).not.toHaveBeenCalled();
-  });
-
-  it('deve impedir vendas em lote acima do saldo disponível', async () => {
-    consignacaoRepository.findOne.mockResolvedValue(
-      criarConsignacaoComItens([
-        criarItemConsignacao({
-          idProduto: 10,
-          quantidadeEnviada: 5,
-          quantidadeVendida: 4,
-        }),
-      ]),
-    );
-
-    await expect(
-      service.registrarVendas(
-        1,
-        [{ idProduto: 10, quantidade: 2 }],
-        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
-        7,
-      ),
-    ).rejects.toBeInstanceOf(BadRequestException);
-
     expect(dataSource.transaction).not.toHaveBeenCalled();
   });
 
@@ -419,13 +289,24 @@ function criarConsignacaoDetalhe(
     id: 1,
     status: StatusConsignacao.ABERTA,
     dataInclusao: new Date('2026-01-01T00:00:00.000Z'),
-    revendedor: {
-      id: 3,
-      nome: 'Loja Centro 3D',
-      telefone: '(11) 99999-9999',
-      status: StatusRevendedor.ATIVO,
-    },
+    percentualDesconto: parcial.revendedor?.percentualDesconto ?? 0,
+    revendedor: criarRevendedorConsignacao(),
     itens: [item],
+    ...parcial,
+  });
+}
+
+function criarRevendedorConsignacao(
+  parcial: Partial<Revendedor> = {},
+): Revendedor {
+  return Object.assign(new Revendedor(), {
+    id: 3,
+    nome: 'Loja Centro 3D',
+    telefone: '(11) 99999-9999',
+    status: StatusRevendedor.ATIVO,
+    percentualDesconto: 0,
+    dataInclusao: new Date('2026-01-01T00:00:00.000Z'),
+    consignacoes: [],
     ...parcial,
   });
 }
@@ -439,6 +320,8 @@ function criarConsignacaoComItens(
     idRevendedor: 3,
     status: StatusConsignacao.ABERTA,
     dataInclusao: new Date('2026-01-01T00:00:00.000Z'),
+    percentualDesconto: parcial.revendedor?.percentualDesconto ?? 0,
+    revendedor: criarRevendedorConsignacao(),
     itens,
     ...parcial,
   });

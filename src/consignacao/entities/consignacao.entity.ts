@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   Index,
@@ -6,10 +7,17 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  ValueTransformer,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
 import { ItemConsignacao } from './item-consignacao.entity';
 import { Revendedor } from './revendedor.entity';
+
+const percentualTransformer: ValueTransformer = {
+  to: (value?: number | null) => value ?? 0,
+  from: (value?: string | number | null) =>
+    value === null || value === undefined ? 0 : Number(value),
+};
 
 export enum StatusConsignacao {
   ABERTA = 'ABERTA',
@@ -20,9 +28,14 @@ export enum StatusConsignacao {
 export interface CriarConsignacaoInput {
   idRevendedor: number;
   idUsuarioInclusao: number;
+  percentualDesconto: number;
 }
 
 @Entity('consignacao')
+@Check(
+  'ck_consignacao_percentual_desconto_valido',
+  '"percentual_desconto" >= 0 AND "percentual_desconto" <= 100',
+)
 @Index('idx_consignacao_id_revendedor', ['idRevendedor'])
 @Index('idx_consignacao_status', ['status'])
 export class Consignacao {
@@ -41,6 +54,16 @@ export class Consignacao {
     default: StatusConsignacao.ABERTA,
   })
   status!: StatusConsignacao;
+
+  @Column({
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    default: 0,
+    name: 'percentual_desconto',
+    transformer: percentualTransformer,
+  })
+  percentualDesconto!: number;
 
   @Column({
     type: 'timestamp',
@@ -73,6 +96,7 @@ export class Consignacao {
     const consignacao = new Consignacao();
     consignacao.idRevendedor = input.idRevendedor;
     consignacao.idUsuarioInclusao = input.idUsuarioInclusao;
+    consignacao.percentualDesconto = input.percentualDesconto;
     consignacao.status = StatusConsignacao.ABERTA;
     consignacao.dataInclusao = new Date();
     return consignacao;

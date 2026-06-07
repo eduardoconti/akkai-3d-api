@@ -22,6 +22,7 @@ export enum TipoVenda {
   CONSIGNACAO = 'CONSIGNACAO',
 }
 export interface InserirVendaInput {
+  dataVenda: string | Date;
   tipo: TipoVenda;
   idFeira?: number;
   idConsignacao?: number;
@@ -35,6 +36,8 @@ export interface InserirVendaInput {
 @Index('idx_venda_id_feira', ['idFeira'])
 @Index('idx_venda_data_inclusao', ['dataInclusao'])
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
+@Index('idx_venda_data_venda', ['dataVenda'])
+@Index('idx_venda_data_venda_tipo', ['dataVenda', 'tipo'])
 export class Venda {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_venda',
@@ -47,6 +50,12 @@ export class Venda {
     name: 'data_inclusao',
   })
   dataInclusao!: Date;
+
+  @Column({
+    type: 'timestamp',
+    name: 'data_venda',
+  })
+  dataVenda!: Date;
 
   @Column({ type: 'integer', name: 'valor_total' })
   valorTotal!: number;
@@ -109,6 +118,7 @@ export class Venda {
   }
 
   atualizar(inserirVendaInput: InserirVendaInput): void {
+    this.dataVenda = this.criarDataVenda(inserirVendaInput.dataVenda);
     this.tipo = inserirVendaInput.tipo;
     this.idFeira = inserirVendaInput.idFeira;
     this.idConsignacao = inserirVendaInput.idConsignacao;
@@ -122,6 +132,16 @@ export class Venda {
       PagamentoVenda.criar(pagamento),
     );
     this.validarPagamentos();
+  }
+
+  private criarDataVenda(dataVenda: string | Date): Date {
+    const data = new Date(dataVenda);
+
+    if (Number.isNaN(data.getTime())) {
+      throw new BadRequestException('A data da venda deve ser válida.');
+    }
+
+    return data;
   }
 
   calcularValorLiquido(): number {

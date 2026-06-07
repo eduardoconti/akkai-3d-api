@@ -233,30 +233,30 @@ export class RelatorioService {
             SELECT SUM(item.quantidade)
             FROM venda
             INNER JOIN item_venda item ON item.id_venda = venda.id
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "quantidadeItensVendidos",
           COALESCE((
             SELECT SUM(CASE WHEN item.brinde = true THEN item.quantidade ELSE 0 END)
             FROM venda
             INNER JOIN item_venda item ON item.id_venda = venda.id
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "quantidadeBrindes",
           COALESCE((
             SELECT SUM(venda.valor_total)
             FROM venda
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "valorVendas",
           COALESCE((
             SELECT SUM(COALESCE(pagamento.valor_taxa, 0))
             FROM venda
             LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "valorTaxas",
           COALESCE((
             SELECT SUM(COALESCE(pagamento.valor_imposto, 0))
             FROM venda
             LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "valorImpostos",
           COALESCE((
             SELECT SUM(despesa.valor)
@@ -266,12 +266,12 @@ export class RelatorioService {
           COALESCE((
             SELECT SUM(venda.valor_total)
             FROM venda
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) - COALESCE((
             SELECT SUM(COALESCE(pagamento.valor_taxa, 0))
             FROM venda
             LEFT JOIN pagamento_venda pagamento ON pagamento.id_venda = venda.id
-            WHERE venda.data_inclusao BETWEEN meses.data_inicio AND meses.data_fim
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) - COALESCE((
             SELECT SUM(despesa.valor)
             FROM despesa
@@ -336,7 +336,7 @@ export class RelatorioService {
         INNER JOIN venda v ON v.id = item.id_venda
         LEFT JOIN produto p ON p.id = item.id_produto
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
-        WHERE v.data_inclusao BETWEEN $1 AND $2
+        WHERE v.data_venda BETWEEN $1 AND $2
           AND item.brinde = false
         GROUP BY
           item.id_produto,
@@ -526,7 +526,7 @@ export class RelatorioService {
       rangeInicio.start,
       rangeFim.end,
     ];
-    const conditions = ['v.data_inclusao BETWEEN $1 AND $2'];
+    const conditions = ['v.data_venda BETWEEN $1 AND $2'];
 
     if (filtro.tipoVenda) {
       parameters.push(filtro.tipoVenda);
@@ -657,7 +657,7 @@ export class RelatorioService {
       rangeInicio.start,
       rangeFim.end,
     ];
-    const conditions = ['venda.data_inclusao BETWEEN $1 AND $2'];
+    const conditions = ['venda.data_venda BETWEEN $1 AND $2'];
 
     if (filtro.tipoVenda) {
       parameters.push(filtro.tipoVenda);

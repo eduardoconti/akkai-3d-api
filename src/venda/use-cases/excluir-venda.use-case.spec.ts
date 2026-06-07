@@ -5,6 +5,7 @@ import { ExcluirVendaUseCase } from '@venda/use-cases';
 describe('ExcluirVendaUseCase', () => {
   it('deve excluir venda sem criar movimentos de ajuste', async () => {
     const vendaExistente = Venda.criar({
+      dataVenda: '2026-04-01T12:00:00.000Z',
       tipo: TipoVenda.LOJA,
       itens: [
         {

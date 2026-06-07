@@ -5,8 +5,15 @@ import {
   Index,
   OneToMany,
   PrimaryGeneratedColumn,
+  ValueTransformer,
 } from 'typeorm';
 import { Consignacao } from './consignacao.entity';
+
+const percentualTransformer: ValueTransformer = {
+  to: (value?: number | null) => value ?? 0,
+  from: (value?: string | number | null) =>
+    value === null || value === undefined ? 0 : Number(value),
+};
 
 export enum StatusRevendedor {
   ATIVO = 'ATIVO',
@@ -17,11 +24,16 @@ export interface RevendedorInput {
   nome: string;
   telefone: string;
   status?: StatusRevendedor;
+  percentualDesconto?: number;
 }
 
 @Entity('revendedor')
 @Check('ck_revendedor_nome_nao_vazio', 'char_length(trim("nome")) > 0')
 @Check('ck_revendedor_telefone_nao_vazio', 'char_length(trim("telefone")) > 0')
+@Check(
+  'ck_revendedor_percentual_desconto_valido',
+  '"percentual_desconto" >= 0 AND "percentual_desconto" <= 100',
+)
 @Index('idx_revendedor_status', ['status'])
 export class Revendedor {
   @PrimaryGeneratedColumn({
@@ -42,6 +54,16 @@ export class Revendedor {
     default: StatusRevendedor.ATIVO,
   })
   status!: StatusRevendedor;
+
+  @Column({
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    default: 0,
+    name: 'percentual_desconto',
+    transformer: percentualTransformer,
+  })
+  percentualDesconto!: number;
 
   @Column({
     type: 'timestamp',
@@ -65,5 +87,7 @@ export class Revendedor {
     this.nome = input.nome;
     this.telefone = input.telefone;
     this.status = input.status ?? this.status ?? StatusRevendedor.ATIVO;
+    this.percentualDesconto =
+      input.percentualDesconto ?? this.percentualDesconto ?? 0;
   }
 }

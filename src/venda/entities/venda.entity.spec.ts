@@ -8,6 +8,8 @@ import {
 } from '@venda/entities';
 
 describe('Venda', () => {
+  const dataVenda = '2026-04-01T12:00:00.000Z';
+
   it('deve limpar a relação feira ao chamar atualizar', () => {
     const venda = new Venda();
     venda.feira = { id: 5 } as never;
@@ -15,6 +17,7 @@ describe('Venda', () => {
     venda.itens = [];
 
     venda.atualizar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [],
       pagamentos: [
@@ -51,6 +54,7 @@ describe('Venda', () => {
     });
 
     const venda = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.FEIRA,
       desconto: 10,
       itens,
@@ -87,6 +91,7 @@ describe('Venda', () => {
     });
 
     const venda = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.FEIRA,
       itens,
       pagamentos: [
@@ -99,6 +104,7 @@ describe('Venda', () => {
 
   it('deve calcular valor da taxa no pagamento quando percentualTaxa for informado', () => {
     const venda = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [
         {
@@ -124,6 +130,7 @@ describe('Venda', () => {
 
   it('deve deixar taxa do pagamento nula quando percentualTaxa não for informado', () => {
     const venda = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [
         {
@@ -144,6 +151,7 @@ describe('Venda', () => {
 
   it('deve calcular valor do imposto no pagamento quando percentualImposto for informado', () => {
     const venda = Venda.criar({
+      dataVenda,
       tipo: TipoVenda.LOJA,
       itens: [
         {
@@ -188,6 +196,7 @@ describe('Venda', () => {
   it('deve lançar BadRequestException quando soma dos pagamentos divergir do total', () => {
     expect(() =>
       Venda.criar({
+        dataVenda,
         tipo: TipoVenda.LOJA,
         itens: [
           {
@@ -207,6 +216,7 @@ describe('Venda', () => {
   it('deve lançar BadRequestException quando desconto for maior que o total dos itens', () => {
     expect(() =>
       Venda.criar({
+        dataVenda,
         tipo: TipoVenda.LOJA,
         desconto: 1000,
         itens: [

@@ -4,6 +4,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
 } from '@nestjs/swagger';
 import {
   AlterarRevendedorDto,
@@ -102,19 +103,20 @@ export function ApiObterConsignacaoPorIdDocs() {
   );
 }
 
-export function ApiRegistrarVendasConsignadasDocs() {
+export function ApiRelatorioConsignacaoPdfDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Registra vendas consignadas em lote.',
+      summary: 'Gera o relatório PDF de uma consignação.',
       description:
-        'Permite lançar a lista semanal de produtos vendidos pelo revendedor em uma única operação.',
+        'Emite a lista de peças consignadas com valores unitários, desconto aplicado e totais.',
     }),
-    ApiBody({ type: RegistrarVendasConsignadasDto }),
-    ApiOkResponse({
-      description: 'Vendas consignadas registradas com sucesso.',
-    }),
-    ApiValidationErrorResponse('/consignacao/1/vendas'),
-    ApiUnauthorizedErrorResponse('/consignacao/1/vendas'),
+    ApiProduces('application/pdf'),
+    ApiOkResponse({ description: 'PDF da consignação gerado com sucesso.' }),
+    ApiNotFoundErrorResponse(
+      '/consignacao/1/pdf',
+      'Consignação não encontrada.',
+    ),
+    ApiUnauthorizedErrorResponse('/consignacao/1/pdf'),
   );
 }
 

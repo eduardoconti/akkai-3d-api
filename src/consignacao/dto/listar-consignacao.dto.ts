@@ -5,6 +5,7 @@ export class RevendedorResumoDto {
   nome!: string;
   telefone!: string;
   status!: StatusRevendedor;
+  percentualDesconto!: number;
 }
 
 export class ItemConsignacaoDto {
@@ -24,6 +25,7 @@ export class ListarConsignacaoDto {
   revendedor!: RevendedorResumoDto;
   status!: StatusConsignacao;
   dataInclusao!: Date;
+  percentualDesconto!: number;
   quantidadeEnviada!: number;
   quantidadeVendida!: number;
   quantidadeDevolvida!: number;

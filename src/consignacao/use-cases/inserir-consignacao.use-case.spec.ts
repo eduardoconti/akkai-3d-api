@@ -31,10 +31,13 @@ describe('InserirConsignacaoUseCase', () => {
 
   it('deve criar consignação e gerar saída de estoque', async () => {
     const resposta = { id: 1, itens: [] };
-    revendedorService.garantirRevendedorAtivo.mockResolvedValue(undefined);
+    revendedorService.garantirRevendedorAtivo.mockResolvedValue({
+      percentualDesconto: 15,
+    });
     produtoService.obterDetalheProdutoPorId.mockResolvedValue({
       id: 10,
       nome: 'Dragão articulado',
+      valor: 2500,
       quantidadeEstoque: 12,
     });
     consignacaoService.salvarConsignacao.mockResolvedValue(resposta);
@@ -58,6 +61,7 @@ describe('InserirConsignacaoUseCase', () => {
     expect(consignacao).toMatchObject({
       idRevendedor: 3,
       idUsuarioInclusao: 9,
+      percentualDesconto: 15,
     });
     expect(itens).toHaveLength(1);
     expect(itens[0]).toMatchObject({
@@ -65,6 +69,7 @@ describe('InserirConsignacaoUseCase', () => {
       quantidadeEnviada: 4,
       quantidadeVendida: 0,
       quantidadeDevolvida: 0,
+      valorUnitario: 2500,
     });
     expect(movimentacoes[0]).toMatchObject({
       idProduto: 10,
@@ -75,8 +80,37 @@ describe('InserirConsignacaoUseCase', () => {
     });
   });
 
+  it('deve manter o valor cheio da peça mesmo quando revendedor tem desconto', async () => {
+    const resposta = { id: 1, itens: [] };
+    revendedorService.garantirRevendedorAtivo.mockResolvedValue({
+      percentualDesconto: 20,
+    });
+    produtoService.obterDetalheProdutoPorId.mockResolvedValue({
+      id: 10,
+      nome: 'Dragão articulado',
+      valor: 2500,
+      quantidadeEstoque: 12,
+    });
+    consignacaoService.salvarConsignacao.mockResolvedValue(resposta);
+
+    await useCase.execute({
+      idRevendedor: 3,
+      itens: [{ idProduto: 10, quantidade: 4 }],
+    });
+
+    const [, itens] = consignacaoService.salvarConsignacao.mock.calls[0] as [
+      Consignacao,
+      ItemConsignacao[],
+      MovimentacaoEstoque[],
+    ];
+
+    expect(itens[0]?.valorUnitario).toBe(2500);
+  });
+
   it('deve impedir produto repetido na mesma consignação', async () => {
-    revendedorService.garantirRevendedorAtivo.mockResolvedValue(undefined);
+    revendedorService.garantirRevendedorAtivo.mockResolvedValue({
+      percentualDesconto: 0,
+    });
 
     await expect(
       useCase.execute({
@@ -91,10 +125,13 @@ describe('InserirConsignacaoUseCase', () => {
   });
 
   it('deve impedir consignação sem estoque suficiente', async () => {
-    revendedorService.garantirRevendedorAtivo.mockResolvedValue(undefined);
+    revendedorService.garantirRevendedorAtivo.mockResolvedValue({
+      percentualDesconto: 0,
+    });
     produtoService.obterDetalheProdutoPorId.mockResolvedValue({
       id: 10,
       nome: 'Dragão articulado',
+      valor: 2500,
       quantidadeEstoque: 1,
     });
 

@@ -159,60 +159,6 @@ export class ConsignacaoService {
     };
   }
 
-  async registrarVendas(
-    idConsignacao: number,
-    itensVendidos: RegistrarItemVendaConsignadaDto[],
-    pagamento: RegistrarPagamentoVendaConsignadaInput,
-    idUsuarioInclusao: number,
-  ): Promise<DetalheConsignacaoDto> {
-    this.validarProdutosVendidosUnicos(itensVendidos);
-    const consignacao =
-      await this.garantirConsignacaoAbertaComItens(idConsignacao);
-    const itensVenda: ItemVendaInput[] = [];
-
-    for (const itemVendido of itensVendidos) {
-      const item = consignacao.itens.find(
-        (itemConsignacao) =>
-          itemConsignacao.idProduto === itemVendido.idProduto,
-      );
-
-      if (!item) {
-        throw new NotFoundException(
-          `Produto com ID ${itemVendido.idProduto} não encontrado na consignação.`,
-        );
-      }
-
-      this.validarSaldoDisponivel(item, itemVendido.quantidade, 'venda');
-      item.quantidadeVendida += itemVendido.quantidade;
-      itensVenda.push(this.criarItemVendaInput(item, itemVendido.quantidade));
-    }
-
-    const venda = this.criarVendaConsignada(
-      idConsignacao,
-      itensVenda,
-      pagamento,
-      idUsuarioInclusao,
-    );
-    const consignacaoFechada = this.fecharConsignacaoSeSemSaldo(consignacao);
-
-    await this.dataSource
-      .transaction(async (manager) => {
-        await manager.save(ItemConsignacao, consignacao.itens);
-        if (consignacaoFechada) {
-          await manager.save(Consignacao, consignacao);
-        }
-        await manager.save(Venda, venda);
-      })
-      .catch((error) => {
-        this.logger.error('Erro ao registrar vendas consignadas', error);
-        throw new InternalServerErrorException(
-          'Erro ao registrar vendas consignadas',
-        );
-      });
-
-    return this.garantirDetalheConsignacao(idConsignacao);
-  }
-
   async registrarVendasPorRevendedor(
     idRevendedor: number,
     itensVendidos: RegistrarItemVendaConsignadaDto[],
@@ -283,7 +229,11 @@ export class ConsignacaoService {
           consignacao,
         );
         registro.itensVenda.push(
-          this.criarItemVendaInput(item, quantidadeBaixada),
+          this.criarItemVendaInput(
+            item,
+            quantidadeBaixada,
+            consignacao.percentualDesconto,
+          ),
         );
       }
     }
@@ -393,33 +343,6 @@ export class ConsignacaoService {
     return item;
   }
 
-  private async garantirConsignacaoAbertaComItens(
-    idConsignacao: number,
-  ): Promise<Consignacao> {
-    const consignacao = await this.consignacaoRepository.findOne({
-      where: { id: idConsignacao },
-      relations: {
-        itens: {
-          produto: true,
-        },
-      },
-    });
-
-    if (!consignacao) {
-      throw new NotFoundException(
-        `Consignação com ID ${idConsignacao} não encontrada`,
-      );
-    }
-
-    if (consignacao.status !== StatusConsignacao.ABERTA) {
-      throw new BadRequestException(
-        'A consignação precisa estar aberta para receber movimentos.',
-      );
-    }
-
-    return consignacao;
-  }
-
   private async listarConsignacoesAbertasPorRevendedor(
     idRevendedor: number,
   ): Promise<Consignacao[]> {
@@ -429,6 +352,7 @@ export class ConsignacaoService {
         status: StatusConsignacao.ABERTA,
       },
       relations: {
+        revendedor: true,
         itens: {
           produto: true,
         },
@@ -530,14 +454,26 @@ export class ConsignacaoService {
   private criarItemVendaInput(
     item: ItemConsignacao,
     quantidade: number,
+    percentualDesconto: number,
   ): ItemVendaInput {
     return {
       idProduto: item.idProduto,
       nomeProduto: item.produto.nome,
       quantidade,
-      valorUnitario: item.valorUnitario,
+      valorUnitario: this.calcularValorComDesconto(
+        item.valorUnitario,
+        percentualDesconto,
+      ),
       brinde: false,
     };
+  }
+
+  private calcularValorComDesconto(
+    valor: number,
+    percentualDesconto: number,
+  ): number {
+    const fatorDesconto = 1 - percentualDesconto / 100;
+    return Math.max(0, Math.round(valor * fatorDesconto));
   }
 
   private criarVendaConsignada(
@@ -560,6 +496,7 @@ export class ConsignacaoService {
       },
     ];
     const venda = Venda.criar({
+      dataVenda: new Date(),
       tipo: TipoVenda.CONSIGNACAO,
       idConsignacao,
       itens: itensVenda,
@@ -580,9 +517,11 @@ export class ConsignacaoService {
         nome: consignacao.revendedor.nome,
         telefone: consignacao.revendedor.telefone,
         status: consignacao.revendedor.status,
+        percentualDesconto: consignacao.revendedor.percentualDesconto,
       },
       status: consignacao.status,
       dataInclusao: consignacao.dataInclusao,
+      percentualDesconto: consignacao.percentualDesconto,
       ...totais,
     };
   }

@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -19,6 +20,14 @@ import { MeioPagamento, TipoVenda } from '@venda/entities';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirVendaDto {
+  @IsDateString(
+    {},
+    {
+      message: 'A data da venda deve estar em um formato de data válido.',
+    },
+  )
+  dataVenda!: string;
+
   @IsEnum(TipoVenda, {
     message: 'O tipo da venda deve ser FEIRA, LOJA, ONLINE ou CONSIGNACAO.',
   })

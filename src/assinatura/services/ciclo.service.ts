@@ -87,6 +87,7 @@ export class CicloService {
           .returning('id')
           .execute();
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const insertedIds: number[] = result.raw.map(
           (r: { id: number }) => r.id,
         );

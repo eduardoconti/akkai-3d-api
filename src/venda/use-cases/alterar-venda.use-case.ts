@@ -25,6 +25,7 @@ import { CurrentUserContext } from '@common/services/current-user-context.servic
 
 export interface ExecutarAlterarVendaInput {
   id: number;
+  dataVenda: string;
   tipo: TipoVenda;
   idFeira?: number;
   desconto?: number;
@@ -105,6 +106,7 @@ export class AlterarVendaUseCase {
     }
 
     venda.atualizar({
+      dataVenda: input.dataVenda,
       tipo: input.tipo,
       idFeira: input.idFeira,
       desconto: input.desconto,

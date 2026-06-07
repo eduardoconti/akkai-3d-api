@@ -155,7 +155,7 @@ export class VendaService {
       .leftJoinAndSelect('venda.itens', 'item')
       .leftJoinAndSelect('item.produto', 'produto')
       .distinct(true)
-      .orderBy('venda.dataInclusao', 'DESC')
+      .orderBy('venda.dataVenda', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
 
@@ -224,7 +224,7 @@ export class VendaService {
           : range;
 
       queryBuilder.andWhere(
-        'venda.dataInclusao BETWEEN :dataInicio AND :dataFim',
+        'venda.dataVenda BETWEEN :dataInicio AND :dataFim',
         {
           dataInicio: range.start,
           dataFim: rangeFim.end,

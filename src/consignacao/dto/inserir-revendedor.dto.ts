@@ -1,10 +1,13 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
@@ -49,4 +52,19 @@ export class InserirRevendedorDto {
     message: `O status do revendedor deve ser um dos valores: ${Object.values(StatusRevendedor).join(', ')}.`,
   })
   status?: StatusRevendedor;
+
+  @ApiPropertyOptional({
+    example: 20,
+    description: 'Percentual de desconto aplicado sobre as peças.',
+    default: 0,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'O desconto do revendedor deve ser um número.' },
+  )
+  @Min(0, { message: 'O desconto do revendedor não pode ser negativo.' })
+  @Max(100, { message: 'O desconto do revendedor não pode passar de 100%.' })
+  percentualDesconto?: number;
 }

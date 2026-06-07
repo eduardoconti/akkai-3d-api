@@ -332,7 +332,7 @@ describe('VendaService', () => {
     };
 
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-      'venda.dataInclusao BETWEEN :dataInicio AND :dataFim',
+      'venda.dataVenda BETWEEN :dataInicio AND :dataFim',
       expect.objectContaining({
         dataInicio: '2026-04-04 00:00:00.000',
         dataFim: '2026-04-05 23:59:59.999',
