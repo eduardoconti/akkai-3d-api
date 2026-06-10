@@ -1,33 +1,8 @@
 import { Type } from 'class-transformer';
-import {
-  IsDateString,
-  IsIn,
-  IsInt,
-  IsOptional,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 
 export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
-  @IsOptional()
-  @IsDateString(
-    {},
-    {
-      message: 'A data inicial deve estar em um formato de data válido.',
-    },
-  )
-  dataInicio?: string;
-
-  @IsOptional()
-  @IsDateString(
-    {},
-    {
-      message: 'A data final deve estar em um formato de data válido.',
-    },
-  )
-  dataFim?: string;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'Os dias de histórico devem ser um número inteiro.' })

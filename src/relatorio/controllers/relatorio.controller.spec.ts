@@ -237,8 +237,6 @@ describe('RelatorioController', () => {
 
   it('deve delegar a obtenção da sugestão de produção', async () => {
     const filtro = {
-      dataInicio: '2026-04-01',
-      dataFim: '2026-04-28',
       pagina: 1,
       tamanhoPagina: 10,
       diasHistorico: 28,

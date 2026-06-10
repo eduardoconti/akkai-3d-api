@@ -376,8 +376,6 @@ describe('RelatorioService', () => {
       ]);
 
     const result = await service.obterSugestaoProducao({
-      dataInicio: '2026-04-01',
-      dataFim: '2026-04-28',
       pagina: 1,
       tamanhoPagina: 10,
       diasHistorico: 28,
@@ -387,7 +385,7 @@ describe('RelatorioService', () => {
 
     expect(dataSource.query).toHaveBeenNthCalledWith(
       1,
-      expect.stringContaining('WITH estoque AS'),
+      expect.stringContaining('WHERE COALESCE(p.estoque_minimo, 0) > 0'),
       ['2026-04-01 00:00:00.000', '2026-04-28 23:59:59.999', 28, 7, 2, 10, 0],
     );
     expect(dataSource.query).toHaveBeenNthCalledWith(
@@ -459,20 +457,6 @@ describe('RelatorioService', () => {
     ]);
     expect(result.totalPaginas).toBe(1);
     expect(result.totalQuantidadeSugerida).toBe(0);
-  });
-
-  it('deve lançar erro quando a data final for menor que a data inicial na sugestão de produção', async () => {
-    await expect(
-      service.obterSugestaoProducao({
-        dataInicio: '2026-04-10',
-        dataFim: '2026-04-01',
-        pagina: 1,
-        tamanhoPagina: 10,
-        diasHistorico: 28,
-        diasPlanejamento: 7,
-        diasEstoqueSeguranca: 2,
-      }),
-    ).rejects.toThrow(BadRequestException);
   });
 
   it('deve lançar erro quando a data final for menor que a data inicial no relatório de produção', async () => {

@@ -392,7 +392,7 @@ export function ApiSugestaoProducaoDocs() {
     ApiOperation({
       summary: 'Obtém a sugestão de produção semanal.',
       description:
-        'Compara vendas recentes, estoque atual e estoque mínimo para sugerir quais produtos produzir. Quando datas não são informadas, usa os últimos 28 dias como histórico, planeja 7 dias de demanda e adiciona 2 dias de estoque de segurança.',
+        'Compara vendas recentes, estoque atual e estoque mínimo para sugerir quais produtos produzir. Usa os últimos dias de histórico informados, planeja a demanda futura e adiciona estoque de segurança.',
     }),
     ApiQuery({
       name: 'pagina',
@@ -409,27 +409,11 @@ export function ApiSugestaoProducaoDocs() {
       description: 'Quantidade máxima de itens por página.',
     }),
     ApiQuery({
-      name: 'dataInicio',
-      required: false,
-      type: String,
-      example: '2026-04-01',
-      description:
-        'Data inicial do histórico de vendas, no formato YYYY-MM-DD.',
-    }),
-    ApiQuery({
-      name: 'dataFim',
-      required: false,
-      type: String,
-      example: '2026-04-28',
-      description: 'Data final do histórico de vendas, no formato YYYY-MM-DD.',
-    }),
-    ApiQuery({
       name: 'diasHistorico',
       required: false,
       type: Number,
       example: 28,
-      description:
-        'Quantidade de dias usada para montar o histórico quando dataInicio não for informada.',
+      description: 'Quantidade de dias recentes usada no histórico de vendas.',
     }),
     ApiQuery({
       name: 'diasPlanejamento',

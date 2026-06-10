@@ -117,19 +117,12 @@ export class RelatorioService {
   async obterSugestaoProducao(
     filtro: ObterSugestaoProducaoDto,
   ): Promise<RelatorioSugestaoProducaoDto> {
-    const dataFim =
-      filtro.dataFim ?? this.dateService.obterDataAtualLocal(new Date());
-    const dataInicio =
-      filtro.dataInicio ??
-      this.dateService.subtrairDiasDataLocal(dataFim, filtro.diasHistorico - 1);
-
-    if (dataFim < dataInicio) {
-      throw new BadRequestException(
-        'A data final não pode ser menor que a data inicial.',
-      );
-    }
-
-    const diasHistorico = this.calcularDiasPeriodo(dataInicio, dataFim);
+    const dataFim = this.dateService.obterDataAtualLocal(new Date());
+    const dataInicio = this.dateService.subtrairDiasDataLocal(
+      dataFim,
+      filtro.diasHistorico - 1,
+    );
+    const diasHistorico = filtro.diasHistorico;
     const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
     const rangeFim = this.dateService.toUtcDateRange(dataFim);
     const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
@@ -367,6 +360,7 @@ export class RelatorioService {
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
         LEFT JOIN estoque ON estoque.id_produto = p.id
         LEFT JOIN vendas ON vendas.id_produto = p.id
+        WHERE COALESCE(p.estoque_minimo, 0) > 0
       ),
       calculos AS (
         SELECT
