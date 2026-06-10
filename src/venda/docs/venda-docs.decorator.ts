@@ -258,7 +258,7 @@ export function ApiListarVendasDocs() {
     ApiOperation({
       summary: 'Lista vendas com paginação.',
       description:
-        'Retorna vendas paginadas com itens, carteira, feira e filtros opcionais por termo e tipo.',
+        'Retorna vendas paginadas com itens, carteira, feira e filtros opcionais por termo, tipo e produto.',
     }),
     ApiPaginacaoQueryDocs(),
     ApiQuery({
@@ -274,6 +274,14 @@ export function ApiListarVendasDocs() {
       example: 1,
       description:
         'Filtro opcional pela feira. Só pode ser usado quando o tipo for FEIRA.',
+    }),
+    ApiQuery({
+      name: 'idProduto',
+      required: false,
+      type: Number,
+      example: 1,
+      description:
+        'Filtro opcional por produto presente em pelo menos um item da venda.',
     }),
     ApiQuery({
       name: 'idCarteira',

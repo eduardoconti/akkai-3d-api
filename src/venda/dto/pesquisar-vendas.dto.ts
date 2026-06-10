@@ -37,6 +37,12 @@ export class PesquisarVendasDto extends PesquisaPaginadaDto {
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt({ message: 'O produto deve ser um número inteiro.' })
+  @Min(1, { message: 'O produto deve ser maior que zero.' })
+  idProduto?: number;
+
+  @IsOptional()
+  @Type(() => Number)
   @IsInt({ message: 'A carteira deve ser um número inteiro.' })
   @Min(1, { message: 'A carteira deve ser maior que zero.' })
   idCarteira?: number;

@@ -23,6 +23,19 @@ export class DateService {
     };
   }
 
+  obterDataAtualLocal(data: Date = new Date()): string {
+    const dataLocal = new Date(data.getTime() + this.tzOffset * 60 * 60 * 1000);
+
+    return this.formatarDataUtc(dataLocal);
+  }
+
+  subtrairDiasDataLocal(data: string, dias: number): string {
+    const dataUtc = new Date(`${data}T00:00:00.000Z`);
+    dataUtc.setUTCDate(dataUtc.getUTCDate() - dias);
+
+    return this.formatarDataUtc(dataUtc);
+  }
+
   obterIntervaloUtcMes(
     ano: number,
     mes: number,
@@ -41,5 +54,9 @@ export class DateService {
       start: rangeInicio.start,
       end: rangeFim.end,
     };
+  }
+
+  private formatarDataUtc(data: Date): string {
+    return data.toISOString().slice(0, 10);
   }
 }

@@ -314,7 +314,7 @@ describe('VendaService', () => {
     );
   });
 
-  it('deve listar vendas filtradas por período, feira, carteira e pagamento', async () => {
+  it('deve listar vendas filtradas por período, feira, produto, carteira e pagamento', async () => {
     await service.listarVendas({
       pagina: 1,
       tamanhoPagina: 10,
@@ -322,6 +322,7 @@ describe('VendaService', () => {
       dataFim: '2026-04-05',
       tipo: TipoVenda.FEIRA,
       idFeira: 7,
+      idProduto: 10,
       idCarteira: 2,
       meioPagamento: MeioPagamento.PIX,
     });
@@ -341,6 +342,10 @@ describe('VendaService', () => {
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
       'venda.idFeira = :idFeira',
       expect.objectContaining({ idFeira: 7 }),
+    );
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining('item_filtro.id_produto = :idProduto'),
+      expect.objectContaining({ idProduto: 10 }),
     );
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
       expect.stringContaining('pagamento_filtro.id_carteira = :idCarteira'),

@@ -8,11 +8,15 @@ import {
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
+  ObterSugestaoProducaoDto,
   ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
+  PrioridadeSugestaoProducao,
   RelatorioProducaoDto,
+  RelatorioSugestaoProducaoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
+  SugestaoProducaoProdutoDto,
   TopProdutosMesDashboardDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
@@ -63,6 +67,29 @@ type TotalizadoresRelatorioProducaoRow = {
   totalValorEstimado: string | number | null;
 };
 
+type SugestaoProducaoRow = {
+  idProduto: string | number;
+  codigo: string | number;
+  nome: string;
+  idCategoria: string | number | null;
+  nomeCategoria: string | null;
+  estoqueAtual: string | number;
+  estoqueMinimo: string | number;
+  quantidadeVendida: string | number;
+  mediaVendaDiaria: string | number;
+  demandaPlanejada: string | number;
+  estoqueSeguranca: string | number;
+  estoqueAlvo: string | number;
+  diasCobertura: string | number | null;
+  sugestaoProducao: string | number;
+  prioridade: PrioridadeSugestaoProducao;
+};
+
+type TotalizadoresSugestaoProducaoRow = {
+  totalItens: string | number;
+  totalQuantidadeSugerida: string | number | null;
+};
+
 type DespesaCategoriaMesDashboardRow = {
   idCategoria: string | number | null;
   nomeCategoria: string | null;
@@ -86,6 +113,104 @@ export class RelatorioService {
     private readonly dataSource: DataSource,
     private readonly dateService: DateService,
   ) {}
+
+  async obterSugestaoProducao(
+    filtro: ObterSugestaoProducaoDto,
+  ): Promise<RelatorioSugestaoProducaoDto> {
+    const dataFim =
+      filtro.dataFim ?? this.dateService.obterDataAtualLocal(new Date());
+    const dataInicio =
+      filtro.dataInicio ??
+      this.dateService.subtrairDiasDataLocal(dataFim, filtro.diasHistorico - 1);
+
+    if (dataFim < dataInicio) {
+      throw new BadRequestException(
+        'A data final não pode ser menor que a data inicial.',
+      );
+    }
+
+    const diasHistorico = this.calcularDiasPeriodo(dataInicio, dataFim);
+    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
+    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+    const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
+    const orderByMap = {
+      codigo: 'codigo',
+      nome: 'nome',
+      estoqueAtual: '"estoqueAtual"',
+      quantidadeVendida: '"quantidadeVendida"',
+      mediaVendaDiaria: '"mediaVendaDiaria"',
+      diasCobertura: '"diasCobertura"',
+      sugestaoProducao: '"sugestaoProducao"',
+    } as const;
+    const orderBy = orderByMap[filtro.ordenarPor ?? 'sugestaoProducao'];
+    const orderDirection = filtro.direcao === 'asc' ? 'ASC' : 'DESC';
+    const parametrosBase = [
+      rangeInicio.start,
+      rangeFim.end,
+      diasHistorico,
+      filtro.diasPlanejamento,
+      filtro.diasEstoqueSeguranca,
+    ];
+    const consultaBase = this.criarConsultaBaseSugestaoProducao();
+
+    const rows: SugestaoProducaoRow[] = await this.dataSource.query(
+      `
+        ${consultaBase}
+        SELECT
+          id_produto AS "idProduto",
+          codigo,
+          nome,
+          id_categoria AS "idCategoria",
+          nome_categoria AS "nomeCategoria",
+          estoque_atual AS "estoqueAtual",
+          estoque_minimo AS "estoqueMinimo",
+          quantidade_vendida AS "quantidadeVendida",
+          media_venda_diaria AS "mediaVendaDiaria",
+          demanda_planejada AS "demandaPlanejada",
+          estoque_seguranca AS "estoqueSeguranca",
+          estoque_alvo AS "estoqueAlvo",
+          dias_cobertura AS "diasCobertura",
+          sugestao_producao AS "sugestaoProducao",
+          prioridade
+        FROM sugestoes
+        WHERE sugestao_producao > 0
+        ORDER BY ${orderBy} ${orderDirection} NULLS LAST, codigo ASC
+        LIMIT $6
+        OFFSET $7
+      `,
+      [...parametrosBase, filtro.tamanhoPagina, offset],
+    );
+
+    const totalizadores: TotalizadoresSugestaoProducaoRow[] =
+      await this.dataSource.query(
+        `
+          ${consultaBase}
+          SELECT
+            COUNT(*)::int AS "totalItens",
+            COALESCE(SUM(sugestao_producao), 0) AS "totalQuantidadeSugerida"
+          FROM sugestoes
+          WHERE sugestao_producao > 0
+        `,
+        parametrosBase,
+      );
+
+    const totais = totalizadores[0];
+    const totalItens = Number(totais?.totalItens ?? 0);
+
+    return {
+      dataInicio,
+      dataFim,
+      diasHistorico,
+      diasPlanejamento: filtro.diasPlanejamento,
+      diasEstoqueSeguranca: filtro.diasEstoqueSeguranca,
+      pagina: filtro.pagina,
+      tamanhoPagina: filtro.tamanhoPagina,
+      totalItens,
+      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
+      totalQuantidadeSugerida: Number(totais?.totalQuantidadeSugerida ?? 0),
+      itens: rows.map((row) => this.mapearSugestaoProducao(row)),
+    };
+  }
 
   async obterRelatorioProducao(
     filtro: ObterRelatorioProducaoDto,
@@ -199,6 +324,123 @@ export class RelatorioService {
         };
       }),
     };
+  }
+
+  private criarConsultaBaseSugestaoProducao(): string {
+    return `
+      WITH estoque AS (
+        SELECT
+          id_produto,
+          SUM(
+            CASE
+              WHEN tipo = 'E' THEN quantidade
+              WHEN tipo = 'S' THEN -quantidade
+              ELSE 0
+            END
+          ) AS estoque_atual
+        FROM movimentacao_estoque
+        GROUP BY id_produto
+      ),
+      vendas AS (
+        SELECT
+          item.id_produto,
+          SUM(item.quantidade) AS quantidade_vendida
+        FROM item_venda item
+        INNER JOIN venda v ON v.id = item.id_venda
+        WHERE v.data_venda BETWEEN $1 AND $2
+          AND item.brinde = false
+          AND item.id_produto IS NOT NULL
+        GROUP BY item.id_produto
+      ),
+      indicadores AS (
+        SELECT
+          p.id AS id_produto,
+          p.codigo,
+          p.nome,
+          categoria.id AS id_categoria,
+          categoria.nome AS nome_categoria,
+          COALESCE(estoque.estoque_atual, 0) AS estoque_atual,
+          COALESCE(p.estoque_minimo, 0) AS estoque_minimo,
+          COALESCE(vendas.quantidade_vendida, 0) AS quantidade_vendida,
+          COALESCE(vendas.quantidade_vendida, 0) / $3::numeric AS media_venda_diaria
+        FROM produto p
+        LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
+        LEFT JOIN estoque ON estoque.id_produto = p.id
+        LEFT JOIN vendas ON vendas.id_produto = p.id
+      ),
+      calculos AS (
+        SELECT
+          *,
+          media_venda_diaria * $4::numeric AS demanda_planejada,
+          media_venda_diaria * $5::numeric AS estoque_seguranca,
+          GREATEST(
+            media_venda_diaria * ($4::numeric + $5::numeric),
+            estoque_minimo::numeric
+          ) AS estoque_alvo,
+          CASE
+            WHEN media_venda_diaria > 0 THEN estoque_atual / media_venda_diaria
+            ELSE NULL
+          END AS dias_cobertura
+        FROM indicadores
+      ),
+      sugestoes AS (
+        SELECT
+          *,
+          GREATEST(CEIL(estoque_alvo - estoque_atual), 0)::int AS sugestao_producao,
+          CASE
+            WHEN media_venda_diaria > 0
+              AND (estoque_atual <= 0 OR dias_cobertura <= 2)
+              THEN 'CRITICO'
+            ELSE 'PRODUZIR'
+          END AS prioridade
+        FROM calculos
+        WHERE quantidade_vendida > 0 OR estoque_minimo > estoque_atual
+      )
+    `;
+  }
+
+  private mapearSugestaoProducao(
+    row: SugestaoProducaoRow,
+  ): SugestaoProducaoProdutoDto {
+    return {
+      idProduto: Number(row.idProduto),
+      codigo: Number(row.codigo),
+      nome: row.nome,
+      categoria:
+        row.idCategoria === null || row.nomeCategoria === null
+          ? null
+          : {
+              id: Number(row.idCategoria),
+              nome: row.nomeCategoria,
+            },
+      estoqueAtual: Number(row.estoqueAtual ?? 0),
+      estoqueMinimo: Number(row.estoqueMinimo ?? 0),
+      quantidadeVendida: Number(row.quantidadeVendida ?? 0),
+      mediaVendaDiaria: this.arredondarNumero(row.mediaVendaDiaria),
+      demandaPlanejada: this.arredondarNumero(row.demandaPlanejada),
+      estoqueSeguranca: this.arredondarNumero(row.estoqueSeguranca),
+      estoqueAlvo: this.arredondarNumero(row.estoqueAlvo),
+      diasCobertura:
+        row.diasCobertura === null
+          ? null
+          : this.arredondarNumero(row.diasCobertura),
+      sugestaoProducao: Number(row.sugestaoProducao ?? 0),
+      prioridade: row.prioridade,
+    };
+  }
+
+  private calcularDiasPeriodo(dataInicio: string, dataFim: string): number {
+    return (
+      Math.floor(
+        (Date.parse(`${dataFim}T00:00:00Z`) -
+          Date.parse(`${dataInicio}T00:00:00Z`)) /
+          86400000,
+      ) + 1
+    );
+  }
+
+  private arredondarNumero(valor: string | number | null): number {
+    return Math.round(Number(valor ?? 0) * 100) / 100;
   }
 
   async obterResumoMensalDashboard(

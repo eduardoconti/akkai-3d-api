@@ -6,9 +6,11 @@ import {
   ObterResumoMensalDashboardDto,
   ObterProdutosMaisVendidosDto,
   ObterResumoVendasPeriodoDto,
+  ObterSugestaoProducaoDto,
   ObterValorProdutosEstoqueDto,
   ProdutosMaisVendidosPeriodoDto,
   RelatorioProducaoDto,
+  RelatorioSugestaoProducaoDto,
   ResumoMensalDashboardDto,
   ResumoVendasPeriodoDto,
   TopProdutosMesDashboardDto,
@@ -20,6 +22,7 @@ import {
   ApiProdutosMaisVendidosDocs,
   ApiRelatorioProducaoDocs,
   ApiDespesasCategoriasMesDashboardDocs,
+  ApiSugestaoProducaoDocs,
   ApiTopProdutosMesDashboardDocs,
   ApiResumoMensalDashboardDocs,
   ApiResumoVendasPeriodoDocs,
@@ -81,6 +84,15 @@ export class RelatorioController {
     @Query() filtro: ObterValorProdutosEstoqueDto,
   ): Promise<ValorProdutosEstoqueDto> {
     return await this.relatorioService.obterValorProdutosEstoque(filtro);
+  }
+
+  @ApiSugestaoProducaoDocs()
+  @Get('producao/sugestao')
+  @Permissions('report.read')
+  async obterSugestaoProducao(
+    @Query() filtro: ObterSugestaoProducaoDto,
+  ): Promise<RelatorioSugestaoProducaoDto> {
+    return await this.relatorioService.obterSugestaoProducao(filtro);
   }
 
   @ApiRelatorioProducaoDocs()

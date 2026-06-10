@@ -12,6 +12,7 @@ describe('RelatorioController', () => {
     obterResumoVendasPorPeriodo: jest.Mock;
     obterProdutosMaisVendidosPorPeriodo: jest.Mock;
     obterValorProdutosEstoque: jest.Mock;
+    obterSugestaoProducao: jest.Mock;
     obterRelatorioProducao: jest.Mock;
   };
 
@@ -23,6 +24,7 @@ describe('RelatorioController', () => {
       obterResumoVendasPorPeriodo: jest.fn(),
       obterProdutosMaisVendidosPorPeriodo: jest.fn(),
       obterValorProdutosEstoque: jest.fn(),
+      obterSugestaoProducao: jest.fn(),
       obterRelatorioProducao: jest.fn(),
     };
 
@@ -230,6 +232,54 @@ describe('RelatorioController', () => {
     expect(relatorioService.obterRelatorioProducao).toHaveBeenCalledWith(
       filtro,
     );
+    expect(result).toEqual(response);
+  });
+
+  it('deve delegar a obtenção da sugestão de produção', async () => {
+    const filtro = {
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-28',
+      pagina: 1,
+      tamanhoPagina: 10,
+      diasHistorico: 28,
+      diasPlanejamento: 7,
+      diasEstoqueSeguranca: 2,
+    };
+    const response = {
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-28',
+      diasHistorico: 28,
+      diasPlanejamento: 7,
+      diasEstoqueSeguranca: 2,
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidadeSugerida: 19,
+      itens: [
+        {
+          idProduto: 1,
+          codigo: 3001,
+          nome: 'Cubo Infinito',
+          categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+          estoqueAtual: 8,
+          estoqueMinimo: 10,
+          quantidadeVendida: 84,
+          mediaVendaDiaria: 3,
+          demandaPlanejada: 21,
+          estoqueSeguranca: 6,
+          estoqueAlvo: 27,
+          diasCobertura: 2.67,
+          sugestaoProducao: 19,
+          prioridade: 'PRODUZIR',
+        },
+      ],
+    };
+    relatorioService.obterSugestaoProducao.mockResolvedValue(response);
+
+    const result = await controller.obterSugestaoProducao(filtro);
+
+    expect(relatorioService.obterSugestaoProducao).toHaveBeenCalledWith(filtro);
     expect(result).toEqual(response);
   });
 });

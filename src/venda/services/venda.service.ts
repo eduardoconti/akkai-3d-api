@@ -244,6 +244,18 @@ export class VendaService {
       });
     }
 
+    if (pesquisa.idProduto) {
+      queryBuilder.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM item_venda item_filtro
+          WHERE item_filtro.id_venda = venda.id
+            AND item_filtro.id_produto = :idProduto
+        )`,
+        { idProduto: pesquisa.idProduto },
+      );
+    }
+
     if (pesquisa.idCarteira) {
       queryBuilder.andWhere(
         `EXISTS (

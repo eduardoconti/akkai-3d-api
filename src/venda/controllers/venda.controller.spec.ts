@@ -207,6 +207,7 @@ describe('VendaController', () => {
       dataFim: '2026-04-04',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
+      idProduto: 10,
     });
 
     expect(vendaService.listarVendas).toHaveBeenCalledWith({
@@ -216,6 +217,7 @@ describe('VendaController', () => {
       dataFim: '2026-04-04',
       tipo: TipoVenda.FEIRA,
       idFeira: 3,
+      idProduto: 10,
     });
     expect(result).toBe(vendas);
   });

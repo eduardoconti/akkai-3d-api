@@ -386,3 +386,123 @@ export function ApiRelatorioProducaoDocs() {
     ApiForbiddenErrorResponse('/relatorio/producao'),
   );
 }
+
+export function ApiSugestaoProducaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Obtém a sugestão de produção semanal.',
+      description:
+        'Compara vendas recentes, estoque atual e estoque mínimo para sugerir quais produtos produzir. Quando datas não são informadas, usa os últimos 28 dias como histórico, planeja 7 dias de demanda e adiciona 2 dias de estoque de segurança.',
+    }),
+    ApiQuery({
+      name: 'pagina',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Página desejada da consulta.',
+    }),
+    ApiQuery({
+      name: 'tamanhoPagina',
+      required: false,
+      type: Number,
+      example: 10,
+      description: 'Quantidade máxima de itens por página.',
+    }),
+    ApiQuery({
+      name: 'dataInicio',
+      required: false,
+      type: String,
+      example: '2026-04-01',
+      description:
+        'Data inicial do histórico de vendas, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'dataFim',
+      required: false,
+      type: String,
+      example: '2026-04-28',
+      description: 'Data final do histórico de vendas, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'diasHistorico',
+      required: false,
+      type: Number,
+      example: 28,
+      description:
+        'Quantidade de dias usada para montar o histórico quando dataInicio não for informada.',
+    }),
+    ApiQuery({
+      name: 'diasPlanejamento',
+      required: false,
+      type: Number,
+      example: 7,
+      description: 'Quantidade de dias de demanda que a produção deve cobrir.',
+    }),
+    ApiQuery({
+      name: 'diasEstoqueSeguranca',
+      required: false,
+      type: Number,
+      example: 2,
+      description:
+        'Quantidade adicional de dias de venda média usada como estoque de segurança.',
+    }),
+    ApiQuery({
+      name: 'ordenarPor',
+      required: false,
+      enum: [
+        'codigo',
+        'nome',
+        'estoqueAtual',
+        'quantidadeVendida',
+        'mediaVendaDiaria',
+        'diasCobertura',
+        'sugestaoProducao',
+      ],
+      description: 'Campo usado para ordenação do relatório.',
+    }),
+    ApiQuery({
+      name: 'direcao',
+      required: false,
+      enum: ['asc', 'desc'],
+      description: 'Direção da ordenação.',
+    }),
+    ApiOkResponse({
+      description: 'Sugestão calculada com sucesso.',
+      schema: {
+        example: {
+          dataInicio: '2026-04-01',
+          dataFim: '2026-04-28',
+          diasHistorico: 28,
+          diasPlanejamento: 7,
+          diasEstoqueSeguranca: 2,
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 1,
+          totalPaginas: 1,
+          totalQuantidadeSugerida: 19,
+          itens: [
+            {
+              idProduto: 1,
+              codigo: 3001,
+              nome: 'Cubo Infinito',
+              categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+              estoqueAtual: 8,
+              estoqueMinimo: 10,
+              quantidadeVendida: 84,
+              mediaVendaDiaria: 3,
+              demandaPlanejada: 21,
+              estoqueSeguranca: 6,
+              estoqueAlvo: 27,
+              diasCobertura: 2.67,
+              sugestaoProducao: 19,
+              prioridade: 'PRODUZIR',
+            },
+          ],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/relatorio/producao/sugestao'),
+    ApiUnauthorizedErrorResponse('/relatorio/producao/sugestao'),
+    ApiForbiddenErrorResponse('/relatorio/producao/sugestao'),
+  );
+}

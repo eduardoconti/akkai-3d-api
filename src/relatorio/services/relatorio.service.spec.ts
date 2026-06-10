@@ -12,6 +12,8 @@ describe('RelatorioService', () => {
     toUtcDateRange: jest.Mock;
     obterAnoMesAtualLocal: jest.Mock;
     obterIntervaloUtcMes: jest.Mock;
+    obterDataAtualLocal: jest.Mock;
+    subtrairDiasDataLocal: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -36,6 +38,15 @@ describe('RelatorioService', () => {
           end: `${ano}-${mesFormatado}-${ultimoDia} 23:59:59.999`,
         };
       }),
+      obterDataAtualLocal: jest.fn().mockReturnValue('2026-04-28'),
+      subtrairDiasDataLocal: jest
+        .fn()
+        .mockImplementation((data: string, dias: number) => {
+          const dataUtc = new Date(`${data}T00:00:00.000Z`);
+          dataUtc.setUTCDate(dataUtc.getUTCDate() - dias);
+
+          return dataUtc.toISOString().slice(0, 10);
+        }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -334,6 +345,134 @@ describe('RelatorioService', () => {
         },
       ],
     });
+  });
+
+  it('deve retornar a sugestão de produção baseada em vendas e estoque', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          idProduto: '1',
+          codigo: '3001',
+          nome: 'Cubo Infinito',
+          idCategoria: '2',
+          nomeCategoria: 'IMPRESSAO 3D',
+          estoqueAtual: '8',
+          estoqueMinimo: '10',
+          quantidadeVendida: '84',
+          mediaVendaDiaria: '3',
+          demandaPlanejada: '21',
+          estoqueSeguranca: '6',
+          estoqueAlvo: '27',
+          diasCobertura: '2.666666',
+          sugestaoProducao: '19',
+          prioridade: 'PRODUZIR',
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          totalItens: '1',
+          totalQuantidadeSugerida: '19',
+        },
+      ]);
+
+    const result = await service.obterSugestaoProducao({
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-28',
+      pagina: 1,
+      tamanhoPagina: 10,
+      diasHistorico: 28,
+      diasPlanejamento: 7,
+      diasEstoqueSeguranca: 2,
+    });
+
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('WITH estoque AS'),
+      ['2026-04-01 00:00:00.000', '2026-04-28 23:59:59.999', 28, 7, 2, 10, 0],
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('totalQuantidadeSugerida'),
+      ['2026-04-01 00:00:00.000', '2026-04-28 23:59:59.999', 28, 7, 2],
+    );
+    expect(result).toEqual({
+      dataInicio: '2026-04-01',
+      dataFim: '2026-04-28',
+      diasHistorico: 28,
+      diasPlanejamento: 7,
+      diasEstoqueSeguranca: 2,
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+      totalQuantidadeSugerida: 19,
+      itens: [
+        {
+          idProduto: 1,
+          codigo: 3001,
+          nome: 'Cubo Infinito',
+          categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+          estoqueAtual: 8,
+          estoqueMinimo: 10,
+          quantidadeVendida: 84,
+          mediaVendaDiaria: 3,
+          demandaPlanejada: 21,
+          estoqueSeguranca: 6,
+          estoqueAlvo: 27,
+          diasCobertura: 2.67,
+          sugestaoProducao: 19,
+          prioridade: 'PRODUZIR',
+        },
+      ],
+    });
+  });
+
+  it('deve usar os últimos dias de histórico quando datas não forem informadas na sugestão de produção', async () => {
+    dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        totalItens: '0',
+        totalQuantidadeSugerida: '0',
+      },
+    ]);
+
+    const result = await service.obterSugestaoProducao({
+      pagina: 1,
+      tamanhoPagina: 10,
+      diasHistorico: 28,
+      diasPlanejamento: 7,
+      diasEstoqueSeguranca: 2,
+    });
+
+    expect(dateServiceMock.obterDataAtualLocal).toHaveBeenCalled();
+    expect(dateServiceMock.subtrairDiasDataLocal).toHaveBeenCalledWith(
+      '2026-04-28',
+      27,
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(1, expect.any(String), [
+      '2026-04-01 00:00:00.000',
+      '2026-04-28 23:59:59.999',
+      28,
+      7,
+      2,
+      10,
+      0,
+    ]);
+    expect(result.totalPaginas).toBe(1);
+    expect(result.totalQuantidadeSugerida).toBe(0);
+  });
+
+  it('deve lançar erro quando a data final for menor que a data inicial na sugestão de produção', async () => {
+    await expect(
+      service.obterSugestaoProducao({
+        dataInicio: '2026-04-10',
+        dataFim: '2026-04-01',
+        pagina: 1,
+        tamanhoPagina: 10,
+        diasHistorico: 28,
+        diasPlanejamento: 7,
+        diasEstoqueSeguranca: 2,
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('deve lançar erro quando a data final for menor que a data inicial no relatório de produção', async () => {

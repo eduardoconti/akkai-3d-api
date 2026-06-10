@@ -36,6 +36,24 @@ describe('DateService', () => {
     expect(result).toEqual({ ano: 2026, mes: 5 });
   });
 
+  it('deve obter data local atual respeitando offset negativo', () => {
+    const service = buildService(-3);
+
+    const result = service.obterDataAtualLocal(
+      new Date('2026-06-01T00:52:00.000Z'),
+    );
+
+    expect(result).toBe('2026-05-31');
+  });
+
+  it('deve subtrair dias de uma data local', () => {
+    const service = buildService(-3);
+
+    const result = service.subtrairDiasDataLocal('2026-06-01', 27);
+
+    expect(result).toBe('2026-05-05');
+  });
+
   it('deve obter intervalo UTC do mês local', () => {
     const service = buildService(-3);
     const result = service.obterIntervaloUtcMes(2026, 5);
