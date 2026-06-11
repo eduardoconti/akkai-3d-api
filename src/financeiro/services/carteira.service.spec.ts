@@ -206,6 +206,7 @@ describe('CarteiraService', () => {
     ]);
 
     const result = await service.listarCarteiras();
+    const [consulta] = dataSource.query.mock.calls[0] as [string];
 
     expect(result).toEqual([
       {
@@ -218,6 +219,11 @@ describe('CarteiraService', () => {
         percentualImpostoVenda: null,
       },
     ]);
+    expect(consulta).toContain('p.valor - COALESCE(p.valor_taxa, 0)');
+    expect(consulta).not.toContain('p.valor_imposto');
+    expect(consulta).toContain('FROM ajuste_carteira a');
+    expect(consulta).toContain("WHEN a.tipo = 'CREDITO' THEN a.valor");
+    expect(consulta).toContain("WHEN a.tipo = 'DEBITO' THEN -a.valor");
   });
 
   it('deve excluir carteira com sucesso', async () => {

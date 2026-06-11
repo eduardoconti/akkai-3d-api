@@ -16,6 +16,7 @@ import {
   AlterarCategoriaDespesaDto,
   AlterarDespesaDto,
   AlterarTaxaMeioPagamentoCarteiraDto,
+  InserirAjusteCarteiraDto,
   InserirCarteiraDto,
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
@@ -27,9 +28,11 @@ import {
   Carteira,
   CategoriaDespesa,
   Despesa,
+  AjusteCarteira,
   TaxaMeioPagamentoCarteira,
 } from '@financeiro/entities';
 import {
+  AjusteCarteiraService,
   CarteiraService,
   CategoriaDespesaService,
   DespesaService,
@@ -44,6 +47,7 @@ import {
   ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
+  InserirAjusteCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
@@ -58,6 +62,7 @@ import {
   ApiExcluirCarteiraDocs,
   ApiExcluirCategoriaDespesaDocs,
   ApiExcluirDespesaDocs,
+  ApiInserirAjusteCarteiraDocs,
   ApiInserirCarteiraDocs,
   ApiInserirCategoriaDespesaDocs,
   ApiInserirDespesaDocs,
@@ -65,6 +70,7 @@ import {
   ApiListarCarteirasDocs,
   ApiListarCategoriasDespesaDocs,
   ApiListarDespesasDocs,
+  ApiListarAjustesCarteiraDocs,
   ApiListarTaxasMeioPagamentoCarteiraDocs,
   ApiObterTaxaMeioPagamentoCarteiraPorIdDocs,
   ApiObterCarteiraPorIdDocs,
@@ -77,10 +83,12 @@ import {
 export class FinanceiroController {
   constructor(
     private readonly carteiraService: CarteiraService,
+    private readonly ajusteCarteiraService: AjusteCarteiraService,
     private readonly despesaService: DespesaService,
     private readonly categoriaDespesaService: CategoriaDespesaService,
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
+    private readonly inserirAjusteCarteiraUseCase: InserirAjusteCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
     private readonly inserirDespesaUseCase: InserirDespesaUseCase,
     private readonly alterarDespesaUseCase: AlterarDespesaUseCase,
@@ -128,6 +136,24 @@ export class FinanceiroController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCarteira(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.excluirCarteiraUseCase.execute({ id });
+  }
+
+  @ApiInserirAjusteCarteiraDocs()
+  @Post('carteiras/:id/ajustes')
+  async inserirAjusteCarteira(
+    @Param('id', ParseIntPipe) idCarteira: number,
+    @Body() input: InserirAjusteCarteiraDto,
+  ): Promise<AjusteCarteira> {
+    return this.inserirAjusteCarteiraUseCase.execute({ idCarteira, ...input });
+  }
+
+  @ApiListarAjustesCarteiraDocs()
+  @Get('carteiras/:id/ajustes')
+  async listarAjustesCarteira(
+    @Param('id', ParseIntPipe) idCarteira: number,
+  ): Promise<AjusteCarteira[]> {
+    await this.carteiraService.garantirExisteCarteira(idCarteira);
+    return this.ajusteCarteiraService.listarAjustesPorCarteira(idCarteira);
   }
 
   @ApiInserirTaxaMeioPagamentoCarteiraDocs()

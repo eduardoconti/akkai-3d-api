@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinanceiroController } from '@financeiro/controllers';
 import {
+  AjusteCarteira,
   Carteira,
   CategoriaDespesa,
   Despesa,
@@ -10,6 +11,7 @@ import {
 import { Feira } from '@venda/entities';
 import { FeiraService } from '@venda/services';
 import {
+  AjusteCarteiraService,
   CarteiraService,
   CategoriaDespesaService,
   DespesaService,
@@ -25,6 +27,7 @@ import {
   ExcluirDespesaUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
   InserirCarteiraUseCase,
+  InserirAjusteCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
   InserirTaxaMeioPagamentoCarteiraUseCase,
@@ -32,16 +35,24 @@ import {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Carteira, Despesa, CategoriaDespesa, Feira]),
+    TypeOrmModule.forFeature([
+      AjusteCarteira,
+      Carteira,
+      Despesa,
+      CategoriaDespesa,
+      Feira,
+    ]),
     TypeOrmModule.forFeature([TaxaMeioPagamentoCarteira]),
   ],
   controllers: [FinanceiroController],
   providers: [
     CarteiraService,
+    AjusteCarteiraService,
     DespesaService,
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,
     FeiraService,
+    InserirAjusteCarteiraUseCase,
     InserirCarteiraUseCase,
     AlterarCarteiraUseCase,
     InserirDespesaUseCase,
@@ -57,6 +68,7 @@ import {
   ],
   exports: [
     CarteiraService,
+    AjusteCarteiraService,
     DespesaService,
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,

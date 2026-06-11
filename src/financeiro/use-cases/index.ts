@@ -1,3 +1,4 @@
+export * from './inserir-ajuste-carteira.use-case';
 export * from './inserir-carteira.use-case';
 export * from './inserir-despesa.use-case';
 export * from './alterar-despesa.use-case';

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FinanceiroController } from '@financeiro/controllers';
 import {
+  AjusteCarteiraService,
   CarteiraService,
   CategoriaDespesaService,
   DespesaService,
@@ -15,6 +16,7 @@ import {
   ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
+  InserirAjusteCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
@@ -26,7 +28,9 @@ describe('FinanceiroController', () => {
   let carteiraService: {
     listarCarteiras: jest.Mock;
     obterCarteiraPorId: jest.Mock;
+    garantirExisteCarteira: jest.Mock;
   };
+  let ajusteCarteiraService: { listarAjustesPorCarteira: jest.Mock };
   let despesaService: { listarDespesas: jest.Mock };
   let categoriaDespesaService: { listarCategoriasDespesa: jest.Mock };
   let taxaMeioPagamentoCarteiraService: {
@@ -34,6 +38,7 @@ describe('FinanceiroController', () => {
     garantirTaxaMeioPagamentoCarteiraPorId: jest.Mock;
   };
   let alterarCarteiraUseCase: { execute: jest.Mock };
+  let inserirAjusteCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
   let inserirDespesaUseCase: { execute: jest.Mock };
   let alterarDespesaUseCase: { execute: jest.Mock };
@@ -50,7 +55,9 @@ describe('FinanceiroController', () => {
     carteiraService = {
       listarCarteiras: jest.fn(),
       obterCarteiraPorId: jest.fn(),
+      garantirExisteCarteira: jest.fn(),
     };
+    ajusteCarteiraService = { listarAjustesPorCarteira: jest.fn() };
     despesaService = { listarDespesas: jest.fn() };
     categoriaDespesaService = { listarCategoriasDespesa: jest.fn() };
     taxaMeioPagamentoCarteiraService = {
@@ -58,6 +65,7 @@ describe('FinanceiroController', () => {
       garantirTaxaMeioPagamentoCarteiraPorId: jest.fn(),
     };
     alterarCarteiraUseCase = { execute: jest.fn() };
+    inserirAjusteCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
     inserirDespesaUseCase = { execute: jest.fn() };
     alterarDespesaUseCase = { execute: jest.fn() };
@@ -74,6 +82,7 @@ describe('FinanceiroController', () => {
       controllers: [FinanceiroController],
       providers: [
         { provide: CarteiraService, useValue: carteiraService },
+        { provide: AjusteCarteiraService, useValue: ajusteCarteiraService },
         { provide: DespesaService, useValue: despesaService },
         { provide: CategoriaDespesaService, useValue: categoriaDespesaService },
         {
@@ -81,6 +90,10 @@ describe('FinanceiroController', () => {
           useValue: taxaMeioPagamentoCarteiraService,
         },
         { provide: AlterarCarteiraUseCase, useValue: alterarCarteiraUseCase },
+        {
+          provide: InserirAjusteCarteiraUseCase,
+          useValue: inserirAjusteCarteiraUseCase,
+        },
         { provide: InserirCarteiraUseCase, useValue: inserirCarteiraUseCase },
         { provide: InserirDespesaUseCase, useValue: inserirDespesaUseCase },
         { provide: AlterarDespesaUseCase, useValue: alterarDespesaUseCase },
@@ -164,6 +177,39 @@ describe('FinanceiroController', () => {
     await controller.excluirCarteira(1);
 
     expect(excluirCarteiraUseCase.execute).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deve delegar inserção de ajuste de carteira', async () => {
+    const ajuste = { id: 1, idCarteira: 1, tipo: 'CREDITO', valor: 5000 };
+    const input = {
+      dataAjuste: '2026-06-10',
+      tipo: 'CREDITO',
+      valor: 5000,
+      motivo: 'Correção de saldo',
+    };
+    inserirAjusteCarteiraUseCase.execute.mockResolvedValue(ajuste);
+
+    const result = await controller.inserirAjusteCarteira(1, input as never);
+
+    expect(inserirAjusteCarteiraUseCase.execute).toHaveBeenCalledWith({
+      idCarteira: 1,
+      ...input,
+    });
+    expect(result).toBe(ajuste);
+  });
+
+  it('deve listar ajustes de carteira', async () => {
+    const ajustes = [{ id: 1, idCarteira: 1 }];
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    ajusteCarteiraService.listarAjustesPorCarteira.mockResolvedValue(ajustes);
+
+    const result = await controller.listarAjustesCarteira(1);
+
+    expect(carteiraService.garantirExisteCarteira).toHaveBeenCalledWith(1);
+    expect(ajusteCarteiraService.listarAjustesPorCarteira).toHaveBeenCalledWith(
+      1,
+    );
+    expect(result).toBe(ajustes);
   });
 
   it('deve delegar inserção de taxa por meio de pagamento e carteira', async () => {

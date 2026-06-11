@@ -12,6 +12,7 @@ import {
   AlterarCategoriaDespesaDto,
   AlterarDespesaDto,
   AlterarTaxaMeioPagamentoCarteiraDto,
+  InserirAjusteCarteiraDto,
   InserirCarteiraDto,
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
@@ -38,6 +39,18 @@ const CARTEIRA_EXEMPLO = {
   consideraImpostoVenda: true,
   percentualImpostoVenda: 4,
   saldoAtual: 128500,
+};
+
+const AJUSTE_CARTEIRA_EXEMPLO = {
+  id: 1,
+  dataInclusao: '2026-06-10T22:45:00.000Z',
+  dataAjuste: '2026-06-10T00:00:00.000Z',
+  idCarteira: 1,
+  tipo: 'CREDITO',
+  valor: 5000,
+  motivo: 'Correção de saldo',
+  observacao: 'Diferença encontrada na conferência manual.',
+  idUsuarioInclusao: 1,
 };
 
 const DESPESA_EXEMPLO = {
@@ -117,7 +130,7 @@ export function ApiListarCarteirasDocs() {
     ApiOperation({
       summary: 'Lista carteiras financeiras.',
       description:
-        'Retorna todas as carteiras com saldo atual calculado a partir das movimentações de vendas e despesas.',
+        'Retorna todas as carteiras com saldo atual calculado a partir dos pagamentos de vendas, descontando taxas de pagamento, despesas e ajustes manuais, sem descontar imposto.',
     }),
     ApiOkResponse({
       description: 'Carteiras encontradas com sucesso.',
@@ -197,6 +210,71 @@ export function ApiAlterarCarteiraDocs() {
     ApiConflictErrorResponse(
       '/financeiro/carteiras/1',
       'Já existe uma carteira cadastrada com este nome.',
+    ),
+  );
+}
+
+export function ApiInserirAjusteCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lança ajuste de saldo em uma carteira.',
+      description:
+        'Cria uma movimentação manual auditável para aumentar ou diminuir o saldo calculado da carteira.',
+    }),
+    ApiIdParamDocs('Identificador da carteira que receberá o ajuste.'),
+    ApiBody({
+      type: InserirAjusteCarteiraDto,
+      examples: {
+        credito: {
+          summary: 'Ajuste de crédito',
+          value: {
+            dataAjuste: '2026-06-10',
+            tipo: 'CREDITO',
+            valor: 5000,
+            motivo: 'Correção de saldo',
+            observacao: 'Diferença encontrada na conferência manual.',
+          },
+        },
+        debito: {
+          summary: 'Ajuste de débito',
+          value: {
+            dataAjuste: '2026-06-10',
+            tipo: 'DEBITO',
+            valor: 2500,
+            motivo: 'Correção de lançamento duplicado',
+          },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Ajuste lançado com sucesso.',
+      schema: { example: AJUSTE_CARTEIRA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/financeiro/carteiras/1/ajustes'),
+    ApiUnauthorizedErrorResponse('/financeiro/carteiras/1/ajustes'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/carteiras/999/ajustes',
+      'Carteira com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiListarAjustesCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista ajustes de saldo de uma carteira.',
+      description:
+        'Retorna os ajustes manuais já lançados para a carteira, ordenados pelos mais recentes.',
+    }),
+    ApiIdParamDocs('Identificador da carteira consultada.'),
+    ApiOkResponse({
+      description: 'Ajustes encontrados com sucesso.',
+      schema: { example: [AJUSTE_CARTEIRA_EXEMPLO] },
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/carteiras/1/ajustes'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/carteiras/999/ajustes',
+      'Carteira com ID 999 não encontrada.',
     ),
   );
 }

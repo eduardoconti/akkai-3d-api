@@ -1,3 +1,4 @@
+export * from './inserir-ajuste-carteira.dto';
 export * from './inserir-carteira.dto';
 export * from './inserir-despesa.dto';
 export * from './alterar-despesa.dto';

@@ -106,7 +106,7 @@ export class CarteiraService {
         (
           COALESCE(
             (
-              SELECT SUM(p.valor)
+              SELECT SUM(p.valor - COALESCE(p.valor_taxa, 0))
               FROM pagamento_venda p
               WHERE p.id_carteira = c.id
             ),
@@ -117,6 +117,20 @@ export class CarteiraService {
               SELECT SUM(d.valor)
               FROM despesa d
               WHERE d.id_carteira = c.id
+            ),
+            0
+          ) +
+          COALESCE(
+            (
+              SELECT SUM(
+                CASE
+                  WHEN a.tipo = 'CREDITO' THEN a.valor
+                  WHEN a.tipo = 'DEBITO' THEN -a.valor
+                  ELSE 0
+                END
+              )
+              FROM ajuste_carteira a
+              WHERE a.id_carteira = c.id
             ),
             0
           )

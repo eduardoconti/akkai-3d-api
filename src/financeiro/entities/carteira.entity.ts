@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { PagamentoVenda } from '@venda/entities/pagamento-venda.entity';
+import { AjusteCarteira } from './ajuste-carteira.entity';
 import { Despesa } from './despesa.entity';
 import { TaxaMeioPagamentoCarteira } from './taxa-meio-pagamento-carteira.entity';
 
@@ -65,6 +66,9 @@ export class Carteira {
 
   @OneToMany(() => Despesa, (despesa) => despesa.carteira)
   despesas!: Despesa[];
+
+  @OneToMany(() => AjusteCarteira, (ajuste) => ajuste.carteira)
+  ajustes!: AjusteCarteira[];
 
   @OneToMany(() => TaxaMeioPagamentoCarteira, (taxa) => taxa.carteira)
   taxasMeioPagamento!: TaxaMeioPagamentoCarteira[];

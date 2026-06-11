@@ -15,6 +15,7 @@ import {
   User,
 } from '@auth/entities';
 import {
+  AjusteCarteira,
   Carteira,
   CategoriaDespesa,
   Despesa,
@@ -66,6 +67,7 @@ const entities = [
   Carteira,
   CategoriaDespesa,
   Despesa,
+  AjusteCarteira,
   TaxaMeioPagamentoCarteira,
   User,
   Role,
