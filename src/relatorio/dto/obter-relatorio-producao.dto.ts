@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsDateString, IsIn, IsInt, IsOptional, Min } from 'class-validator';
+import { TAMANHO_PAGINA_PADRAO } from '@common/constants/paginacao.constants';
+import { ValidarTamanhoPagina } from '@common/decorators/validar-tamanho-pagina.decorator';
 
 export class ObterRelatorioProducaoDto {
   @IsOptional()
@@ -8,11 +10,8 @@ export class ObterRelatorioProducaoDto {
   @Min(1, { message: 'A página deve ser maior que zero.' })
   pagina = 1;
 
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'O tamanho da página deve ser um número inteiro.' })
-  @Min(1, { message: 'O tamanho da página deve ser maior que zero.' })
-  tamanhoPagina = 10;
+  @ValidarTamanhoPagina()
+  tamanhoPagina = TAMANHO_PAGINA_PADRAO;
 
   @IsOptional()
   @IsDateString(

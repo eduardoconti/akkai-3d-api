@@ -87,10 +87,8 @@ export class CicloService {
           .returning('id')
           .execute();
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const insertedIds: number[] = result.raw.map(
-          (r: { id: number }) => r.id,
-        );
+        const raw = result.raw as Array<{ id: number }>;
+        const insertedIds = raw.map((r) => r.id);
 
         if (insertedIds.length > 0 && itensTemplate.length > 0) {
           const itemValues = insertedIds.flatMap((idCiclo) =>

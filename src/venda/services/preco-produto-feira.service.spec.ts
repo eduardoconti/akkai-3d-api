@@ -159,10 +159,12 @@ describe('PrecoProdutoFeiraService', () => {
     );
     precoProdutoFeiraRepository.findOne.mockResolvedValue(null);
     precoProdutoFeiraRepository.save.mockImplementation(
-      async (preco: PrecoProdutoFeira) =>
-        Object.assign(preco, {
-          id: 1,
-        }),
+      (preco: PrecoProdutoFeira) =>
+        Promise.resolve(
+          Object.assign(preco, {
+            id: 1,
+          }),
+        ),
     );
 
     const result = await service.salvarPreco(3, {
@@ -195,7 +197,7 @@ describe('PrecoProdutoFeiraService', () => {
     );
     precoProdutoFeiraRepository.findOne.mockResolvedValue(preco);
     precoProdutoFeiraRepository.save.mockImplementation(
-      async (precoSalvo: PrecoProdutoFeira) => precoSalvo,
+      (precoSalvo: PrecoProdutoFeira) => Promise.resolve(precoSalvo),
     );
 
     const result = await service.salvarPreco(3, {

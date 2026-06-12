@@ -19,7 +19,7 @@ describe('ProdutoService', () => {
     delete: jest.Mock;
   };
   let dataSource: {
-    query: jest.Mock;
+    query: jest.Mock<Promise<unknown>, [string, unknown[]?]>;
   };
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe('ProdutoService', () => {
       delete: jest.fn(),
     };
     dataSource = {
-      query: jest.fn(),
+      query: jest.fn<Promise<unknown>, [string, unknown[]?]>(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

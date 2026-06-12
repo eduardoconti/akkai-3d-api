@@ -847,9 +847,11 @@ describe('AuthService', () => {
 
     await service.logout('token-valido');
 
-    expect(refreshSessionRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ revokedAt: expect.any(Date) }),
-    );
+    expect(refreshSessionRepository.save).toHaveBeenCalledTimes(1);
+    const [sessaoSalva] = refreshSessionRepository.save.mock.calls[0] as [
+      RefreshSession,
+    ];
+    expect(sessaoSalva.revokedAt).toBeInstanceOf(Date);
   });
 
   it('deve lançar erro quando usuário ficar inativo ao emitir sessão no login', async () => {

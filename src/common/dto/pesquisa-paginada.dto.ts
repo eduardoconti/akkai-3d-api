@@ -1,6 +1,8 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { TAMANHO_PAGINA_PADRAO } from '@common/constants/paginacao.constants';
+import { ValidarTamanhoPagina } from '@common/decorators/validar-tamanho-pagina.decorator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class PesquisaPaginadaDto {
@@ -10,12 +12,8 @@ export class PesquisaPaginadaDto {
   @Min(1, { message: 'A página deve ser maior que zero.' })
   pagina = 1;
 
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'O tamanho da página deve ser um número inteiro.' })
-  @Min(1, { message: 'O tamanho da página deve ser maior que zero.' })
-  @Max(50, { message: 'O tamanho da página deve ser de no máximo 50 itens.' })
-  tamanhoPagina = 10;
+  @ValidarTamanhoPagina()
+  tamanhoPagina = TAMANHO_PAGINA_PADRAO;
 
   @IsOptional()
   @Transform(trimStringValue)

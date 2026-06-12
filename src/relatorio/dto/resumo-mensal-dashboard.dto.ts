@@ -14,11 +14,14 @@ export class ObterResumoMensalDashboardDto {
 export class ResumoMensalDashboardDto {
   ano!: number;
   totalQuantidadeItensVendidos!: number;
+  totalQuantidadeItensCatalogo!: number;
   totalQuantidadeBrindes!: number;
+  totalQuantidadeItensAvulsos!: number;
   totalVendas!: number;
   totalTaxas!: number;
   totalImpostos!: number;
   totalDespesas!: number;
+  totalAjusteCarteira!: number;
   saldo!: number;
   itens!: ResumoMensalDashboardItemDto[];
 }

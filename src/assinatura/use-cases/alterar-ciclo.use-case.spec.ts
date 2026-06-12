@@ -80,7 +80,7 @@ describe('AlterarCicloUseCase', () => {
     });
 
     garantirCicloPorIdMock.mockResolvedValue(cicloExistente);
-    salvarCicloMock.mockImplementation(async (c) => c);
+    salvarCicloMock.mockImplementation((c) => Promise.resolve(c));
 
     await useCase.execute({ id: 1, status: StatusCiclo.EM_PREPARO, itens: [] });
 

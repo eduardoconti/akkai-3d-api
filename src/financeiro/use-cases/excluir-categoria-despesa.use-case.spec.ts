@@ -3,20 +3,20 @@ import { ExcluirCategoriaDespesaUseCase } from './excluir-categoria-despesa.use-
 
 describe('ExcluirCategoriaDespesaUseCase', () => {
   it('deve garantir a categoria antes de excluir', async () => {
+    const garantirCategoriaDespesaPorIdMock = jest
+      .fn()
+      .mockResolvedValue({ id: 1 });
+    const excluirCategoriaDespesaMock = jest.fn().mockResolvedValue(undefined);
     const categoriaDespesaService = {
-      garantirCategoriaDespesaPorId: jest.fn().mockResolvedValue({ id: 1 }),
-      excluirCategoriaDespesa: jest.fn().mockResolvedValue(undefined),
+      garantirCategoriaDespesaPorId: garantirCategoriaDespesaPorIdMock,
+      excluirCategoriaDespesa: excluirCategoriaDespesaMock,
     } as unknown as CategoriaDespesaService;
 
     const useCase = new ExcluirCategoriaDespesaUseCase(categoriaDespesaService);
 
     await useCase.execute({ id: 1 });
 
-    expect(
-      categoriaDespesaService.garantirCategoriaDespesaPorId,
-    ).toHaveBeenCalledWith(1);
-    expect(
-      categoriaDespesaService.excluirCategoriaDespesa,
-    ).toHaveBeenCalledWith(1);
+    expect(garantirCategoriaDespesaPorIdMock).toHaveBeenCalledWith(1);
+    expect(excluirCategoriaDespesaMock).toHaveBeenCalledWith(1);
   });
 });

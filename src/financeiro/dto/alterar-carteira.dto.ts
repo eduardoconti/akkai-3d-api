@@ -12,6 +12,7 @@ import {
   Length,
   ValidateIf,
 } from 'class-validator';
+import { TransformarPercentual } from '@common/decorators/transformar-percentual.decorator';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export class AlterarCarteiraDto {
@@ -67,11 +68,7 @@ export class AlterarCarteiraDto {
       'Percentual de imposto aplicado às vendas quando a carteira considerar imposto.',
   })
   @ValidateIf((dto: AlterarCarteiraDto) => dto.consideraImpostoVenda === true)
-  @Transform(({ value }: { value: unknown }) =>
-    value === null || value === undefined || value === ''
-      ? undefined
-      : Number(String(value).replace(',', '.')),
-  )
+  @TransformarPercentual()
   @IsNumber(
     { maxDecimalPlaces: 2 },
     { message: 'O percentual do imposto deve ser um número válido.' },

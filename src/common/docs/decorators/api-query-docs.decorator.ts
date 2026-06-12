@@ -1,5 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  TAMANHO_PAGINA_PADRAO,
+  TAMANHOS_PAGINA_PERMITIDOS,
+} from '@common/constants/paginacao.constants';
 
 export function ApiPaginacaoQueryDocs(): MethodDecorator {
   return applyDecorators(
@@ -14,8 +18,9 @@ export function ApiPaginacaoQueryDocs(): MethodDecorator {
       name: 'tamanhoPagina',
       required: false,
       type: Number,
-      example: 10,
-      description: 'Quantidade máxima de itens por página.',
+      example: TAMANHO_PAGINA_PADRAO,
+      enum: TAMANHOS_PAGINA_PERMITIDOS,
+      description: 'Quantidade de itens por página.',
     }),
     ApiQuery({
       name: 'termo',

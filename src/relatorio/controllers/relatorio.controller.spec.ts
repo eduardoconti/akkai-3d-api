@@ -46,16 +46,26 @@ describe('RelatorioController', () => {
     const resumo = {
       ano: 2026,
       totalQuantidadeItensVendidos: 14,
+      totalQuantidadeItensCatalogo: 10,
+      totalQuantidadeBrindes: 2,
+      totalQuantidadeItensAvulsos: 2,
       totalVendas: 150000,
       totalDespesas: 47000,
+      totalTaxas: 9000,
+      totalAjusteCarteira: 4000,
       saldo: 103000,
       itens: [
         {
           mes: 1,
           quantidadeItensVendidos: 14,
+          quantidadeItensCatalogo: 10,
+          quantidadeBrindes: 2,
+          quantidadeItensAvulsos: 2,
           valorVendas: 12000,
+          valorTaxas: 700,
           valorDespesas: 4500,
-          saldo: 7500,
+          valorAjusteCarteira: 1000,
+          saldo: 7800,
         },
       ],
     };
@@ -95,6 +105,7 @@ describe('RelatorioController', () => {
     const response = {
       ano: 2026,
       mes: 4,
+      valorTotal: 12500,
       itens: [
         {
           idCategoria: 1,

@@ -96,14 +96,21 @@ type DespesaCategoriaMesDashboardRow = {
   valorTotal: string | number;
 };
 
+type TotalizadorDespesaMesDashboardRow = {
+  valorTotal: string | number | null;
+};
+
 type ResumoMensalDashboardRow = {
   mes: string | number;
   quantidadeItensVendidos: string | number | null;
+  quantidadeItensCatalogo: string | number | null;
   quantidadeBrindes: string | number | null;
+  quantidadeItensAvulsos: string | number | null;
   valorVendas: string | number | null;
   valorTaxas: string | number | null;
   valorImpostos: string | number | null;
   valorDespesas: string | number | null;
+  valorAjusteCarteira: string | number | null;
   saldo: string | number | null;
 };
 
@@ -472,11 +479,23 @@ export class RelatorioService {
             WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "quantidadeItensVendidos",
           COALESCE((
+            SELECT SUM(CASE WHEN item.brinde = false AND item.id_produto IS NOT NULL THEN item.quantidade ELSE 0 END)
+            FROM venda
+            INNER JOIN item_venda item ON item.id_venda = venda.id
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "quantidadeItensCatalogo",
+          COALESCE((
             SELECT SUM(CASE WHEN item.brinde = true THEN item.quantidade ELSE 0 END)
             FROM venda
             INNER JOIN item_venda item ON item.id_venda = venda.id
             WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "quantidadeBrindes",
+          COALESCE((
+            SELECT SUM(CASE WHEN item.brinde = false AND item.id_produto IS NULL THEN item.quantidade ELSE 0 END)
+            FROM venda
+            INNER JOIN item_venda item ON item.id_venda = venda.id
+            WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "quantidadeItensAvulsos",
           COALESCE((
             SELECT SUM(venda.valor_total)
             FROM venda
@@ -500,6 +519,17 @@ export class RelatorioService {
             WHERE despesa.data_lancamento BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS "valorDespesas",
           COALESCE((
+            SELECT SUM(
+              CASE
+                WHEN ajuste.tipo = 'CREDITO' THEN ajuste.valor
+                WHEN ajuste.tipo = 'DEBITO' THEN -ajuste.valor
+                ELSE 0
+              END
+            )
+            FROM ajuste_carteira ajuste
+            WHERE ajuste.data_ajuste BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) AS "valorAjusteCarteira",
+          COALESCE((
             SELECT SUM(venda.valor_total)
             FROM venda
             WHERE venda.data_venda BETWEEN meses.data_inicio AND meses.data_fim
@@ -512,6 +542,16 @@ export class RelatorioService {
             SELECT SUM(despesa.valor)
             FROM despesa
             WHERE despesa.data_lancamento BETWEEN meses.data_inicio AND meses.data_fim
+          ), 0) + COALESCE((
+            SELECT SUM(
+              CASE
+                WHEN ajuste.tipo = 'CREDITO' THEN ajuste.valor
+                WHEN ajuste.tipo = 'DEBITO' THEN -ajuste.valor
+                ELSE 0
+              END
+            )
+            FROM ajuste_carteira ajuste
+            WHERE ajuste.data_ajuste BETWEEN meses.data_inicio AND meses.data_fim
           ), 0) AS saldo
         FROM meses
         ORDER BY meses.mes ASC
@@ -522,11 +562,14 @@ export class RelatorioService {
     const itens = rows.map((row) => ({
       mes: Number(row.mes),
       quantidadeItensVendidos: Number(row.quantidadeItensVendidos ?? 0),
+      quantidadeItensCatalogo: Number(row.quantidadeItensCatalogo ?? 0),
       quantidadeBrindes: Number(row.quantidadeBrindes ?? 0),
+      quantidadeItensAvulsos: Number(row.quantidadeItensAvulsos ?? 0),
       valorVendas: Number(row.valorVendas ?? 0),
       valorTaxas: Number(row.valorTaxas ?? 0),
       valorImpostos: Number(row.valorImpostos ?? 0),
       valorDespesas: Number(row.valorDespesas ?? 0),
+      valorAjusteCarteira: Number(row.valorAjusteCarteira ?? 0),
       saldo: Number(row.saldo ?? 0),
     }));
 
@@ -536,8 +579,16 @@ export class RelatorioService {
         (total, item) => total + item.quantidadeItensVendidos,
         0,
       ),
+      totalQuantidadeItensCatalogo: itens.reduce(
+        (total, item) => total + item.quantidadeItensCatalogo,
+        0,
+      ),
       totalQuantidadeBrindes: itens.reduce(
         (total, item) => total + item.quantidadeBrindes,
+        0,
+      ),
+      totalQuantidadeItensAvulsos: itens.reduce(
+        (total, item) => total + item.quantidadeItensAvulsos,
         0,
       ),
       totalVendas: itens.reduce((total, item) => total + item.valorVendas, 0),
@@ -548,6 +599,10 @@ export class RelatorioService {
       ),
       totalDespesas: itens.reduce(
         (total, item) => total + item.valorDespesas,
+        0,
+      ),
+      totalAjusteCarteira: itens.reduce(
+        (total, item) => total + item.valorAjusteCarteira,
         0,
       ),
       saldo: itens.reduce((total, item) => total + item.saldo, 0),
@@ -613,25 +668,37 @@ export class RelatorioService {
     const { ano, mes } = this.dateService.obterAnoMesAtualLocal();
     const rangeMes = this.dateService.obterIntervaloUtcMes(ano, mes);
 
-    const rows: DespesaCategoriaMesDashboardRow[] = await this.dataSource.query(
-      `
-        SELECT
-          categoria.id AS "idCategoria",
-          COALESCE(categoria.nome, 'Sem categoria') AS "nomeCategoria",
-          COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
-        FROM despesa
-        LEFT JOIN categoria_despesa categoria ON categoria.id = despesa.id_categoria
-        WHERE despesa.data_lancamento BETWEEN $1 AND $2
-        GROUP BY categoria.id, categoria.nome
-        ORDER BY SUM(despesa.valor) DESC, COALESCE(categoria.nome, 'Sem categoria') ASC
-        LIMIT 5
-      `,
-      [rangeMes.start, rangeMes.end],
-    );
+    const [rows, totalizadoresRows] = await Promise.all([
+      this.dataSource.query(
+        `
+          SELECT
+            categoria.id AS "idCategoria",
+            COALESCE(categoria.nome, 'Sem categoria') AS "nomeCategoria",
+            COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
+          FROM despesa
+          LEFT JOIN categoria_despesa categoria ON categoria.id = despesa.id_categoria
+          WHERE despesa.data_lancamento BETWEEN $1 AND $2
+          GROUP BY categoria.id, categoria.nome
+          ORDER BY SUM(despesa.valor) DESC, COALESCE(categoria.nome, 'Sem categoria') ASC
+          LIMIT 5
+        `,
+        [rangeMes.start, rangeMes.end],
+      ) as Promise<DespesaCategoriaMesDashboardRow[]>,
+      this.dataSource.query(
+        `
+          SELECT COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
+          FROM despesa
+          WHERE despesa.data_lancamento BETWEEN $1 AND $2
+        `,
+        [rangeMes.start, rangeMes.end],
+      ) as Promise<TotalizadorDespesaMesDashboardRow[]>,
+    ]);
+    const totalizador = totalizadoresRows[0];
 
     return {
       ano,
       mes,
+      valorTotal: Number(totalizador?.valorTotal ?? 0),
       itens: rows.map((row) => ({
         idCategoria:
           row.idCategoria === null || row.idCategoria === undefined

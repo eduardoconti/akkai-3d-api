@@ -3,16 +3,17 @@ import { ExcluirTaxaMeioPagamentoCarteiraUseCase } from './excluir-taxa-meio-pag
 
 describe('ExcluirTaxaMeioPagamentoCarteiraUseCase', () => {
   it('deve excluir taxa por id', async () => {
+    const excluirTaxaMeioPagamentoCarteiraMock = jest
+      .fn()
+      .mockResolvedValue(undefined);
     const taxaService = {
-      excluirTaxaMeioPagamentoCarteira: jest.fn().mockResolvedValue(undefined),
+      excluirTaxaMeioPagamentoCarteira: excluirTaxaMeioPagamentoCarteiraMock,
     } as unknown as TaxaMeioPagamentoCarteiraService;
 
     const useCase = new ExcluirTaxaMeioPagamentoCarteiraUseCase(taxaService);
 
     await useCase.execute({ id: 1 });
 
-    expect(taxaService.excluirTaxaMeioPagamentoCarteira).toHaveBeenCalledWith(
-      1,
-    );
+    expect(excluirTaxaMeioPagamentoCarteiraMock).toHaveBeenCalledWith(1);
   });
 });

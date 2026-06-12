@@ -34,15 +34,10 @@ describe('ProdutoDto', () => {
 
       const errors = await validate(dto);
 
-      expect(errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            property: 'codigo',
-            constraints: expect.objectContaining({
-              isInt: 'O código do produto deve ser um número inteiro.',
-            }),
-          }),
-        ]),
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.property).toBe('codigo');
+      expect(errors[0]?.constraints?.['isInt']).toBe(
+        'O código do produto deve ser um número inteiro.',
       );
     },
   );

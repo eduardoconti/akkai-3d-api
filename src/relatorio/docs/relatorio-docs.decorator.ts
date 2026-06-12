@@ -51,7 +51,7 @@ export function ApiResumoMensalDashboardDocs() {
     ApiOperation({
       summary: 'Obtém o resumo mensal do dashboard.',
       description:
-        'Retorna os valores consolidados de vendas, despesas e saldo para cada mês do ano informado.',
+        'Retorna os valores consolidados de vendas, taxas, despesas, ajustes de carteira e saldo para cada mês do ano informado.',
     }),
     ApiQuery({
       name: 'ano',
@@ -65,21 +65,39 @@ export function ApiResumoMensalDashboardDocs() {
       schema: {
         example: {
           ano: 2026,
+          totalQuantidadeItensVendidos: 36,
+          totalQuantidadeItensCatalogo: 30,
+          totalQuantidadeBrindes: 3,
+          totalQuantidadeItensAvulsos: 3,
           totalVendas: 150000,
+          totalTaxas: 9000,
           totalDespesas: 47000,
+          totalAjusteCarteira: 4000,
           saldo: 103000,
           itens: [
             {
               mes: 1,
+              quantidadeItensVendidos: 14,
+              quantidadeItensCatalogo: 10,
+              quantidadeBrindes: 2,
+              quantidadeItensAvulsos: 2,
               valorVendas: 12000,
+              valorTaxas: 700,
               valorDespesas: 4500,
-              saldo: 7500,
+              valorAjusteCarteira: 1000,
+              saldo: 7800,
             },
             {
               mes: 2,
+              quantidadeItensVendidos: 22,
+              quantidadeItensCatalogo: 20,
+              quantidadeBrindes: 1,
+              quantidadeItensAvulsos: 1,
               valorVendas: 18000,
+              valorTaxas: 300,
               valorDespesas: 5000,
-              saldo: 13000,
+              valorAjusteCarteira: -500,
+              saldo: 12200,
             },
           ],
         },
@@ -104,6 +122,7 @@ export function ApiTopProdutosMesDashboardDocs() {
         example: {
           ano: 2026,
           mes: 4,
+          valorTotal: 20000,
           itens: [
             {
               idProduto: 1,

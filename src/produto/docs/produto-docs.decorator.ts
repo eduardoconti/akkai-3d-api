@@ -25,6 +25,11 @@ import {
 } from '@common/docs/decorators/api-default-problem-responses.decorator';
 import { ApiPaginatedOkResponse } from '@common/docs/decorators/api-paginated-ok-response.decorator';
 import {
+  TAMANHO_PAGINA_MAXIMO,
+  TAMANHO_PAGINA_PADRAO,
+  TAMANHOS_PAGINA_PERMITIDOS,
+} from '@common/constants/paginacao.constants';
+import {
   ApiIdParamDocs,
   ApiPaginacaoQueryDocs,
 } from '@common/docs/decorators/api-query-docs.decorator';
@@ -273,7 +278,13 @@ export function ApiListarCategoriasDocs() {
       name: 'tamanhoPagina',
       required: false,
       description: 'Quantidade de itens por página.',
-      schema: { type: 'integer', default: 10, minimum: 1, maximum: 50 },
+      schema: {
+        type: 'integer',
+        default: TAMANHO_PAGINA_PADRAO,
+        minimum: 1,
+        maximum: TAMANHO_PAGINA_MAXIMO,
+        enum: TAMANHOS_PAGINA_PERMITIDOS,
+      },
     }),
     ApiQuery({
       name: 'termo',
@@ -298,7 +309,7 @@ export function ApiListarCategoriasDocs() {
             },
           ],
           pagina: 1,
-          tamanhoPagina: 10,
+          tamanhoPagina: TAMANHO_PAGINA_PADRAO,
           totalItens: 2,
           totalPaginas: 1,
         },

@@ -110,16 +110,26 @@ describe('RelatorioService', () => {
       {
         mes: '1',
         quantidadeItensVendidos: '14',
+        quantidadeItensCatalogo: '10',
+        quantidadeBrindes: '2',
+        quantidadeItensAvulsos: '2',
         valorVendas: '12000',
+        valorTaxas: '700',
         valorDespesas: '4500',
-        saldo: '7500',
+        valorAjusteCarteira: '1000',
+        saldo: '7800',
       },
       {
         mes: '2',
         quantidadeItensVendidos: '22',
+        quantidadeItensCatalogo: '20',
+        quantidadeBrindes: '1',
+        quantidadeItensAvulsos: '1',
         valorVendas: '18000',
+        valorTaxas: '300',
         valorDespesas: '5000',
-        saldo: '13000',
+        valorAjusteCarteira: '-500',
+        saldo: '12200',
       },
       {
         mes: '3',
@@ -146,42 +156,54 @@ describe('RelatorioService', () => {
     expect(result).toEqual({
       ano: 2026,
       totalQuantidadeItensVendidos: 36,
+      totalQuantidadeItensCatalogo: 30,
+      totalQuantidadeBrindes: 3,
+      totalQuantidadeItensAvulsos: 3,
       totalVendas: 30000,
       totalDespesas: 9500,
       totalImpostos: 0,
-      totalTaxas: 0,
-      totalQuantidadeBrindes: 0,
-      saldo: 20500,
+      totalTaxas: 1000,
+      totalAjusteCarteira: 500,
+      saldo: 20000,
       itens: [
         {
           mes: 1,
           quantidadeItensVendidos: 14,
+          quantidadeItensCatalogo: 10,
+          quantidadeBrindes: 2,
+          quantidadeItensAvulsos: 2,
           valorVendas: 12000,
           valorDespesas: 4500,
-          saldo: 7500,
-          quantidadeBrindes: 0,
-          valorTaxas: 0,
+          saldo: 7800,
+          valorTaxas: 700,
           valorImpostos: 0,
+          valorAjusteCarteira: 1000,
         },
         {
           mes: 2,
           quantidadeItensVendidos: 22,
+          quantidadeItensCatalogo: 20,
+          quantidadeBrindes: 1,
+          quantidadeItensAvulsos: 1,
           valorVendas: 18000,
           valorDespesas: 5000,
-          saldo: 13000,
-          quantidadeBrindes: 0,
-          valorTaxas: 0,
+          saldo: 12200,
+          valorTaxas: 300,
           valorImpostos: 0,
+          valorAjusteCarteira: -500,
         },
         {
           mes: 3,
           quantidadeItensVendidos: 0,
+          quantidadeItensCatalogo: 0,
+          quantidadeBrindes: 0,
+          quantidadeItensAvulsos: 0,
           valorVendas: 0,
           valorDespesas: 0,
           saldo: 0,
-          quantidadeBrindes: 0,
           valorTaxas: 0,
           valorImpostos: 0,
+          valorAjusteCarteira: 0,
         },
       ],
     });
@@ -236,13 +258,15 @@ describe('RelatorioService', () => {
   });
 
   it('deve retornar as despesas do mês por categoria para o dashboard', async () => {
-    dataSource.query.mockResolvedValueOnce([
-      {
-        idCategoria: '1',
-        nomeCategoria: 'Insumos',
-        valorTotal: '12500',
-      },
-    ]);
+    dataSource.query
+      .mockResolvedValueOnce([
+        {
+          idCategoria: '1',
+          nomeCategoria: 'Insumos',
+          valorTotal: '12500',
+        },
+      ])
+      .mockResolvedValueOnce([{ valorTotal: '20000' }]);
 
     const result = await service.obterDespesasCategoriasMesDashboard();
 
@@ -253,6 +277,7 @@ describe('RelatorioService', () => {
     expect(result).toEqual({
       ano: 2026,
       mes: 4,
+      valorTotal: 20000,
       itens: [
         {
           idCategoria: 1,

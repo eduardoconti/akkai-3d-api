@@ -3,5 +3,6 @@ import { DespesaCategoriaMesDashboardItemDto } from './despesa-categoria-mes-das
 export class DespesasCategoriasMesDashboardDto {
   ano!: number;
   mes!: number;
+  valorTotal!: number;
   itens!: DespesaCategoriaMesDashboardItemDto[];
 }
