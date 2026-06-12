@@ -38,7 +38,6 @@ describe('ProdutoController', () => {
   let saidaEstoqueUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
-    listarEstoque: jest.Mock;
     obterDetalheProdutoPorId: jest.Mock;
   };
   let categoriaProdutoService: {
@@ -60,7 +59,6 @@ describe('ProdutoController', () => {
     saidaEstoqueUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
-      listarEstoque: jest.fn(),
       obterDetalheProdutoPorId: jest.fn(),
     };
     categoriaProdutoService = {
@@ -183,6 +181,7 @@ describe('ProdutoController', () => {
           idCategoria: 2,
           estoqueMinimo: 3,
           valor: 2500,
+          quantidadeEstoque: 9,
           categoria: { id: 2, nome: 'Canecas' },
         },
       ] satisfies ListarProdutoDto[],
@@ -221,39 +220,6 @@ describe('ProdutoController', () => {
     });
 
     expect(categoriaProdutoService.listarCategorias).toHaveBeenCalledWith({
-      pagina: 1,
-      tamanhoPagina: 10,
-    });
-    expect(result).toBe(resposta);
-  });
-
-  it('deve listar estoque', async () => {
-    const resposta = {
-      itens: [
-        {
-          id: 1,
-          nome: 'Caneca',
-          codigo: 1001,
-          descricao: 'Modelo geek',
-          idCategoria: 2,
-          estoqueMinimo: 3,
-          categoria: { id: 2, nome: 'Canecas' },
-          quantidadeEstoque: 9,
-        },
-      ],
-      pagina: 1,
-      tamanhoPagina: 10,
-      totalItens: 1,
-      totalPaginas: 1,
-    };
-    produtoService.listarEstoque.mockResolvedValue(resposta);
-
-    const result = await controller.listarEstoque({
-      pagina: 1,
-      tamanhoPagina: 10,
-    });
-
-    expect(produtoService.listarEstoque).toHaveBeenCalledWith({
       pagina: 1,
       tamanhoPagina: 10,
     });

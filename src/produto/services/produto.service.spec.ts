@@ -54,7 +54,7 @@ describe('ProdutoService', () => {
     expect(service).toBeDefined();
   });
 
-  it('deve listar produtos sem retornar saldo de estoque', async () => {
+  it('deve listar produtos com saldo de estoque atual', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])
       .mockResolvedValueOnce([
@@ -68,6 +68,7 @@ describe('ProdutoService', () => {
           valor: '2500',
           categoria_id: '2',
           categoria_nome: 'Canecas',
+          quantidade_estoque: '9',
         },
       ]);
 
@@ -87,6 +88,7 @@ describe('ProdutoService', () => {
           idCategoria: 2,
           estoqueMinimo: 3,
           valor: 2500,
+          quantidadeEstoque: 9,
           categoria: { id: 2, nome: 'Canecas' },
         },
       ] satisfies ListarProdutoDto[],
@@ -95,6 +97,13 @@ describe('ProdutoService', () => {
       totalItens: 1,
       totalPaginas: 1,
     });
+    expect(dataSource.query.mock.calls[1]?.[0]).toContain('estoque AS');
+    expect(dataSource.query.mock.calls[1]?.[0]).toContain(
+      'LEFT JOIN estoque e ON e.id_produto = p.id',
+    );
+    expect(dataSource.query.mock.calls[1]?.[0]).toContain(
+      'WHERE id_produto IN (SELECT id FROM produtos_paginados)',
+    );
   });
 
   it('deve ordenar produtos por código quando solicitado', async () => {
@@ -135,50 +144,6 @@ describe('ProdutoService', () => {
     );
   });
 
-  it('deve listar estoque sem retornar valor do produto', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([{ total: '1' }])
-      .mockResolvedValueOnce([
-        {
-          id: '1',
-          nome: 'Caneca',
-          codigo: '1001',
-          descricao: 'Modelo geek',
-          id_categoria: '2',
-          estoque_minimo: '3',
-          valor: '2500',
-          categoria_id: '2',
-          categoria_nome: 'Canecas',
-          quantidade_estoque: '9',
-        },
-      ]);
-
-    const result = await service.listarEstoque({
-      pagina: 1,
-      tamanhoPagina: 10,
-    });
-
-    expect(result).toEqual({
-      itens: [
-        {
-          id: 1,
-          nome: 'Caneca',
-          codigo: 1001,
-          descricao: 'Modelo geek',
-          idCategoria: 2,
-          estoqueMinimo: 3,
-          categoria: { id: 2, nome: 'Canecas' },
-          quantidadeEstoque: 9,
-        },
-      ],
-      pagina: 1,
-      tamanhoPagina: 10,
-      totalItens: 1,
-      totalPaginas: 1,
-    });
-    expect(result.itens[0]).not.toHaveProperty('valor');
-  });
-
   it('deve listar produtos filtrando por termo', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])
@@ -215,48 +180,6 @@ describe('ProdutoService', () => {
       'p.id_categoria = ANY($1)',
     );
     expect(dataSource.query.mock.calls[0]?.[1]?.[0]).toEqual([2, 4]);
-  });
-
-  it('deve ordenar estoque por quantidade quando solicitado', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([{ total: '0' }])
-      .mockResolvedValueOnce([]);
-
-    await service.listarEstoque({
-      pagina: 1,
-      tamanhoPagina: 10,
-      ordenarPor: 'quantidade',
-      direcao: 'desc',
-    });
-
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining(
-        'ORDER BY COALESCE(e.quantidade_estoque, 0) DESC',
-      ),
-      expect.any(Array),
-    );
-  });
-
-  it('deve ordenar estoque por nível do estoque quando solicitado', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([{ total: '0' }])
-      .mockResolvedValueOnce([]);
-
-    await service.listarEstoque({
-      pagina: 1,
-      tamanhoPagina: 10,
-      ordenarPor: 'nivelEstoque',
-      direcao: 'asc',
-    });
-
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining(
-        'WHEN COALESCE(e.quantidade_estoque, 0) < 0 THEN 0',
-      ),
-      expect.any(Array),
-    );
   });
 
   it('deve listar estoque filtrando por termo', async () => {

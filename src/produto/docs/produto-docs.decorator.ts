@@ -13,7 +13,6 @@ import {
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
   ListarMovimentacaoEstoqueDto,
-  ListarProdutoEstoqueDto,
   ListarProdutoDto,
   SaidaEstoqueDto,
 } from '@produto/dto';
@@ -43,6 +42,7 @@ const PRODUTO_EXEMPLO = {
   idCategoria: 2,
   estoqueMinimo: 5,
   valor: 2200,
+  quantidadeEstoque: 8,
   categoria: {
     id: 2,
     nome: 'IMPRESSAO 3D',
@@ -185,6 +185,7 @@ export function ApiListarProdutosDocs() {
             idCategoria: 3,
             estoqueMinimo: 3,
             valor: 5000,
+            quantidadeEstoque: 16,
             categoria: {
               id: 3,
               nome: 'FIDGET TOYS',
@@ -195,69 +196,6 @@ export function ApiListarProdutosDocs() {
     ),
     ApiValidationErrorResponse('/produto'),
     ApiUnauthorizedErrorResponse('/produto'),
-  );
-}
-
-export function ApiListarEstoqueDocs() {
-  return applyDecorators(
-    ApiOperation({
-      summary: 'Lista o estoque dos produtos com paginação.',
-      description:
-        'Retorna os produtos paginados com código, categoria, estoque mínimo e quantidade atual em estoque, sem os dados de valor.',
-    }),
-    ApiPaginacaoQueryDocs(),
-    ApiQuery({
-      name: 'ordenarPor',
-      required: false,
-      enum: ['nome', 'codigo', 'quantidade', 'nivelEstoque'],
-      description: 'Campo usado para ordenação do estoque.',
-    }),
-    ApiQuery({
-      name: 'direcao',
-      required: false,
-      enum: ['asc', 'desc'],
-      description: 'Direção da ordenação do estoque.',
-    }),
-    ApiPaginatedOkResponse(
-      ListarProdutoEstoqueDto,
-      'Estoque encontrado com sucesso.',
-      {
-        pagina: 1,
-        tamanhoPagina: 10,
-        totalItens: 2,
-        totalPaginas: 1,
-        itens: [
-          {
-            id: 1,
-            nome: 'Cubo Infinito',
-            codigo: 4001,
-            descricao: 'Brinquedo articulado impresso em 3D.',
-            idCategoria: 2,
-            estoqueMinimo: 5,
-            categoria: {
-              id: 2,
-              nome: 'IMPRESSAO 3D',
-            },
-            quantidadeEstoque: 8,
-          },
-          {
-            id: 2,
-            nome: 'Bola Fidget',
-            codigo: 4002,
-            descricao: 'Brinquedo sensorial.',
-            idCategoria: 3,
-            estoqueMinimo: 3,
-            categoria: {
-              id: 3,
-              nome: 'FIDGET TOYS',
-            },
-            quantidadeEstoque: 16,
-          },
-        ],
-      },
-    ),
-    ApiValidationErrorResponse('/produto/estoque'),
-    ApiUnauthorizedErrorResponse('/produto/estoque'),
   );
 }
 

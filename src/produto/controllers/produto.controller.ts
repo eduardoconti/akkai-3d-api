@@ -28,9 +28,7 @@ import {
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
   ListarMovimentacaoEstoqueDto,
-  ListarProdutoEstoqueDto,
   ListarProdutoDto,
-  PesquisarEstoqueDto,
   PesquisarMovimentacoesEstoqueDto,
   PesquisarCategoriasDto,
   PesquisarProdutosDto,
@@ -52,7 +50,6 @@ import {
   ApiExcluirProdutoDocs,
   ApiInserirCategoriaDocs,
   ApiInserirProdutoDocs,
-  ApiListarEstoqueDocs,
   ApiListarMovimentacoesEstoqueDocs,
   ApiObterCategoriaPorIdDocs,
   ApiListarCategoriasDocs,
@@ -106,14 +103,6 @@ export class ProdutoController {
     @Query() pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     return await this.produtoService.listarProdutos(pesquisa);
-  }
-
-  @ApiListarEstoqueDocs()
-  @Get('estoque')
-  async listarEstoque(
-    @Query() pesquisa: PesquisarEstoqueDto,
-  ): Promise<ResultadoPaginado<ListarProdutoEstoqueDto>> {
-    return await this.produtoService.listarEstoque(pesquisa);
   }
 
   @ApiListarCategoriasDocs()

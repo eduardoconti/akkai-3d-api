@@ -11,5 +11,6 @@ export class ListarProdutoDto {
   idCategoria!: number;
   estoqueMinimo?: number;
   valor!: number;
+  quantidadeEstoque!: number;
   categoria!: CategoriaProdutoResumoListaDto;
 }
