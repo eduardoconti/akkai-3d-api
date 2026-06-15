@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
 import {
   AlterarCadastroDto,
   AlterarSenhaDto,
@@ -28,8 +29,8 @@ import {
 } from '@auth/entities';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
-const PERMISSAO_ALTERAR_PAPEL_USUARIO = 'auth.user.update_role';
-const PERMISSAO_ALTERAR_STATUS_USUARIO = 'auth.user.update_status';
+const PERMISSAO_ALTERAR_PAPEL_USUARIO = PERMISSOES.USUARIO.ALTERAR_PAPEL;
+const PERMISSAO_ALTERAR_STATUS_USUARIO = PERMISSOES.USUARIO.ALTERAR_STATUS;
 
 @Injectable()
 export class AuthService {

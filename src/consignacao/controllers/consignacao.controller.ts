@@ -11,6 +11,8 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import {
@@ -66,6 +68,7 @@ export class ConsignacaoController {
 
   @ApiInserirRevendedorDocs()
   @Post('revendedores')
+  @Permissions(PERMISSOES.REVENDEDOR.INSERIR)
   async inserirRevendedor(
     @Body() input: InserirRevendedorDto,
   ): Promise<Revendedor> {
@@ -74,6 +77,7 @@ export class ConsignacaoController {
 
   @ApiListarRevendedoresDocs()
   @Get('revendedores')
+  @Permissions(PERMISSOES.REVENDEDOR.LER)
   async listarRevendedores(
     @Query() pesquisa: PesquisarRevendedoresDto,
   ): Promise<ResultadoPaginado<Revendedor>> {
@@ -82,6 +86,7 @@ export class ConsignacaoController {
 
   @ApiObterRevendedorPorIdDocs()
   @Get('revendedores/:id')
+  @Permissions(PERMISSOES.REVENDEDOR.LER)
   async obterRevendedorPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Revendedor> {
@@ -90,6 +95,7 @@ export class ConsignacaoController {
 
   @ApiAlterarRevendedorDocs()
   @Put('revendedores/:id')
+  @Permissions(PERMISSOES.REVENDEDOR.ALTERAR)
   async alterarRevendedor(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarRevendedorDto,
@@ -99,6 +105,7 @@ export class ConsignacaoController {
 
   @ApiRegistrarVendasRevendedorConsignadoDocs()
   @Post('revendedores/:id/vendas')
+  @Permissions(PERMISSOES.CONSIGNACAO.REGISTRAR_VENDA)
   async registrarVendasRevendedorConsignado(
     @Param('id', ParseIntPipe) idRevendedor: number,
     @Body() input: RegistrarVendasConsignadasDto,
@@ -113,6 +120,7 @@ export class ConsignacaoController {
 
   @ApiInserirConsignacaoDocs()
   @Post()
+  @Permissions(PERMISSOES.CONSIGNACAO.INSERIR)
   async inserirConsignacao(
     @Body() input: InserirConsignacaoDto,
   ): Promise<DetalheConsignacaoDto> {
@@ -121,6 +129,7 @@ export class ConsignacaoController {
 
   @ApiListarConsignacoesDocs()
   @Get()
+  @Permissions(PERMISSOES.CONSIGNACAO.LER)
   async listarConsignacoes(
     @Query() pesquisa: PesquisarConsignacoesDto,
   ): Promise<ResultadoPaginado<ListarConsignacaoDto>> {
@@ -129,6 +138,7 @@ export class ConsignacaoController {
 
   @ApiObterConsignacaoPorIdDocs()
   @Get(':id')
+  @Permissions(PERMISSOES.CONSIGNACAO.LER)
   async obterConsignacaoPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<DetalheConsignacaoDto> {
@@ -137,6 +147,7 @@ export class ConsignacaoController {
 
   @ApiRelatorioConsignacaoPdfDocs()
   @Get(':id/pdf')
+  @Permissions(PERMISSOES.CONSIGNACAO.LER)
   async obterRelatorioConsignacaoPdf(
     @Param('id', ParseIntPipe) id: number,
     @Res({ passthrough: true }) response: Response,
@@ -157,6 +168,7 @@ export class ConsignacaoController {
 
   @ApiRegistrarDevolucaoConsignadaDocs()
   @Post(':id/itens/:idItem/devolucoes')
+  @Permissions(PERMISSOES.CONSIGNACAO.REGISTRAR_DEVOLUCAO)
   async registrarDevolucaoConsignada(
     @Param('id', ParseIntPipe) idConsignacao: number,
     @Param('idItem', ParseIntPipe) idItem: number,

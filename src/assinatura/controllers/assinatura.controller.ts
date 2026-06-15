@@ -9,6 +9,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   AlterarAssinanteDto,
   AlterarCicloDto,
@@ -105,6 +107,7 @@ export class AssinaturaController {
 
   @ApiInserirPlanoDocs()
   @Post('planos')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.INSERIR)
   async inserirPlano(@Body() input: InserirPlanoDto): Promise<PlanoAssinatura> {
     return this.inserirPlanoUseCase.execute({
       nome: input.nome,
@@ -122,12 +125,14 @@ export class AssinaturaController {
 
   @ApiListarPlanosDocs()
   @Get('planos')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.LER)
   async listarPlanos(): Promise<PlanoAssinatura[]> {
     return this.planoService.listarPlanos();
   }
 
   @ApiPesquisarPlanosDocs()
   @Get('planos/paginado')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.LER)
   async pesquisarPlanos(
     @Query() pesquisa: PesquisarPlanosDto,
   ): Promise<ResultadoPaginado<PlanoAssinatura>> {
@@ -136,6 +141,7 @@ export class AssinaturaController {
 
   @ApiObterPlanoPorIdDocs()
   @Get('planos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.LER)
   async obterPlanoPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PlanoAssinatura> {
@@ -144,6 +150,7 @@ export class AssinaturaController {
 
   @ApiAlterarPlanoDocs()
   @Put('planos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.ALTERAR)
   async alterarPlano(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarPlanoDto,
@@ -165,12 +172,14 @@ export class AssinaturaController {
 
   @ApiExcluirPlanoDocs()
   @Delete('planos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.PLANO.EXCLUIR)
   async excluirPlano(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirPlanoUseCase.execute({ id });
   }
 
   @ApiInserirAssinanteDocs()
   @Post('assinantes')
+  @Permissions(PERMISSOES.ASSINATURA.ASSINANTE.INSERIR)
   async inserirAssinante(
     @Body() input: InserirAssinanteDto,
   ): Promise<Assinante> {
@@ -186,6 +195,7 @@ export class AssinaturaController {
 
   @ApiPesquisarAssinantesDocs()
   @Get('assinantes')
+  @Permissions(PERMISSOES.ASSINATURA.ASSINANTE.LER)
   async pesquisarAssinantes(
     @Query() pesquisa: PesquisarAssinantesDto,
   ): Promise<ResultadoPaginado<Assinante>> {
@@ -194,6 +204,7 @@ export class AssinaturaController {
 
   @ApiObterAssinantePorIdDocs()
   @Get('assinantes/:id')
+  @Permissions(PERMISSOES.ASSINATURA.ASSINANTE.LER)
   async obterAssinantePorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Assinante> {
@@ -202,6 +213,7 @@ export class AssinaturaController {
 
   @ApiAlterarAssinanteDocs()
   @Put('assinantes/:id')
+  @Permissions(PERMISSOES.ASSINATURA.ASSINANTE.ALTERAR)
   async alterarAssinante(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarAssinanteDto,
@@ -211,12 +223,14 @@ export class AssinaturaController {
 
   @ApiExcluirAssinanteDocs()
   @Delete('assinantes/:id')
+  @Permissions(PERMISSOES.ASSINATURA.ASSINANTE.EXCLUIR)
   async excluirAssinante(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirAssinanteUseCase.execute({ id });
   }
 
   @ApiInserirCicloDocs()
   @Post('ciclos')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.INSERIR)
   async inserirCiclo(@Body() input: InserirCicloDto): Promise<CicloAssinatura> {
     return this.inserirCicloUseCase.execute({
       idAssinante: input.idAssinante,
@@ -231,6 +245,7 @@ export class AssinaturaController {
 
   @ApiPesquisarCiclosDocs()
   @Get('ciclos')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.LER)
   async pesquisarCiclos(
     @Query() pesquisa: PesquisarCiclosDto,
   ): Promise<ResultadoPaginado<CicloAssinatura>> {
@@ -239,6 +254,7 @@ export class AssinaturaController {
 
   @ApiObterCicloPorIdDocs()
   @Get('ciclos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.LER)
   async obterCicloPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<CicloAssinatura> {
@@ -247,6 +263,7 @@ export class AssinaturaController {
 
   @ApiAlterarCicloDocs()
   @Put('ciclos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.ALTERAR)
   async alterarCiclo(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarCicloDto,
@@ -256,12 +273,14 @@ export class AssinaturaController {
 
   @ApiExcluirCicloDocs()
   @Delete('ciclos/:id')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.EXCLUIR)
   async excluirCiclo(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirCicloUseCase.execute({ id });
   }
 
   @ApiInserirKitMensalDocs()
   @Post('kits')
+  @Permissions(PERMISSOES.ASSINATURA.KIT_MENSAL.INSERIR)
   async inserirKitMensal(
     @Body() input: InserirKitMensalDto,
   ): Promise<KitMensal> {
@@ -280,6 +299,7 @@ export class AssinaturaController {
 
   @ApiPesquisarKitsDocs()
   @Get('kits')
+  @Permissions(PERMISSOES.ASSINATURA.KIT_MENSAL.LER)
   async pesquisarKits(
     @Query() pesquisa: PesquisarKitsDto,
   ): Promise<ResultadoPaginado<KitMensal>> {
@@ -288,6 +308,7 @@ export class AssinaturaController {
 
   @ApiObterKitMensalPorIdDocs()
   @Get('kits/:id')
+  @Permissions(PERMISSOES.ASSINATURA.KIT_MENSAL.LER)
   async obterKitMensalPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<KitMensal> {
@@ -296,6 +317,7 @@ export class AssinaturaController {
 
   @ApiAlterarKitMensalDocs()
   @Put('kits/:id')
+  @Permissions(PERMISSOES.ASSINATURA.KIT_MENSAL.ALTERAR)
   async alterarKitMensal(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarKitMensalDto,
@@ -313,12 +335,14 @@ export class AssinaturaController {
 
   @ApiExcluirKitMensalDocs()
   @Delete('kits/:id')
+  @Permissions(PERMISSOES.ASSINATURA.KIT_MENSAL.EXCLUIR)
   async excluirKitMensal(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirKitMensalUseCase.execute({ id });
   }
 
   @ApiGerarCiclosMensaisDocs()
   @Post('kits/:id/gerar-ciclos')
+  @Permissions(PERMISSOES.ASSINATURA.CICLO.GERAR)
   async gerarCiclosMensais(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<GerarCiclosResult> {

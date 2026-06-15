@@ -1,4 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
 import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   DespesasCategoriasMesDashboardDto,
@@ -36,7 +37,7 @@ export class RelatorioController {
 
   @ApiResumoMensalDashboardDocs()
   @Get('dashboard/resumo-mensal')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterResumoMensalDashboard(
     @Query() filtro: ObterResumoMensalDashboardDto,
   ): Promise<ResumoMensalDashboardDto> {
@@ -45,21 +46,21 @@ export class RelatorioController {
 
   @ApiTopProdutosMesDashboardDocs()
   @Get('dashboard/top-produtos-mes')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterTopProdutosMesDashboard(): Promise<TopProdutosMesDashboardDto> {
     return await this.relatorioService.obterTopProdutosMesDashboard();
   }
 
   @ApiDespesasCategoriasMesDashboardDocs()
   @Get('dashboard/despesas-categorias-mes')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterDespesasCategoriasMesDashboard(): Promise<DespesasCategoriasMesDashboardDto> {
     return await this.relatorioService.obterDespesasCategoriasMesDashboard();
   }
 
   @ApiResumoVendasPeriodoDocs()
   @Get('vendas/resumo')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterResumoVendasPorPeriodo(
     @Query() filtro: ObterResumoVendasPeriodoDto,
   ): Promise<ResumoVendasPeriodoDto> {
@@ -68,7 +69,7 @@ export class RelatorioController {
 
   @ApiProdutosMaisVendidosDocs()
   @Get('vendas/produtos-mais-vendidos')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterProdutosMaisVendidosPorPeriodo(
     @Query() filtro: ObterProdutosMaisVendidosDto,
   ): Promise<ProdutosMaisVendidosPeriodoDto> {
@@ -79,7 +80,7 @@ export class RelatorioController {
 
   @ApiValorProdutosEstoqueDocs()
   @Get('estoque/valor-produtos')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterValorProdutosEstoque(
     @Query() filtro: ObterValorProdutosEstoqueDto,
   ): Promise<ValorProdutosEstoqueDto> {
@@ -88,7 +89,7 @@ export class RelatorioController {
 
   @ApiSugestaoProducaoDocs()
   @Get('producao/sugestao')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterSugestaoProducao(
     @Query() filtro: ObterSugestaoProducaoDto,
   ): Promise<RelatorioSugestaoProducaoDto> {
@@ -97,7 +98,7 @@ export class RelatorioController {
 
   @ApiRelatorioProducaoDocs()
   @Get('producao')
-  @Permissions('report.read')
+  @Permissions(PERMISSOES.RELATORIO.LER)
   async obterRelatorioProducao(
     @Query() filtro: ObterRelatorioProducaoDto,
   ): Promise<RelatorioProducaoDto> {

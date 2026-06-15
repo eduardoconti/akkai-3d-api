@@ -40,14 +40,14 @@ describe('PermissionsGuard', () => {
   it('deve permitir quando usuário possuir todas as permissões', () => {
     reflector.getAllAndOverride
       .mockReturnValueOnce(false)
-      .mockReturnValueOnce(['report.read']);
+      .mockReturnValueOnce(['relatorio.ler']);
 
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
       switchToHttp: () => ({
         getRequest: () => ({
-          user: { permissions: ['report.read', 'wallet.write'] },
+          user: { permissions: ['relatorio.ler', 'carteira.alterar'] },
         }),
       }),
     };
@@ -58,14 +58,14 @@ describe('PermissionsGuard', () => {
   it('deve lançar erro quando faltar permissão', () => {
     reflector.getAllAndOverride
       .mockReturnValueOnce(false)
-      .mockReturnValueOnce(['report.read']);
+      .mockReturnValueOnce(['relatorio.ler']);
 
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
       switchToHttp: () => ({
         getRequest: () => ({
-          user: { permissions: ['wallet.write'] },
+          user: { permissions: ['carteira.alterar'] },
         }),
       }),
     };

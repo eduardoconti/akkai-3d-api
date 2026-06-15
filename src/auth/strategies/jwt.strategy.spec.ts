@@ -11,7 +11,7 @@ describe('JwtStrategy', () => {
       sub: 1,
       login: 'eduardo',
       role: 'user',
-      permissions: ['report.read'],
+      permissions: ['relatorio.ler'],
     };
 
     expect(strategy.validate(payload)).toBe(payload);

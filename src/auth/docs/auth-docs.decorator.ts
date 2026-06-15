@@ -17,6 +17,7 @@ import {
 } from '@auth/dto';
 import {
   ApiConflictErrorResponse,
+  ApiForbiddenErrorResponse,
   ApiUnauthorizedErrorResponse,
   ApiValidationErrorResponse,
 } from '@common/docs/decorators/api-default-problem-responses.decorator';
@@ -50,7 +51,7 @@ export function ApiAuthLoginDocs() {
           name: 'Eduardo',
           login: 'eduardo',
           role: 'admin',
-          permissions: ['report.read', 'sales.read'],
+          permissions: ['relatorio.ler', 'venda.ler'],
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
           refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
@@ -66,7 +67,7 @@ export function ApiAuthRegisterDocs() {
     ApiOperation({
       summary: 'Registra um novo usuário e inicia a sessão automaticamente.',
       description:
-        'Cria o usuário com papel padrão e retorna o accessToken, refreshToken e os dados do usuário autenticado.',
+        'Cria o usuário com papel padrão quando o usuário autenticado possui permissão para registrar usuários.',
     }),
     ApiBody({
       type: RegisterDto,
@@ -96,6 +97,8 @@ export function ApiAuthRegisterDocs() {
         },
       },
     }),
+    ApiUnauthorizedErrorResponse('/auth/register'),
+    ApiForbiddenErrorResponse('/auth/register'),
     ApiValidationErrorResponse('/auth/register'),
     ApiConflictErrorResponse(
       '/auth/register',
@@ -129,7 +132,7 @@ export function ApiAuthRefreshDocs() {
           name: 'Eduardo',
           login: 'eduardo',
           role: 'admin',
-          permissions: ['report.read', 'sales.read'],
+          permissions: ['relatorio.ler', 'venda.ler'],
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
           refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
@@ -188,7 +191,7 @@ export function ApiAuthMeDocs() {
           name: 'Eduardo',
           login: 'eduardo',
           role: 'admin',
-          permissions: ['report.read', 'sales.read'],
+          permissions: ['relatorio.ler', 'venda.ler'],
         },
       },
     }),

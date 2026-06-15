@@ -9,6 +9,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import {
@@ -40,6 +42,7 @@ export class OrcamentoController {
 
   @ApiInserirOrcamentoDocs()
   @Post()
+  @Permissions(PERMISSOES.ORCAMENTO.INSERIR)
   async inserirOrcamento(
     @Body() input: InserirOrcamentoDto,
   ): Promise<Orcamento> {
@@ -48,6 +51,7 @@ export class OrcamentoController {
 
   @ApiAtualizarOrcamentoDocs()
   @Put(':id')
+  @Permissions(PERMISSOES.ORCAMENTO.ALTERAR)
   async atualizarOrcamento(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AtualizarOrcamentoDto,
@@ -57,6 +61,7 @@ export class OrcamentoController {
 
   @ApiListarOrcamentosDocs()
   @Get()
+  @Permissions(PERMISSOES.ORCAMENTO.LER)
   async listarOrcamentos(
     @Query() pesquisa: PesquisarOrcamentosDto,
   ): Promise<ResultadoPaginado<Orcamento>> {
@@ -65,6 +70,7 @@ export class OrcamentoController {
 
   @ApiExcluirOrcamentoDocs()
   @Delete(':id')
+  @Permissions(PERMISSOES.ORCAMENTO.EXCLUIR)
   async excluirOrcamento(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.orcamentoService.excluirOrcamento(id);
   }

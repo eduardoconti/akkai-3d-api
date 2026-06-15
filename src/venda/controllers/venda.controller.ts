@@ -9,6 +9,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   AlterarFeiraDto,
   AlterarVendaDto,
@@ -69,12 +71,14 @@ export class VendaController {
 
   @ApiInserirFeiraDocs()
   @Post('feiras')
+  @Permissions(PERMISSOES.FEIRA.INSERIR)
   async inserirFeira(@Body() input: InserirFeiraDto): Promise<Feira> {
     return await this.inserirFeiraUseCase.execute(input);
   }
 
   @ApiListarFeirasPaginadasDocs()
   @Get('feiras/paginado')
+  @Permissions(PERMISSOES.FEIRA.LER)
   async pesquisarFeiras(
     @Query() pesquisa: PesquisarFeirasDto,
   ): Promise<ResultadoPaginado<Feira>> {
@@ -82,6 +86,7 @@ export class VendaController {
   }
 
   @Get('precos-produtos-feira/paginado')
+  @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.LER)
   async pesquisarPrecosProdutosFeira(
     @Query() pesquisa: PesquisarPrecosProdutosFeiraDto,
   ): Promise<ResultadoPaginado<PrecoProdutoFeira>> {
@@ -89,6 +94,7 @@ export class VendaController {
   }
 
   @Get('feiras/:id/precos-produtos')
+  @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.LER)
   async listarPrecosProdutosFeira(
     @Param('id', ParseIntPipe) idFeira: number,
   ): Promise<PrecoProdutoFeira[]> {
@@ -96,6 +102,7 @@ export class VendaController {
   }
 
   @Put('feiras/:id/precos-produtos')
+  @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.ALTERAR)
   async salvarPrecoProdutoFeira(
     @Param('id', ParseIntPipe) idFeira: number,
     @Body() input: SalvarPrecoProdutoFeiraDto,
@@ -104,6 +111,7 @@ export class VendaController {
   }
 
   @Delete('feiras/:id/precos-produtos/:idProduto')
+  @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.EXCLUIR)
   async excluirPrecoProdutoFeira(
     @Param('id', ParseIntPipe) idFeira: number,
     @Param('idProduto', ParseIntPipe) idProduto: number,
@@ -113,12 +121,14 @@ export class VendaController {
 
   @ApiObterFeiraPorIdDocs()
   @Get('feiras/:id')
+  @Permissions(PERMISSOES.FEIRA.LER)
   async obterFeiraPorId(@Param('id', ParseIntPipe) id: number): Promise<Feira> {
     return await this.feiraService.garantirFeiraPorId(id);
   }
 
   @ApiAlterarFeiraDocs()
   @Put('feiras/:id')
+  @Permissions(PERMISSOES.FEIRA.ALTERAR)
   async alterarFeira(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarFeiraDto,
@@ -128,12 +138,14 @@ export class VendaController {
 
   @ApiExcluirFeiraDocs()
   @Delete('feiras/:id')
+  @Permissions(PERMISSOES.FEIRA.EXCLUIR)
   async excluirFeira(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirFeiraUseCase.execute({ id });
   }
 
   @ApiInserirVendaDocs()
   @Post()
+  @Permissions(PERMISSOES.VENDA.INSERIR)
   async inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
     const venda = await this.inserirVendaUseCase.execute(inserirVendaInput);
     return venda;
@@ -141,6 +153,7 @@ export class VendaController {
 
   @ApiAlterarVendaDocs()
   @Put(':id')
+  @Permissions(PERMISSOES.VENDA.ALTERAR)
   async alterarVenda(
     @Param('id', ParseIntPipe) id: number,
     @Body() alterarVendaInput: AlterarVendaDto,
@@ -150,18 +163,21 @@ export class VendaController {
 
   @ApiExcluirVendaDocs()
   @Delete(':id')
+  @Permissions(PERMISSOES.VENDA.EXCLUIR)
   async excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.excluirVendaUseCase.execute({ id });
   }
 
   @ApiListarFeirasDocs()
   @Get('feiras')
+  @Permissions(PERMISSOES.FEIRA.LER)
   async listarFeiras(): Promise<Feira[]> {
     return await this.feiraService.listarFeiras();
   }
 
   @ApiListarVendasDocs()
   @Get()
+  @Permissions(PERMISSOES.VENDA.LER)
   async listarVendas(
     @Query() pesquisa: PesquisarVendasDto,
   ): Promise<ResultadoPaginadoComTotalizadores<Venda, TotalizadoresVendasDto>> {

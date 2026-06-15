@@ -669,7 +669,7 @@ export class RelatorioService {
     const rangeMes = this.dateService.obterIntervaloUtcMes(ano, mes);
 
     const [rows, totalizadoresRows] = await Promise.all([
-      this.dataSource.query(
+      this.dataSource.query<DespesaCategoriaMesDashboardRow[]>(
         `
           SELECT
             categoria.id AS "idCategoria",
@@ -683,15 +683,15 @@ export class RelatorioService {
           LIMIT 5
         `,
         [rangeMes.start, rangeMes.end],
-      ) as Promise<DespesaCategoriaMesDashboardRow[]>,
-      this.dataSource.query(
+      ),
+      this.dataSource.query<TotalizadorDespesaMesDashboardRow[]>(
         `
           SELECT COALESCE(SUM(despesa.valor), 0) AS "valorTotal"
           FROM despesa
           WHERE despesa.data_lancamento BETWEEN $1 AND $2
         `,
         [rangeMes.start, rangeMes.end],
-      ) as Promise<TotalizadorDespesaMesDashboardRow[]>,
+      ),
     ]);
     const totalizador = totalizadoresRows[0];
 

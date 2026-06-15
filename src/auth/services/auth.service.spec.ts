@@ -489,7 +489,7 @@ describe('AuthService', () => {
         isActive: true,
         roleId: 2,
       },
-      ['auth.user.update_role', 'auth.user.update_status'],
+      ['usuario.alterar-papel', 'usuario.alterar-status'],
     );
 
     expect(userRepository.save).toHaveBeenCalledWith(
@@ -535,7 +535,7 @@ describe('AuthService', () => {
     const result = await service.updateProfile(
       1,
       { name: 'Eduardo', login: 'eduardo', isActive: false, roleId: 1 },
-      ['auth.user.update_status'],
+      ['usuario.alterar-status'],
     );
 
     expect((result as { accessToken?: string }).accessToken).toBeUndefined();
@@ -561,7 +561,7 @@ describe('AuthService', () => {
       service.updateProfile(
         1,
         { name: 'Eduardo', login: 'joao', isActive: true, roleId: 1 },
-        ['auth.user.update_role', 'auth.user.update_status'],
+        ['usuario.alterar-papel', 'usuario.alterar-status'],
       ),
     ).rejects.toThrow(
       new ConflictException('Já existe um usuário com esse login.'),
@@ -589,7 +589,7 @@ describe('AuthService', () => {
       service.updateProfile(
         1,
         { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 99 },
-        ['auth.user.update_role', 'auth.user.update_status'],
+        ['usuario.alterar-papel', 'usuario.alterar-status'],
       ),
     ).rejects.toThrow(new NotFoundException('Papel com ID 99 não encontrado.'));
   });
@@ -637,7 +637,7 @@ describe('AuthService', () => {
       service.updateProfile(
         1,
         { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 1 },
-        ['auth.user.update_role', 'auth.user.update_status'],
+        ['usuario.alterar-papel', 'usuario.alterar-status'],
       ),
     ).rejects.toThrow(
       new UnauthorizedException('Usuário autenticado não encontrado.'),
@@ -709,7 +709,7 @@ describe('AuthService', () => {
       service.updateProfile(
         1,
         { name: 'Eduardo', login: 'eduardo', isActive: true, roleId: 1 },
-        ['auth.user.update_role', 'auth.user.update_status'],
+        ['usuario.alterar-papel', 'usuario.alterar-status'],
       ),
     ).rejects.toThrow(
       new UnauthorizedException('Usuário autenticado não encontrado.'),

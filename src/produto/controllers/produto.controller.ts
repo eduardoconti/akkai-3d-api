@@ -10,6 +10,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
@@ -77,12 +79,14 @@ export class ProdutoController {
 
   @ApiInserirProdutoDocs()
   @Post()
+  @Permissions(PERMISSOES.PRODUTO.INSERIR)
   async inserirProduto(@Body() input: InserirProdutoDto) {
     return this.inserirProdutoUseCase.execute(input);
   }
 
   @ApiAlterarProdutoDocs()
   @Put(':id')
+  @Permissions(PERMISSOES.PRODUTO.ALTERAR)
   async alterarProduto(
     @Param('id') id: number,
     @Body() input: AlterarProdutoDto,
@@ -92,6 +96,7 @@ export class ProdutoController {
 
   @ApiExcluirProdutoDocs()
   @Delete(':id')
+  @Permissions(PERMISSOES.PRODUTO.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirProduto(@Param('id') id: number): Promise<void> {
     return this.excluirProdutoUseCase.execute({ id });
@@ -99,6 +104,7 @@ export class ProdutoController {
 
   @ApiListarProdutosDocs()
   @Get()
+  @Permissions(PERMISSOES.PRODUTO.LER)
   async listarProdutos(
     @Query() pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
@@ -107,6 +113,7 @@ export class ProdutoController {
 
   @ApiListarCategoriasDocs()
   @Get('categorias')
+  @Permissions(PERMISSOES.CATEGORIA_PRODUTO.LER)
   async listarCategorias(
     @Query() pesquisa: PesquisarCategoriasDto,
   ): Promise<ResultadoPaginado<CategoriaProduto>> {
@@ -115,6 +122,7 @@ export class ProdutoController {
 
   @ApiInserirCategoriaDocs()
   @Post('categorias')
+  @Permissions(PERMISSOES.CATEGORIA_PRODUTO.INSERIR)
   async inserirCategoria(
     @Body() input: InserirCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
@@ -123,6 +131,7 @@ export class ProdutoController {
 
   @ApiObterCategoriaPorIdDocs()
   @Get('categorias/:id')
+  @Permissions(PERMISSOES.CATEGORIA_PRODUTO.LER)
   async obterCategoriaPorId(
     @Param('id') id: number,
   ): Promise<CategoriaProduto> {
@@ -131,6 +140,7 @@ export class ProdutoController {
 
   @ApiAlterarCategoriaDocs()
   @Put('categorias/:id')
+  @Permissions(PERMISSOES.CATEGORIA_PRODUTO.ALTERAR)
   async alterarCategoria(
     @Param('id') id: number,
     @Body() input: AlterarCategoriaProdutoDto,
@@ -140,6 +150,7 @@ export class ProdutoController {
 
   @ApiExcluirCategoriaDocs()
   @Delete('categorias/:id')
+  @Permissions(PERMISSOES.CATEGORIA_PRODUTO.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCategoria(@Param('id') id: number): Promise<void> {
     return this.excluirCategoriaProdutoUseCase.execute({ id });
@@ -147,12 +158,14 @@ export class ProdutoController {
 
   @ApiObterProdutoPorIdDocs()
   @Get(':id')
+  @Permissions(PERMISSOES.PRODUTO.LER)
   async getProdutoById(@Param('id') id: number): Promise<DetalheProdutoDto> {
     return await this.produtoService.obterDetalheProdutoPorId(id);
   }
 
   @ApiEntradaEstoqueDocs()
   @Post(':id/estoque/entrada')
+  @Permissions(PERMISSOES.ESTOQUE.ENTRADA)
   async entradaEstoque(
     @Param('id') id: number,
     @Body() { quantidade, origem }: EntradaEstoqueDto,
@@ -166,6 +179,7 @@ export class ProdutoController {
 
   @ApiSaidaEstoqueDocs()
   @Post(':id/estoque/saida')
+  @Permissions(PERMISSOES.ESTOQUE.SAIDA)
   async saidaEstoque(
     @Param('id') id: number,
     @Body() { quantidade, origem }: SaidaEstoqueDto,
@@ -179,6 +193,7 @@ export class ProdutoController {
 
   @ApiListarMovimentacoesEstoqueDocs()
   @Get(':id/estoque/movimentacoes')
+  @Permissions(PERMISSOES.ESTOQUE.LER)
   async listarMovimentacoesEstoque(
     @Param('id') id: number,
     @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,

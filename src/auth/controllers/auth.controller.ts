@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import { Public } from '@auth/decorators/public.decorator';
 import {
   AlterarCadastroDto,
@@ -54,9 +56,10 @@ export class AuthController {
     return this.authService.login(body);
   }
 
+  @ApiAccessBearerAuth()
   @ApiAuthRegisterDocs()
-  @Public()
   @Post('register')
+  @Permissions(PERMISSOES.USUARIO.INSERIR)
   async register(@Body() body: RegisterDto): Promise<AuthResponseDto> {
     return this.authService.register(body);
   }
@@ -72,6 +75,7 @@ export class AuthController {
   @ApiAccessBearerAuth()
   @ApiAuthLogoutDocs()
   @Post('logout')
+  @Permissions(PERMISSOES.AUTENTICACAO.SAIR)
   async logout(@Body() body: LogoutDto): Promise<void> {
     await this.authService.logout(body.refreshToken);
   }
@@ -79,6 +83,7 @@ export class AuthController {
   @ApiAccessBearerAuth()
   @ApiAuthMeDocs()
   @Get('me')
+  @Permissions(PERMISSOES.USUARIO.LER)
   async me(
     @Req() request: AuthenticatedRequest,
   ): Promise<UsuarioAutenticadoDto> {
@@ -92,6 +97,7 @@ export class AuthController {
   @ApiAccessBearerAuth()
   @ApiAuthRolesDocs()
   @Get('roles')
+  @Permissions(PERMISSOES.PAPEL.LER)
   async listRoles(): Promise<PapelUsuarioDto[]> {
     return this.authService.listRoles();
   }
@@ -99,6 +105,7 @@ export class AuthController {
   @ApiAccessBearerAuth()
   @ApiAuthUpdateProfileDocs()
   @Put('me')
+  @Permissions(PERMISSOES.USUARIO.ALTERAR)
   async updateProfile(
     @Req() request: AuthenticatedRequest,
     @Body() body: AlterarCadastroDto,
@@ -117,6 +124,7 @@ export class AuthController {
   @ApiAccessBearerAuth()
   @ApiAuthUpdatePasswordDocs()
   @Put('me/password')
+  @Permissions(PERMISSOES.USUARIO.ALTERAR_SENHA)
   async updatePassword(
     @Req() request: AuthenticatedRequest,
     @Body() body: AlterarSenhaDto,

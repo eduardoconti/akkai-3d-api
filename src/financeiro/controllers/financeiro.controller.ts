@@ -11,6 +11,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PERMISSOES } from '@auth/constants/permissoes.constants';
+import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   AlterarCarteiraDto,
   AlterarCategoriaDespesaDto,
@@ -104,18 +106,21 @@ export class FinanceiroController {
 
   @ApiInserirCarteiraDocs()
   @Post('carteiras')
+  @Permissions(PERMISSOES.FINANCEIRO.CARTEIRA.INSERIR)
   async inserirCarteira(@Body() input: InserirCarteiraDto): Promise<Carteira> {
     return this.inserirCarteiraUseCase.execute(input);
   }
 
   @ApiListarCarteirasDocs()
   @Get('carteiras')
+  @Permissions(PERMISSOES.FINANCEIRO.CARTEIRA.LER)
   async listarCarteiras() {
     return this.carteiraService.listarCarteiras();
   }
 
   @ApiObterCarteiraPorIdDocs()
   @Get('carteiras/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CARTEIRA.LER)
   async obterCarteiraPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Carteira | null> {
@@ -124,6 +129,7 @@ export class FinanceiroController {
 
   @ApiAlterarCarteiraDocs()
   @Put('carteiras/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CARTEIRA.ALTERAR)
   async alterarCarteira(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarCarteiraDto,
@@ -133,6 +139,7 @@ export class FinanceiroController {
 
   @ApiExcluirCarteiraDocs()
   @Delete('carteiras/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CARTEIRA.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCarteira(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.excluirCarteiraUseCase.execute({ id });
@@ -140,6 +147,7 @@ export class FinanceiroController {
 
   @ApiInserirAjusteCarteiraDocs()
   @Post('carteiras/:id/ajustes')
+  @Permissions(PERMISSOES.FINANCEIRO.AJUSTE_CARTEIRA.INSERIR)
   async inserirAjusteCarteira(
     @Param('id', ParseIntPipe) idCarteira: number,
     @Body() input: InserirAjusteCarteiraDto,
@@ -149,6 +157,7 @@ export class FinanceiroController {
 
   @ApiListarAjustesCarteiraDocs()
   @Get('carteiras/:id/ajustes')
+  @Permissions(PERMISSOES.FINANCEIRO.AJUSTE_CARTEIRA.LER)
   async listarAjustesCarteira(
     @Param('id', ParseIntPipe) idCarteira: number,
   ): Promise<AjusteCarteira[]> {
@@ -158,6 +167,7 @@ export class FinanceiroController {
 
   @ApiInserirTaxaMeioPagamentoCarteiraDocs()
   @Post('taxas-meio-pagamento-carteira')
+  @Permissions(PERMISSOES.FINANCEIRO.TAXA_MEIO_PAGAMENTO_CARTEIRA.INSERIR)
   async inserirTaxaMeioPagamentoCarteira(
     @Body() input: InserirTaxaMeioPagamentoCarteiraDto,
   ): Promise<TaxaMeioPagamentoCarteira> {
@@ -166,6 +176,7 @@ export class FinanceiroController {
 
   @ApiListarTaxasMeioPagamentoCarteiraDocs()
   @Get('taxas-meio-pagamento-carteira')
+  @Permissions(PERMISSOES.FINANCEIRO.TAXA_MEIO_PAGAMENTO_CARTEIRA.LER)
   async listarTaxasMeioPagamentoCarteira(): Promise<
     TaxaMeioPagamentoCarteira[]
   > {
@@ -174,6 +185,7 @@ export class FinanceiroController {
 
   @ApiObterTaxaMeioPagamentoCarteiraPorIdDocs()
   @Get('taxas-meio-pagamento-carteira/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.TAXA_MEIO_PAGAMENTO_CARTEIRA.LER)
   async obterTaxaMeioPagamentoCarteiraPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<TaxaMeioPagamentoCarteira> {
@@ -184,6 +196,7 @@ export class FinanceiroController {
 
   @ApiAlterarTaxaMeioPagamentoCarteiraDocs()
   @Put('taxas-meio-pagamento-carteira/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.TAXA_MEIO_PAGAMENTO_CARTEIRA.ALTERAR)
   async alterarTaxaMeioPagamentoCarteira(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarTaxaMeioPagamentoCarteiraDto,
@@ -196,6 +209,7 @@ export class FinanceiroController {
 
   @ApiExcluirTaxaMeioPagamentoCarteiraDocs()
   @Delete('taxas-meio-pagamento-carteira/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.TAXA_MEIO_PAGAMENTO_CARTEIRA.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirTaxaMeioPagamentoCarteira(
     @Param('id', ParseIntPipe) id: number,
@@ -205,6 +219,7 @@ export class FinanceiroController {
 
   @ApiInserirCategoriaDespesaDocs()
   @Post('categorias-despesa')
+  @Permissions(PERMISSOES.FINANCEIRO.CATEGORIA_DESPESA.INSERIR)
   async inserirCategoriaDespesa(
     @Body() input: InserirCategoriaDespesaDto,
   ): Promise<CategoriaDespesa> {
@@ -213,12 +228,14 @@ export class FinanceiroController {
 
   @ApiListarCategoriasDespesaDocs()
   @Get('categorias-despesa')
+  @Permissions(PERMISSOES.FINANCEIRO.CATEGORIA_DESPESA.LER)
   async listarCategoriasDespesa(): Promise<CategoriaDespesa[]> {
     return this.categoriaDespesaService.listarCategoriasDespesa();
   }
 
   @ApiAlterarCategoriaDespesaDocs()
   @Put('categorias-despesa/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CATEGORIA_DESPESA.ALTERAR)
   async alterarCategoriaDespesa(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarCategoriaDespesaDto,
@@ -228,6 +245,7 @@ export class FinanceiroController {
 
   @ApiExcluirCategoriaDespesaDocs()
   @Delete('categorias-despesa/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CATEGORIA_DESPESA.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirCategoriaDespesa(
     @Param('id', ParseIntPipe) id: number,
@@ -237,12 +255,14 @@ export class FinanceiroController {
 
   @ApiInserirDespesaDocs()
   @Post('despesas')
+  @Permissions(PERMISSOES.FINANCEIRO.DESPESA.INSERIR)
   async inserirDespesa(@Body() input: InserirDespesaDto): Promise<Despesa> {
     return this.inserirDespesaUseCase.execute(input);
   }
 
   @ApiListarDespesasDocs()
   @Get('despesas')
+  @Permissions(PERMISSOES.FINANCEIRO.DESPESA.LER)
   async listarDespesas(
     @Query() pesquisa: PesquisarDespesasDto,
   ): Promise<
@@ -253,6 +273,7 @@ export class FinanceiroController {
 
   @ApiAlterarDespesaDocs()
   @Put('despesas/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.DESPESA.ALTERAR)
   async alterarDespesa(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarDespesaDto,
@@ -262,6 +283,7 @@ export class FinanceiroController {
 
   @ApiExcluirDespesaDocs()
   @Delete('despesas/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.DESPESA.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async excluirDespesa(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.excluirDespesaUseCase.execute({ id });
