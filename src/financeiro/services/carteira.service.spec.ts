@@ -224,6 +224,9 @@ describe('CarteiraService', () => {
     expect(consulta).toContain('FROM ajuste_carteira a');
     expect(consulta).toContain("WHEN a.tipo = 'CREDITO' THEN a.valor");
     expect(consulta).toContain("WHEN a.tipo = 'DEBITO' THEN -a.valor");
+    expect(consulta).toContain('FROM transferencia_carteira t');
+    expect(consulta).toContain('t.id_carteira_destino = c.id');
+    expect(consulta).toContain('t.id_carteira_origem = c.id');
   });
 
   it('deve excluir carteira com sucesso', async () => {

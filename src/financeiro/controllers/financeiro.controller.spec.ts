@@ -6,21 +6,25 @@ import {
   CategoriaDespesaService,
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
+  TransferenciaCarteiraService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
   AlterarDespesaUseCase,
   AlterarTaxaMeioPagamentoCarteiraUseCase,
+  AlterarTransferenciaCarteiraUseCase,
   ExcluirCarteiraUseCase,
   ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
+  ExcluirTransferenciaCarteiraUseCase,
   InserirAjusteCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
   InserirTaxaMeioPagamentoCarteiraUseCase,
+  InserirTransferenciaCarteiraUseCase,
 } from '@financeiro/use-cases';
 
 describe('FinanceiroController', () => {
@@ -37,6 +41,10 @@ describe('FinanceiroController', () => {
     listarTaxasMeioPagamentoCarteira: jest.Mock;
     garantirTaxaMeioPagamentoCarteiraPorId: jest.Mock;
   };
+  let transferenciaCarteiraService: {
+    listarTransferenciasPorCarteira: jest.Mock;
+    pesquisarTransferencias: jest.Mock;
+  };
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirAjusteCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
@@ -48,6 +56,9 @@ describe('FinanceiroController', () => {
   let alterarCategoriaDespesaUseCase: { execute: jest.Mock };
   let excluirCategoriaDespesaUseCase: { execute: jest.Mock };
   let inserirTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
+  let inserirTransferenciaCarteiraUseCase: { execute: jest.Mock };
+  let alterarTransferenciaCarteiraUseCase: { execute: jest.Mock };
+  let excluirTransferenciaCarteiraUseCase: { execute: jest.Mock };
   let alterarTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
   let excluirTaxaMeioPagamentoCarteiraUseCase: { execute: jest.Mock };
 
@@ -64,6 +75,10 @@ describe('FinanceiroController', () => {
       listarTaxasMeioPagamentoCarteira: jest.fn(),
       garantirTaxaMeioPagamentoCarteiraPorId: jest.fn(),
     };
+    transferenciaCarteiraService = {
+      listarTransferenciasPorCarteira: jest.fn(),
+      pesquisarTransferencias: jest.fn(),
+    };
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirAjusteCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
@@ -75,6 +90,9 @@ describe('FinanceiroController', () => {
     alterarCategoriaDespesaUseCase = { execute: jest.fn() };
     excluirCategoriaDespesaUseCase = { execute: jest.fn() };
     inserirTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
+    inserirTransferenciaCarteiraUseCase = { execute: jest.fn() };
+    alterarTransferenciaCarteiraUseCase = { execute: jest.fn() };
+    excluirTransferenciaCarteiraUseCase = { execute: jest.fn() };
     alterarTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
     excluirTaxaMeioPagamentoCarteiraUseCase = { execute: jest.fn() };
 
@@ -88,6 +106,10 @@ describe('FinanceiroController', () => {
         {
           provide: TaxaMeioPagamentoCarteiraService,
           useValue: taxaMeioPagamentoCarteiraService,
+        },
+        {
+          provide: TransferenciaCarteiraService,
+          useValue: transferenciaCarteiraService,
         },
         { provide: AlterarCarteiraUseCase, useValue: alterarCarteiraUseCase },
         {
@@ -114,6 +136,18 @@ describe('FinanceiroController', () => {
         {
           provide: InserirTaxaMeioPagamentoCarteiraUseCase,
           useValue: inserirTaxaMeioPagamentoCarteiraUseCase,
+        },
+        {
+          provide: InserirTransferenciaCarteiraUseCase,
+          useValue: inserirTransferenciaCarteiraUseCase,
+        },
+        {
+          provide: AlterarTransferenciaCarteiraUseCase,
+          useValue: alterarTransferenciaCarteiraUseCase,
+        },
+        {
+          provide: ExcluirTransferenciaCarteiraUseCase,
+          useValue: excluirTransferenciaCarteiraUseCase,
         },
         {
           provide: AlterarTaxaMeioPagamentoCarteiraUseCase,
@@ -210,6 +244,113 @@ describe('FinanceiroController', () => {
       1,
     );
     expect(result).toBe(ajustes);
+  });
+
+  it('deve delegar inserção de transferência entre carteiras', async () => {
+    const transferencia = {
+      id: 1,
+      idCarteiraOrigem: 1,
+      idCarteiraDestino: 2,
+      valor: 10000,
+    };
+    const input = {
+      idCarteiraOrigem: 1,
+      idCarteiraDestino: 2,
+      valor: 10000,
+      dataTransferencia: '2026-06-10',
+    };
+    inserirTransferenciaCarteiraUseCase.execute.mockResolvedValue(
+      transferencia,
+    );
+
+    const result = await controller.inserirTransferenciaCarteira(
+      input as never,
+    );
+
+    expect(inserirTransferenciaCarteiraUseCase.execute).toHaveBeenCalledWith(
+      input,
+    );
+    expect(result).toBe(transferencia);
+  });
+
+  it('deve listar transferências de uma carteira', async () => {
+    const transferencias = [{ id: 1, idCarteiraOrigem: 1 }];
+    carteiraService.garantirExisteCarteira.mockResolvedValue(undefined);
+    transferenciaCarteiraService.listarTransferenciasPorCarteira.mockResolvedValue(
+      transferencias,
+    );
+
+    const result = await controller.listarTransferenciasCarteira(1);
+
+    expect(carteiraService.garantirExisteCarteira).toHaveBeenCalledWith(1);
+    expect(
+      transferenciaCarteiraService.listarTransferenciasPorCarteira,
+    ).toHaveBeenCalledWith(1);
+    expect(result).toBe(transferencias);
+  });
+
+  it('deve pesquisar transferências de carteira com paginação', async () => {
+    const pesquisa = {
+      pagina: 1,
+      tamanhoPagina: 10,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-30',
+      idCarteiraOrigem: 1,
+      idCarteiraDestino: 2,
+    };
+    const resultado = {
+      itens: [{ id: 1, idCarteiraOrigem: 1, idCarteiraDestino: 2 }],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    transferenciaCarteiraService.pesquisarTransferencias.mockResolvedValue(
+      resultado,
+    );
+
+    const result = await controller.pesquisarTransferenciasCarteira(
+      pesquisa as never,
+    );
+
+    expect(
+      transferenciaCarteiraService.pesquisarTransferencias,
+    ).toHaveBeenCalledWith(pesquisa);
+    expect(result).toBe(resultado);
+  });
+
+  it('deve delegar alteração de transferência entre carteiras', async () => {
+    const input = {
+      idCarteiraOrigem: 1,
+      idCarteiraDestino: 2,
+      valor: 12000,
+      dataTransferencia: '2026-06-11',
+    };
+    const transferencia = { id: 5, ...input };
+    alterarTransferenciaCarteiraUseCase.execute.mockResolvedValue(
+      transferencia,
+    );
+
+    const result = await controller.alterarTransferenciaCarteira(
+      5,
+      input as never,
+    );
+
+    expect(alterarTransferenciaCarteiraUseCase.execute).toHaveBeenCalledWith({
+      id: 5,
+      ...input,
+    });
+    expect(result).toBe(transferencia);
+  });
+
+  it('deve delegar exclusão de transferência entre carteiras', async () => {
+    excluirTransferenciaCarteiraUseCase.execute.mockResolvedValue(undefined);
+
+    await controller.excluirTransferenciaCarteira(5);
+
+    expect(excluirTransferenciaCarteiraUseCase.execute).toHaveBeenCalledWith({
+      id: 5,
+    });
   });
 
   it('deve delegar inserção de taxa por meio de pagamento e carteira', async () => {

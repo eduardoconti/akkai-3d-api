@@ -58,6 +58,12 @@ export const PERMISSOES = {
       LER: 'ajuste-carteira.ler',
       INSERIR: 'ajuste-carteira.inserir',
     },
+    TRANSFERENCIA_CARTEIRA: {
+      LER: 'transferencia-carteira.ler',
+      INSERIR: 'transferencia-carteira.inserir',
+      ALTERAR: 'transferencia-carteira.alterar',
+      EXCLUIR: 'transferencia-carteira.excluir',
+    },
     TAXA_MEIO_PAGAMENTO_CARTEIRA: {
       LER: 'taxa-meio-pagamento-carteira.ler',
       INSERIR: 'taxa-meio-pagamento-carteira.inserir',

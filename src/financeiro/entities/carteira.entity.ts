@@ -10,6 +10,7 @@ import { PagamentoVenda } from '@venda/entities/pagamento-venda.entity';
 import { AjusteCarteira } from './ajuste-carteira.entity';
 import { Despesa } from './despesa.entity';
 import { TaxaMeioPagamentoCarteira } from './taxa-meio-pagamento-carteira.entity';
+import { TransferenciaCarteira } from './transferencia-carteira.entity';
 
 const percentualTransformer: ValueTransformer = {
   to: (value?: number | null) => value,
@@ -69,6 +70,18 @@ export class Carteira {
 
   @OneToMany(() => AjusteCarteira, (ajuste) => ajuste.carteira)
   ajustes!: AjusteCarteira[];
+
+  @OneToMany(
+    () => TransferenciaCarteira,
+    (transferencia) => transferencia.carteiraOrigem,
+  )
+  transferenciasOrigem!: TransferenciaCarteira[];
+
+  @OneToMany(
+    () => TransferenciaCarteira,
+    (transferencia) => transferencia.carteiraDestino,
+  )
+  transferenciasDestino!: TransferenciaCarteira[];
 
   @OneToMany(() => TaxaMeioPagamentoCarteira, (taxa) => taxa.carteira)
   taxasMeioPagamento!: TaxaMeioPagamentoCarteira[];

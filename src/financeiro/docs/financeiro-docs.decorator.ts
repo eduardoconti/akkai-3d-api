@@ -12,11 +12,13 @@ import {
   AlterarCategoriaDespesaDto,
   AlterarDespesaDto,
   AlterarTaxaMeioPagamentoCarteiraDto,
+  AlterarTransferenciaCarteiraDto,
   InserirAjusteCarteiraDto,
   InserirCarteiraDto,
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
   InserirTaxaMeioPagamentoCarteiraDto,
+  InserirTransferenciaCarteiraDto,
   ListarCarteiraDto,
   ListarTaxaMeioPagamentoCarteiraDto,
 } from '@financeiro/dto';
@@ -50,6 +52,16 @@ const AJUSTE_CARTEIRA_EXEMPLO = {
   valor: 5000,
   motivo: 'Correção de saldo',
   observacao: 'Diferença encontrada na conferência manual.',
+  idUsuarioInclusao: 1,
+};
+
+const TRANSFERENCIA_CARTEIRA_EXEMPLO = {
+  id: 1,
+  dataInclusao: '2026-06-10T22:45:00.000Z',
+  dataTransferencia: '2026-06-10T00:00:00.000Z',
+  idCarteiraOrigem: 1,
+  idCarteiraDestino: 2,
+  valor: 10000,
   idUsuarioInclusao: 1,
 };
 
@@ -275,6 +287,166 @@ export function ApiListarAjustesCarteiraDocs() {
     ApiNotFoundErrorResponse(
       '/financeiro/carteiras/999/ajustes',
       'Carteira com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiInserirTransferenciaCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Transfere valor entre carteiras.',
+      description:
+        'Registra uma transferência auditável que reduz o saldo da carteira de origem e aumenta o saldo da carteira de destino.',
+    }),
+    ApiBody({
+      type: InserirTransferenciaCarteiraDto,
+      examples: {
+        padrao: {
+          summary: 'Transferência válida',
+          value: {
+            idCarteiraOrigem: 1,
+            idCarteiraDestino: 2,
+            valor: 10000,
+            dataTransferencia: '2026-06-10',
+          },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Transferência lançada com sucesso.',
+      schema: { example: TRANSFERENCIA_CARTEIRA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/financeiro/transferencias-carteira'),
+    ApiUnauthorizedErrorResponse('/financeiro/transferencias-carteira'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/transferencias-carteira',
+      'Carteira com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiListarTransferenciasCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista transferências de uma carteira.',
+      description:
+        'Retorna transferências em que a carteira informada foi origem ou destino.',
+    }),
+    ApiIdParamDocs('Identificador da carteira consultada.'),
+    ApiOkResponse({
+      description: 'Transferências encontradas com sucesso.',
+      schema: { example: [TRANSFERENCIA_CARTEIRA_EXEMPLO] },
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/carteiras/1/transferencias'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/carteiras/999/transferencias',
+      'Carteira com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiPesquisarTransferenciasCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Pesquisa transferências entre carteiras com paginação.',
+      description:
+        'Retorna transferências paginadas com filtros opcionais por termo, período, carteira de origem e carteira de destino.',
+    }),
+    ApiPaginacaoQueryDocs(),
+    ApiQuery({
+      name: 'dataInicio',
+      required: false,
+      type: String,
+      example: '2026-06-01',
+      description: 'Data inicial do filtro, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'dataFim',
+      required: false,
+      type: String,
+      example: '2026-06-30',
+      description: 'Data final do filtro, no formato YYYY-MM-DD.',
+    }),
+    ApiQuery({
+      name: 'idCarteiraOrigem',
+      required: false,
+      type: Number,
+      example: 1,
+      description: 'Identificador da carteira de origem.',
+    }),
+    ApiQuery({
+      name: 'idCarteiraDestino',
+      required: false,
+      type: Number,
+      example: 2,
+      description: 'Identificador da carteira de destino.',
+    }),
+    ApiOkResponse({
+      description: 'Transferências encontradas com sucesso.',
+      schema: {
+        example: {
+          pagina: 1,
+          tamanhoPagina: 10,
+          totalItens: 1,
+          totalPaginas: 1,
+          itens: [TRANSFERENCIA_CARTEIRA_EXEMPLO],
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/financeiro/transferencias-carteira'),
+    ApiUnauthorizedErrorResponse('/financeiro/transferencias-carteira'),
+  );
+}
+
+export function ApiAlterarTransferenciaCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera uma transferência entre carteiras.',
+      description:
+        'Atualiza data, carteiras e valor de uma transferência já registrada.',
+    }),
+    ApiIdParamDocs('Identificador da transferência.'),
+    ApiBody({
+      type: AlterarTransferenciaCarteiraDto,
+      examples: {
+        padrao: {
+          summary: 'Transferência alterada',
+          value: {
+            idCarteiraOrigem: 1,
+            idCarteiraDestino: 2,
+            valor: 12000,
+            dataTransferencia: '2026-06-11',
+          },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Transferência alterada com sucesso.',
+      schema: { example: TRANSFERENCIA_CARTEIRA_EXEMPLO },
+    }),
+    ApiValidationErrorResponse('/financeiro/transferencias-carteira/1'),
+    ApiUnauthorizedErrorResponse('/financeiro/transferencias-carteira/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/transferencias-carteira/999',
+      'Transferência com ID 999 não encontrada.',
+    ),
+  );
+}
+
+export function ApiExcluirTransferenciaCarteiraDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui uma transferência entre carteiras.',
+      description: 'Remove uma transferência registrada entre carteiras.',
+    }),
+    ApiIdParamDocs('Identificador da transferência.'),
+    ApiNoContentResponse({
+      description: 'Transferência excluída com sucesso.',
+    }),
+    ApiUnauthorizedErrorResponse('/financeiro/transferencias-carteira/1'),
+    ApiNotFoundErrorResponse(
+      '/financeiro/transferencias-carteira/999',
+      'Transferência com ID 999 não encontrada.',
     ),
   );
 }

@@ -20,6 +20,7 @@ import {
   CategoriaDespesa,
   Despesa,
   TaxaMeioPagamentoCarteira,
+  TransferenciaCarteira,
 } from '@financeiro/entities';
 import {
   CategoriaProduto,
@@ -69,6 +70,7 @@ const entities = [
   Despesa,
   AjusteCarteira,
   TaxaMeioPagamentoCarteira,
+  TransferenciaCarteira,
   User,
   Role,
   Permission,

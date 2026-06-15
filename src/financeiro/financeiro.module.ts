@@ -7,6 +7,7 @@ import {
   CategoriaDespesa,
   Despesa,
   TaxaMeioPagamentoCarteira,
+  TransferenciaCarteira,
 } from '@financeiro/entities';
 import { Feira } from '@venda/entities';
 import { FeiraService } from '@venda/services';
@@ -16,21 +17,25 @@ import {
   CategoriaDespesaService,
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
+  TransferenciaCarteiraService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
   AlterarDespesaUseCase,
+  AlterarTransferenciaCarteiraUseCase,
   AlterarTaxaMeioPagamentoCarteiraUseCase,
   ExcluirCarteiraUseCase,
   ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
+  ExcluirTransferenciaCarteiraUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirAjusteCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
   InserirTaxaMeioPagamentoCarteiraUseCase,
+  InserirTransferenciaCarteiraUseCase,
 } from '@financeiro/use-cases';
 
 @Module({
@@ -40,6 +45,7 @@ import {
       Carteira,
       Despesa,
       CategoriaDespesa,
+      TransferenciaCarteira,
       Feira,
     ]),
     TypeOrmModule.forFeature([TaxaMeioPagamentoCarteira]),
@@ -51,6 +57,7 @@ import {
     DespesaService,
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,
+    TransferenciaCarteiraService,
     FeiraService,
     InserirAjusteCarteiraUseCase,
     InserirCarteiraUseCase,
@@ -63,6 +70,9 @@ import {
     InserirCategoriaDespesaUseCase,
     AlterarCategoriaDespesaUseCase,
     InserirTaxaMeioPagamentoCarteiraUseCase,
+    InserirTransferenciaCarteiraUseCase,
+    AlterarTransferenciaCarteiraUseCase,
+    ExcluirTransferenciaCarteiraUseCase,
     AlterarTaxaMeioPagamentoCarteiraUseCase,
     ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ],
@@ -72,6 +82,7 @@ import {
     DespesaService,
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,
+    TransferenciaCarteiraService,
   ],
 })
 export class FinanceiroModule {}

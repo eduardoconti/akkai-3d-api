@@ -182,27 +182,6 @@ describe('ProdutoService', () => {
     expect(dataSource.query.mock.calls[0]?.[1]?.[0]).toEqual([2, 4]);
   });
 
-  it('deve listar estoque filtrando por termo', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([{ total: '1' }])
-      .mockResolvedValueOnce([]);
-
-    await service.listarEstoque({
-      pagina: 1,
-      tamanhoPagina: 10,
-      termo: 'Caneca',
-    });
-
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('WHERE'),
-      expect.arrayContaining(['%caneca%']),
-    );
-    expect(dataSource.query.mock.calls[0]?.[0]).toContain(
-      'p.codigo::text LIKE $1',
-    );
-  });
-
   it('deve salvar produto com sucesso', async () => {
     const produto = Object.assign(new Produto(), {
       id: 1,

@@ -133,6 +133,22 @@ export class CarteiraService {
               WHERE a.id_carteira = c.id
             ),
             0
+          ) +
+          COALESCE(
+            (
+              SELECT SUM(t.valor)
+              FROM transferencia_carteira t
+              WHERE t.id_carteira_destino = c.id
+            ),
+            0
+          ) -
+          COALESCE(
+            (
+              SELECT SUM(t.valor)
+              FROM transferencia_carteira t
+              WHERE t.id_carteira_origem = c.id
+            ),
+            0
           )
         ) AS "saldoAtual"
       FROM carteira c

@@ -11,3 +11,6 @@ export * from './alterar-taxa-meio-pagamento-carteira.use-case';
 export * from './excluir-taxa-meio-pagamento-carteira.use-case';
 export * from './excluir-carteira.use-case';
 export * from './excluir-categoria-despesa.use-case';
+export * from './inserir-transferencia-carteira.use-case';
+export * from './alterar-transferencia-carteira.use-case';
+export * from './excluir-transferencia-carteira.use-case';

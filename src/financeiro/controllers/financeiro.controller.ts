@@ -18,12 +18,15 @@ import {
   AlterarCategoriaDespesaDto,
   AlterarDespesaDto,
   AlterarTaxaMeioPagamentoCarteiraDto,
+  AlterarTransferenciaCarteiraDto,
   InserirAjusteCarteiraDto,
   InserirCarteiraDto,
   InserirCategoriaDespesaDto,
   InserirDespesaDto,
   InserirTaxaMeioPagamentoCarteiraDto,
+  InserirTransferenciaCarteiraDto,
   PesquisarDespesasDto,
+  PesquisarTransferenciasCarteiraDto,
   TotalizadoresDespesasDto,
 } from '@financeiro/dto';
 import {
@@ -32,6 +35,7 @@ import {
   Despesa,
   AjusteCarteira,
   TaxaMeioPagamentoCarteira,
+  TransferenciaCarteira,
 } from '@financeiro/entities';
 import {
   AjusteCarteiraService,
@@ -39,23 +43,30 @@ import {
   CategoriaDespesaService,
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
+  TransferenciaCarteiraService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
   AlterarCategoriaDespesaUseCase,
   AlterarDespesaUseCase,
   AlterarTaxaMeioPagamentoCarteiraUseCase,
+  AlterarTransferenciaCarteiraUseCase,
   ExcluirCarteiraUseCase,
   ExcluirCategoriaDespesaUseCase,
   ExcluirDespesaUseCase,
   ExcluirTaxaMeioPagamentoCarteiraUseCase,
+  ExcluirTransferenciaCarteiraUseCase,
   InserirAjusteCarteiraUseCase,
   InserirCarteiraUseCase,
   InserirCategoriaDespesaUseCase,
   InserirDespesaUseCase,
   InserirTaxaMeioPagamentoCarteiraUseCase,
+  InserirTransferenciaCarteiraUseCase,
 } from '@financeiro/use-cases';
-import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
+import {
+  ResultadoPaginado,
+  ResultadoPaginadoComTotalizadores,
+} from '@common/interfaces/resultado-paginado.interface';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
@@ -69,11 +80,16 @@ import {
   ApiInserirCategoriaDespesaDocs,
   ApiInserirDespesaDocs,
   ApiInserirTaxaMeioPagamentoCarteiraDocs,
+  ApiInserirTransferenciaCarteiraDocs,
+  ApiAlterarTransferenciaCarteiraDocs,
+  ApiExcluirTransferenciaCarteiraDocs,
   ApiListarCarteirasDocs,
   ApiListarCategoriasDespesaDocs,
   ApiListarDespesasDocs,
   ApiListarAjustesCarteiraDocs,
   ApiListarTaxasMeioPagamentoCarteiraDocs,
+  ApiPesquisarTransferenciasCarteiraDocs,
+  ApiListarTransferenciasCarteiraDocs,
   ApiObterTaxaMeioPagamentoCarteiraPorIdDocs,
   ApiObterCarteiraPorIdDocs,
   ApiAlterarTaxaMeioPagamentoCarteiraDocs,
@@ -89,6 +105,7 @@ export class FinanceiroController {
     private readonly despesaService: DespesaService,
     private readonly categoriaDespesaService: CategoriaDespesaService,
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
+    private readonly transferenciaCarteiraService: TransferenciaCarteiraService,
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
     private readonly inserirAjusteCarteiraUseCase: InserirAjusteCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
@@ -100,6 +117,9 @@ export class FinanceiroController {
     private readonly alterarCategoriaDespesaUseCase: AlterarCategoriaDespesaUseCase,
     private readonly excluirCategoriaDespesaUseCase: ExcluirCategoriaDespesaUseCase,
     private readonly inserirTaxaMeioPagamentoCarteiraUseCase: InserirTaxaMeioPagamentoCarteiraUseCase,
+    private readonly inserirTransferenciaCarteiraUseCase: InserirTransferenciaCarteiraUseCase,
+    private readonly alterarTransferenciaCarteiraUseCase: AlterarTransferenciaCarteiraUseCase,
+    private readonly excluirTransferenciaCarteiraUseCase: ExcluirTransferenciaCarteiraUseCase,
     private readonly alterarTaxaMeioPagamentoCarteiraUseCase: AlterarTaxaMeioPagamentoCarteiraUseCase,
     private readonly excluirTaxaMeioPagamentoCarteiraUseCase: ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ) {}
@@ -163,6 +183,56 @@ export class FinanceiroController {
   ): Promise<AjusteCarteira[]> {
     await this.carteiraService.garantirExisteCarteira(idCarteira);
     return this.ajusteCarteiraService.listarAjustesPorCarteira(idCarteira);
+  }
+
+  @ApiInserirTransferenciaCarteiraDocs()
+  @Post('transferencias-carteira')
+  @Permissions(PERMISSOES.FINANCEIRO.TRANSFERENCIA_CARTEIRA.INSERIR)
+  async inserirTransferenciaCarteira(
+    @Body() input: InserirTransferenciaCarteiraDto,
+  ): Promise<TransferenciaCarteira> {
+    return this.inserirTransferenciaCarteiraUseCase.execute(input);
+  }
+
+  @ApiPesquisarTransferenciasCarteiraDocs()
+  @Get('transferencias-carteira')
+  @Permissions(PERMISSOES.FINANCEIRO.TRANSFERENCIA_CARTEIRA.LER)
+  async pesquisarTransferenciasCarteira(
+    @Query() pesquisa: PesquisarTransferenciasCarteiraDto,
+  ): Promise<ResultadoPaginado<TransferenciaCarteira>> {
+    return this.transferenciaCarteiraService.pesquisarTransferencias(pesquisa);
+  }
+
+  @ApiAlterarTransferenciaCarteiraDocs()
+  @Put('transferencias-carteira/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.TRANSFERENCIA_CARTEIRA.ALTERAR)
+  async alterarTransferenciaCarteira(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AlterarTransferenciaCarteiraDto,
+  ): Promise<TransferenciaCarteira> {
+    return this.alterarTransferenciaCarteiraUseCase.execute({ id, ...input });
+  }
+
+  @ApiExcluirTransferenciaCarteiraDocs()
+  @Delete('transferencias-carteira/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.TRANSFERENCIA_CARTEIRA.EXCLUIR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async excluirTransferenciaCarteira(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.excluirTransferenciaCarteiraUseCase.execute({ id });
+  }
+
+  @ApiListarTransferenciasCarteiraDocs()
+  @Get('carteiras/:id/transferencias')
+  @Permissions(PERMISSOES.FINANCEIRO.TRANSFERENCIA_CARTEIRA.LER)
+  async listarTransferenciasCarteira(
+    @Param('id', ParseIntPipe) idCarteira: number,
+  ): Promise<TransferenciaCarteira[]> {
+    await this.carteiraService.garantirExisteCarteira(idCarteira);
+    return this.transferenciaCarteiraService.listarTransferenciasPorCarteira(
+      idCarteira,
+    );
   }
 
   @ApiInserirTaxaMeioPagamentoCarteiraDocs()

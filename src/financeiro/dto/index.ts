@@ -11,3 +11,6 @@ export * from './totalizadores-despesas.dto';
 export * from './inserir-taxa-meio-pagamento-carteira.dto';
 export * from './alterar-taxa-meio-pagamento-carteira.dto';
 export * from './listar-taxa-meio-pagamento-carteira.dto';
+export * from './inserir-transferencia-carteira.dto';
+export * from './alterar-transferencia-carteira.dto';
+export * from './pesquisar-transferencias-carteira.dto';
