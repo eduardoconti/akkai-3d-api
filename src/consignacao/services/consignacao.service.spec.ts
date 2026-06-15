@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import {
   Consignacao,
@@ -16,6 +16,7 @@ import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import { ConsignacaoService } from './consignacao.service';
 
 type GerenciadorTransacaoTeste = {
+  delete: jest.Mock;
   save: jest.Mock;
 };
 
@@ -38,7 +39,7 @@ describe('ConsignacaoService', () => {
     };
     dataSource = {
       transaction: jest.fn((callback: CallbackTransacaoTeste) =>
-        Promise.resolve(callback({ save: jest.fn() })),
+        Promise.resolve(callback({ delete: jest.fn(), save: jest.fn() })),
       ),
     };
 
@@ -50,7 +51,7 @@ describe('ConsignacaoService', () => {
   });
 
   it('deve registrar vendas por revendedor usando as consignações mais antigas', async () => {
-    const manager = { save: jest.fn() };
+    const manager = { delete: jest.fn(), save: jest.fn() };
     const consignacaoAntiga = criarConsignacaoComItens(
       [
         criarItemConsignacao({
@@ -192,7 +193,7 @@ describe('ConsignacaoService', () => {
   });
 
   it('deve registrar devolução e gerar entrada de estoque', async () => {
-    const manager = { save: jest.fn() };
+    const manager = { delete: jest.fn(), save: jest.fn() };
     dataSource.transaction.mockImplementation((callback) =>
       Promise.resolve(callback(manager)),
     );
@@ -220,7 +221,7 @@ describe('ConsignacaoService', () => {
   });
 
   it('deve fechar a consignação ao devolver todo o saldo disponível', async () => {
-    const manager = { save: jest.fn() };
+    const manager = { delete: jest.fn(), save: jest.fn() };
     const item = criarItemConsignacao({
       idProduto: 20,
       quantidadeEnviada: 3,
@@ -245,6 +246,163 @@ describe('ConsignacaoService', () => {
         status: StatusConsignacao.FECHADA,
       }),
     );
+  });
+
+  it('deve adicionar item e gerar saída de estoque', async () => {
+    const manager = { delete: jest.fn(), save: jest.fn() };
+    const item = ItemConsignacao.criar({
+      idProduto: 30,
+      quantidadeEnviada: 2,
+      valorUnitario: 1500,
+    });
+    const movimentacao = MovimentacaoEstoque.criar({
+      idProduto: 30,
+      quantidade: 2,
+      tipo: TipoMovimentacaoEstoque.SAIDA,
+      origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+      idUsuarioInclusao: 7,
+    });
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne
+      .mockResolvedValueOnce(criarConsignacaoComItens([]))
+      .mockResolvedValueOnce(criarConsignacaoDetalhe());
+
+    await service.adicionarItem(1, item, movimentacao);
+
+    expect(item.idConsignacao).toBe(1);
+    expect(manager.save).toHaveBeenCalledWith(
+      ItemConsignacao,
+      expect.objectContaining({ idProduto: 30, quantidadeEnviada: 2 }),
+    );
+    expect(manager.save).toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      expect.objectContaining({
+        idProduto: 30,
+        quantidade: 2,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+      }),
+    );
+  });
+
+  it('deve impedir adicionar produto repetido na consignação', async () => {
+    consignacaoRepository.findOne.mockResolvedValue(
+      criarConsignacaoComItens([criarItemConsignacao({ idProduto: 30 })]),
+    );
+
+    await expect(
+      service.adicionarItem(
+        1,
+        ItemConsignacao.criar({
+          idProduto: 30,
+          quantidadeEnviada: 2,
+          valorUnitario: 1500,
+        }),
+        MovimentacaoEstoque.criar({
+          idProduto: 30,
+          quantidade: 2,
+          tipo: TipoMovimentacaoEstoque.SAIDA,
+          origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+          idUsuarioInclusao: 7,
+        }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(dataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deve alterar item e gerar entrada quando reduzir quantidade enviada', async () => {
+    const manager = { delete: jest.fn(), save: jest.fn() };
+    const item = criarItemConsignacao({
+      quantidadeEnviada: 5,
+      quantidadeVendida: 1,
+      quantidadeDevolvida: 1,
+      valorUnitario: 2500,
+    });
+    const movimentacao = MovimentacaoEstoque.criar({
+      idProduto: item.idProduto,
+      quantidade: 2,
+      tipo: TipoMovimentacaoEstoque.ENTRADA,
+      origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+      idUsuarioInclusao: 7,
+    });
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne.mockResolvedValue(criarConsignacaoDetalhe());
+
+    await service.alterarItem(item, 3, 2200, movimentacao);
+
+    expect(item.quantidadeEnviada).toBe(3);
+    expect(item.valorUnitario).toBe(2200);
+    expect(manager.save).toHaveBeenCalledWith(ItemConsignacao, item);
+    expect(manager.save).toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      movimentacao,
+    );
+  });
+
+  it('deve impedir quantidade enviada menor que quantidade movimentada', async () => {
+    const item = criarItemConsignacao({
+      quantidadeEnviada: 5,
+      quantidadeVendida: 2,
+      quantidadeDevolvida: 1,
+    });
+
+    await expect(service.alterarItem(item, 2, 2500)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(dataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deve excluir item livre e devolver quantidade ao estoque', async () => {
+    const manager = { delete: jest.fn(), save: jest.fn() };
+    const item = criarItemConsignacao({ quantidadeEnviada: 5 });
+    const movimentacao = MovimentacaoEstoque.criar({
+      idProduto: item.idProduto,
+      quantidade: 5,
+      tipo: TipoMovimentacaoEstoque.ENTRADA,
+      origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+      idUsuarioInclusao: 7,
+    });
+
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne.mockResolvedValue(criarConsignacaoDetalhe());
+
+    await service.excluirItem(item, movimentacao);
+
+    expect(manager.delete).toHaveBeenCalledWith(ItemConsignacao, {
+      id: item.id,
+    });
+    expect(manager.save).toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      movimentacao,
+    );
+  });
+
+  it('deve impedir excluir item com venda registrada', async () => {
+    const item = criarItemConsignacao({
+      quantidadeEnviada: 5,
+      quantidadeVendida: 1,
+    });
+
+    await expect(
+      service.excluirItem(
+        item,
+        MovimentacaoEstoque.criar({
+          idProduto: item.idProduto,
+          quantidade: 5,
+          tipo: TipoMovimentacaoEstoque.ENTRADA,
+          origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+          idUsuarioInclusao: 7,
+        }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(dataSource.transaction).not.toHaveBeenCalled();
   });
 });
 

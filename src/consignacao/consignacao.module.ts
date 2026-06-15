@@ -12,7 +12,10 @@ import {
   RevendedorService,
 } from '@consignacao/services';
 import {
+  AdicionarItemConsignacaoUseCase,
+  AlterarItemConsignacaoUseCase,
   AlterarRevendedorUseCase,
+  ExcluirItemConsignacaoUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
@@ -41,6 +44,9 @@ import { FinanceiroModule } from '@financeiro/financeiro.module';
     InserirRevendedorUseCase,
     AlterarRevendedorUseCase,
     InserirConsignacaoUseCase,
+    AdicionarItemConsignacaoUseCase,
+    AlterarItemConsignacaoUseCase,
+    ExcluirItemConsignacaoUseCase,
     RegistrarVendasRevendedorConsignadoUseCase,
     RegistrarDevolucaoConsignadaUseCase,
   ],

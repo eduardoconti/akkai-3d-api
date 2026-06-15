@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -16,9 +17,11 @@ import { Permissions } from '@auth/decorators/permissions.decorator';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import {
+  AlterarItemConsignacaoDto,
   AlterarRevendedorDto,
   DetalheConsignacaoDto,
   InserirConsignacaoDto,
+  InserirItemConsignacaoDto,
   InserirRevendedorDto,
   ListarConsignacaoDto,
   PesquisarConsignacoesDto,
@@ -33,7 +36,10 @@ import {
   RevendedorService,
 } from '@consignacao/services';
 import {
+  AdicionarItemConsignacaoUseCase,
+  AlterarItemConsignacaoUseCase,
   AlterarRevendedorUseCase,
+  ExcluirItemConsignacaoUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
@@ -41,6 +47,9 @@ import {
 } from '@consignacao/use-cases';
 import {
   ApiAlterarRevendedorDocs,
+  ApiAdicionarItemConsignacaoDocs,
+  ApiAlterarItemConsignacaoDocs,
+  ApiExcluirItemConsignacaoDocs,
   ApiInserirConsignacaoDocs,
   ApiInserirRevendedorDocs,
   ApiListarConsignacoesDocs,
@@ -62,6 +71,9 @@ export class ConsignacaoController {
     private readonly inserirRevendedorUseCase: InserirRevendedorUseCase,
     private readonly alterarRevendedorUseCase: AlterarRevendedorUseCase,
     private readonly inserirConsignacaoUseCase: InserirConsignacaoUseCase,
+    private readonly adicionarItemConsignacaoUseCase: AdicionarItemConsignacaoUseCase,
+    private readonly alterarItemConsignacaoUseCase: AlterarItemConsignacaoUseCase,
+    private readonly excluirItemConsignacaoUseCase: ExcluirItemConsignacaoUseCase,
     private readonly registrarVendasRevendedorConsignadoUseCase: RegistrarVendasRevendedorConsignadoUseCase,
     private readonly registrarDevolucaoConsignadaUseCase: RegistrarDevolucaoConsignadaUseCase,
   ) {}
@@ -143,6 +155,47 @@ export class ConsignacaoController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<DetalheConsignacaoDto> {
     return this.consignacaoService.garantirDetalheConsignacao(id);
+  }
+
+  @ApiAdicionarItemConsignacaoDocs()
+  @Post(':id/itens')
+  @Permissions(PERMISSOES.ITEM_CONSIGNACAO.INSERIR)
+  async adicionarItemConsignacao(
+    @Param('id', ParseIntPipe) idConsignacao: number,
+    @Body() input: InserirItemConsignacaoDto,
+  ): Promise<DetalheConsignacaoDto> {
+    return this.adicionarItemConsignacaoUseCase.execute({
+      idConsignacao,
+      item: input,
+    });
+  }
+
+  @ApiAlterarItemConsignacaoDocs()
+  @Put(':id/itens/:idItem')
+  @Permissions(PERMISSOES.ITEM_CONSIGNACAO.ALTERAR)
+  async alterarItemConsignacao(
+    @Param('id', ParseIntPipe) idConsignacao: number,
+    @Param('idItem', ParseIntPipe) idItem: number,
+    @Body() input: AlterarItemConsignacaoDto,
+  ): Promise<DetalheConsignacaoDto> {
+    return this.alterarItemConsignacaoUseCase.execute({
+      idConsignacao,
+      idItem,
+      item: input,
+    });
+  }
+
+  @ApiExcluirItemConsignacaoDocs()
+  @Delete(':id/itens/:idItem')
+  @Permissions(PERMISSOES.ITEM_CONSIGNACAO.EXCLUIR)
+  async excluirItemConsignacao(
+    @Param('id', ParseIntPipe) idConsignacao: number,
+    @Param('idItem', ParseIntPipe) idItem: number,
+  ): Promise<DetalheConsignacaoDto> {
+    return this.excluirItemConsignacaoUseCase.execute({
+      idConsignacao,
+      idItem,
+    });
   }
 
   @ApiRelatorioConsignacaoPdfDocs()

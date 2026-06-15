@@ -10,7 +10,7 @@ export class ExcluirProdutoUseCase {
   constructor(private readonly produtoService: ProdutoService) {}
 
   async execute(input: ExcluirProdutoInput): Promise<void> {
-    await this.produtoService.obterDetalheProdutoPorId(input.id);
+    await this.produtoService.garantirExisteProduto(input.id);
     await this.produtoService.excluirProduto(input.id);
   }
 }

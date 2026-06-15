@@ -317,7 +317,117 @@ export class ConsignacaoService {
     return this.garantirDetalheConsignacao(idConsignacao);
   }
 
-  private async garantirItemAberto(
+  async adicionarItem(
+    idConsignacao: number,
+    item: ItemConsignacao,
+    movimentacao: MovimentacaoEstoque,
+  ): Promise<DetalheConsignacaoDto> {
+    const consignacao = await this.garantirConsignacaoAberta(idConsignacao);
+
+    if (
+      consignacao.itens.some(
+        (itemConsignacao) => itemConsignacao.idProduto === item.idProduto,
+      )
+    ) {
+      throw new BadRequestException(
+        'A consignação não pode repetir o mesmo produto em mais de um item.',
+      );
+    }
+
+    item.idConsignacao = idConsignacao;
+
+    await this.dataSource
+      .transaction(async (manager) => {
+        await manager.save(ItemConsignacao, item);
+        await manager.save(MovimentacaoEstoque, movimentacao);
+      })
+      .catch((error) => {
+        this.logger.error('Erro ao adicionar item à consignação', error);
+        throw new InternalServerErrorException(
+          'Erro ao adicionar item à consignação',
+        );
+      });
+
+    return this.garantirDetalheConsignacao(idConsignacao);
+  }
+
+  async alterarItem(
+    item: ItemConsignacao,
+    quantidadeEnviada: number,
+    valorUnitario: number,
+    movimentacao?: MovimentacaoEstoque,
+  ): Promise<DetalheConsignacaoDto> {
+    const quantidadeMovimentada =
+      item.quantidadeVendida + item.quantidadeDevolvida;
+
+    if (quantidadeEnviada < quantidadeMovimentada) {
+      throw new BadRequestException(
+        'A quantidade enviada não pode ser menor que a quantidade já vendida ou devolvida.',
+      );
+    }
+
+    item.quantidadeEnviada = quantidadeEnviada;
+    item.valorUnitario = valorUnitario;
+    this.sincronizarItemNaConsignacao(item);
+    const consignacaoFechada = this.fecharConsignacaoSeSemSaldo(
+      item.consignacao,
+    );
+
+    await this.dataSource
+      .transaction(async (manager) => {
+        await manager.save(ItemConsignacao, item);
+
+        if (consignacaoFechada) {
+          await manager.save(Consignacao, item.consignacao);
+        }
+
+        if (movimentacao) {
+          await manager.save(MovimentacaoEstoque, movimentacao);
+        }
+      })
+      .catch((error) => {
+        this.logger.error('Erro ao alterar item da consignação', error);
+        throw new InternalServerErrorException(
+          'Erro ao alterar item da consignação',
+        );
+      });
+
+    return this.garantirDetalheConsignacao(item.idConsignacao);
+  }
+
+  async excluirItem(
+    item: ItemConsignacao,
+    movimentacao: MovimentacaoEstoque,
+  ): Promise<DetalheConsignacaoDto> {
+    if (item.quantidadeVendida > 0 || item.quantidadeDevolvida > 0) {
+      throw new BadRequestException(
+        'Não é possível excluir item com venda ou devolução registrada.',
+      );
+    }
+
+    await this.dataSource
+      .transaction(async (manager) => {
+        await manager.delete(ItemConsignacao, { id: item.id });
+        await manager.save(MovimentacaoEstoque, movimentacao);
+      })
+      .catch((error) => {
+        this.logger.error('Erro ao excluir item da consignação', error);
+        throw new InternalServerErrorException(
+          'Erro ao excluir item da consignação',
+        );
+      });
+
+    return this.garantirDetalheConsignacao(item.idConsignacao);
+  }
+
+  async garantirItemAberto(
+    idConsignacao: number,
+    idItem: number,
+  ): Promise<ItemConsignacao> {
+    return this.garantirItemConsignacaoAberto(idConsignacao, idItem);
+  }
+
+  private async garantirItemConsignacaoAberto(
     idConsignacao: number,
     idItem: number,
   ): Promise<ItemConsignacao> {
@@ -341,6 +451,31 @@ export class ConsignacaoService {
     }
 
     return item;
+  }
+
+  private async garantirConsignacaoAberta(
+    idConsignacao: number,
+  ): Promise<Consignacao> {
+    const consignacao = await this.consignacaoRepository.findOne({
+      where: { id: idConsignacao },
+      relations: {
+        itens: true,
+      },
+    });
+
+    if (!consignacao) {
+      throw new NotFoundException(
+        `Consignação com ID ${idConsignacao} não encontrada`,
+      );
+    }
+
+    if (consignacao.status !== StatusConsignacao.ABERTA) {
+      throw new BadRequestException(
+        'A consignação precisa estar aberta para alterar itens.',
+      );
+    }
+
+    return consignacao;
   }
 
   private async listarConsignacoesAbertasPorRevendedor(

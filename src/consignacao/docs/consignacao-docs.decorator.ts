@@ -7,8 +7,10 @@ import {
   ApiProduces,
 } from '@nestjs/swagger';
 import {
+  AlterarItemConsignacaoDto,
   AlterarRevendedorDto,
   InserirConsignacaoDto,
+  InserirItemConsignacaoDto,
   InserirRevendedorDto,
   RegistrarMovimentoConsignacaoDto,
   RegistrarVendasConsignadasDto,
@@ -100,6 +102,58 @@ export function ApiObterConsignacaoPorIdDocs() {
     ApiOkResponse({ description: 'Consignação encontrada com sucesso.' }),
     ApiNotFoundErrorResponse('/consignacao/1', 'Consignação não encontrada.'),
     ApiUnauthorizedErrorResponse('/consignacao/1'),
+  );
+}
+
+export function ApiAdicionarItemConsignacaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Adiciona um item a uma consignação aberta.',
+      description:
+        'Baixa o estoque próprio do produto adicionado e atualiza o saldo da consignação.',
+    }),
+    ApiBody({ type: InserirItemConsignacaoDto }),
+    ApiOkResponse({ description: 'Item adicionado com sucesso.' }),
+    ApiValidationErrorResponse('/consignacao/1/itens'),
+    ApiNotFoundErrorResponse(
+      '/consignacao/1/itens',
+      'Consignação não encontrada.',
+    ),
+    ApiUnauthorizedErrorResponse('/consignacao/1/itens'),
+  );
+}
+
+export function ApiAlterarItemConsignacaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera um item de uma consignação aberta.',
+      description:
+        'Ajusta quantidade enviada e valor unitário, movimentando estoque pela diferença de quantidade.',
+    }),
+    ApiBody({ type: AlterarItemConsignacaoDto }),
+    ApiOkResponse({ description: 'Item alterado com sucesso.' }),
+    ApiValidationErrorResponse('/consignacao/1/itens/1'),
+    ApiNotFoundErrorResponse(
+      '/consignacao/1/itens/1',
+      'Item de consignação não encontrado.',
+    ),
+    ApiUnauthorizedErrorResponse('/consignacao/1/itens/1'),
+  );
+}
+
+export function ApiExcluirItemConsignacaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Exclui um item de uma consignação aberta.',
+      description:
+        'Devolve ao estoque próprio a quantidade enviada quando o item ainda não possui venda ou devolução registrada.',
+    }),
+    ApiOkResponse({ description: 'Item excluído com sucesso.' }),
+    ApiNotFoundErrorResponse(
+      '/consignacao/1/itens/1',
+      'Item de consignação não encontrado.',
+    ),
+    ApiUnauthorizedErrorResponse('/consignacao/1/itens/1'),
   );
 }
 

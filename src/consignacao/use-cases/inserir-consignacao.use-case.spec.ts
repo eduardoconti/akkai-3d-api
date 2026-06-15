@@ -14,12 +14,12 @@ describe('InserirConsignacaoUseCase', () => {
   let useCase: InserirConsignacaoUseCase;
   let consignacaoService: { salvarConsignacao: jest.Mock };
   let revendedorService: { garantirRevendedorAtivo: jest.Mock };
-  let produtoService: { obterDetalheProdutoPorId: jest.Mock };
+  let produtoService: { garantirExisteProduto: jest.Mock };
 
   beforeEach(() => {
     consignacaoService = { salvarConsignacao: jest.fn() };
     revendedorService = { garantirRevendedorAtivo: jest.fn() };
-    produtoService = { obterDetalheProdutoPorId: jest.fn() };
+    produtoService = { garantirExisteProduto: jest.fn() };
 
     useCase = new InserirConsignacaoUseCase(
       consignacaoService as unknown as ConsignacaoService,
@@ -34,11 +34,10 @@ describe('InserirConsignacaoUseCase', () => {
     revendedorService.garantirRevendedorAtivo.mockResolvedValue({
       percentualDesconto: 15,
     });
-    produtoService.obterDetalheProdutoPorId.mockResolvedValue({
+    produtoService.garantirExisteProduto.mockResolvedValue({
       id: 10,
       nome: 'Dragão articulado',
       valor: 2500,
-      quantidadeEstoque: 12,
     });
     consignacaoService.salvarConsignacao.mockResolvedValue(resposta);
 
@@ -85,7 +84,7 @@ describe('InserirConsignacaoUseCase', () => {
     revendedorService.garantirRevendedorAtivo.mockResolvedValue({
       percentualDesconto: 20,
     });
-    produtoService.obterDetalheProdutoPorId.mockResolvedValue({
+    produtoService.garantirExisteProduto.mockResolvedValue({
       id: 10,
       nome: 'Dragão articulado',
       valor: 2500,
@@ -119,26 +118,6 @@ describe('InserirConsignacaoUseCase', () => {
           { idProduto: 10, quantidade: 1 },
           { idProduto: 10, quantidade: 2 },
         ],
-      }),
-    ).rejects.toBeInstanceOf(BadRequestException);
-    expect(consignacaoService.salvarConsignacao).not.toHaveBeenCalled();
-  });
-
-  it('deve impedir consignação sem estoque suficiente', async () => {
-    revendedorService.garantirRevendedorAtivo.mockResolvedValue({
-      percentualDesconto: 0,
-    });
-    produtoService.obterDetalheProdutoPorId.mockResolvedValue({
-      id: 10,
-      nome: 'Dragão articulado',
-      valor: 2500,
-      quantidadeEstoque: 1,
-    });
-
-    await expect(
-      useCase.execute({
-        idRevendedor: 3,
-        itens: [{ idProduto: 10, quantidade: 2 }],
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(consignacaoService.salvarConsignacao).not.toHaveBeenCalled();

@@ -38,15 +38,9 @@ export class InserirConsignacaoUseCase {
     const movimentacoes: MovimentacaoEstoque[] = [];
 
     for (const itemInput of input.itens) {
-      const produto = await this.produtoService.obterDetalheProdutoPorId(
+      const produto = await this.produtoService.garantirExisteProduto(
         itemInput.idProduto,
       );
-
-      if (produto.quantidadeEstoque < itemInput.quantidade) {
-        throw new BadRequestException(
-          `Produto ${produto.nome} não possui estoque suficiente para consignação.`,
-        );
-      }
 
       itens.push(
         ItemConsignacao.criar({

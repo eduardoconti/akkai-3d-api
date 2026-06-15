@@ -116,6 +116,11 @@ export const PERMISSOES = {
     REGISTRAR_VENDA: 'consignacao.registrar-venda',
     REGISTRAR_DEVOLUCAO: 'consignacao.registrar-devolucao',
   },
+  ITEM_CONSIGNACAO: {
+    INSERIR: 'item-consignacao.inserir',
+    ALTERAR: 'item-consignacao.alterar',
+    EXCLUIR: 'item-consignacao.excluir',
+  },
   REVENDEDOR: {
     LER: 'revendedor.ler',
     INSERIR: 'revendedor.inserir',
