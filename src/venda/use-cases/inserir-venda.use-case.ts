@@ -22,11 +22,13 @@ import {
 } from '@venda/services';
 import { Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { FinalizarOrcamentoUseCase } from './finalizar-orcamento.use-case';
 
 export interface ExecutarInserirVendaInput {
   dataVenda: string;
   tipo: TipoVenda;
   idFeira?: number;
+  idOrcamento?: number;
   desconto?: number;
   itens: {
     quantidade: number;
@@ -51,6 +53,7 @@ export class InserirVendaUseCase {
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
     private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
     private readonly currentUserContext: CurrentUserContext,
+    private readonly finalizarOrcamentoUseCase: FinalizarOrcamentoUseCase,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
@@ -113,6 +116,7 @@ export class InserirVendaUseCase {
       dataVenda: inserirVendaInput.dataVenda,
       tipo: inserirVendaInput.tipo,
       idFeira: inserirVendaInput.idFeira,
+      idOrcamento: inserirVendaInput.idOrcamento,
       desconto: inserirVendaInput.desconto,
       itens: itensVenda,
       pagamentos,
@@ -120,6 +124,16 @@ export class InserirVendaUseCase {
 
     const venda = Venda.criar(vendaInput);
     venda.idUsuarioInclusao = idUsuarioInclusao;
+
+    if (inserirVendaInput.idOrcamento) {
+      return await this.finalizarOrcamentoUseCase.execute({
+        idOrcamento: inserirVendaInput.idOrcamento,
+        tipo: inserirVendaInput.tipo,
+        idFeira: inserirVendaInput.idFeira,
+        venda,
+        movimentacoesEstoque,
+      });
+    }
 
     return await this.vendaService.inserirVenda(venda, movimentacoesEstoque);
   }

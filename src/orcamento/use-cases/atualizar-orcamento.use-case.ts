@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { TipoOrcamento } from '@orcamento/entities';
+import { StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
 import { AtualizarOrcamentoDto } from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
@@ -33,6 +33,24 @@ export class AtualizarOrcamentoUseCase {
 
     if (input.linkSTL !== undefined) {
       orcamento.linkSTL = input.linkSTL;
+    }
+
+    if (
+      input.status === StatusOrcamento.FINALIZADO &&
+      orcamento.status !== StatusOrcamento.FINALIZADO
+    ) {
+      throw new BadRequestException(
+        'Finalize o orçamento pela venda para alterar o status para finalizado.',
+      );
+    }
+
+    if (
+      input.status === StatusOrcamento.CANCELADO &&
+      orcamento.status === StatusOrcamento.FINALIZADO
+    ) {
+      throw new BadRequestException(
+        'Não é possível cancelar um orçamento finalizado.',
+      );
     }
 
     if (input.status !== undefined) {

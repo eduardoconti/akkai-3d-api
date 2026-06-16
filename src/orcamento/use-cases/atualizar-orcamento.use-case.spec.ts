@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   CanalAtendimentoOrcamento,
   Orcamento,
+  StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
@@ -65,6 +66,34 @@ describe('AtualizarOrcamentoUseCase', () => {
 
     await expect(
       useCase.execute(1, { tipo: TipoOrcamento.ONLINE }),
+    ).rejects.toThrow(BadRequestException);
+    expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
+  });
+
+  it('deve impedir alteração direta para status finalizado', async () => {
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 1,
+      tipo: TipoOrcamento.LOJA,
+      status: StatusOrcamento.APROVADO,
+    });
+    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+
+    await expect(
+      useCase.execute(1, { status: StatusOrcamento.FINALIZADO }),
+    ).rejects.toThrow(BadRequestException);
+    expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
+  });
+
+  it('deve impedir cancelar orçamento finalizado', async () => {
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 1,
+      tipo: TipoOrcamento.LOJA,
+      status: StatusOrcamento.FINALIZADO,
+    });
+    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+
+    await expect(
+      useCase.execute(1, { status: StatusOrcamento.CANCELADO }),
     ).rejects.toThrow(BadRequestException);
     expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
   });

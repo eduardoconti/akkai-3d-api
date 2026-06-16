@@ -109,6 +109,7 @@ export class AlterarVendaUseCase {
       dataVenda: input.dataVenda,
       tipo: input.tipo,
       idFeira: input.idFeira,
+      idOrcamento: venda.idOrcamento,
       desconto: input.desconto,
       itens: itensVenda,
       pagamentos,

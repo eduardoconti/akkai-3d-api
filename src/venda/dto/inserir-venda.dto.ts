@@ -44,6 +44,15 @@ export class InserirVendaDto {
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt({ message: 'O orçamento da venda deve ser um número inteiro.' })
+  @Min(1, { message: 'O orçamento da venda deve ser maior que zero.' })
+  @Max(2147483647, {
+    message: 'O orçamento da venda ultrapassa o limite permitido.',
+  })
+  idOrcamento?: number;
+
+  @IsOptional()
+  @Type(() => Number)
   @IsInt({ message: 'O desconto da venda deve ser informado em centavos.' })
   @Min(0, { message: 'O desconto da venda não pode ser negativo.' })
   @Max(50000, {

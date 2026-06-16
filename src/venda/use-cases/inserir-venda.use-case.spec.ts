@@ -18,7 +18,9 @@ import {
   VendaService,
 } from '@venda/services';
 import {
+  ExecutarFinalizarOrcamentoInput,
   ExecutarInserirVendaInput,
+  FinalizarOrcamentoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
 
@@ -26,6 +28,9 @@ describe('InserirVendaUseCase', () => {
   let useCase: InserirVendaUseCase;
   let inserirVendaMock: jest.MockedFunction<
     (venda: Venda, movimentacoes: MovimentacaoEstoque[]) => Promise<Venda>
+  >;
+  let finalizarOrcamentoMock: jest.MockedFunction<
+    (input: ExecutarFinalizarOrcamentoInput) => Promise<Venda>
   >;
   let garantirExisteFeiraMock: jest.MockedFunction<
     (id: number) => Promise<void>
@@ -54,6 +59,10 @@ describe('InserirVendaUseCase', () => {
     inserirVendaMock = jest.fn<
       Promise<Venda>,
       [Venda, MovimentacaoEstoque[]]
+    >();
+    finalizarOrcamentoMock = jest.fn<
+      Promise<Venda>,
+      [ExecutarFinalizarOrcamentoInput]
     >();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
@@ -91,6 +100,10 @@ describe('InserirVendaUseCase', () => {
       obterValorProdutoParaFeira: obterValorProdutoParaFeiraMock,
     } as unknown as PrecoProdutoFeiraService;
 
+    const finalizarOrcamentoUseCase = {
+      execute: finalizarOrcamentoMock,
+    } as unknown as FinalizarOrcamentoUseCase;
+
     useCase = new InserirVendaUseCase(
       vendaService,
       feiraService,
@@ -99,6 +112,7 @@ describe('InserirVendaUseCase', () => {
       taxaMeioPagamentoCarteiraService,
       precoProdutoFeiraService,
       currentUserContext as CurrentUserContext,
+      finalizarOrcamentoUseCase,
     );
   });
 
@@ -491,6 +505,104 @@ describe('InserirVendaUseCase', () => {
     );
     expect(result).toBe(vendaPersistida);
   });
+
+  it('deve finalizar orçamento ao criar venda vinculada', async () => {
+    const vendaPersistida = new Venda();
+    vendaPersistida.id = 10;
+
+    finalizarOrcamentoMock.mockResolvedValue(vendaPersistida);
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+
+    const result = await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
+      tipo: TipoVenda.LOJA,
+      idOrcamento: 5,
+      itens: [
+        {
+          nomeProduto: 'Orçamento #5',
+          valorUnitario: 4500,
+          quantidade: 1,
+        },
+      ],
+      pagamentos: [criarPagamentoInput(4500)],
+    });
+
+    expect(inserirVendaMock).not.toHaveBeenCalled();
+    const finalizarInput = finalizarOrcamentoMock.mock.calls[0]![0];
+    expect(finalizarInput.idOrcamento).toBe(5);
+    expect(finalizarInput.tipo).toBe(TipoVenda.LOJA);
+    expect(finalizarInput.idFeira).toBeUndefined();
+    expect(finalizarInput.venda).toEqual(
+      expect.objectContaining({
+        idOrcamento: 5,
+        tipo: TipoVenda.LOJA,
+        valorTotal: 4500,
+      }),
+    );
+    expect(finalizarInput.movimentacoesEstoque).toEqual([]);
+    expect(result).toBe(vendaPersistida);
+  });
+
+  it('deve enviar movimentações de estoque ao finalizar orçamento com item de catálogo', async () => {
+    const vendaPersistida = new Venda();
+    vendaPersistida.id = 10;
+
+    finalizarOrcamentoMock.mockResolvedValue(vendaPersistida);
+    garantirExisteProdutoMock.mockResolvedValue(
+      Object.assign(new Produto(), {
+        id: 1,
+        nome: 'Caneca',
+        codigo: 1001,
+        idCategoria: 1,
+        valor: 4500,
+      }),
+    );
+    garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+      id: 1,
+      ativa: true,
+      meiosPagamento: [MeioPagamento.PIX],
+      consideraImpostoVenda: false,
+      percentualImpostoVenda: null,
+    });
+    obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+
+    await useCase.execute({
+      dataVenda: '2026-04-01T12:00:00.000Z',
+      tipo: TipoVenda.LOJA,
+      idOrcamento: 5,
+      itens: [
+        {
+          idProduto: 1,
+          quantidade: 1,
+        },
+      ],
+      pagamentos: [criarPagamentoInput(4500)],
+    });
+
+    expect(finalizarOrcamentoMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        idOrcamento: 5,
+        tipo: TipoVenda.LOJA,
+        movimentacoesEstoque: [
+          expect.objectContaining({
+            idProduto: 1,
+            quantidade: 1,
+            tipo: TipoMovimentacaoEstoque.SAIDA,
+            origem: OrigemMovimentacaoEstoque.VENDA,
+            idUsuarioInclusao: 7,
+          }),
+        ],
+      }),
+    );
+  });
+
   it('deve manter percentual de imposto nulo quando a carteira considerar imposto sem percentual definido', async () => {
     garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {

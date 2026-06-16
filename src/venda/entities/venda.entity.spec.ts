@@ -29,6 +29,24 @@ describe('Venda', () => {
     expect(venda.idFeira).toBeUndefined();
   });
 
+  it('deve atribuir orçamento e limpar relação ao chamar atualizar', () => {
+    const venda = new Venda();
+    venda.orcamento = { id: 8 } as never;
+
+    venda.atualizar({
+      dataVenda,
+      tipo: TipoVenda.LOJA,
+      idOrcamento: 8,
+      itens: [],
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 0 },
+      ],
+    });
+
+    expect(venda.idOrcamento).toBe(8);
+    expect(venda.orcamento).toBeUndefined();
+  });
+
   it('deve calcular o valor total corretamente com desconto apenas na venda', () => {
     const itens = [
       {

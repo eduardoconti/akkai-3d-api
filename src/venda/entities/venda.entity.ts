@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
 import { Consignacao } from '@consignacao/entities/consignacao.entity';
+import { Orcamento } from '@orcamento/entities';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
 import { PagamentoVenda, PagamentoVendaInput } from './pagamento-venda.entity';
@@ -26,6 +27,7 @@ export interface InserirVendaInput {
   tipo: TipoVenda;
   idFeira?: number;
   idConsignacao?: number;
+  idOrcamento?: number;
   desconto?: number;
   itens: ItemVendaInput[];
   pagamentos: PagamentoVendaInput[];
@@ -38,6 +40,7 @@ export interface InserirVendaInput {
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
 @Index('idx_venda_data_venda', ['dataVenda'])
 @Index('idx_venda_data_venda_tipo', ['dataVenda', 'tipo'])
+@Index('idx_venda_id_orcamento', ['idOrcamento'])
 export class Venda {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_venda',
@@ -98,6 +101,16 @@ export class Venda {
   })
   consignacao?: Consignacao;
 
+  @Column({ type: 'integer', name: 'id_orcamento', nullable: true })
+  idOrcamento?: number;
+
+  @ManyToOne(() => Orcamento, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'id_orcamento',
+    foreignKeyConstraintName: 'fk_venda_orcamento',
+  })
+  orcamento?: Orcamento | null;
+
   @OneToMany(() => ItemVenda, (itemVenda) => itemVenda.venda, {
     cascade: true,
   })
@@ -122,8 +135,10 @@ export class Venda {
     this.tipo = inserirVendaInput.tipo;
     this.idFeira = inserirVendaInput.idFeira;
     this.idConsignacao = inserirVendaInput.idConsignacao;
+    this.idOrcamento = inserirVendaInput.idOrcamento;
     this.feira = undefined;
     this.consignacao = undefined;
+    this.orcamento = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));
 

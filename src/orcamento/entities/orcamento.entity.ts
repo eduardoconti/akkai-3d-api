@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Feira } from '@venda/entities';
+import { Feira } from '@venda/entities/feira.entity';
 
 export enum StatusOrcamento {
   ATENDIMENTO = 'ATENDIMENTO',
@@ -15,6 +15,7 @@ export enum StatusOrcamento {
   APROVADO = 'APROVADO',
   PRODUZIDO = 'PRODUZIDO',
   FINALIZADO = 'FINALIZADO',
+  CANCELADO = 'CANCELADO',
 }
 
 export enum TipoOrcamento {

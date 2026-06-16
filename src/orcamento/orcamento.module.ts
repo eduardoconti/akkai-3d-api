@@ -16,5 +16,6 @@ import {
     InserirOrcamentoUseCase,
     AtualizarOrcamentoUseCase,
   ],
+  exports: [OrcamentoService],
 })
 export class OrcamentoModule {}
