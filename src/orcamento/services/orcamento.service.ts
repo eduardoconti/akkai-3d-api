@@ -51,10 +51,34 @@ export class OrcamentoService {
       .addOrderBy('orcamento.id', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
+    const termo = pesquisa.termo?.toLowerCase();
+
+    if (termo) {
+      queryBuilder.andWhere(
+        `(
+          LOWER(COALESCE(orcamento.descricao, '')) LIKE :termo
+          OR LOWER(orcamento.nomeCliente) LIKE :termo
+          OR LOWER(COALESCE(orcamento.telefoneCliente, '')) LIKE :termo
+        )`,
+        { termo: `%${termo}%` },
+      );
+    }
 
     if (pesquisa.status?.length) {
       queryBuilder.andWhere('orcamento.status IN (:...status)', {
         status: pesquisa.status,
+      });
+    }
+
+    if (pesquisa.tipo) {
+      queryBuilder.andWhere('orcamento.tipo = :tipo', {
+        tipo: pesquisa.tipo,
+      });
+    }
+
+    if (pesquisa.canalAtendimento) {
+      queryBuilder.andWhere('orcamento.canalAtendimento = :canalAtendimento', {
+        canalAtendimento: pesquisa.canalAtendimento,
       });
     }
 

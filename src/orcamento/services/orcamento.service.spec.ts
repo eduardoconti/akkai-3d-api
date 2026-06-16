@@ -1,6 +1,11 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Orcamento, StatusOrcamento } from '@orcamento/entities';
+import {
+  CanalAtendimentoOrcamento,
+  Orcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -118,6 +123,45 @@ describe('OrcamentoService', () => {
       {
         status: [StatusOrcamento.PENDENTE, StatusOrcamento.APROVADO],
       },
+    );
+  });
+
+  it('deve aplicar filtros de termo e tipo ao listar orçamentos paginados', async () => {
+    const qb = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+    };
+    repository.createQueryBuilder.mockReturnValue(qb);
+
+    await service.listarOrcamentos({
+      pagina: 1,
+      tamanhoPagina: 10,
+      termo: 'eduardo',
+      tipo: TipoOrcamento.ONLINE,
+      canalAtendimento: CanalAtendimentoOrcamento.WPP,
+    });
+
+    expect(qb.andWhere).toHaveBeenNthCalledWith(
+      1,
+      `(
+          LOWER(COALESCE(orcamento.descricao, '')) LIKE :termo
+          OR LOWER(orcamento.nomeCliente) LIKE :termo
+          OR LOWER(COALESCE(orcamento.telefoneCliente, '')) LIKE :termo
+        )`,
+      { termo: '%eduardo%' },
+    );
+    expect(qb.andWhere).toHaveBeenNthCalledWith(2, 'orcamento.tipo = :tipo', {
+      tipo: TipoOrcamento.ONLINE,
+    });
+    expect(qb.andWhere).toHaveBeenNthCalledWith(
+      3,
+      'orcamento.canalAtendimento = :canalAtendimento',
+      { canalAtendimento: CanalAtendimentoOrcamento.WPP },
     );
   });
 

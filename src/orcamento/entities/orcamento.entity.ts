@@ -9,6 +9,7 @@ import {
 import { Feira } from '@venda/entities';
 
 export enum StatusOrcamento {
+  ATENDIMENTO = 'ATENDIMENTO',
   PENDENTE = 'PENDENTE',
   AGUARDANDO_APROVACAO = 'AGUARDANDO_APROVACAO',
   APROVADO = 'APROVADO',
@@ -20,6 +21,11 @@ export enum TipoOrcamento {
   FEIRA = 'FEIRA',
   LOJA = 'LOJA',
   ONLINE = 'ONLINE',
+}
+
+export enum CanalAtendimentoOrcamento {
+  WPP = 'WPP',
+  INSTAGRAM = 'INSTAGRAM',
 }
 
 @Entity('orcamento')
@@ -70,6 +76,15 @@ export class Orcamento {
     default: TipoOrcamento.LOJA,
   })
   tipo!: TipoOrcamento;
+
+  @Column({
+    type: 'enum',
+    enum: CanalAtendimentoOrcamento,
+    enumName: 'canal_atendimento_orcamento_enum',
+    name: 'canal_atendimento',
+    nullable: true,
+  })
+  canalAtendimento?: CanalAtendimentoOrcamento;
 
   @Column({ type: 'integer', name: 'id_feira', nullable: true })
   idFeira?: number;

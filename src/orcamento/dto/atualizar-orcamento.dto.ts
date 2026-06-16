@@ -10,7 +10,11 @@ import {
   MinLength,
 } from 'class-validator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
-import { StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
+import {
+  CanalAtendimentoOrcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/entities';
 
 export class AtualizarOrcamentoDto {
   @IsOptional()
@@ -38,6 +42,12 @@ export class AtualizarOrcamentoDto {
   @IsOptional()
   @IsEnum(TipoOrcamento, { message: 'O tipo do orçamento é inválido.' })
   tipo?: TipoOrcamento;
+
+  @IsOptional()
+  @IsEnum(CanalAtendimentoOrcamento, {
+    message: 'O canal de atendimento deve ser WPP ou INSTAGRAM.',
+  })
+  canalAtendimento?: CanalAtendimentoOrcamento;
 
   @IsOptional()
   @IsInt({ message: 'A feira deve ser um número inteiro.' })

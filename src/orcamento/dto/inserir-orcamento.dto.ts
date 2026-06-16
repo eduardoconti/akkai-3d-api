@@ -12,7 +12,11 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
-import { StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
+import {
+  CanalAtendimentoOrcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/entities';
 
 export class InserirOrcamentoDto {
   @Transform(trimStringValue)
@@ -39,6 +43,12 @@ export class InserirOrcamentoDto {
 
   @IsEnum(TipoOrcamento, { message: 'O tipo do orçamento é inválido.' })
   tipo!: TipoOrcamento;
+
+  @ValidateIf((o: InserirOrcamentoDto) => o.tipo === TipoOrcamento.ONLINE)
+  @IsEnum(CanalAtendimentoOrcamento, {
+    message: 'O canal de atendimento deve ser WPP ou INSTAGRAM.',
+  })
+  canalAtendimento?: CanalAtendimentoOrcamento;
 
   @ValidateIf((o: InserirOrcamentoDto) => o.tipo === TipoOrcamento.FEIRA)
   @IsInt({ message: 'A feira deve ser um número inteiro.' })

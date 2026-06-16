@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { Orcamento, StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  CanalAtendimentoOrcamento,
+  Orcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
 
 export interface InserirOrcamentoInput {
@@ -9,6 +14,7 @@ export interface InserirOrcamentoInput {
   linkSTL?: string;
   status?: StatusOrcamento;
   tipo: TipoOrcamento;
+  canalAtendimento?: CanalAtendimentoOrcamento;
   idFeira?: number;
   valor?: number;
   quantidade?: number;
@@ -19,6 +25,12 @@ export class InserirOrcamentoUseCase {
   constructor(private readonly orcamentoService: OrcamentoService) {}
 
   async execute(input: InserirOrcamentoInput): Promise<Orcamento> {
+    if (input.tipo === TipoOrcamento.ONLINE && !input.canalAtendimento) {
+      throw new BadRequestException(
+        'Selecione o canal de atendimento do orçamento online.',
+      );
+    }
+
     const orcamento = new Orcamento();
     orcamento.nomeCliente = input.nomeCliente;
     orcamento.telefoneCliente = input.telefoneCliente;
@@ -27,6 +39,8 @@ export class InserirOrcamentoUseCase {
     orcamento.dataInclusao = new Date();
     orcamento.status = input.status ?? StatusOrcamento.PENDENTE;
     orcamento.tipo = input.tipo;
+    orcamento.canalAtendimento =
+      input.tipo === TipoOrcamento.ONLINE ? input.canalAtendimento : undefined;
     orcamento.idFeira =
       input.tipo === TipoOrcamento.FEIRA ? input.idFeira : undefined;
     orcamento.valor = input.valor;

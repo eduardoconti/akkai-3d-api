@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TipoOrcamento } from '@orcamento/entities';
 import { AtualizarOrcamentoDto } from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
@@ -41,6 +45,23 @@ export class AtualizarOrcamentoUseCase {
         orcamento.idFeira = undefined;
         orcamento.feira = null;
       }
+    }
+
+    if (input.canalAtendimento !== undefined) {
+      orcamento.canalAtendimento = input.canalAtendimento;
+    }
+
+    if (orcamento.tipo !== TipoOrcamento.ONLINE) {
+      orcamento.canalAtendimento = undefined;
+    }
+
+    if (
+      orcamento.tipo === TipoOrcamento.ONLINE &&
+      !orcamento.canalAtendimento
+    ) {
+      throw new BadRequestException(
+        'Selecione o canal de atendimento do orçamento online.',
+      );
     }
 
     if (input.idFeira !== undefined) {

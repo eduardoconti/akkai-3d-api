@@ -4,6 +4,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AtualizarOrcamentoDto, InserirOrcamentoDto } from '@orcamento/dto';
 import {
@@ -21,7 +22,8 @@ const ORCAMENTO_EXEMPLO = {
   nomeCliente: 'Eduardo',
   telefoneCliente: '11999999999',
   tipo: 'FEIRA',
-  status: 'PENDENTE',
+  status: 'ATENDIMENTO',
+  canalAtendimento: null,
   idFeira: 1,
   feira: { id: 1, nome: 'MAUA', local: 'Praça Mauá', ativa: true },
   valor: 5000,
@@ -59,6 +61,7 @@ export function ApiInserirOrcamentoDocs() {
           value: {
             nomeCliente: 'Maria',
             tipo: 'ONLINE',
+            canalAtendimento: 'WPP',
             descricao: 'Peça personalizada',
           },
         },
@@ -116,9 +119,28 @@ export function ApiListarOrcamentosDocs() {
     ApiOperation({
       summary: 'Lista orçamentos com paginação.',
       description:
-        'Retorna orçamentos paginados em ordem decrescente de data de inclusão, com a feira vinculada quando aplicável.',
+        'Retorna orçamentos paginados em ordem decrescente de data de inclusão, com filtros opcionais por termo, status e tipo.',
     }),
     ApiPaginacaoQueryDocs(),
+    ApiQuery({
+      name: 'tipo',
+      required: false,
+      enum: ['FEIRA', 'LOJA', 'ONLINE'],
+      description: 'Tipo do orçamento.',
+    }),
+    ApiQuery({
+      name: 'canalAtendimento',
+      required: false,
+      enum: ['WPP', 'INSTAGRAM'],
+      description: 'Canal de atendimento para orçamentos online.',
+    }),
+    ApiQuery({
+      name: 'status',
+      required: false,
+      type: String,
+      example: 'PENDENTE,APROVADO',
+      description: 'Lista de status separados por vírgula.',
+    }),
     ApiOkResponse({
       description: 'Orçamentos encontrados com sucesso.',
       schema: {

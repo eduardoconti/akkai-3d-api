@@ -1,5 +1,9 @@
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
-import { StatusOrcamento } from '@orcamento/entities';
+import {
+  CanalAtendimentoOrcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/entities';
 import { Transform } from 'class-transformer';
 import { IsArray, IsEnum, IsOptional } from 'class-validator';
 
@@ -35,4 +39,16 @@ export class PesquisarOrcamentosDto extends PesquisaPaginadaDto {
     message: 'Cada status informado deve ser um status de orçamento válido.',
   })
   status?: StatusOrcamento[];
+
+  @IsOptional()
+  @IsEnum(TipoOrcamento, {
+    message: 'O tipo informado deve ser um tipo de orçamento válido.',
+  })
+  tipo?: TipoOrcamento;
+
+  @IsOptional()
+  @IsEnum(CanalAtendimentoOrcamento, {
+    message: 'O canal de atendimento informado deve ser válido.',
+  })
+  canalAtendimento?: CanalAtendimentoOrcamento;
 }
