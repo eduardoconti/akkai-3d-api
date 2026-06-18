@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import {
   Column,
   Entity,
@@ -102,4 +103,14 @@ export class Orcamento {
 
   @Column({ type: 'integer', nullable: true })
   quantidade?: number;
+
+  finalizar(): void {
+    if (this.status === StatusOrcamento.FINALIZADO) {
+      throw new BadRequestException(
+        `Orçamento #${this.id} já está finalizado.`,
+      );
+    }
+
+    this.status = StatusOrcamento.FINALIZADO;
+  }
 }

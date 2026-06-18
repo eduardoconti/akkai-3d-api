@@ -1,7 +1,9 @@
 import { Carteira } from '@financeiro/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { Orcamento, StatusOrcamento } from '@orcamento/entities';
 import {
   BadRequestException,
+  ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
@@ -24,7 +26,7 @@ describe('VendaService', () => {
   let queryRunner: {
     connect: jest.Mock;
     startTransaction: jest.Mock;
-    manager: { save: jest.Mock; delete: jest.Mock };
+    manager: { save: jest.Mock; delete: jest.Mock; findOne: jest.Mock };
     commitTransaction: jest.Mock;
     rollbackTransaction: jest.Mock;
     release: jest.Mock;
@@ -71,7 +73,7 @@ describe('VendaService', () => {
     queryRunner = {
       connect: jest.fn(),
       startTransaction: jest.fn(),
-      manager: { save: jest.fn(), delete: jest.fn() },
+      manager: { save: jest.fn(), delete: jest.fn(), findOne: jest.fn() },
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
       release: jest.fn(),
@@ -139,6 +141,52 @@ describe('VendaService', () => {
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(2, movimentacoes);
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
     expect(result).toBe(venda);
+  });
+
+  it('deve inserir venda e salvar orçamento opcional na mesma transação', async () => {
+    const item = Object.assign(new ItemVenda(), { id: 9, idProduto: 1 });
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [item],
+      tipo: TipoVenda.LOJA,
+    });
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 5,
+      status: StatusOrcamento.FINALIZADO,
+    });
+
+    queryRunner.manager.save
+      .mockResolvedValueOnce(venda)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(orcamento);
+
+    const result = await service.inserirVenda(venda, [], orcamento);
+
+    expect(queryRunner.manager.findOne).not.toHaveBeenCalled();
+    expect(queryRunner.manager.save).toHaveBeenNthCalledWith(3, orcamento);
+    expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    expect(result).toBe(venda);
+  });
+
+  it('deve lançar ConflictException quando orçamento já possuir venda vinculada', async () => {
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [],
+      tipo: TipoVenda.LOJA,
+    });
+    queryRunner.manager.save.mockRejectedValueOnce({
+      driverError: {
+        code: '23505',
+        constraint: 'uk_venda_id_orcamento',
+      },
+    });
+
+    await expect(service.inserirVenda(venda, [])).rejects.toThrow(
+      new ConflictException('Orçamento já possui venda vinculada.'),
+    );
+
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
   });
 
   it('deve alterar venda dentro de transação vinculando novos movimentos aos itens', async () => {
@@ -222,6 +270,7 @@ describe('VendaService', () => {
         itens: { produto: true },
         feira: true,
         pagamentos: { carteira: true },
+        orcamento: true,
       },
     });
     expect(result).toEqual(expect.objectContaining({ id: 3 }));

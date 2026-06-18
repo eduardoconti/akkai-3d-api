@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -7,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { Orcamento, StatusOrcamento } from '@orcamento/entities';
+import { Orcamento } from '@orcamento/entities';
 import { ItemVenda, PagamentoVenda, TipoVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -64,6 +65,7 @@ export class VendaService {
   async inserirVenda(
     venda: Venda,
     movimentacaoEstoque: MovimentacaoEstoque[],
+    orcamento?: Orcamento,
   ): Promise<Venda> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
@@ -73,6 +75,11 @@ export class VendaService {
       const vendaSalva = await queryRunner.manager.save(venda);
       this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
       await queryRunner.manager.save(movimentacaoEstoque);
+
+      if (orcamento) {
+        await queryRunner.manager.save(orcamento);
+      }
+
       await queryRunner.commitTransaction();
       return this.adicionarValorLiquido(vendaSalva);
     } catch (error) {
@@ -80,57 +87,15 @@ export class VendaService {
         error instanceof Error ? error.message : 'Erro desconhecido';
       this.logger.error('Erro ao inserir venda', errorMessage);
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('Erro ao inserir venda');
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  async inserirVendaFinalizandoOrcamento(
-    venda: Venda,
-    movimentacaoEstoque: MovimentacaoEstoque[],
-    orcamento: Orcamento,
-  ): Promise<Venda> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-
-      const orcamentoAtual = await queryRunner.manager.findOne(Orcamento, {
-        where: { id: orcamento.id },
-        lock: { mode: 'pessimistic_write' },
-      });
-
-      if (!orcamentoAtual) {
-        throw new NotFoundException(
-          `Orçamento #${orcamento.id} não encontrado.`,
-        );
-      }
-
-      if (orcamentoAtual.status === StatusOrcamento.FINALIZADO) {
-        throw new BadRequestException(
-          `Orçamento #${orcamento.id} já está finalizado.`,
-        );
-      }
-
-      const vendaSalva = await queryRunner.manager.save(venda);
-      this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
-      await queryRunner.manager.save(movimentacaoEstoque);
-      orcamentoAtual.status = StatusOrcamento.FINALIZADO;
-      await queryRunner.manager.save(orcamentoAtual);
-      await queryRunner.commitTransaction();
-      return this.adicionarValorLiquido(vendaSalva);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Erro desconhecido';
-      this.logger.error('Erro ao finalizar orçamento com venda', errorMessage);
-      await queryRunner.rollbackTransaction();
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new InternalServerErrorException(
-        'Erro ao finalizar orçamento com venda',
-      );
+
+      if (this.ehViolacaoUnicidadeOrcamentoVenda(error)) {
+        throw new ConflictException('Orçamento já possui venda vinculada.');
+      }
+
+      throw new InternalServerErrorException('Erro ao inserir venda');
     } finally {
       await queryRunner.release();
     }
@@ -341,7 +306,7 @@ export class VendaService {
     venda: Venda,
     movimentacoesEstoque: MovimentacaoEstoque[],
   ): void {
-    const itensCatalogo = venda.itens.filter((item) => item.idProduto);
+    const itensCatalogo = venda.obterItensCatalogo();
 
     itensCatalogo.forEach((item, index) => {
       const movimentacao = movimentacoesEstoque[index];
@@ -353,5 +318,16 @@ export class VendaService {
       movimentacao.idItemVenda = item.id;
       movimentacao.itemVenda = item;
     });
+  }
+
+  private ehViolacaoUnicidadeOrcamentoVenda(error: unknown): boolean {
+    const driverError = (
+      error as { driverError?: { code?: string; constraint?: string } }
+    ).driverError;
+
+    return (
+      driverError?.code === '23505' &&
+      driverError.constraint === 'uk_venda_id_orcamento'
+    );
   }
 }

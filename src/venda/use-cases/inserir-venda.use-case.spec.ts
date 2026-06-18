@@ -4,6 +4,8 @@ import {
   CarteiraService,
   TaxaMeioPagamentoCarteiraService,
 } from '@financeiro/services';
+import { Orcamento, TipoOrcamento } from '@orcamento/entities';
+import { OrcamentoService } from '@orcamento/services';
 import {
   OrigemMovimentacaoEstoque,
   Produto,
@@ -15,22 +17,29 @@ import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import {
   FeiraService,
   PrecoProdutoFeiraService,
+  PrepararItensVendaService,
+  PrepararPagamentosVendaService,
   VendaService,
 } from '@venda/services';
 import {
-  ExecutarFinalizarOrcamentoInput,
   ExecutarInserirVendaInput,
-  FinalizarOrcamentoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
 
 describe('InserirVendaUseCase', () => {
   let useCase: InserirVendaUseCase;
   let inserirVendaMock: jest.MockedFunction<
-    (venda: Venda, movimentacoes: MovimentacaoEstoque[]) => Promise<Venda>
+    (
+      venda: Venda,
+      movimentacoes: MovimentacaoEstoque[],
+      orcamento?: Orcamento,
+    ) => Promise<Venda>
   >;
-  let finalizarOrcamentoMock: jest.MockedFunction<
-    (input: ExecutarFinalizarOrcamentoInput) => Promise<Venda>
+  let garantirOrcamentoPodeSerFinalizadoMock: jest.MockedFunction<
+    (
+      id: number,
+      input: { tipo: TipoOrcamento; idFeira?: number },
+    ) => Promise<Orcamento>
   >;
   let garantirExisteFeiraMock: jest.MockedFunction<
     (id: number) => Promise<void>
@@ -58,12 +67,9 @@ describe('InserirVendaUseCase', () => {
   beforeEach(() => {
     inserirVendaMock = jest.fn<
       Promise<Venda>,
-      [Venda, MovimentacaoEstoque[]]
+      [Venda, MovimentacaoEstoque[], Orcamento?]
     >();
-    finalizarOrcamentoMock = jest.fn<
-      Promise<Venda>,
-      [ExecutarFinalizarOrcamentoInput]
-    >();
+    garantirOrcamentoPodeSerFinalizadoMock = jest.fn();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
     garantirExisteProdutoMock = jest.fn<Promise<Produto>, [number]>();
@@ -100,19 +106,27 @@ describe('InserirVendaUseCase', () => {
       obterValorProdutoParaFeira: obterValorProdutoParaFeiraMock,
     } as unknown as PrecoProdutoFeiraService;
 
-    const finalizarOrcamentoUseCase = {
-      execute: finalizarOrcamentoMock,
-    } as unknown as FinalizarOrcamentoUseCase;
+    const orcamentoService = {
+      garantirOrcamentoPodeSerFinalizado:
+        garantirOrcamentoPodeSerFinalizadoMock,
+    } as unknown as OrcamentoService;
+
+    const prepararItensVendaService = new PrepararItensVendaService(
+      produtoService,
+      precoProdutoFeiraService,
+    );
+    const prepararPagamentosVendaService = new PrepararPagamentosVendaService(
+      carteiraService,
+      taxaMeioPagamentoCarteiraService,
+    );
 
     useCase = new InserirVendaUseCase(
       vendaService,
       feiraService,
-      produtoService,
-      carteiraService,
-      taxaMeioPagamentoCarteiraService,
-      precoProdutoFeiraService,
+      prepararItensVendaService,
+      prepararPagamentosVendaService,
       currentUserContext as CurrentUserContext,
-      finalizarOrcamentoUseCase,
+      orcamentoService,
     );
   });
 
@@ -196,6 +210,7 @@ describe('InserirVendaUseCase', () => {
           idUsuarioInclusao: 7,
         }),
       ],
+      undefined,
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -243,6 +258,7 @@ describe('InserirVendaUseCase', () => {
         ],
       }),
       expect.any(Array),
+      undefined,
     );
   });
 
@@ -298,6 +314,7 @@ describe('InserirVendaUseCase', () => {
         ],
       }),
       expect.any(Array),
+      undefined,
     );
   });
 
@@ -336,6 +353,7 @@ describe('InserirVendaUseCase', () => {
         idFeira: 3,
       }),
       expect.any(Array),
+      undefined,
     );
   });
 
@@ -440,6 +458,7 @@ describe('InserirVendaUseCase', () => {
         ],
       }),
       [],
+      undefined,
     );
   });
 
@@ -502,6 +521,7 @@ describe('InserirVendaUseCase', () => {
           idUsuarioInclusao: 7,
         }),
       ],
+      undefined,
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -509,8 +529,13 @@ describe('InserirVendaUseCase', () => {
   it('deve finalizar orçamento ao criar venda vinculada', async () => {
     const vendaPersistida = new Venda();
     vendaPersistida.id = 10;
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 5,
+      tipo: TipoOrcamento.LOJA,
+    });
 
-    finalizarOrcamentoMock.mockResolvedValue(vendaPersistida);
+    garantirOrcamentoPodeSerFinalizadoMock.mockResolvedValue(orcamento);
+    inserirVendaMock.mockResolvedValue(vendaPersistida);
     garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
       id: 1,
       ativa: true,
@@ -534,27 +559,32 @@ describe('InserirVendaUseCase', () => {
       pagamentos: [criarPagamentoInput(4500)],
     });
 
-    expect(inserirVendaMock).not.toHaveBeenCalled();
-    const finalizarInput = finalizarOrcamentoMock.mock.calls[0]![0];
-    expect(finalizarInput.idOrcamento).toBe(5);
-    expect(finalizarInput.tipo).toBe(TipoVenda.LOJA);
-    expect(finalizarInput.idFeira).toBeUndefined();
-    expect(finalizarInput.venda).toEqual(
+    expect(garantirOrcamentoPodeSerFinalizadoMock).toHaveBeenCalledWith(5, {
+      tipo: TipoOrcamento.LOJA,
+      idFeira: undefined,
+    });
+    expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idOrcamento: 5,
         tipo: TipoVenda.LOJA,
         valorTotal: 4500,
       }),
+      [],
+      orcamento,
     );
-    expect(finalizarInput.movimentacoesEstoque).toEqual([]);
     expect(result).toBe(vendaPersistida);
   });
 
   it('deve enviar movimentações de estoque ao finalizar orçamento com item de catálogo', async () => {
     const vendaPersistida = new Venda();
     vendaPersistida.id = 10;
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 5,
+      tipo: TipoOrcamento.LOJA,
+    });
 
-    finalizarOrcamentoMock.mockResolvedValue(vendaPersistida);
+    garantirOrcamentoPodeSerFinalizadoMock.mockResolvedValue(orcamento);
+    inserirVendaMock.mockResolvedValue(vendaPersistida);
     garantirExisteProdutoMock.mockResolvedValue(
       Object.assign(new Produto(), {
         id: 1,
@@ -586,20 +616,21 @@ describe('InserirVendaUseCase', () => {
       pagamentos: [criarPagamentoInput(4500)],
     });
 
-    expect(finalizarOrcamentoMock).toHaveBeenCalledWith(
+    expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idOrcamento: 5,
         tipo: TipoVenda.LOJA,
-        movimentacoesEstoque: [
-          expect.objectContaining({
-            idProduto: 1,
-            quantidade: 1,
-            tipo: TipoMovimentacaoEstoque.SAIDA,
-            origem: OrigemMovimentacaoEstoque.VENDA,
-            idUsuarioInclusao: 7,
-          }),
-        ],
       }),
+      [
+        expect.objectContaining({
+          idProduto: 1,
+          quantidade: 1,
+          tipo: TipoMovimentacaoEstoque.SAIDA,
+          origem: OrigemMovimentacaoEstoque.VENDA,
+          idUsuarioInclusao: 7,
+        }),
+      ],
+      orcamento,
     );
   });
 
@@ -640,6 +671,7 @@ describe('InserirVendaUseCase', () => {
         ],
       }),
       expect.any(Array),
+      undefined,
     );
   });
 });

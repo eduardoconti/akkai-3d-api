@@ -40,7 +40,10 @@ export interface InserirVendaInput {
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
 @Index('idx_venda_data_venda', ['dataVenda'])
 @Index('idx_venda_data_venda_tipo', ['dataVenda', 'tipo'])
-@Index('idx_venda_id_orcamento', ['idOrcamento'])
+@Index('uk_venda_id_orcamento', ['idOrcamento'], {
+  unique: true,
+  where: '"id_orcamento" IS NOT NULL',
+})
 export class Venda {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_venda',
@@ -198,5 +201,9 @@ export class Venda {
         'A soma dos pagamentos deve ser igual ao valor total da venda.',
       );
     }
+  }
+
+  obterItensCatalogo(): ItemVenda[] {
+    return this.itens.filter((item) => item.idProduto);
   }
 }

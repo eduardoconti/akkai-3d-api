@@ -13,6 +13,7 @@ describe('OrcamentoService', () => {
   let service: OrcamentoService;
   let repository: {
     save: jest.Mock;
+    findOne: jest.Mock;
     createQueryBuilder: jest.Mock;
     delete: jest.Mock;
   };
@@ -20,6 +21,7 @@ describe('OrcamentoService', () => {
   beforeEach(async () => {
     repository = {
       save: jest.fn(),
+      findOne: jest.fn(),
       createQueryBuilder: jest.fn(),
       delete: jest.fn(),
     };
@@ -52,6 +54,36 @@ describe('OrcamentoService', () => {
 
     expect(repository.save).toHaveBeenCalledWith(orcamento);
     expect(result).toBe(orcamento);
+  });
+
+  it('deve garantir orçamento pode ser finalizado', async () => {
+    const orcamento = Object.assign(new Orcamento(), {
+      id: 5,
+      tipo: TipoOrcamento.LOJA,
+      status: StatusOrcamento.APROVADO,
+    });
+    repository.findOne.mockResolvedValue(orcamento);
+
+    const result = await service.garantirOrcamentoPodeSerFinalizado(5, {
+      tipo: TipoOrcamento.LOJA,
+    });
+
+    expect(repository.findOne).toHaveBeenCalledWith({
+      where: { id: 5 },
+      relations: ['feira'],
+    });
+    expect(result).toBe(orcamento);
+    expect(result.status).toBe(StatusOrcamento.FINALIZADO);
+  });
+
+  it('deve lançar erro ao garantir finalização de orçamento inexistente', async () => {
+    repository.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.garantirOrcamentoPodeSerFinalizado(99, {
+        tipo: TipoOrcamento.LOJA,
+      }),
+    ).rejects.toThrow('Orçamento #99 não encontrado.');
   });
 
   it('deve lançar erro ao falhar inserção de orçamento', async () => {

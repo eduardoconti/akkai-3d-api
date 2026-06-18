@@ -9,6 +9,8 @@ import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import {
   FeiraService,
   PrecoProdutoFeiraService,
+  PrepararItensVendaService,
+  PrepararPagamentosVendaService,
   VendaService,
 } from '@venda/services';
 import {
@@ -77,13 +79,20 @@ describe('AlterarVendaUseCase', () => {
       obterValorProdutoParaFeira: obterValorProdutoParaFeiraMock,
     } as unknown as PrecoProdutoFeiraService;
 
+    const prepararItensVendaService = new PrepararItensVendaService(
+      produtoService,
+      precoProdutoFeiraService,
+    );
+    const prepararPagamentosVendaService = new PrepararPagamentosVendaService(
+      carteiraService,
+      taxaMeioPagamentoCarteiraService,
+    );
+
     useCase = new AlterarVendaUseCase(
       vendaService,
       feiraService,
-      produtoService,
-      carteiraService,
-      taxaMeioPagamentoCarteiraService,
-      precoProdutoFeiraService,
+      prepararItensVendaService,
+      prepararPagamentosVendaService,
       currentUserContext as CurrentUserContext,
     );
   });

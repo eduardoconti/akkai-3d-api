@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Orcamento } from '@orcamento/entities';
@@ -38,6 +39,17 @@ export class OrcamentoService {
       where: { id },
       relations: ['feira'],
     });
+  }
+
+  async garantirOrcamentoPodeSerFinalizado(id: number): Promise<Orcamento> {
+    const orcamento = await this.buscarPorId(id);
+
+    if (!orcamento) {
+      throw new NotFoundException(`Orçamento #${id} não encontrado.`);
+    }
+
+    orcamento.finalizar();
+    return orcamento;
   }
 
   async listarOrcamentos(

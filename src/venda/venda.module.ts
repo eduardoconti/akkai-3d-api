@@ -5,6 +5,8 @@ import { VendaController } from '@venda/controllers';
 import {
   FeiraService,
   PrecoProdutoFeiraService,
+  PrepararItensVendaService,
+  PrepararPagamentosVendaService,
   VendaService,
 } from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,7 +23,6 @@ import {
   AlterarVendaUseCase,
   ExcluirFeiraUseCase,
   ExcluirVendaUseCase,
-  FinalizarOrcamentoUseCase,
   InserirFeiraUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
@@ -33,10 +34,11 @@ import { Carteira } from '@financeiro/entities';
     VendaService,
     FeiraService,
     PrecoProdutoFeiraService,
+    PrepararItensVendaService,
+    PrepararPagamentosVendaService,
     InserirFeiraUseCase,
     AlterarFeiraUseCase,
     ExcluirFeiraUseCase,
-    FinalizarOrcamentoUseCase,
     InserirVendaUseCase,
     AlterarVendaUseCase,
     ExcluirVendaUseCase,
