@@ -5,34 +5,34 @@ import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
   @IsOptional()
   @Type(() => Number)
-  @IsInt({ message: 'Os dias de histórico devem ser um número inteiro.' })
-  @Min(1, { message: 'Os dias de histórico devem ser maior que zero.' })
+  @IsInt({ message: 'As feiras de histórico devem ser um número inteiro.' })
+  @Min(1, { message: 'As feiras de histórico devem ser maior que zero.' })
   @Max(365, {
-    message: 'Os dias de histórico devem ser de no máximo 365 dias.',
+    message: 'As feiras de histórico devem ser de no máximo 365.',
   })
-  diasHistorico = 28;
+  feirasHistorico = 8;
 
   @IsOptional()
   @Type(() => Number)
-  @IsInt({ message: 'Os dias de planejamento devem ser um número inteiro.' })
-  @Min(1, { message: 'Os dias de planejamento devem ser maior que zero.' })
+  @IsInt({ message: 'As feiras de planejamento devem ser um número inteiro.' })
+  @Min(1, { message: 'As feiras de planejamento devem ser maior que zero.' })
   @Max(90, {
-    message: 'Os dias de planejamento devem ser de no máximo 90 dias.',
+    message: 'As feiras de planejamento devem ser de no máximo 90.',
   })
-  diasPlanejamento = 7;
+  feirasPlanejamento = 2;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt({
-    message: 'Os dias de estoque de segurança devem ser um número inteiro.',
+    message: 'As feiras de estoque de segurança devem ser um número inteiro.',
   })
   @Min(0, {
-    message: 'Os dias de estoque de segurança não podem ser negativos.',
+    message: 'As feiras de estoque de segurança não podem ser negativas.',
   })
   @Max(30, {
-    message: 'Os dias de estoque de segurança devem ser de no máximo 30 dias.',
+    message: 'As feiras de estoque de segurança devem ser de no máximo 30.',
   })
-  diasEstoqueSeguranca = 2;
+  feirasEstoqueSeguranca = 1;
 
   @IsOptional()
   @IsIn(
@@ -41,13 +41,13 @@ export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
       'nome',
       'estoqueAtual',
       'quantidadeVendida',
-      'mediaVendaDiaria',
-      'diasCobertura',
+      'mediaVendaPorFeira',
+      'feirasCobertura',
       'sugestaoProducao',
     ],
     {
       message:
-        'A ordenação deve ser por codigo, nome, estoqueAtual, quantidadeVendida, mediaVendaDiaria, diasCobertura ou sugestaoProducao.',
+        'A ordenação deve ser por codigo, nome, estoqueAtual, quantidadeVendida, mediaVendaPorFeira, feirasCobertura ou sugestaoProducao.',
     },
   )
   ordenarPor?:
@@ -55,8 +55,8 @@ export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
     | 'nome'
     | 'estoqueAtual'
     | 'quantidadeVendida'
-    | 'mediaVendaDiaria'
-    | 'diasCobertura'
+    | 'mediaVendaPorFeira'
+    | 'feirasCobertura'
     | 'sugestaoProducao' = 'sugestaoProducao';
 
   @IsOptional()

@@ -409,9 +409,9 @@ export function ApiRelatorioProducaoDocs() {
 export function ApiSugestaoProducaoDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Obtém a sugestão de produção semanal.',
+      summary: 'Obtém a sugestão de produção para feiras.',
       description:
-        'Compara vendas recentes, estoque atual e estoque mínimo para sugerir quais produtos produzir. Usa os últimos dias de histórico informados, planeja a demanda futura e adiciona estoque de segurança.',
+        'Compara vendas recentes de feira, estoque atual e estoque mínimo para sugerir quais produtos produzir. Usa as últimas feiras com venda registrada, planeja a demanda dos próximos eventos e adiciona estoque de segurança.',
     }),
     ApiQuery({
       name: 'pagina',
@@ -428,26 +428,27 @@ export function ApiSugestaoProducaoDocs() {
       description: 'Quantidade máxima de itens por página.',
     }),
     ApiQuery({
-      name: 'diasHistorico',
+      name: 'feirasHistorico',
       required: false,
       type: Number,
-      example: 28,
-      description: 'Quantidade de dias recentes usada no histórico de vendas.',
+      example: 8,
+      description:
+        'Quantidade de últimas feiras com venda registrada usada no histórico.',
     }),
     ApiQuery({
-      name: 'diasPlanejamento',
-      required: false,
-      type: Number,
-      example: 7,
-      description: 'Quantidade de dias de demanda que a produção deve cobrir.',
-    }),
-    ApiQuery({
-      name: 'diasEstoqueSeguranca',
+      name: 'feirasPlanejamento',
       required: false,
       type: Number,
       example: 2,
+      description: 'Quantidade de próximas feiras que a produção deve cobrir.',
+    }),
+    ApiQuery({
+      name: 'feirasEstoqueSeguranca',
+      required: false,
+      type: Number,
+      example: 1,
       description:
-        'Quantidade adicional de dias de venda média usada como estoque de segurança.',
+        'Quantidade adicional de feiras de venda média usada como estoque de segurança.',
     }),
     ApiQuery({
       name: 'ordenarPor',
@@ -457,8 +458,8 @@ export function ApiSugestaoProducaoDocs() {
         'nome',
         'estoqueAtual',
         'quantidadeVendida',
-        'mediaVendaDiaria',
-        'diasCobertura',
+        'mediaVendaPorFeira',
+        'feirasCobertura',
         'sugestaoProducao',
       ],
       description: 'Campo usado para ordenação do relatório.',
@@ -473,16 +474,17 @@ export function ApiSugestaoProducaoDocs() {
       description: 'Sugestão calculada com sucesso.',
       schema: {
         example: {
-          dataInicio: '2026-04-01',
-          dataFim: '2026-04-28',
-          diasHistorico: 28,
-          diasPlanejamento: 7,
-          diasEstoqueSeguranca: 2,
+          dataInicio: '2026-04-04',
+          dataFim: '2026-04-26',
+          feirasHistorico: 8,
+          feirasConsideradas: 8,
+          feirasPlanejamento: 2,
+          feirasEstoqueSeguranca: 1,
           pagina: 1,
           tamanhoPagina: 10,
           totalItens: 1,
           totalPaginas: 1,
-          totalQuantidadeSugerida: 19,
+          totalQuantidadeSugerida: 24,
           itens: [
             {
               idProduto: 1,
@@ -492,13 +494,13 @@ export function ApiSugestaoProducaoDocs() {
               estoqueAtual: 8,
               estoqueMinimo: 10,
               quantidadeVendida: 84,
-              mediaVendaDiaria: 3,
+              mediaVendaPorFeira: 10.5,
               demandaPlanejada: 21,
-              estoqueSeguranca: 6,
-              estoqueAlvo: 27,
-              diasCobertura: 2.67,
-              sugestaoProducao: 19,
-              prioridade: 'PRODUZIR',
+              estoqueSeguranca: 10.5,
+              estoqueAlvo: 31.5,
+              feirasCobertura: 0.76,
+              sugestaoProducao: 24,
+              prioridade: 'CRITICO',
             },
           ],
         },

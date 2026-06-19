@@ -76,16 +76,19 @@ type SugestaoProducaoRow = {
   estoqueAtual: string | number;
   estoqueMinimo: string | number;
   quantidadeVendida: string | number;
-  mediaVendaDiaria: string | number;
+  mediaVendaPorFeira: string | number;
   demandaPlanejada: string | number;
   estoqueSeguranca: string | number;
   estoqueAlvo: string | number;
-  diasCobertura: string | number | null;
+  feirasCobertura: string | number | null;
   sugestaoProducao: string | number;
   prioridade: PrioridadeSugestaoProducao;
 };
 
 type TotalizadoresSugestaoProducaoRow = {
+  dataInicio: string | null;
+  dataFim: string | null;
+  feirasConsideradas: string | number;
   totalItens: string | number;
   totalQuantidadeSugerida: string | number | null;
 };
@@ -125,12 +128,6 @@ export class RelatorioService {
     filtro: ObterSugestaoProducaoDto,
   ): Promise<RelatorioSugestaoProducaoDto> {
     const dataFim = this.dateService.obterDataAtualLocal(new Date());
-    const dataInicio = this.dateService.subtrairDiasDataLocal(
-      dataFim,
-      filtro.diasHistorico - 1,
-    );
-    const diasHistorico = filtro.diasHistorico;
-    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
     const rangeFim = this.dateService.toUtcDateRange(dataFim);
     const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
     const orderByMap = {
@@ -138,18 +135,18 @@ export class RelatorioService {
       nome: 'nome',
       estoqueAtual: '"estoqueAtual"',
       quantidadeVendida: '"quantidadeVendida"',
-      mediaVendaDiaria: '"mediaVendaDiaria"',
-      diasCobertura: '"diasCobertura"',
+      mediaVendaPorFeira: '"mediaVendaPorFeira"',
+      feirasCobertura: '"feirasCobertura"',
       sugestaoProducao: '"sugestaoProducao"',
     } as const;
     const orderBy = orderByMap[filtro.ordenarPor ?? 'sugestaoProducao'];
     const orderDirection = filtro.direcao === 'asc' ? 'ASC' : 'DESC';
     const parametrosBase = [
-      rangeInicio.start,
       rangeFim.end,
-      diasHistorico,
-      filtro.diasPlanejamento,
-      filtro.diasEstoqueSeguranca,
+      TipoVenda.FEIRA,
+      filtro.feirasHistorico,
+      filtro.feirasPlanejamento,
+      filtro.feirasEstoqueSeguranca,
     ];
     const consultaBase = this.criarConsultaBaseSugestaoProducao();
 
@@ -165,11 +162,11 @@ export class RelatorioService {
           estoque_atual AS "estoqueAtual",
           estoque_minimo AS "estoqueMinimo",
           quantidade_vendida AS "quantidadeVendida",
-          media_venda_diaria AS "mediaVendaDiaria",
+          media_venda_por_feira AS "mediaVendaPorFeira",
           demanda_planejada AS "demandaPlanejada",
           estoque_seguranca AS "estoqueSeguranca",
           estoque_alvo AS "estoqueAlvo",
-          dias_cobertura AS "diasCobertura",
+          feiras_cobertura AS "feirasCobertura",
           sugestao_producao AS "sugestaoProducao",
           prioridade
         FROM sugestoes
@@ -186,10 +183,19 @@ export class RelatorioService {
         `
           ${consultaBase}
           SELECT
-            COUNT(*)::int AS "totalItens",
-            COALESCE(SUM(sugestao_producao), 0) AS "totalQuantidadeSugerida"
-          FROM sugestoes
-          WHERE sugestao_producao > 0
+            COALESCE(TO_CHAR(periodo.data_inicio, 'YYYY-MM-DD'), TO_CHAR($1::timestamp, 'YYYY-MM-DD')) AS "dataInicio",
+            COALESCE(TO_CHAR(periodo.data_fim, 'YYYY-MM-DD'), TO_CHAR($1::timestamp, 'YYYY-MM-DD')) AS "dataFim",
+            COALESCE(periodo.feiras_consideradas, 0)::int AS "feirasConsideradas",
+            totais."totalItens",
+            totais."totalQuantidadeSugerida"
+          FROM periodo
+          CROSS JOIN (
+            SELECT
+              COUNT(*)::int AS "totalItens",
+              COALESCE(SUM(sugestao_producao), 0) AS "totalQuantidadeSugerida"
+            FROM sugestoes
+            WHERE sugestao_producao > 0
+          ) totais
         `,
         parametrosBase,
       );
@@ -198,11 +204,12 @@ export class RelatorioService {
     const totalItens = Number(totais?.totalItens ?? 0);
 
     return {
-      dataInicio,
-      dataFim,
-      diasHistorico,
-      diasPlanejamento: filtro.diasPlanejamento,
-      diasEstoqueSeguranca: filtro.diasEstoqueSeguranca,
+      dataInicio: totais?.dataInicio ?? dataFim,
+      dataFim: totais?.dataFim ?? dataFim,
+      feirasHistorico: filtro.feirasHistorico,
+      feirasConsideradas: Number(totais?.feirasConsideradas ?? 0),
+      feirasPlanejamento: filtro.feirasPlanejamento,
+      feirasEstoqueSeguranca: filtro.feirasEstoqueSeguranca,
       pagina: filtro.pagina,
       tamanhoPagina: filtro.tamanhoPagina,
       totalItens,
@@ -328,7 +335,23 @@ export class RelatorioService {
 
   private criarConsultaBaseSugestaoProducao(): string {
     return `
-      WITH estoque AS (
+      WITH feiras_historico AS (
+        SELECT DATE(v.data_venda) AS data_feira
+        FROM venda v
+        WHERE v.tipo = $2
+          AND v.data_venda <= $1
+        GROUP BY DATE(v.data_venda)
+        ORDER BY data_feira DESC
+        LIMIT $3
+      ),
+      periodo AS (
+        SELECT
+          MIN(data_feira) AS data_inicio,
+          MAX(data_feira) AS data_fim,
+          COUNT(*)::numeric AS feiras_consideradas
+        FROM feiras_historico
+      ),
+      estoque AS (
         SELECT
           id_produto,
           SUM(
@@ -347,7 +370,8 @@ export class RelatorioService {
           SUM(item.quantidade) AS quantidade_vendida
         FROM item_venda item
         INNER JOIN venda v ON v.id = item.id_venda
-        WHERE v.data_venda BETWEEN $1 AND $2
+        INNER JOIN feiras_historico feira ON feira.data_feira = DATE(v.data_venda)
+        WHERE v.tipo = $2
           AND item.brinde = false
           AND item.id_produto IS NOT NULL
         GROUP BY item.id_produto
@@ -362,8 +386,13 @@ export class RelatorioService {
           COALESCE(estoque.estoque_atual, 0) AS estoque_atual,
           COALESCE(p.estoque_minimo, 0) AS estoque_minimo,
           COALESCE(vendas.quantidade_vendida, 0) AS quantidade_vendida,
-          COALESCE(vendas.quantidade_vendida, 0) / $3::numeric AS media_venda_diaria
+          CASE
+            WHEN periodo.feiras_consideradas > 0
+              THEN COALESCE(vendas.quantidade_vendida, 0) / periodo.feiras_consideradas
+            ELSE 0
+          END AS media_venda_por_feira
         FROM produto p
+        CROSS JOIN periodo
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
         LEFT JOIN estoque ON estoque.id_produto = p.id
         LEFT JOIN vendas ON vendas.id_produto = p.id
@@ -372,16 +401,16 @@ export class RelatorioService {
       calculos AS (
         SELECT
           *,
-          media_venda_diaria * $4::numeric AS demanda_planejada,
-          media_venda_diaria * $5::numeric AS estoque_seguranca,
+          media_venda_por_feira * $4::numeric AS demanda_planejada,
+          media_venda_por_feira * $5::numeric AS estoque_seguranca,
           GREATEST(
-            media_venda_diaria * ($4::numeric + $5::numeric),
+            media_venda_por_feira * ($4::numeric + $5::numeric),
             estoque_minimo::numeric
           ) AS estoque_alvo,
           CASE
-            WHEN media_venda_diaria > 0 THEN estoque_atual / media_venda_diaria
+            WHEN media_venda_por_feira > 0 THEN estoque_atual / media_venda_por_feira
             ELSE NULL
-          END AS dias_cobertura
+          END AS feiras_cobertura
         FROM indicadores
       ),
       sugestoes AS (
@@ -389,8 +418,8 @@ export class RelatorioService {
           *,
           GREATEST(CEIL(estoque_alvo - estoque_atual), 0)::int AS sugestao_producao,
           CASE
-            WHEN media_venda_diaria > 0
-              AND (estoque_atual <= 0 OR dias_cobertura <= 2)
+            WHEN media_venda_por_feira > 0
+              AND (estoque_atual <= 0 OR feiras_cobertura <= 1)
               THEN 'CRITICO'
             ELSE 'PRODUZIR'
           END AS prioridade
@@ -417,14 +446,14 @@ export class RelatorioService {
       estoqueAtual: Number(row.estoqueAtual ?? 0),
       estoqueMinimo: Number(row.estoqueMinimo ?? 0),
       quantidadeVendida: Number(row.quantidadeVendida ?? 0),
-      mediaVendaDiaria: this.arredondarNumero(row.mediaVendaDiaria),
+      mediaVendaPorFeira: this.arredondarNumero(row.mediaVendaPorFeira),
       demandaPlanejada: this.arredondarNumero(row.demandaPlanejada),
       estoqueSeguranca: this.arredondarNumero(row.estoqueSeguranca),
       estoqueAlvo: this.arredondarNumero(row.estoqueAlvo),
-      diasCobertura:
-        row.diasCobertura === null
+      feirasCobertura:
+        row.feirasCobertura === null
           ? null
-          : this.arredondarNumero(row.diasCobertura),
+          : this.arredondarNumero(row.feirasCobertura),
       sugestaoProducao: Number(row.sugestaoProducao ?? 0),
       prioridade: row.prioridade,
     };

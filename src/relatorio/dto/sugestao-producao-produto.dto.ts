@@ -14,11 +14,11 @@ export class SugestaoProducaoProdutoDto {
   estoqueAtual!: number;
   estoqueMinimo!: number;
   quantidadeVendida!: number;
-  mediaVendaDiaria!: number;
+  mediaVendaPorFeira!: number;
   demandaPlanejada!: number;
   estoqueSeguranca!: number;
   estoqueAlvo!: number;
-  diasCobertura!: number | null;
+  feirasCobertura!: number | null;
   sugestaoProducao!: number;
   prioridade!: PrioridadeSugestaoProducao;
 }

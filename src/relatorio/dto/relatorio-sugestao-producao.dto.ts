@@ -3,9 +3,10 @@ import { SugestaoProducaoProdutoDto } from '@relatorio/dto/sugestao-producao-pro
 export class RelatorioSugestaoProducaoDto {
   dataInicio!: string;
   dataFim!: string;
-  diasHistorico!: number;
-  diasPlanejamento!: number;
-  diasEstoqueSeguranca!: number;
+  feirasHistorico!: number;
+  feirasConsideradas!: number;
+  feirasPlanejamento!: number;
+  feirasEstoqueSeguranca!: number;
   pagina!: number;
   tamanhoPagina!: number;
   totalItens!: number;

@@ -99,10 +99,10 @@ describe('ProdutoService', () => {
     });
     expect(dataSource.query.mock.calls[1]?.[0]).toContain('estoque AS');
     expect(dataSource.query.mock.calls[1]?.[0]).toContain(
-      'LEFT JOIN estoque e ON e.id_produto = p.id',
+      'INNER JOIN produtos_base p ON p.id = me.id_produto',
     );
     expect(dataSource.query.mock.calls[1]?.[0]).toContain(
-      'WHERE id_produto IN (SELECT id FROM produtos_paginados)',
+      'COALESCE(e.quantidade_estoque, 0) AS quantidade_estoque',
     );
   });
 
@@ -125,7 +125,7 @@ describe('ProdutoService', () => {
     );
   });
 
-  it('deve ordenar produtos por estoque mínimo quando solicitado', async () => {
+  it('deve ordenar produtos por nível de estoque quando solicitado', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '0' }])
       .mockResolvedValueOnce([]);
@@ -133,13 +133,13 @@ describe('ProdutoService', () => {
     await service.listarProdutos({
       pagina: 1,
       tamanhoPagina: 10,
-      ordenarPor: 'estoqueMinimo',
+      ordenarPor: 'nivelEstoque',
       direcao: 'asc',
     });
 
     expect(dataSource.query).toHaveBeenNthCalledWith(
       2,
-      expect.stringContaining('ORDER BY COALESCE(p.estoque_minimo, 0) ASC'),
+      expect.stringContaining('ORDER BY COALESCE(e.quantidade_estoque, 0) ASC'),
       expect.any(Array),
     );
   });

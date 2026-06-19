@@ -384,51 +384,58 @@ describe('RelatorioService', () => {
           estoqueAtual: '8',
           estoqueMinimo: '10',
           quantidadeVendida: '84',
-          mediaVendaDiaria: '3',
+          mediaVendaPorFeira: '10.5',
           demandaPlanejada: '21',
-          estoqueSeguranca: '6',
-          estoqueAlvo: '27',
-          diasCobertura: '2.666666',
-          sugestaoProducao: '19',
-          prioridade: 'PRODUZIR',
+          estoqueSeguranca: '10.5',
+          estoqueAlvo: '31.5',
+          feirasCobertura: '0.761904',
+          sugestaoProducao: '24',
+          prioridade: 'CRITICO',
         },
       ])
       .mockResolvedValueOnce([
         {
+          dataInicio: '2026-04-04',
+          dataFim: '2026-04-26',
+          feirasConsideradas: '8',
           totalItens: '1',
-          totalQuantidadeSugerida: '19',
+          totalQuantidadeSugerida: '24',
         },
       ]);
 
     const result = await service.obterSugestaoProducao({
       pagina: 1,
       tamanhoPagina: 10,
-      diasHistorico: 28,
-      diasPlanejamento: 7,
-      diasEstoqueSeguranca: 2,
+      feirasHistorico: 8,
+      feirasPlanejamento: 2,
+      feirasEstoqueSeguranca: 1,
     });
 
     expect(dataSource.query).toHaveBeenNthCalledWith(
       1,
       expect.stringContaining('WHERE COALESCE(p.estoque_minimo, 0) > 0'),
-      ['2026-04-01 00:00:00.000', '2026-04-28 23:59:59.999', 28, 7, 2, 10, 0],
+      ['2026-04-28 23:59:59.999', TipoVenda.FEIRA, 8, 2, 1, 10, 0],
     );
+    const [consultaSugestao] = dataSource.query.mock.calls[0] as [string];
+    expect(consultaSugestao).toContain('v.tipo = $2');
+    expect(consultaSugestao).toContain('INNER JOIN feiras_historico feira');
     expect(dataSource.query).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining('totalQuantidadeSugerida'),
-      ['2026-04-01 00:00:00.000', '2026-04-28 23:59:59.999', 28, 7, 2],
+      ['2026-04-28 23:59:59.999', TipoVenda.FEIRA, 8, 2, 1],
     );
     expect(result).toEqual({
-      dataInicio: '2026-04-01',
-      dataFim: '2026-04-28',
-      diasHistorico: 28,
-      diasPlanejamento: 7,
-      diasEstoqueSeguranca: 2,
+      dataInicio: '2026-04-04',
+      dataFim: '2026-04-26',
+      feirasHistorico: 8,
+      feirasConsideradas: 8,
+      feirasPlanejamento: 2,
+      feirasEstoqueSeguranca: 1,
       pagina: 1,
       tamanhoPagina: 10,
       totalItens: 1,
       totalPaginas: 1,
-      totalQuantidadeSugerida: 19,
+      totalQuantidadeSugerida: 24,
       itens: [
         {
           idProduto: 1,
@@ -438,21 +445,24 @@ describe('RelatorioService', () => {
           estoqueAtual: 8,
           estoqueMinimo: 10,
           quantidadeVendida: 84,
-          mediaVendaDiaria: 3,
+          mediaVendaPorFeira: 10.5,
           demandaPlanejada: 21,
-          estoqueSeguranca: 6,
-          estoqueAlvo: 27,
-          diasCobertura: 2.67,
-          sugestaoProducao: 19,
-          prioridade: 'PRODUZIR',
+          estoqueSeguranca: 10.5,
+          estoqueAlvo: 31.5,
+          feirasCobertura: 0.76,
+          sugestaoProducao: 24,
+          prioridade: 'CRITICO',
         },
       ],
     });
   });
 
-  it('deve usar os últimos dias de histórico quando datas não forem informadas na sugestão de produção', async () => {
+  it('deve usar as últimas feiras de histórico na sugestão de produção', async () => {
     dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
       {
+        dataInicio: '2026-04-05',
+        dataFim: '2026-04-26',
+        feirasConsideradas: '6',
         totalItens: '0',
         totalQuantidadeSugerida: '0',
       },
@@ -461,25 +471,25 @@ describe('RelatorioService', () => {
     const result = await service.obterSugestaoProducao({
       pagina: 1,
       tamanhoPagina: 10,
-      diasHistorico: 28,
-      diasPlanejamento: 7,
-      diasEstoqueSeguranca: 2,
+      feirasHistorico: 8,
+      feirasPlanejamento: 2,
+      feirasEstoqueSeguranca: 1,
     });
 
     expect(dateServiceMock.obterDataAtualLocal).toHaveBeenCalled();
-    expect(dateServiceMock.subtrairDiasDataLocal).toHaveBeenCalledWith(
-      '2026-04-28',
-      27,
-    );
+    expect(dateServiceMock.subtrairDiasDataLocal).not.toHaveBeenCalled();
     expect(dataSource.query).toHaveBeenNthCalledWith(1, expect.any(String), [
-      '2026-04-01 00:00:00.000',
       '2026-04-28 23:59:59.999',
-      28,
-      7,
+      TipoVenda.FEIRA,
+      8,
       2,
+      1,
       10,
       0,
     ]);
+    expect(result.dataInicio).toBe('2026-04-05');
+    expect(result.dataFim).toBe('2026-04-26');
+    expect(result.feirasConsideradas).toBe(6);
     expect(result.totalPaginas).toBe(1);
     expect(result.totalQuantidadeSugerida).toBe(0);
   });

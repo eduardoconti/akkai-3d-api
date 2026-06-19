@@ -25,11 +25,11 @@ function normalizeIdsCategorias(value: unknown): number[] | undefined {
 
 export class PesquisarProdutosDto extends PesquisaPaginadaDto {
   @IsOptional()
-  @IsIn(['nome', 'codigo', 'estoqueMinimo'], {
+  @IsIn(['nome', 'codigo', 'nivelEstoque'], {
     message:
-      'A ordenação dos produtos deve ser por nome, código ou estoque mínimo.',
+      'A ordenação dos produtos deve ser por nome, código ou nível de estoque.',
   })
-  ordenarPor?: 'nome' | 'codigo' | 'estoqueMinimo' = 'nome';
+  ordenarPor?: 'nome' | 'codigo' | 'nivelEstoque' = 'nome';
 
   @IsOptional()
   @IsIn(['asc', 'desc'], {

@@ -35,7 +35,7 @@ export class ProdutoService {
     const orderByMap = {
       codigo: 'p.codigo',
       nome: 'p.nome',
-      estoqueMinimo: 'COALESCE(p.estoque_minimo, 0)',
+      nivelEstoque: 'COALESCE(e.quantidade_estoque, 0)',
     } as const;
     const orderBy = orderByMap[pesquisa.ordenarPor ?? 'nome'];
     const orderDirection = pesquisa.direcao === 'desc' ? 'DESC' : 'ASC';
@@ -90,7 +90,7 @@ export class ProdutoService {
       }>
     >(
       `
-       WITH produtos_filtrados AS (
+       WITH produtos_base AS (
          SELECT
            p.id,
            p.nome,
@@ -100,11 +100,40 @@ export class ProdutoService {
            p.estoque_minimo,
            p.valor,
            c.id AS categoria_id,
-           c.nome AS categoria_nome,
-           ROW_NUMBER() OVER (ORDER BY ${orderBy} ${orderDirection}, p.nome ASC) AS ordem
+           c.nome AS categoria_nome
          FROM produto p
          INNER JOIN categoria_produto c ON c.id = p.id_categoria
          ${whereClause}
+       ),
+       estoque AS (
+         SELECT
+           me.id_produto,
+           SUM(
+             CASE
+               WHEN me.tipo = 'E' THEN me.quantidade
+               WHEN me.tipo = 'S' THEN -me.quantidade
+               ELSE 0
+             END
+           ) AS quantidade_estoque
+         FROM movimentacao_estoque me
+         INNER JOIN produtos_base p ON p.id = me.id_produto
+         GROUP BY me.id_produto
+       ),
+       produtos_filtrados AS (
+         SELECT
+           p.id,
+           p.nome,
+           p.codigo,
+           p.descricao,
+           p.id_categoria,
+           p.estoque_minimo,
+           p.valor,
+           p.categoria_id,
+           p.categoria_nome,
+           COALESCE(e.quantidade_estoque, 0) AS quantidade_estoque,
+           ROW_NUMBER() OVER (ORDER BY ${orderBy} ${orderDirection}, p.nome ASC) AS ordem
+         FROM produtos_base p
+         LEFT JOIN estoque e ON e.id_produto = p.id
        ),
        produtos_paginados AS (
          SELECT *
@@ -112,20 +141,6 @@ export class ProdutoService {
          ORDER BY ordem
          LIMIT $${parametros.length - 1}
          OFFSET $${parametros.length}
-       ),
-       estoque AS (
-         SELECT
-           id_produto,
-           SUM(
-             CASE
-               WHEN tipo = 'E' THEN quantidade
-               WHEN tipo = 'S' THEN -quantidade
-               ELSE 0
-             END
-           ) AS quantidade_estoque
-         FROM movimentacao_estoque
-         WHERE id_produto IN (SELECT id FROM produtos_paginados)
-         GROUP BY id_produto
        )
        SELECT
          p.id,
@@ -137,9 +152,8 @@ export class ProdutoService {
          p.valor,
          p.categoria_id,
          p.categoria_nome,
-         COALESCE(e.quantidade_estoque, 0) AS quantidade_estoque
+         p.quantidade_estoque
        FROM produtos_paginados p
-       LEFT JOIN estoque e ON e.id_produto = p.id
        ORDER BY p.ordem
       `,
       parametros,

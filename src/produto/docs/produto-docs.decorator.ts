@@ -150,7 +150,7 @@ export function ApiListarProdutosDocs() {
     ApiQuery({
       name: 'ordenarPor',
       required: false,
-      enum: ['nome', 'codigo', 'estoqueMinimo'],
+      enum: ['nome', 'codigo', 'nivelEstoque'],
       description: 'Campo usado para ordenação dos produtos.',
     }),
     ApiQuery({
