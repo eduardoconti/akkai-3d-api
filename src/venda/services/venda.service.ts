@@ -8,7 +8,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Carteira } from '@financeiro/entities';
-import { Orcamento } from '@orcamento/entities';
 import { ItemVenda, PagamentoVenda, TipoVenda, Venda } from '@venda/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -62,22 +61,18 @@ export class VendaService {
     return venda;
   }
 
-  async inserirVenda(
-    venda: Venda,
-    movimentacaoEstoque: MovimentacaoEstoque[],
-    orcamento?: Orcamento,
-  ): Promise<Venda> {
+  async inserirVenda(venda: Venda): Promise<Venda> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
       const vendaSalva = await queryRunner.manager.save(venda);
-      this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
-      await queryRunner.manager.save(movimentacaoEstoque);
+      const movimentacoesEstoque = this.extrairMovimentacoesEstoque(vendaSalva);
+      await queryRunner.manager.save(movimentacoesEstoque);
 
-      if (orcamento) {
-        await queryRunner.manager.save(orcamento);
+      if (venda.orcamento) {
+        await queryRunner.manager.save(venda.orcamento);
       }
 
       await queryRunner.commitTransaction();
@@ -101,10 +96,7 @@ export class VendaService {
     }
   }
 
-  async alterarVenda(
-    venda: Venda,
-    movimentacaoEstoque: MovimentacaoEstoque[],
-  ): Promise<Venda> {
+  async alterarVenda(venda: Venda): Promise<Venda> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
@@ -113,8 +105,8 @@ export class VendaService {
       await queryRunner.manager.delete(PagamentoVenda, { idVenda: venda.id });
       await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
       const vendaSalva = await queryRunner.manager.save(venda);
-      this.vincularMovimentacoesAosItens(vendaSalva, movimentacaoEstoque);
-      await queryRunner.manager.save(movimentacaoEstoque);
+      const movimentacoesEstoque = this.extrairMovimentacoesEstoque(vendaSalva);
+      await queryRunner.manager.save(movimentacoesEstoque);
       await queryRunner.commitTransaction();
       return (await this.obterVendaPorId(vendaSalva.id)) ?? vendaSalva;
     } catch (error) {
@@ -302,21 +294,20 @@ export class VendaService {
     return queryBuilder;
   }
 
-  private vincularMovimentacoesAosItens(
-    venda: Venda,
-    movimentacoesEstoque: MovimentacaoEstoque[],
-  ): void {
-    const itensCatalogo = venda.obterItensCatalogo();
-
-    itensCatalogo.forEach((item, index) => {
-      const movimentacao = movimentacoesEstoque[index];
+  private extrairMovimentacoesEstoque(venda: Venda): MovimentacaoEstoque[] {
+    return venda.obterItensCatalogo().map((item) => {
+      const movimentacao = item.movimentacaoEstoque;
 
       if (!movimentacao) {
-        return;
+        throw new BadRequestException(
+          'Item de catálogo sem movimentação de estoque correspondente.',
+        );
       }
 
       movimentacao.idItemVenda = item.id;
-      movimentacao.itemVenda = item;
+      item.movimentacaoEstoque = undefined;
+
+      return movimentacao;
     });
   }
 

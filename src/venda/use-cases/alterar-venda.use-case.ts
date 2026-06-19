@@ -49,13 +49,12 @@ export class AlterarVendaUseCase {
       await this.feiraService.garantirExisteFeira(input.idFeira);
     }
 
-    const { itens, movimentacoesEstoque } =
-      await this.prepararItensVendaService.preparar({
-        tipo: input.tipo,
-        idFeira: input.idFeira,
-        idUsuarioInclusao,
-        itens: input.itens,
-      });
+    const itens = await this.prepararItensVendaService.preparar({
+      tipo: input.tipo,
+      idFeira: input.idFeira,
+      idUsuarioInclusao,
+      itens: input.itens,
+    });
 
     venda.atualizar({
       dataVenda: input.dataVenda,
@@ -67,6 +66,6 @@ export class AlterarVendaUseCase {
       pagamentos,
     });
 
-    return await this.vendaService.alterarVenda(venda, movimentacoesEstoque);
+    return await this.vendaService.alterarVenda(venda);
   }
 }

@@ -73,7 +73,7 @@ export class EstoqueService {
     const [movimentacoes, totalItens] =
       await this.movimentacaoEstoqueRepository.findAndCount({
         where: { idProduto: id },
-        relations: { usuarioInclusao: true },
+        relations: { itemVenda: true, usuarioInclusao: true },
         order: { dataInclusao: 'DESC', id: 'DESC' },
         skip: calcularOffset(pesquisa.pagina, pesquisa.tamanhoPagina),
         take: pesquisa.tamanhoPagina,
@@ -84,6 +84,8 @@ export class EstoqueService {
         id: movimentacao.id,
         idProduto: movimentacao.idProduto,
         idItemVenda: movimentacao.idItemVenda,
+        idVenda: movimentacao.itemVenda?.idVenda,
+        brinde: movimentacao.itemVenda?.brinde,
         usuario: movimentacao.usuarioInclusao?.name ?? '-',
         quantidade: movimentacao.quantidade,
         tipo: movimentacao.tipo,

@@ -1,4 +1,3 @@
-import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import {
@@ -50,13 +49,12 @@ export class InserirVendaUseCase {
       await this.feiraService.garantirExisteFeira(inserirVendaInput.idFeira);
     }
 
-    const { itens, movimentacoesEstoque } =
-      await this.prepararItensVendaService.preparar({
-        tipo: inserirVendaInput.tipo,
-        idFeira: inserirVendaInput.idFeira,
-        idUsuarioInclusao,
-        itens: inserirVendaInput.itens,
-      });
+    const itens = await this.prepararItensVendaService.preparar({
+      tipo: inserirVendaInput.tipo,
+      idFeira: inserirVendaInput.idFeira,
+      idUsuarioInclusao,
+      itens: inserirVendaInput.itens,
+    });
 
     const venda = Venda.criar({
       dataVenda: inserirVendaInput.dataVenda,
@@ -69,18 +67,13 @@ export class InserirVendaUseCase {
     });
     venda.idUsuarioInclusao = idUsuarioInclusao;
 
-    let orcamento: Orcamento | undefined;
     if (inserirVendaInput.idOrcamento) {
-      orcamento =
+      venda.orcamento =
         await this.orcamentoService.garantirOrcamentoPodeSerFinalizado(
           inserirVendaInput.idOrcamento,
         );
     }
 
-    return await this.vendaService.inserirVenda(
-      venda,
-      movimentacoesEstoque,
-      orcamento,
-    );
+    return await this.vendaService.inserirVenda(venda);
   }
 }

@@ -64,9 +64,7 @@ describe('OrcamentoService', () => {
     });
     repository.findOne.mockResolvedValue(orcamento);
 
-    const result = await service.garantirOrcamentoPodeSerFinalizado(5, {
-      tipo: TipoOrcamento.LOJA,
-    });
+    const result = await service.garantirOrcamentoPodeSerFinalizado(5);
 
     expect(repository.findOne).toHaveBeenCalledWith({
       where: { id: 5 },
@@ -80,9 +78,7 @@ describe('OrcamentoService', () => {
     repository.findOne.mockResolvedValue(null);
 
     await expect(
-      service.garantirOrcamentoPodeSerFinalizado(99, {
-        tipo: TipoOrcamento.LOJA,
-      }),
+      service.garantirOrcamentoPodeSerFinalizado(99),
     ).rejects.toThrow('Orçamento #99 não encontrado.');
   });
 

@@ -12,7 +12,6 @@ import {
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
-import { MovimentacaoEstoque } from '@produto/entities';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import {
   FeiraService,
@@ -28,18 +27,9 @@ import {
 
 describe('InserirVendaUseCase', () => {
   let useCase: InserirVendaUseCase;
-  let inserirVendaMock: jest.MockedFunction<
-    (
-      venda: Venda,
-      movimentacoes: MovimentacaoEstoque[],
-      orcamento?: Orcamento,
-    ) => Promise<Venda>
-  >;
+  let inserirVendaMock: jest.MockedFunction<(venda: Venda) => Promise<Venda>>;
   let garantirOrcamentoPodeSerFinalizadoMock: jest.MockedFunction<
-    (
-      id: number,
-      input: { tipo: TipoOrcamento; idFeira?: number },
-    ) => Promise<Orcamento>
+    (id: number) => Promise<Orcamento>
   >;
   let garantirExisteFeiraMock: jest.MockedFunction<
     (id: number) => Promise<void>
@@ -65,10 +55,7 @@ describe('InserirVendaUseCase', () => {
   });
 
   beforeEach(() => {
-    inserirVendaMock = jest.fn<
-      Promise<Venda>,
-      [Venda, MovimentacaoEstoque[], Orcamento?]
-    >();
+    inserirVendaMock = jest.fn<Promise<Venda>, [Venda]>();
     garantirOrcamentoPodeSerFinalizadoMock = jest.fn();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
@@ -201,16 +188,17 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
-      [
-        expect.objectContaining({
-          idProduto: 1,
-          quantidade: 2,
-          tipo: TipoMovimentacaoEstoque.SAIDA,
-          origem: OrigemMovimentacaoEstoque.VENDA,
-          idUsuarioInclusao: 7,
-        }),
-      ],
-      undefined,
+    );
+    expect(
+      inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 1,
+        quantidade: 2,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao: 7,
+      }),
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -257,8 +245,14 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
-      expect.any(Array),
-      undefined,
+    );
+    expect(
+      inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 1,
+        quantidade: 2,
+      }),
     );
   });
 
@@ -313,8 +307,14 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
-      expect.any(Array),
-      undefined,
+    );
+    expect(
+      inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 1,
+        quantidade: 1,
+      }),
     );
   });
 
@@ -352,8 +352,6 @@ describe('InserirVendaUseCase', () => {
       expect.objectContaining({
         idFeira: 3,
       }),
-      expect.any(Array),
-      undefined,
     );
   });
 
@@ -454,11 +452,10 @@ describe('InserirVendaUseCase', () => {
             valorUnitario: 4500,
             quantidade: 1,
             valorTotal: 4500,
+            movimentacaoEstoque: undefined,
           }),
         ],
       }),
-      [],
-      undefined,
     );
   });
 
@@ -512,16 +509,17 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
-      [
-        expect.objectContaining({
-          idProduto: 1,
-          quantidade: 2,
-          tipo: TipoMovimentacaoEstoque.SAIDA,
-          origem: OrigemMovimentacaoEstoque.VENDA,
-          idUsuarioInclusao: 7,
-        }),
-      ],
-      undefined,
+    );
+    expect(
+      inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 1,
+        quantidade: 2,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao: 7,
+      }),
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -559,18 +557,14 @@ describe('InserirVendaUseCase', () => {
       pagamentos: [criarPagamentoInput(4500)],
     });
 
-    expect(garantirOrcamentoPodeSerFinalizadoMock).toHaveBeenCalledWith(5, {
-      tipo: TipoOrcamento.LOJA,
-      idFeira: undefined,
-    });
+    expect(garantirOrcamentoPodeSerFinalizadoMock).toHaveBeenCalledWith(5);
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idOrcamento: 5,
+        orcamento,
         tipo: TipoVenda.LOJA,
         valorTotal: 4500,
       }),
-      [],
-      orcamento,
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -619,18 +613,25 @@ describe('InserirVendaUseCase', () => {
     expect(inserirVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({
         idOrcamento: 5,
+        orcamento,
         tipo: TipoVenda.LOJA,
+        itens: [
+          expect.objectContaining({
+            idProduto: 1,
+          }),
+        ],
       }),
-      [
-        expect.objectContaining({
-          idProduto: 1,
-          quantidade: 1,
-          tipo: TipoMovimentacaoEstoque.SAIDA,
-          origem: OrigemMovimentacaoEstoque.VENDA,
-          idUsuarioInclusao: 7,
-        }),
-      ],
-      orcamento,
+    );
+    expect(
+      inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 1,
+        quantidade: 1,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao: 7,
+      }),
     );
   });
 
@@ -670,8 +671,6 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
-      expect.any(Array),
-      undefined,
     );
   });
 });

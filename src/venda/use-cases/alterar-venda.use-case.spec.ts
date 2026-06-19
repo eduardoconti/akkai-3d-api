@@ -3,7 +3,11 @@ import {
   CarteiraService,
   TaxaMeioPagamentoCarteiraService,
 } from '@financeiro/services';
-import { Produto, TipoMovimentacaoEstoque } from '@produto/entities';
+import {
+  OrigemMovimentacaoEstoque,
+  Produto,
+  TipoMovimentacaoEstoque,
+} from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
 import {
@@ -23,7 +27,7 @@ describe('AlterarVendaUseCase', () => {
   const dataVenda = '2026-04-01T12:00:00.000Z';
 
   let useCase: AlterarVendaUseCase;
-  let alterarVendaMock: jest.Mock;
+  let alterarVendaMock: jest.MockedFunction<(venda: Venda) => Promise<Venda>>;
   let garantirExisteVendaMock: jest.Mock;
   let garantirExisteFeiraMock: jest.Mock;
   let garantirCarteiraAceitaMeioPagamentoMock: jest.Mock;
@@ -43,7 +47,7 @@ describe('AlterarVendaUseCase', () => {
   });
 
   beforeEach(() => {
-    alterarVendaMock = jest.fn();
+    alterarVendaMock = jest.fn<Promise<Venda>, [Venda]>();
     garantirExisteVendaMock = jest.fn();
     garantirExisteFeiraMock = jest.fn();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
@@ -171,15 +175,24 @@ describe('AlterarVendaUseCase', () => {
             valorImposto: 92,
           }),
         ],
+        itens: [
+          expect.objectContaining({
+            idProduto: 20,
+            quantidade: 1,
+          }),
+        ],
       }),
-      [
-        expect.objectContaining({
-          idProduto: 20,
-          quantidade: 1,
-          tipo: TipoMovimentacaoEstoque.SAIDA,
-          idUsuarioInclusao: 7,
-        }),
-      ],
+    );
+    expect(
+      alterarVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 20,
+        quantidade: 1,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao: 7,
+      }),
     );
     expect(result).toBe(vendaExistente);
   });
@@ -234,7 +247,14 @@ describe('AlterarVendaUseCase', () => {
           }),
         ],
       }),
-      expect.any(Array),
+    );
+    expect(
+      alterarVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
+    ).toEqual(
+      expect.objectContaining({
+        idProduto: 20,
+        quantidade: 2,
+      }),
     );
   });
 
@@ -271,7 +291,6 @@ describe('AlterarVendaUseCase', () => {
     expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
     expect(alterarVendaMock).toHaveBeenCalledWith(
       expect.objectContaining({ id: 6 }),
-      [],
     );
   });
 
@@ -331,7 +350,6 @@ describe('AlterarVendaUseCase', () => {
           }),
         ],
       }),
-      [],
     );
   });
 });

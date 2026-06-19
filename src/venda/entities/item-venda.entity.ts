@@ -17,6 +17,7 @@ export interface ItemVendaInput {
   brinde?: boolean;
   idProduto?: number;
   nomeProduto: string;
+  movimentacaoEstoque?: MovimentacaoEstoque;
 }
 
 @Entity('item_venda')
@@ -78,6 +79,8 @@ export class ItemVenda {
   )
   movimentacoesEstoque!: MovimentacaoEstoque[];
 
+  movimentacaoEstoque?: MovimentacaoEstoque;
+
   constructor() {}
 
   static criar(inserirItemVendaInput: ItemVendaInput): ItemVenda {
@@ -86,6 +89,7 @@ export class ItemVenda {
     itemVenda.nomeProduto = inserirItemVendaInput.nomeProduto;
     itemVenda.quantidade = inserirItemVendaInput.quantidade;
     itemVenda.brinde = inserirItemVendaInput.brinde ?? false;
+    itemVenda.movimentacaoEstoque = inserirItemVendaInput.movimentacaoEstoque;
     itemVenda.valorUnitario = itemVenda.brinde
       ? 0
       : inserirItemVendaInput.valorUnitario;

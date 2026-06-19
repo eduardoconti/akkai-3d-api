@@ -123,36 +123,78 @@ describe('VendaService', () => {
   });
 
   it('deve inserir venda dentro de transação vinculando movimentos aos itens', async () => {
-    const item = Object.assign(new ItemVenda(), { id: 9, idProduto: 1 });
-    const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
     const movimentacao = Object.assign(new MovimentacaoEstoque(), {
       idProduto: 1,
       quantidade: 2,
     });
+    const item = Object.assign(new ItemVenda(), {
+      id: 9,
+      idProduto: 1,
+      movimentacaoEstoque: movimentacao,
+    });
+    const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
     const movimentacoes = [movimentacao];
     queryRunner.manager.save
       .mockResolvedValueOnce(venda)
       .mockResolvedValueOnce(movimentacoes);
 
-    const result = await service.inserirVenda(venda, movimentacoes);
+    const result = await service.inserirVenda(venda);
 
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
-    expect(movimentacoes[0]?.idItemVenda).toBe(9);
+    expect(movimentacao.idItemVenda).toBe(9);
+    expect(movimentacao.itemVenda).toBeUndefined();
+    expect(item.movimentacaoEstoque).toBeUndefined();
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(2, movimentacoes);
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
     expect(result).toBe(venda);
+    expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it('deve extrair movimentações dos próprios itens de catálogo', async () => {
+    const primeiraMovimentacao = Object.assign(new MovimentacaoEstoque(), {
+      idProduto: 1,
+    });
+    const segundaMovimentacao = Object.assign(new MovimentacaoEstoque(), {
+      idProduto: 2,
+    });
+    const primeiroItem = Object.assign(new ItemVenda(), {
+      id: 9,
+      idProduto: 1,
+      movimentacaoEstoque: primeiraMovimentacao,
+    });
+    const segundoItem = Object.assign(new ItemVenda(), {
+      id: 10,
+      idProduto: 2,
+      movimentacaoEstoque: segundaMovimentacao,
+    });
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [primeiroItem, segundoItem],
+    });
+    const movimentacoes = [primeiraMovimentacao, segundaMovimentacao];
+
+    queryRunner.manager.save
+      .mockResolvedValueOnce(venda)
+      .mockResolvedValueOnce(movimentacoes);
+
+    await service.inserirVenda(venda);
+
+    expect(primeiraMovimentacao.idItemVenda).toBe(9);
+    expect(segundaMovimentacao.idItemVenda).toBe(10);
+    expect(primeiraMovimentacao.itemVenda).toBeUndefined();
+    expect(segundaMovimentacao.itemVenda).toBeUndefined();
   });
 
   it('deve inserir venda e salvar orçamento opcional na mesma transação', async () => {
-    const item = Object.assign(new ItemVenda(), { id: 9, idProduto: 1 });
-    const venda = Object.assign(new Venda(), {
-      id: 1,
-      itens: [item],
-      tipo: TipoVenda.LOJA,
-    });
     const orcamento = Object.assign(new Orcamento(), {
       id: 5,
       status: StatusOrcamento.FINALIZADO,
+    });
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [],
+      tipo: TipoVenda.LOJA,
+      orcamento,
     });
 
     queryRunner.manager.save
@@ -160,7 +202,7 @@ describe('VendaService', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce(orcamento);
 
-    const result = await service.inserirVenda(venda, [], orcamento);
+    const result = await service.inserirVenda(venda);
 
     expect(queryRunner.manager.findOne).not.toHaveBeenCalled();
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(3, orcamento);
@@ -181,7 +223,7 @@ describe('VendaService', () => {
       },
     });
 
-    await expect(service.inserirVenda(venda, [])).rejects.toThrow(
+    await expect(service.inserirVenda(venda)).rejects.toThrow(
       new ConflictException('Orçamento já possui venda vinculada.'),
     );
 
@@ -190,18 +232,21 @@ describe('VendaService', () => {
   });
 
   it('deve alterar venda dentro de transação vinculando novos movimentos aos itens', async () => {
-    const item = Object.assign(new ItemVenda(), { id: 12, idProduto: 1 });
+    const movimentacao = Object.assign(new MovimentacaoEstoque(), {
+      idProduto: 1,
+    });
+    const item = Object.assign(new ItemVenda(), {
+      id: 12,
+      idProduto: 1,
+      movimentacaoEstoque: movimentacao,
+    });
     const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
     vendaRepository.findOne.mockResolvedValue(venda);
     queryRunner.manager.save
       .mockResolvedValueOnce(venda)
-      .mockResolvedValueOnce([{ idProduto: 1 }]);
+      .mockResolvedValueOnce([movimentacao]);
 
-    const movimentacao = Object.assign(new MovimentacaoEstoque(), {
-      idProduto: 1,
-    });
-
-    const result = await service.alterarVenda(venda, [movimentacao]);
+    const result = await service.alterarVenda(venda);
 
     expect(queryRunner.manager.delete).toHaveBeenNthCalledWith(
       1,
@@ -212,10 +257,7 @@ describe('VendaService', () => {
       idVenda: 1,
     });
     expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    expect(queryRunner.manager.save.mock.calls[1]?.[0][0]?.idItemVenda).toBe(
-      12,
-    );
+    expect(movimentacao.idItemVenda).toBe(12);
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
     expect(result).toBe(venda);
   });
@@ -276,24 +318,31 @@ describe('VendaService', () => {
     expect(result).toEqual(expect.objectContaining({ id: 3 }));
   });
 
-  it('deve inserir venda com item de catálogo sem movimentação correspondente sem vincular idItemVenda', async () => {
-    const item = Object.assign(new ItemVenda(), { id: 7, idProduto: 1 });
+  it('deve lançar erro quando item de catálogo não tiver movimentação correspondente', async () => {
+    const item = Object.assign(new ItemVenda(), {
+      id: 7,
+      idProduto: 1,
+    });
     const venda = Object.assign(new Venda(), { id: 1, itens: [item] });
     queryRunner.manager.save
       .mockResolvedValueOnce(venda)
       .mockResolvedValueOnce([]);
 
-    // movimentacoes vazia: nenhuma correspondência para o item de catálogo
-    await service.inserirVenda(venda, []);
+    await expect(service.inserirVenda(venda)).rejects.toThrow(
+      new BadRequestException(
+        'Item de catálogo sem movimentação de estoque correspondente.',
+      ),
+    );
 
-    expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
   });
 
   it('deve fazer rollback ao falhar inserção da venda', async () => {
     const venda = Object.assign(new Venda(), { id: 1 });
     queryRunner.manager.save.mockRejectedValueOnce(new Error('falha'));
 
-    await expect(service.inserirVenda(venda, [])).rejects.toThrow(
+    await expect(service.inserirVenda(venda)).rejects.toThrow(
       new InternalServerErrorException('Erro ao inserir venda'),
     );
 
@@ -305,7 +354,7 @@ describe('VendaService', () => {
     const venda = Object.assign(new Venda(), { id: 1 });
     queryRunner.manager.delete.mockRejectedValueOnce(new Error('falha'));
 
-    await expect(service.alterarVenda(venda, [])).rejects.toThrow(
+    await expect(service.alterarVenda(venda)).rejects.toThrow(
       new InternalServerErrorException('Erro ao alterar venda'),
     );
 

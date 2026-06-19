@@ -118,10 +118,16 @@ describe('EstoqueService', () => {
         Object.assign(new MovimentacaoEstoque(), {
           id: 11,
           idProduto: 3,
+          idItemVenda: 21,
           quantidade: 2,
           tipo: TipoMovimentacaoEstoque.SAIDA,
           origem: OrigemMovimentacaoEstoque.VENDA,
           dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
+          itemVenda: {
+            id: 21,
+            idVenda: 101,
+            brinde: true,
+          },
           usuarioInclusao: Object.assign(new User(), {
             id: 7,
             name: 'Eduardo',
@@ -139,7 +145,7 @@ describe('EstoqueService', () => {
     expect(garantirExisteProdutoMock).toHaveBeenCalledWith(3);
     expect(movimentacaoRepository.findAndCount).toHaveBeenCalledWith({
       where: { idProduto: 3 },
-      relations: { usuarioInclusao: true },
+      relations: { itemVenda: true, usuarioInclusao: true },
       order: { dataInclusao: 'DESC', id: 'DESC' },
       skip: 0,
       take: 10,
@@ -149,7 +155,9 @@ describe('EstoqueService', () => {
         {
           id: 11,
           idProduto: 3,
-          idItemVenda: undefined,
+          idItemVenda: 21,
+          idVenda: 101,
+          brinde: true,
           usuario: 'Eduardo',
           quantidade: 2,
           tipo: TipoMovimentacaoEstoque.SAIDA,

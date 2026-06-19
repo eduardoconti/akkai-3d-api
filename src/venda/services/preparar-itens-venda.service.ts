@@ -23,11 +23,6 @@ export interface PrepararItensVendaInput {
   itens: PrepararItemVendaInput[];
 }
 
-export interface ItensVendaPreparados {
-  itens: ItemVendaInput[];
-  movimentacoesEstoque: MovimentacaoEstoque[];
-}
-
 @Injectable()
 export class PrepararItensVendaService {
   constructor(
@@ -35,11 +30,8 @@ export class PrepararItensVendaService {
     private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
   ) {}
 
-  async preparar(
-    input: PrepararItensVendaInput,
-  ): Promise<ItensVendaPreparados> {
+  async preparar(input: PrepararItensVendaInput): Promise<ItemVendaInput[]> {
     const itens: ItemVendaInput[] = [];
-    const movimentacoesEstoque: MovimentacaoEstoque[] = [];
 
     for (const item of input.itens) {
       if (item.idProduto === undefined) {
@@ -61,25 +53,24 @@ export class PrepararItensVendaService {
           produto,
         );
 
+      const movimentacaoEstoque = MovimentacaoEstoque.criar({
+        idProduto: item.idProduto,
+        quantidade: item.quantidade,
+        tipo: TipoMovimentacaoEstoque.SAIDA,
+        origem: OrigemMovimentacaoEstoque.VENDA,
+        idUsuarioInclusao: input.idUsuarioInclusao,
+      });
+
       itens.push({
         idProduto: item.idProduto,
         nomeProduto: produto.nome,
         quantidade: item.quantidade,
         valorUnitario: valorProduto,
         brinde: item.brinde,
+        movimentacaoEstoque,
       });
-
-      movimentacoesEstoque.push(
-        MovimentacaoEstoque.criar({
-          idProduto: item.idProduto,
-          quantidade: item.quantidade,
-          tipo: TipoMovimentacaoEstoque.SAIDA,
-          origem: OrigemMovimentacaoEstoque.VENDA,
-          idUsuarioInclusao: input.idUsuarioInclusao,
-        }),
-      );
     }
 
-    return { itens, movimentacoesEstoque };
+    return itens;
   }
 }

@@ -49,16 +49,16 @@ describe('PrepararItensVendaService', () => {
     });
 
     expect(obterValorProdutoParaFeiraMock).toHaveBeenCalledWith(3, produto);
-    expect(result.itens).toEqual([
-      {
+    expect(result).toEqual([
+      expect.objectContaining({
         idProduto: 1,
         nomeProduto: 'Caneca',
         quantidade: 2,
         valorUnitario: 1500,
         brinde: undefined,
-      },
+      }),
     ]);
-    expect(result.movimentacoesEstoque).toEqual([
+    expect(result[0]!.movimentacaoEstoque).toEqual(
       expect.objectContaining({
         idProduto: 1,
         quantidade: 2,
@@ -66,7 +66,7 @@ describe('PrepararItensVendaService', () => {
         origem: OrigemMovimentacaoEstoque.VENDA,
         idUsuarioInclusao: 7,
       }),
-    ]);
+    );
   });
 
   it('deve preparar item avulso sem consultar produto e sem movimentar estoque', async () => {
@@ -84,17 +84,14 @@ describe('PrepararItensVendaService', () => {
 
     expect(garantirExisteProdutoMock).not.toHaveBeenCalled();
     expect(obterValorProdutoParaFeiraMock).not.toHaveBeenCalled();
-    expect(result).toEqual({
-      itens: [
-        {
-          nomeProduto: 'Peça avulsa',
-          quantidade: 1,
-          valorUnitario: 3000,
-          brinde: undefined,
-        },
-      ],
-      movimentacoesEstoque: [],
-    });
+    expect(result).toEqual([
+      {
+        nomeProduto: 'Peça avulsa',
+        quantidade: 1,
+        valorUnitario: 3000,
+        brinde: undefined,
+      },
+    ]);
   });
 
   it('deve ignorar feira ao preparar item de venda que não é de feira', async () => {

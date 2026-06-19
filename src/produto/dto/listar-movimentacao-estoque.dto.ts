@@ -7,6 +7,8 @@ export class ListarMovimentacaoEstoqueDto {
   id!: number;
   idProduto!: number;
   idItemVenda?: number;
+  idVenda?: number;
+  brinde?: boolean;
   usuario!: string;
   quantidade!: number;
   tipo!: TipoMovimentacaoEstoque;
