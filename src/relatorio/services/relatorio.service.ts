@@ -459,16 +459,6 @@ export class RelatorioService {
     };
   }
 
-  private calcularDiasPeriodo(dataInicio: string, dataFim: string): number {
-    return (
-      Math.floor(
-        (Date.parse(`${dataFim}T00:00:00Z`) -
-          Date.parse(`${dataInicio}T00:00:00Z`)) /
-          86400000,
-      ) + 1
-    );
-  }
-
   private arredondarNumero(valor: string | number | null): number {
     return Math.round(Number(valor ?? 0) * 100) / 100;
   }
