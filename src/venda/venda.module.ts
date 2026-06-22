@@ -7,6 +7,7 @@ import {
   PrecoProdutoFeiraService,
   PrepararItensVendaService,
   PrepararPagamentosVendaService,
+  TrocaDevolucaoService,
   VendaService,
 } from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,6 +16,8 @@ import {
   ItemVenda,
   PagamentoVenda,
   PrecoProdutoFeira,
+  ItemTrocaDevolucao,
+  TrocaDevolucao,
   Venda,
 } from '@venda/entities';
 import { ProdutoModule } from '@produto/produto.module';
@@ -24,6 +27,7 @@ import {
   ExcluirFeiraUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
+  InserirTrocaDevolucaoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
 import { Carteira } from '@financeiro/entities';
@@ -36,9 +40,11 @@ import { Carteira } from '@financeiro/entities';
     PrecoProdutoFeiraService,
     PrepararItensVendaService,
     PrepararPagamentosVendaService,
+    TrocaDevolucaoService,
     InserirFeiraUseCase,
     AlterarFeiraUseCase,
     ExcluirFeiraUseCase,
+    InserirTrocaDevolucaoUseCase,
     InserirVendaUseCase,
     AlterarVendaUseCase,
     ExcluirVendaUseCase,
@@ -51,6 +57,8 @@ import { Carteira } from '@financeiro/entities';
       Venda,
       ItemVenda,
       PagamentoVenda,
+      TrocaDevolucao,
+      ItemTrocaDevolucao,
       Feira,
       PrecoProdutoFeira,
       Carteira,

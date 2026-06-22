@@ -638,7 +638,7 @@ export class RelatorioService {
         SELECT
           item.id_produto AS "idProduto",
           p.codigo AS codigo,
-          item.nome_produto AS "nomeProduto",
+          p.nome AS "nomeProduto",
           categoria.id AS "categoriaId",
           categoria.nome AS "categoriaNome",
           SUM(item.quantidade) AS "quantidadeVendida"
@@ -650,12 +650,12 @@ export class RelatorioService {
         GROUP BY
           item.id_produto,
           p.codigo,
-          item.nome_produto,
+          p.nome,
           categoria.id,
           categoria.nome
         ORDER BY
           SUM(item.quantidade) DESC,
-          item.nome_produto ASC
+          p.nome ASC
         LIMIT 5
       `,
       [rangeMes.start, rangeMes.end],
@@ -872,7 +872,7 @@ export class RelatorioService {
         SELECT
           item.id_produto AS "idProduto",
           p.codigo AS codigo,
-          item.nome_produto AS "nomeProduto",
+          p.nome AS "nomeProduto",
           categoria.id AS "categoriaId",
           categoria.nome AS "categoriaNome",
           SUM(item.quantidade) AS "quantidadeVendida"
@@ -884,12 +884,12 @@ export class RelatorioService {
         GROUP BY
           item.id_produto,
           p.codigo,
-          item.nome_produto,
+          p.nome,
           categoria.id,
           categoria.nome
         ORDER BY
           SUM(item.quantidade) DESC,
-          item.nome_produto ASC,
+          p.nome ASC,
           item.id_produto ASC,
           categoria.id ASC
         LIMIT $${parameters.length + 1}
@@ -906,7 +906,7 @@ export class RelatorioService {
             SELECT
               item.id_produto,
               p.codigo,
-              item.nome_produto,
+              p.nome,
               categoria.id,
               categoria.nome
             FROM item_venda item
@@ -917,7 +917,7 @@ export class RelatorioService {
             GROUP BY
               item.id_produto,
               p.codigo,
-              item.nome_produto,
+              p.nome,
               categoria.id,
               categoria.nome
           ) ranking

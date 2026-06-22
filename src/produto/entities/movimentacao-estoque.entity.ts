@@ -23,6 +23,8 @@ export enum OrigemMovimentacaoEstoque {
   PERDA = 'PERDA',
   PRODUCAO = 'PRODUCAO',
   CONSIGNACAO = 'CONSIGNACAO',
+  DEVOLUCAO = 'DEVOLUCAO',
+  TROCA = 'TROCA',
 }
 
 export interface CriarMovimentacaoEstoqueInput {

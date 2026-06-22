@@ -12,6 +12,7 @@ import {
   AlterarVendaUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
+  InserirTrocaDevolucaoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
 
@@ -27,6 +28,7 @@ describe('VendaController', () => {
   let alterarFeiraUseCase: { execute: jest.Mock };
   let excluirFeiraUseCase: { execute: jest.Mock };
   let inserirVendaUseCase: { execute: jest.Mock };
+  let inserirTrocaDevolucaoUseCase: { execute: jest.Mock };
   let alterarVendaUseCase: { execute: jest.Mock };
   let excluirVendaUseCase: { execute: jest.Mock };
   let precoProdutoFeiraService: {
@@ -47,6 +49,7 @@ describe('VendaController', () => {
     alterarFeiraUseCase = { execute: jest.fn() };
     excluirFeiraUseCase = { execute: jest.fn() };
     inserirVendaUseCase = { execute: jest.fn() };
+    inserirTrocaDevolucaoUseCase = { execute: jest.fn() };
     alterarVendaUseCase = { execute: jest.fn() };
     excluirVendaUseCase = { execute: jest.fn() };
     precoProdutoFeiraService = {
@@ -74,6 +77,10 @@ describe('VendaController', () => {
         {
           provide: InserirVendaUseCase,
           useValue: inserirVendaUseCase,
+        },
+        {
+          provide: InserirTrocaDevolucaoUseCase,
+          useValue: inserirTrocaDevolucaoUseCase,
         },
         {
           provide: AlterarFeiraUseCase,
@@ -132,6 +139,29 @@ describe('VendaController', () => {
     const result = await controller.inserirVenda(input as never);
 
     expect(inserirVendaUseCase.execute).toHaveBeenCalledWith(input);
+    expect(result).toEqual({ id: 1 });
+  });
+
+  it('deve delegar inserção de troca/devolução', async () => {
+    inserirTrocaDevolucaoUseCase.execute.mockResolvedValue({ id: 1 });
+
+    const input = {
+      dataTrocaDevolucao: '2026-06-22T10:00:00.000Z',
+      idCarteira: 1,
+      meioPagamento: 'PIX',
+      itens: [
+        {
+          idProduto: 1,
+          tipo: 'DEVOLVIDO',
+          quantidade: 1,
+          valorUnitario: 1000,
+        },
+      ],
+    };
+
+    const result = await controller.inserirTrocaDevolucao(input as never);
+
+    expect(inserirTrocaDevolucaoUseCase.execute).toHaveBeenCalledWith(input);
     expect(result).toEqual({ id: 1 });
   });
 

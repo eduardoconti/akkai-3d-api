@@ -15,6 +15,7 @@ import {
   AlterarFeiraDto,
   AlterarVendaDto,
   InserirFeiraDto,
+  InserirTrocaDevolucaoDto,
   InserirVendaDto,
   PesquisarFeirasDto,
   PesquisarPrecosProdutosFeiraDto,
@@ -22,7 +23,12 @@ import {
   SalvarPrecoProdutoFeiraDto,
   TotalizadoresVendasDto,
 } from '@venda/dto';
-import { Feira, PrecoProdutoFeira, Venda } from '@venda/entities';
+import {
+  Feira,
+  PrecoProdutoFeira,
+  TrocaDevolucao,
+  Venda,
+} from '@venda/entities';
 import {
   FeiraService,
   PrecoProdutoFeiraService,
@@ -34,6 +40,7 @@ import {
   ExcluirFeiraUseCase,
   ExcluirVendaUseCase,
   InserirFeiraUseCase,
+  InserirTrocaDevolucaoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
 import {
@@ -53,6 +60,7 @@ import {
   ApiListarVendasDocs,
   ApiObterFeiraPorIdDocs,
 } from '@venda/docs/venda-docs.decorator';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiProtectedController('Vendas')
 @Controller('venda')
@@ -64,6 +72,7 @@ export class VendaController {
     private readonly alterarFeiraUseCase: AlterarFeiraUseCase,
     private readonly excluirFeiraUseCase: ExcluirFeiraUseCase,
     private readonly inserirVendaUseCase: InserirVendaUseCase,
+    private readonly inserirTrocaDevolucaoUseCase: InserirTrocaDevolucaoUseCase,
     private readonly alterarVendaUseCase: AlterarVendaUseCase,
     private readonly excluirVendaUseCase: ExcluirVendaUseCase,
     private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
@@ -149,6 +158,20 @@ export class VendaController {
   async inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
     const venda = await this.inserirVendaUseCase.execute(inserirVendaInput);
     return venda;
+  }
+
+  @Post('trocas-devolucoes')
+  @Permissions(PERMISSOES.VENDA.INSERIR)
+  @ApiOperation({ summary: 'Registrar troca/devolução sem vínculo com venda' })
+  @ApiResponse({
+    status: 201,
+    description: 'Troca/devolução registrada com sucesso.',
+    type: TrocaDevolucao,
+  })
+  async inserirTrocaDevolucao(
+    @Body() input: InserirTrocaDevolucaoDto,
+  ): Promise<TrocaDevolucao> {
+    return await this.inserirTrocaDevolucaoUseCase.execute(input);
   }
 
   @ApiAlterarVendaDocs()

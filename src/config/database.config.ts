@@ -29,9 +29,11 @@ import {
 } from '@produto/entities';
 import {
   Feira,
+  ItemTrocaDevolucao,
   ItemVenda,
   PagamentoVenda,
   PrecoProdutoFeira,
+  TrocaDevolucao,
   Venda,
 } from '@venda/entities';
 import {
@@ -60,6 +62,8 @@ const entities = [
   Venda,
   ItemVenda,
   PagamentoVenda,
+  TrocaDevolucao,
+  ItemTrocaDevolucao,
   Feira,
   PrecoProdutoFeira,
   Produto,
