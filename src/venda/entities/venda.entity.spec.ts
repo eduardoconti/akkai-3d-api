@@ -281,16 +281,4 @@ describe('ItemVenda', () => {
     const item = ItemVenda.criar(base);
     expect(item.idProduto).toBeUndefined();
   });
-
-  it('deve definir id via setId', () => {
-    const item = new ItemVenda();
-    item.setId(42);
-    expect(item.id).toBe(42);
-  });
-
-  it('deve definir idVenda via setIdVenda', () => {
-    const item = new ItemVenda();
-    item.setIdVenda(10);
-    expect(item.idVenda).toBe(10);
-  });
 });

@@ -99,14 +99,6 @@ export class ItemVenda {
     return itemVenda;
   }
 
-  setId(id: number): void {
-    this.id = id;
-  }
-
-  setIdVenda(idVenda: number): void {
-    this.idVenda = idVenda;
-  }
-
   private calcularValorTotal(): void {
     this.valorTotal = this.quantidade * this.valorUnitario;
   }

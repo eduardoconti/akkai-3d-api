@@ -26,8 +26,14 @@ export class TrocaDevolucaoService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      const itens = trocaDevolucao.itens;
+      trocaDevolucao.itens = [];
       const trocaDevolucaoSalva =
         await queryRunner.manager.save(trocaDevolucao);
+      itens.forEach((item) => {
+        item.idTrocaDevolucao = trocaDevolucaoSalva.id;
+      });
+      trocaDevolucaoSalva.itens = await queryRunner.manager.save(itens);
       await queryRunner.manager.save(movimentacoesEstoque);
 
       if (ajusteCarteira) {

@@ -144,7 +144,7 @@ export function ApiListarProdutosDocs() {
     ApiOperation({
       summary: 'Lista produtos do catálogo com paginação.',
       description:
-        'Retorna produtos paginados com dados cadastrais, categoria, estoque mínimo e valor.',
+        'Retorna produtos paginados com dados cadastrais, categoria, quantidade atual em estoque e valor.',
     }),
     ApiPaginacaoQueryDocs(),
     ApiQuery({
@@ -176,14 +176,25 @@ export function ApiListarProdutosDocs() {
         totalItens: 2,
         totalPaginas: 1,
         itens: [
-          PRODUTO_EXEMPLO,
+          {
+            id: 1,
+            nome: 'Cubo Infinito',
+            codigo: 4001,
+            descricao: 'Brinquedo articulado impresso em 3D.',
+            idCategoria: 2,
+            valor: 2200,
+            quantidadeEstoque: 8,
+            categoria: {
+              id: 2,
+              nome: 'IMPRESSAO 3D',
+            },
+          },
           {
             id: 2,
             nome: 'Bola Fidget',
             codigo: 4002,
             descricao: 'Brinquedo sensorial.',
             idCategoria: 3,
-            estoqueMinimo: 3,
             valor: 5000,
             quantidadeEstoque: 16,
             categoria: {

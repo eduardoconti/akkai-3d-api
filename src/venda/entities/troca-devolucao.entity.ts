@@ -137,7 +137,10 @@ export class TrocaDevolucao {
     this.idCarteira = input.idCarteira;
     this.meioPagamento = input.meioPagamento;
     this.observacao = input.observacao?.trim();
-    this.itens = input.itens.map((item) => ItemTrocaDevolucao.criar(item));
+    this.itens = input.itens.map((item) => {
+      const itemTrocaDevolucao = ItemTrocaDevolucao.criar(item);
+      return itemTrocaDevolucao;
+    });
     this.calcularTotais();
     this.validar();
   }

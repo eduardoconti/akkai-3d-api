@@ -39,6 +39,30 @@ describe('TrocaDevolucao', () => {
     );
   });
 
+  it('deve criar os itens sem depender de vínculo manual com a troca/devolução', () => {
+    const trocaDevolucao = TrocaDevolucao.criar({
+      dataTrocaDevolucao,
+      idUsuarioInclusao: 7,
+      itens: [
+        {
+          idProduto: 1,
+          tipo: TipoItemTrocaDevolucao.DEVOLVIDO,
+          quantidade: 1,
+          valorUnitario: 1000,
+        },
+        {
+          idProduto: 2,
+          tipo: TipoItemTrocaDevolucao.ENTREGUE,
+          quantidade: 1,
+          valorUnitario: 1000,
+        },
+      ],
+    });
+
+    expect(trocaDevolucao.itens).toHaveLength(2);
+    expect(trocaDevolucao.itens[0]?.trocaDevolucao).toBeUndefined();
+  });
+
   it('deve calcular diferença a devolver quando valor devolvido for maior', () => {
     const trocaDevolucao = TrocaDevolucao.criar({
       dataTrocaDevolucao,
