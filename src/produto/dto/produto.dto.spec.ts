@@ -1,10 +1,15 @@
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { StatusProduto } from '@produto/entities';
+import {
+  OrigemMovimentacaoEstoque,
+  StatusProduto,
+  TipoMovimentacaoEstoque,
+} from '@produto/entities';
 import { AlterarProdutoDto } from './alterar-produto.dto';
 import { AlterarStatusProdutoDto } from './alterar-status-produto.dto';
 import { InserirProdutoDto } from './inserir-produto.dto';
+import { PesquisarMovimentacoesEstoqueDto } from './pesquisar-movimentacoes-estoque.dto';
 
 const produtoValido = {
   nome: 'Caneca',
@@ -66,5 +71,52 @@ describe('ProdutoDto', () => {
     expect(errors[0]?.constraints?.['isEnum']).toBe(
       'O status do produto deve ser ATIVO ou INATIVO.',
     );
+  });
+
+  it('deve normalizar filtros de movimentação de estoque', async () => {
+    const dto = plainToInstance(PesquisarMovimentacoesEstoqueDto, {
+      tipos: 'E,S',
+      origens: 'COMPRA,PRODUCAO',
+      idProduto: '10',
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-30',
+    });
+
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+    expect(dto.tipos).toEqual([
+      TipoMovimentacaoEstoque.ENTRADA,
+      TipoMovimentacaoEstoque.SAIDA,
+    ]);
+    expect(dto.origens).toEqual([
+      OrigemMovimentacaoEstoque.COMPRA,
+      OrigemMovimentacaoEstoque.PRODUCAO,
+    ]);
+    expect(dto.idProduto).toBe(10);
+  });
+
+  it('deve aplicar filtros padrão de movimentação de estoque', async () => {
+    const dto = plainToInstance(PesquisarMovimentacoesEstoqueDto, {});
+
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+    expect(dto.tipos).toEqual([
+      TipoMovimentacaoEstoque.ENTRADA,
+      TipoMovimentacaoEstoque.SAIDA,
+    ]);
+    expect(dto.origens).toEqual(
+      expect.arrayContaining([
+        OrigemMovimentacaoEstoque.COMPRA,
+        OrigemMovimentacaoEstoque.AJUSTE,
+        OrigemMovimentacaoEstoque.PERDA,
+        OrigemMovimentacaoEstoque.PRODUCAO,
+        OrigemMovimentacaoEstoque.CONSIGNACAO,
+        OrigemMovimentacaoEstoque.DEVOLUCAO,
+        OrigemMovimentacaoEstoque.TROCA,
+      ]),
+    );
+    expect(dto.origens).not.toContain(OrigemMovimentacaoEstoque.VENDA);
   });
 });

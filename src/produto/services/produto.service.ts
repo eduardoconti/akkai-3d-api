@@ -81,6 +81,7 @@ export class ProdutoService {
         nome: string;
         codigo: string | number;
         descricao: string | null;
+        estoque_minimo: string | null;
         id_categoria: string;
         valor: string;
         status: StatusProduto;
@@ -96,6 +97,7 @@ export class ProdutoService {
            p.nome,
            p.codigo,
            p.descricao,
+           p.estoque_minimo,
            p.id_categoria,
            p.valor,
            p.status,
@@ -125,6 +127,7 @@ export class ProdutoService {
            p.nome,
            p.codigo,
            p.descricao,
+           p.estoque_minimo,
            p.id_categoria,
            p.valor,
            p.status,
@@ -147,6 +150,7 @@ export class ProdutoService {
          p.nome,
          p.codigo,
          p.descricao,
+         p.estoque_minimo,
          p.id_categoria,
          p.valor,
          p.status,
@@ -165,6 +169,10 @@ export class ProdutoService {
         nome: produto.nome,
         codigo: Number(produto.codigo),
         descricao: produto.descricao ?? undefined,
+        estoqueMinimo:
+          produto.estoque_minimo === null
+            ? undefined
+            : Number(produto.estoque_minimo),
         idCategoria: Number(produto.id_categoria),
         valor: Number(produto.valor),
         status: produto.status,

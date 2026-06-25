@@ -221,6 +221,7 @@ export function ApiListarProdutosDocs() {
             codigo: 4001,
             descricao: 'Brinquedo articulado impresso em 3D.',
             idCategoria: 2,
+            estoqueMinimo: 5,
             valor: 2200,
             status: 'ATIVO',
             quantidadeEstoque: 8,
@@ -235,6 +236,7 @@ export function ApiListarProdutosDocs() {
             codigo: 4002,
             descricao: 'Brinquedo sensorial.',
             idCategoria: 3,
+            estoqueMinimo: 3,
             valor: 5000,
             status: 'ATIVO',
             quantidadeEstoque: 16,
@@ -554,6 +556,88 @@ export function ApiListarMovimentacoesEstoqueDocs() {
       '/produto/999/estoque/movimentacoes',
       'Produto não encontrado.',
     ),
+  );
+}
+
+export function ApiListarMovimentacoesEstoqueProdutosDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista movimentações de estoque dos produtos.',
+      description:
+        'Retorna movimentações paginadas com filtros por período, tipo, origem e produto, ordenadas pela data de inclusão mais recente.',
+    }),
+    ApiPaginacaoQueryDocs(),
+    ApiQuery({
+      name: 'dataInicio',
+      required: false,
+      description: 'Data inicial do período da movimentação.',
+      schema: { type: 'string', format: 'date', example: '2026-06-01' },
+    }),
+    ApiQuery({
+      name: 'dataFim',
+      required: false,
+      description: 'Data final do período da movimentação.',
+      schema: { type: 'string', format: 'date', example: '2026-06-30' },
+    }),
+    ApiQuery({
+      name: 'tipos',
+      required: false,
+      enum: ['E', 'S'],
+      isArray: true,
+      description:
+        'Tipos de movimentação. Quando não informado, usa entrada e saída.',
+    }),
+    ApiQuery({
+      name: 'origens',
+      required: false,
+      enum: [
+        'COMPRA',
+        'AJUSTE',
+        'PERDA',
+        'PRODUCAO',
+        'CONSIGNACAO',
+        'DEVOLUCAO',
+        'TROCA',
+        'VENDA',
+      ],
+      isArray: true,
+      description:
+        'Origens da movimentação. Quando não informado, usa todas exceto venda.',
+    }),
+    ApiQuery({
+      name: 'idProduto',
+      required: false,
+      description: 'Filtro por produto.',
+      schema: { type: 'integer', minimum: 1 },
+    }),
+    ApiPaginatedOkResponse(
+      ListarMovimentacaoEstoqueDto,
+      'Movimentações encontradas com sucesso.',
+      {
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 1,
+        totalPaginas: 1,
+        itens: [
+          {
+            id: 10,
+            idProduto: 1,
+            quantidade: 5,
+            tipo: 'E',
+            origem: 'PRODUCAO',
+            usuario: 'Eduardo',
+            dataInclusao: '2026-06-24T14:00:00.000Z',
+            produto: {
+              id: 1,
+              codigo: 4001,
+              nome: 'Cubo Infinito',
+            },
+          },
+        ],
+      },
+    ),
+    ApiValidationErrorResponse('/produto/estoque/movimentacoes'),
+    ApiUnauthorizedErrorResponse('/produto/estoque/movimentacoes'),
   );
 }
 

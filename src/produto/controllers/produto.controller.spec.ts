@@ -48,6 +48,7 @@ describe('ProdutoController', () => {
     garantirCategoriaPorId: jest.Mock;
   };
   let estoqueService: {
+    listarMovimentacoes: jest.Mock;
     listarMovimentacoesPorProduto: jest.Mock;
   };
 
@@ -70,6 +71,7 @@ describe('ProdutoController', () => {
       garantirCategoriaPorId: jest.fn(),
     };
     estoqueService = {
+      listarMovimentacoes: jest.fn(),
       listarMovimentacoesPorProduto: jest.fn(),
     };
 
@@ -204,6 +206,7 @@ describe('ProdutoController', () => {
           codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
+          estoqueMinimo: 3,
           valor: 2500,
           status: StatusProduto.ATIVO,
           quantidadeEstoque: 9,
@@ -386,6 +389,42 @@ describe('ProdutoController', () => {
         tamanhoPagina: 10,
       },
     );
+    expect(result).toBe(resposta);
+  });
+
+  it('deve listar movimentações de estoque dos produtos', async () => {
+    const resposta = {
+      itens: [
+        {
+          id: 11,
+          idProduto: 1,
+          usuario: 'Eduardo',
+          quantidade: 2,
+          tipo: TipoMovimentacaoEstoque.ENTRADA,
+          origem: OrigemMovimentacaoEstoque.PRODUCAO,
+          dataInclusao: new Date('2026-04-10T10:30:00.000Z'),
+          produto: { id: 1, codigo: 4001, nome: 'Cubo Infinito' },
+        },
+      ] satisfies ListarMovimentacaoEstoqueDto[],
+      pagina: 1,
+      tamanhoPagina: 10,
+      totalItens: 1,
+      totalPaginas: 1,
+    };
+    estoqueService.listarMovimentacoes.mockResolvedValue(resposta);
+
+    const pesquisa = {
+      pagina: 1,
+      tamanhoPagina: 10,
+      tipos: [TipoMovimentacaoEstoque.ENTRADA],
+      origens: [OrigemMovimentacaoEstoque.PRODUCAO],
+      idProduto: 1,
+    };
+
+    const result =
+      await controller.listarMovimentacoesEstoqueProdutos(pesquisa);
+
+    expect(estoqueService.listarMovimentacoes).toHaveBeenCalledWith(pesquisa);
     expect(result).toBe(resposta);
   });
 });

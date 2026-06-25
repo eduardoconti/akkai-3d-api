@@ -3,6 +3,12 @@ import {
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
 
+class ProdutoResumoMovimentacaoDto {
+  id!: number;
+  codigo!: number;
+  nome!: string;
+}
+
 export class ListarMovimentacaoEstoqueDto {
   id!: number;
   idProduto!: number;
@@ -14,4 +20,5 @@ export class ListarMovimentacaoEstoqueDto {
   tipo!: TipoMovimentacaoEstoque;
   origem!: OrigemMovimentacaoEstoque;
   dataInclusao!: Date;
+  produto?: ProdutoResumoMovimentacaoDto;
 }

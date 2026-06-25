@@ -57,6 +57,7 @@ import {
   ApiInserirCategoriaDocs,
   ApiInserirProdutoDocs,
   ApiListarMovimentacoesEstoqueDocs,
+  ApiListarMovimentacoesEstoqueProdutosDocs,
   ApiObterCategoriaPorIdDocs,
   ApiListarCategoriasDocs,
   ApiListarProdutosDocs,
@@ -133,6 +134,15 @@ export class ProdutoController {
     @Query() pesquisa: PesquisarCategoriasDto,
   ): Promise<ResultadoPaginado<CategoriaProduto>> {
     return await this.categoriaProdutoService.listarCategorias(pesquisa);
+  }
+
+  @ApiListarMovimentacoesEstoqueProdutosDocs()
+  @Get('estoque/movimentacoes')
+  @Permissions(PERMISSOES.ESTOQUE.LER)
+  async listarMovimentacoesEstoqueProdutos(
+    @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,
+  ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
+    return await this.estoqueService.listarMovimentacoes(pesquisa);
   }
 
   @ApiInserirCategoriaDocs()
