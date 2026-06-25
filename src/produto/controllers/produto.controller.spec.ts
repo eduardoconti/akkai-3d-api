@@ -3,11 +3,13 @@ import { ProdutoController } from '@produto/controllers';
 import {
   CategoriaProduto,
   OrigemMovimentacaoEstoque,
+  StatusProduto,
   TipoMovimentacaoEstoque,
 } from '@produto/entities';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  AlterarStatusProdutoUseCase,
   EntradaEstoqueUseCase,
   ExcluirCategoriaProdutoUseCase,
   ExcluirProdutoUseCase,
@@ -30,6 +32,7 @@ describe('ProdutoController', () => {
   let controller: ProdutoController;
   let inserirProdutoUseCase: { execute: jest.Mock };
   let alterarProdutoUseCase: { execute: jest.Mock };
+  let alterarStatusProdutoUseCase: { execute: jest.Mock };
   let alterarCategoriaProdutoUseCase: { execute: jest.Mock };
   let excluirProdutoUseCase: { execute: jest.Mock };
   let excluirCategoriaProdutoUseCase: { execute: jest.Mock };
@@ -51,6 +54,7 @@ describe('ProdutoController', () => {
   beforeEach(async () => {
     inserirProdutoUseCase = { execute: jest.fn() };
     alterarProdutoUseCase = { execute: jest.fn() };
+    alterarStatusProdutoUseCase = { execute: jest.fn() };
     alterarCategoriaProdutoUseCase = { execute: jest.fn() };
     excluirProdutoUseCase = { execute: jest.fn() };
     excluirCategoriaProdutoUseCase = { execute: jest.fn() };
@@ -79,6 +83,10 @@ describe('ProdutoController', () => {
         {
           provide: AlterarProdutoUseCase,
           useValue: alterarProdutoUseCase,
+        },
+        {
+          provide: AlterarStatusProdutoUseCase,
+          useValue: alterarStatusProdutoUseCase,
         },
         {
           provide: AlterarCategoriaProdutoUseCase,
@@ -162,6 +170,23 @@ describe('ProdutoController', () => {
     expect(result).toEqual({ id: 1 });
   });
 
+  it('deve delegar alteração de status do produto', async () => {
+    alterarStatusProdutoUseCase.execute.mockResolvedValue({
+      id: 1,
+      status: StatusProduto.INATIVO,
+    });
+
+    const result = await controller.alterarStatusProduto(1, {
+      status: StatusProduto.INATIVO,
+    });
+
+    expect(alterarStatusProdutoUseCase.execute).toHaveBeenCalledWith({
+      id: 1,
+      status: StatusProduto.INATIVO,
+    });
+    expect(result).toEqual({ id: 1, status: StatusProduto.INATIVO });
+  });
+
   it('deve delegar exclusão de produto', async () => {
     excluirProdutoUseCase.execute.mockResolvedValue(undefined);
 
@@ -179,8 +204,8 @@ describe('ProdutoController', () => {
           codigo: 1001,
           descricao: 'Modelo geek',
           idCategoria: 2,
-          estoqueMinimo: 3,
           valor: 2500,
+          status: StatusProduto.ATIVO,
           quantidadeEstoque: 9,
           categoria: { id: 2, nome: 'Canecas' },
         },
@@ -287,6 +312,7 @@ describe('ProdutoController', () => {
       codigo: 1001,
       idCategoria: 1,
       valor: 2500,
+      status: StatusProduto.ATIVO,
       categoria: { id: 1, nome: 'Canecas' },
       quantidadeEstoque: 10,
     };

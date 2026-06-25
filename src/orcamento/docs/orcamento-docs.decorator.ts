@@ -27,7 +27,6 @@ const ORCAMENTO_EXEMPLO = {
   idFeira: 1,
   feira: { id: 1, nome: 'MAUA', local: 'Praça Mauá', ativa: true },
   valor: 5000,
-  quantidade: 2,
   descricao: 'Cubo infinito personalizado',
   linkSTL: 'https://storage.example.com/modelo.stl',
   dataInclusao: '2026-04-16T10:00:00.000Z',
@@ -38,7 +37,7 @@ export function ApiInserirOrcamentoDocs() {
     ApiOperation({
       summary: 'Registra um novo orçamento.',
       description:
-        'Cria um orçamento para um cliente com tipo, feira opcional, valor estimado, quantidade e link do modelo STL.',
+        'Cria um orçamento para um cliente com tipo, feira opcional, valor estimado e link do modelo STL.',
     }),
     ApiBody({
       type: InserirOrcamentoDto,
@@ -51,7 +50,6 @@ export function ApiInserirOrcamentoDocs() {
             tipo: 'FEIRA',
             idFeira: 1,
             valor: 5000,
-            quantidade: 2,
             descricao: 'Cubo infinito personalizado',
             linkSTL: 'https://storage.example.com/modelo.stl',
           },
@@ -81,7 +79,7 @@ export function ApiAtualizarOrcamentoDocs() {
     ApiOperation({
       summary: 'Atualiza um orçamento existente.',
       description:
-        'Permite alterar dados do orçamento como status, valor, quantidade, descrição e link STL.',
+        'Permite alterar dados do orçamento como status, valor, descrição e link STL.',
     }),
     ApiIdParamDocs('Identificador do orçamento a ser atualizado.'),
     ApiBody({
@@ -92,7 +90,6 @@ export function ApiAtualizarOrcamentoDocs() {
           value: {
             status: 'APROVADO',
             valor: 6000,
-            quantidade: 3,
           },
         },
       },
@@ -104,7 +101,6 @@ export function ApiAtualizarOrcamentoDocs() {
           ...ORCAMENTO_EXEMPLO,
           status: 'APROVADO',
           valor: 6000,
-          quantidade: 3,
         },
       },
     }),

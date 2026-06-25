@@ -1,4 +1,9 @@
-import { CriarProdutoInput, Produto, ProdutoInput } from './produto.entity';
+import {
+  CriarProdutoInput,
+  Produto,
+  ProdutoInput,
+  StatusProduto,
+} from './produto.entity';
 
 describe('Produto', () => {
   const input: CriarProdutoInput = {
@@ -16,6 +21,7 @@ describe('Produto', () => {
       const produto = Produto.criar(input);
 
       expect(produto.idUsuarioInclusao).toBe(42);
+      expect(produto.status).toBe(StatusProduto.ATIVO);
       expect(produto.nome).toBe(input.nome);
       expect(produto.codigo).toBe(input.codigo);
       expect(produto.descricao).toBe(input.descricao);
@@ -58,6 +64,25 @@ describe('Produto', () => {
       produto.atualizar({ ...input, nome: 'Novo Nome' });
 
       expect(produto.idUsuarioInclusao).toBe(42);
+    });
+
+    it('não deve alterar o status ao atualizar dados cadastrais', () => {
+      const produto = Produto.criar(input);
+      produto.alterarStatus(StatusProduto.INATIVO);
+
+      produto.atualizar({ ...input, nome: 'Novo Nome' });
+
+      expect(produto.status).toBe(StatusProduto.INATIVO);
+    });
+  });
+
+  describe('alterarStatus', () => {
+    it('deve alterar o status do produto', () => {
+      const produto = Produto.criar(input);
+
+      produto.alterarStatus(StatusProduto.INATIVO);
+
+      expect(produto.status).toBe(StatusProduto.INATIVO);
     });
   });
 });

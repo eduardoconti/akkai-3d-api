@@ -9,6 +9,7 @@ import {
 import {
   AlterarCategoriaProdutoDto,
   AlterarProdutoDto,
+  AlterarStatusProdutoDto,
   EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
   InserirProdutoDto,
@@ -42,6 +43,7 @@ const PRODUTO_EXEMPLO = {
   idCategoria: 2,
   estoqueMinimo: 5,
   valor: 2200,
+  status: 'ATIVO',
   quantidadeEstoque: 8,
   categoria: {
     id: 2,
@@ -82,6 +84,7 @@ export function ApiInserirProdutoDocs() {
           idCategoria: 2,
           estoqueMinimo: null,
           valor: 2200,
+          status: 'ATIVO',
         },
       },
     }),
@@ -91,6 +94,42 @@ export function ApiInserirProdutoDocs() {
       '/produto',
       'Já existe um produto com o código informado.',
     ),
+  );
+}
+
+export function ApiAlterarStatusProdutoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Altera o status de um produto.',
+      description:
+        'Permite ativar ou inativar um produto sem alterar os demais dados cadastrais.',
+    }),
+    ApiIdParamDocs('Identificador do produto que terá o status alterado.'),
+    ApiBody({
+      type: AlterarStatusProdutoDto,
+      examples: {
+        inativar: {
+          summary: 'Inativar produto',
+          value: { status: 'INATIVO' },
+        },
+        ativar: {
+          summary: 'Ativar produto',
+          value: { status: 'ATIVO' },
+        },
+      },
+    }),
+    ApiOkResponse({
+      description: 'Status do produto alterado com sucesso.',
+      schema: {
+        example: {
+          ...PRODUTO_EXEMPLO,
+          status: 'INATIVO',
+        },
+      },
+    }),
+    ApiValidationErrorResponse('/produto/1/status'),
+    ApiUnauthorizedErrorResponse('/produto/1/status'),
+    ApiNotFoundErrorResponse('/produto/999/status', 'Produto não encontrado.'),
   );
 }
 
@@ -183,6 +222,7 @@ export function ApiListarProdutosDocs() {
             descricao: 'Brinquedo articulado impresso em 3D.',
             idCategoria: 2,
             valor: 2200,
+            status: 'ATIVO',
             quantidadeEstoque: 8,
             categoria: {
               id: 2,
@@ -196,6 +236,7 @@ export function ApiListarProdutosDocs() {
             descricao: 'Brinquedo sensorial.',
             idCategoria: 3,
             valor: 5000,
+            status: 'ATIVO',
             quantidadeEstoque: 16,
             categoria: {
               id: 3,

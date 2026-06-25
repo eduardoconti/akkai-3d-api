@@ -34,6 +34,7 @@ export const PERMISSOES = {
     LER: 'produto.ler',
     INSERIR: 'produto.inserir',
     ALTERAR: 'produto.alterar',
+    ALTERAR_STATUS: 'produto.alterar-status',
     EXCLUIR: 'produto.excluir',
   },
   CATEGORIA_PRODUTO: {

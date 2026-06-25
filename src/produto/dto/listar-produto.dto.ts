@@ -1,3 +1,5 @@
+import { StatusProduto } from '@produto/entities';
+
 class CategoriaProdutoResumoListaDto {
   id!: number;
   nome!: string;
@@ -10,6 +12,7 @@ export class ListarProdutoDto {
   descricao?: string;
   idCategoria!: number;
   valor!: number;
+  status!: StatusProduto;
   quantidadeEstoque!: number;
   categoria!: CategoriaProdutoResumoListaDto;
 }

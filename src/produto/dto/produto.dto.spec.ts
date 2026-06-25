@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { StatusProduto } from '@produto/entities';
 import { AlterarProdutoDto } from './alterar-produto.dto';
+import { AlterarStatusProdutoDto } from './alterar-status-produto.dto';
 import { InserirProdutoDto } from './inserir-produto.dto';
 
 const produtoValido = {
@@ -41,4 +43,28 @@ describe('ProdutoDto', () => {
       );
     },
   );
+
+  it('deve aceitar status válido para alteração de status', async () => {
+    const dto = plainToInstance(AlterarStatusProdutoDto, {
+      status: StatusProduto.INATIVO,
+    });
+
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+  });
+
+  it('deve rejeitar status inválido para alteração de status', async () => {
+    const dto = plainToInstance(AlterarStatusProdutoDto, {
+      status: 'BLOQUEADO',
+    });
+
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.property).toBe('status');
+    expect(errors[0]?.constraints?.['isEnum']).toBe(
+      'O status do produto deve ser ATIVO ou INATIVO.',
+    );
+  });
 });

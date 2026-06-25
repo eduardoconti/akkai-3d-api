@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { getDataSourceToken, getRepositoryToken } from '@nestjs/typeorm';
-import { Produto } from '@produto/entities';
+import { Produto, StatusProduto } from '@produto/entities';
 import { ProdutoService } from '@produto/services';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListarProdutoDto } from '@produto/dto';
@@ -65,6 +65,7 @@ describe('ProdutoService', () => {
           descricao: 'Modelo geek',
           id_categoria: '2',
           valor: '2500',
+          status: StatusProduto.ATIVO,
           categoria_id: '2',
           categoria_nome: 'Canecas',
           quantidade_estoque: '9',
@@ -86,6 +87,7 @@ describe('ProdutoService', () => {
           descricao: 'Modelo geek',
           idCategoria: 2,
           valor: 2500,
+          status: StatusProduto.ATIVO,
           quantidadeEstoque: 9,
           categoria: { id: 2, nome: 'Canecas' },
         },

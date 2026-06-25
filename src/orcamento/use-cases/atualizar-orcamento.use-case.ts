@@ -91,10 +91,6 @@ export class AtualizarOrcamentoUseCase {
       orcamento.valor = input.valor;
     }
 
-    if (input.quantidade !== undefined) {
-      orcamento.quantidade = input.quantidade;
-    }
-
     return this.orcamentoService.atualizarOrcamento(orcamento);
   }
 }

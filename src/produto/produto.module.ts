@@ -14,6 +14,7 @@ import {
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  AlterarStatusProdutoUseCase,
   EntradaEstoqueUseCase,
   ExcluirCategoriaProdutoUseCase,
   ExcluirProdutoUseCase,
@@ -35,6 +36,7 @@ import {
     EntradaEstoqueUseCase,
     InserirProdutoUseCase,
     AlterarProdutoUseCase,
+    AlterarStatusProdutoUseCase,
     ExcluirProdutoUseCase,
     ExcluirCategoriaProdutoUseCase,
     InserirCategoriaProdutoUseCase,

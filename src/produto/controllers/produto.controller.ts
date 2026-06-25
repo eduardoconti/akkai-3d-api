@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -15,6 +16,7 @@ import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
   AlterarCategoriaProdutoUseCase,
   AlterarProdutoUseCase,
+  AlterarStatusProdutoUseCase,
   EntradaEstoqueUseCase,
   ExcluirCategoriaProdutoUseCase,
   ExcluirProdutoUseCase,
@@ -25,6 +27,7 @@ import {
 import {
   AlterarCategoriaProdutoDto,
   AlterarProdutoDto,
+  AlterarStatusProdutoDto,
   DetalheProdutoDto,
   EntradaEstoqueDto,
   InserirCategoriaProdutoDto,
@@ -46,6 +49,7 @@ import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interfa
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarProdutoDocs,
+  ApiAlterarStatusProdutoDocs,
   ApiAlterarCategoriaDocs,
   ApiEntradaEstoqueDocs,
   ApiExcluirCategoriaDocs,
@@ -66,6 +70,7 @@ export class ProdutoController {
   constructor(
     private readonly inserirProdutoUseCase: InserirProdutoUseCase,
     private readonly alterarProdutoUseCase: AlterarProdutoUseCase,
+    private readonly alterarStatusProdutoUseCase: AlterarStatusProdutoUseCase,
     private readonly alterarCategoriaProdutoUseCase: AlterarCategoriaProdutoUseCase,
     private readonly excluirProdutoUseCase: ExcluirProdutoUseCase,
     private readonly excluirCategoriaProdutoUseCase: ExcluirCategoriaProdutoUseCase,
@@ -92,6 +97,16 @@ export class ProdutoController {
     @Body() input: AlterarProdutoDto,
   ): Promise<Produto> {
     return await this.alterarProdutoUseCase.execute({ id, ...input });
+  }
+
+  @ApiAlterarStatusProdutoDocs()
+  @Patch(':id/status')
+  @Permissions(PERMISSOES.PRODUTO.ALTERAR_STATUS)
+  async alterarStatusProduto(
+    @Param('id') id: number,
+    @Body() input: AlterarStatusProdutoDto,
+  ): Promise<Produto> {
+    return await this.alterarStatusProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiExcluirProdutoDocs()

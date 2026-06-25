@@ -101,9 +101,6 @@ export class Orcamento {
   @Column({ type: 'integer', nullable: true })
   valor?: number;
 
-  @Column({ type: 'integer', nullable: true })
-  quantidade?: number;
-
   finalizar(): void {
     if (this.status === StatusOrcamento.FINALIZADO) {
       throw new BadRequestException(

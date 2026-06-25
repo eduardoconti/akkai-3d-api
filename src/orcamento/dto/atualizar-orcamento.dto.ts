@@ -64,11 +64,6 @@ export class AtualizarOrcamentoDto {
   valor?: number;
 
   @IsOptional()
-  @IsInt({ message: 'A quantidade deve ser um número inteiro.' })
-  @IsPositive({ message: 'A quantidade deve ser maior que zero.' })
-  quantidade?: number;
-
-  @IsOptional()
   @Transform(trimStringValue)
   @IsString({ message: 'A descrição deve ser um texto.' })
   @MaxLength(1000, {

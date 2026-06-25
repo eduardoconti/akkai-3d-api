@@ -17,7 +17,6 @@ export interface InserirOrcamentoInput {
   canalAtendimento?: CanalAtendimentoOrcamento;
   idFeira?: number;
   valor?: number;
-  quantidade?: number;
 }
 
 @Injectable()
@@ -44,7 +43,6 @@ export class InserirOrcamentoUseCase {
     orcamento.idFeira =
       input.tipo === TipoOrcamento.FEIRA ? input.idFeira : undefined;
     orcamento.valor = input.valor;
-    orcamento.quantidade = input.quantidade;
 
     return this.orcamentoService.inserirOrcamento(orcamento);
   }

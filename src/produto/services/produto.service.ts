@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Produto } from '@produto/entities';
+import { Produto, StatusProduto } from '@produto/entities';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
@@ -83,6 +83,7 @@ export class ProdutoService {
         descricao: string | null;
         id_categoria: string;
         valor: string;
+        status: StatusProduto;
         categoria_id: string;
         categoria_nome: string;
         quantidade_estoque: string | null;
@@ -97,6 +98,7 @@ export class ProdutoService {
            p.descricao,
            p.id_categoria,
            p.valor,
+           p.status,
            c.id AS categoria_id,
            c.nome AS categoria_nome
          FROM produto p
@@ -125,6 +127,7 @@ export class ProdutoService {
            p.descricao,
            p.id_categoria,
            p.valor,
+           p.status,
            p.categoria_id,
            p.categoria_nome,
            COALESCE(e.quantidade_estoque, 0) AS quantidade_estoque,
@@ -146,6 +149,7 @@ export class ProdutoService {
          p.descricao,
          p.id_categoria,
          p.valor,
+         p.status,
          p.categoria_id,
          p.categoria_nome,
          p.quantidade_estoque
@@ -163,6 +167,7 @@ export class ProdutoService {
         descricao: produto.descricao ?? undefined,
         idCategoria: Number(produto.id_categoria),
         valor: Number(produto.valor),
+        status: produto.status,
         quantidadeEstoque: Number(produto.quantidade_estoque ?? 0),
         categoria: {
           id: Number(produto.categoria_id),

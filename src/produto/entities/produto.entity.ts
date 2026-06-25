@@ -13,6 +13,11 @@ import {
 import { User } from '@auth/entities/user.entity';
 import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
 
+export enum StatusProduto {
+  ATIVO = 'ATIVO',
+  INATIVO = 'INATIVO',
+}
+
 export interface ProdutoInput {
   nome: string;
   codigo: number;
@@ -59,6 +64,14 @@ export class Produto {
   @Column({ type: 'integer' })
   valor!: number;
 
+  @Column({
+    type: 'enum',
+    enum: StatusProduto,
+    enumName: 'status_produto_enum',
+    default: StatusProduto.ATIVO,
+  })
+  status!: StatusProduto;
+
   @Column({ type: 'integer', name: 'id_usuario_inclusao' })
   idUsuarioInclusao!: number;
 
@@ -87,6 +100,7 @@ export class Produto {
   static criar(input: CriarProdutoInput): Produto {
     const produto = new Produto();
     produto.idUsuarioInclusao = input.idUsuarioInclusao;
+    produto.status = StatusProduto.ATIVO;
     produto.atualizar(input);
     return produto;
   }
@@ -98,5 +112,9 @@ export class Produto {
     this.estoqueMinimo = input.estoqueMinimo;
     this.idCategoria = input.idCategoria;
     this.valor = input.valor;
+  }
+
+  alterarStatus(status: StatusProduto): void {
+    this.status = status;
   }
 }
