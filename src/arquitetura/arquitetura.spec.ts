@@ -15,29 +15,21 @@ const CONTEXTOS = new Set([
 
 const ORCAMENTO_DEPENDENCIAS_CONTEXTO: Record<string, number> = {
   'assinatura->auth': 3,
-  'assinatura->common': 29,
   'assinatura->produto': 7,
-  'auth->common': 5,
   'common->auth': 1,
   'consignacao->auth': 3,
-  'consignacao->common': 17,
   'consignacao->financeiro': 2,
   'consignacao->produto': 10,
   'consignacao->venda': 3,
   'financeiro->auth': 6,
-  'financeiro->common': 39,
   'financeiro->venda': 6,
   'orcamento->auth': 2,
-  'orcamento->common': 9,
   'orcamento->venda': 1,
   'produto->auth': 4,
-  'produto->common': 23,
   'produto->venda': 2,
   'relatorio->auth': 2,
-  'relatorio->common': 9,
   'relatorio->venda': 3,
   'venda->auth': 4,
-  'venda->common': 27,
   'venda->consignacao': 1,
   'venda->financeiro': 9,
   'venda->orcamento': 3,
@@ -139,6 +131,7 @@ function contarDependenciasEntreContextos(
     if (
       !importacao.contextoDestino ||
       !CONTEXTOS.has(importacao.contextoDestino) ||
+      importacao.contextoDestino === 'common' ||
       importacao.contextoDestino === importacao.contextoOrigem
     ) {
       continue;

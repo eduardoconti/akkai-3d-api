@@ -28,6 +28,6 @@ export class AlterarProdutoUseCase {
 
     produto.atualizar(input);
 
-    return await this.produtoService.salvar(produto);
+    return this.produtoService.salvar(produto);
   }
 }

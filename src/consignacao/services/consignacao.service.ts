@@ -8,7 +8,10 @@ import {
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 import {
   DetalheConsignacaoDto,
   ItemConsignacaoDto,
@@ -122,15 +125,12 @@ export class ConsignacaoService {
       .take(pesquisa.tamanhoPagina)
       .getManyAndCount();
 
-    return {
-      itens: consignacoes.map((consignacao) =>
-        this.mapearListagem(consignacao),
-      ),
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+    return criarResultadoPaginado(
+      consignacoes.map((consignacao) => this.mapearListagem(consignacao)),
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async garantirDetalheConsignacao(id: number): Promise<DetalheConsignacaoDto> {

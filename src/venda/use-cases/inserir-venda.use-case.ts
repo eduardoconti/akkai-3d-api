@@ -74,6 +74,6 @@ export class InserirVendaUseCase {
         );
     }
 
-    return await this.vendaService.inserirVenda(venda);
+    return this.vendaService.inserirVenda(venda);
   }
 }

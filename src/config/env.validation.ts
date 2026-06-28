@@ -12,8 +12,16 @@ export const envValidationSchema = Joi.object({
   DATABASE_PASSWORD: Joi.string().allow('').required(),
   DATABASE_NAME: Joi.string().trim().min(1).required(),
   DATABASE_SSL: Joi.boolean().default(false),
-  DATABASE_SYNCHRONIZE: Joi.boolean().default(false),
-  DATABASE_LOGGING: Joi.boolean().default(true),
+  DATABASE_SYNCHRONIZE: Joi.boolean()
+    .default(false)
+    .when('NODE_ENV', {
+      is: 'production',
+      then: Joi.valid(false).messages({
+        'any.only':
+          'DATABASE_SYNCHRONIZE deve permanecer desativado em produção.',
+      }),
+    }),
+  DATABASE_LOGGING: Joi.boolean().default(false),
   JWT_ACCESS_SECRET: Joi.string().trim().min(32).required(),
   JWT_REFRESH_SECRET: Joi.string().trim().min(32).required(),
   AUTH_ACCESS_TOKEN_TTL_MINUTES: Joi.number().integer().min(1).default(15),

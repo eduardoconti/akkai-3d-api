@@ -81,83 +81,82 @@ export class VendaController {
   @ApiInserirFeiraDocs()
   @Post('feiras')
   @Permissions(PERMISSOES.FEIRA.INSERIR)
-  async inserirFeira(@Body() input: InserirFeiraDto): Promise<Feira> {
-    return await this.inserirFeiraUseCase.execute(input);
+  inserirFeira(@Body() input: InserirFeiraDto): Promise<Feira> {
+    return this.inserirFeiraUseCase.execute(input);
   }
 
   @ApiListarFeirasPaginadasDocs()
   @Get('feiras/paginado')
   @Permissions(PERMISSOES.FEIRA.LER)
-  async pesquisarFeiras(
+  pesquisarFeiras(
     @Query() pesquisa: PesquisarFeirasDto,
   ): Promise<ResultadoPaginado<Feira>> {
-    return await this.feiraService.pesquisarFeiras(pesquisa);
+    return this.feiraService.pesquisarFeiras(pesquisa);
   }
 
   @Get('precos-produtos-feira/paginado')
   @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.LER)
-  async pesquisarPrecosProdutosFeira(
+  pesquisarPrecosProdutosFeira(
     @Query() pesquisa: PesquisarPrecosProdutosFeiraDto,
   ): Promise<ResultadoPaginado<PrecoProdutoFeira>> {
-    return await this.precoProdutoFeiraService.pesquisarPrecos(pesquisa);
+    return this.precoProdutoFeiraService.pesquisarPrecos(pesquisa);
   }
 
   @Get('feiras/:id/precos-produtos')
   @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.LER)
-  async listarPrecosProdutosFeira(
+  listarPrecosProdutosFeira(
     @Param('id', ParseIntPipe) idFeira: number,
   ): Promise<PrecoProdutoFeira[]> {
-    return await this.precoProdutoFeiraService.listarPorFeira(idFeira);
+    return this.precoProdutoFeiraService.listarPorFeira(idFeira);
   }
 
   @Put('feiras/:id/precos-produtos')
   @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.ALTERAR)
-  async salvarPrecoProdutoFeira(
+  salvarPrecoProdutoFeira(
     @Param('id', ParseIntPipe) idFeira: number,
     @Body() input: SalvarPrecoProdutoFeiraDto,
   ): Promise<PrecoProdutoFeira> {
-    return await this.precoProdutoFeiraService.salvarPreco(idFeira, input);
+    return this.precoProdutoFeiraService.salvarPreco(idFeira, input);
   }
 
   @Delete('feiras/:id/precos-produtos/:idProduto')
   @Permissions(PERMISSOES.PRECO_PRODUTO_FEIRA.EXCLUIR)
-  async excluirPrecoProdutoFeira(
+  excluirPrecoProdutoFeira(
     @Param('id', ParseIntPipe) idFeira: number,
     @Param('idProduto', ParseIntPipe) idProduto: number,
   ): Promise<void> {
-    await this.precoProdutoFeiraService.excluirPreco(idFeira, idProduto);
+    return this.precoProdutoFeiraService.excluirPreco(idFeira, idProduto);
   }
 
   @ApiObterFeiraPorIdDocs()
   @Get('feiras/:id')
   @Permissions(PERMISSOES.FEIRA.LER)
-  async obterFeiraPorId(@Param('id', ParseIntPipe) id: number): Promise<Feira> {
-    return await this.feiraService.garantirFeiraPorId(id);
+  obterFeiraPorId(@Param('id', ParseIntPipe) id: number): Promise<Feira> {
+    return this.feiraService.garantirFeiraPorId(id);
   }
 
   @ApiAlterarFeiraDocs()
   @Put('feiras/:id')
   @Permissions(PERMISSOES.FEIRA.ALTERAR)
-  async alterarFeira(
+  alterarFeira(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: AlterarFeiraDto,
   ): Promise<Feira> {
-    return await this.alterarFeiraUseCase.execute({ id, ...input });
+    return this.alterarFeiraUseCase.execute({ id, ...input });
   }
 
   @ApiExcluirFeiraDocs()
   @Delete('feiras/:id')
   @Permissions(PERMISSOES.FEIRA.EXCLUIR)
-  async excluirFeira(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.excluirFeiraUseCase.execute({ id });
+  excluirFeira(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.excluirFeiraUseCase.execute({ id });
   }
 
   @ApiInserirVendaDocs()
   @Post()
   @Permissions(PERMISSOES.VENDA.INSERIR)
-  async inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
-    const venda = await this.inserirVendaUseCase.execute(inserirVendaInput);
-    return venda;
+  inserirVenda(@Body() inserirVendaInput: InserirVendaDto) {
+    return this.inserirVendaUseCase.execute(inserirVendaInput);
   }
 
   @Post('trocas-devolucoes')
@@ -168,42 +167,42 @@ export class VendaController {
     description: 'Troca/devolução registrada com sucesso.',
     type: TrocaDevolucao,
   })
-  async inserirTrocaDevolucao(
+  inserirTrocaDevolucao(
     @Body() input: InserirTrocaDevolucaoDto,
   ): Promise<TrocaDevolucao> {
-    return await this.inserirTrocaDevolucaoUseCase.execute(input);
+    return this.inserirTrocaDevolucaoUseCase.execute(input);
   }
 
   @ApiAlterarVendaDocs()
   @Put(':id')
   @Permissions(PERMISSOES.VENDA.ALTERAR)
-  async alterarVenda(
+  alterarVenda(
     @Param('id', ParseIntPipe) id: number,
     @Body() alterarVendaInput: AlterarVendaDto,
   ): Promise<Venda> {
-    return await this.alterarVendaUseCase.execute({ id, ...alterarVendaInput });
+    return this.alterarVendaUseCase.execute({ id, ...alterarVendaInput });
   }
 
   @ApiExcluirVendaDocs()
   @Delete(':id')
   @Permissions(PERMISSOES.VENDA.EXCLUIR)
-  async excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.excluirVendaUseCase.execute({ id });
+  excluirVenda(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.excluirVendaUseCase.execute({ id });
   }
 
   @ApiListarFeirasDocs()
   @Get('feiras')
   @Permissions(PERMISSOES.FEIRA.LER)
-  async listarFeiras(): Promise<Feira[]> {
-    return await this.feiraService.listarFeiras();
+  listarFeiras(): Promise<Feira[]> {
+    return this.feiraService.listarFeiras();
   }
 
   @ApiListarVendasDocs()
   @Get()
   @Permissions(PERMISSOES.VENDA.LER)
-  async listarVendas(
+  listarVendas(
     @Query() pesquisa: PesquisarVendasDto,
   ): Promise<ResultadoPaginadoComTotalizadores<Venda, TotalizadoresVendasDto>> {
-    return await this.vendaService.listarVendas(pesquisa);
+    return this.vendaService.listarVendas(pesquisa);
   }
 }

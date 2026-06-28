@@ -16,7 +16,10 @@ import {
 import { ProdutoService } from './produto.service';
 import { DateService } from '@common/services/date.service';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class EstoqueService {
@@ -83,15 +86,14 @@ export class EstoqueService {
         take: pesquisa.tamanhoPagina,
       });
 
-    return {
-      itens: movimentacoes.map((movimentacao) =>
+    return criarResultadoPaginado(
+      movimentacoes.map((movimentacao) =>
         this.mapearMovimentacao(movimentacao),
       ),
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async listarMovimentacoes(
@@ -148,15 +150,14 @@ export class EstoqueService {
       .take(pesquisa.tamanhoPagina)
       .getManyAndCount();
 
-    return {
-      itens: movimentacoes.map((movimentacao) =>
+    return criarResultadoPaginado(
+      movimentacoes.map((movimentacao) =>
         this.mapearMovimentacao(movimentacao),
       ),
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   private mapearMovimentacao(

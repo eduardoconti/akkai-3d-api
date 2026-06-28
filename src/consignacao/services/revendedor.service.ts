@@ -7,7 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 import { PesquisarRevendedoresDto } from '@consignacao/dto';
 import { Revendedor, StatusRevendedor } from '@consignacao/entities';
 
@@ -46,13 +49,12 @@ export class RevendedorService {
       take: pesquisa.tamanhoPagina,
     });
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async obterRevendedorPorId(id: number): Promise<Revendedor | null> {

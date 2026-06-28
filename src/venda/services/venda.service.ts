@@ -14,7 +14,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { PesquisarVendasDto, TotalizadoresVendasDto } from '@venda/dto';
 import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 import { DateService } from '@common/services/date.service';
 import { SelectQueryBuilder } from 'typeorm';
 
@@ -193,11 +196,12 @@ export class VendaService {
     ]);
 
     return {
-      itens: itens.map((item) => this.adicionarValorLiquido(item)),
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+      ...criarResultadoPaginado(
+        itens.map((item) => this.adicionarValorLiquido(item)),
+        pesquisa.pagina,
+        pesquisa.tamanhoPagina,
+        totalItens,
+      ),
       totalizadores: {
         valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
         descontoTotal: Number(totalizadoresRaw?.descontoTotal ?? 0),

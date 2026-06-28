@@ -10,7 +10,10 @@ import { PesquisarFeirasDto } from '@venda/dto';
 import { Feira } from '@venda/entities';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class FeiraService {
@@ -76,13 +79,12 @@ export class FeiraService {
 
     const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async obterFeiraPorId(id: number): Promise<Feira | null> {

@@ -1,36 +1,17 @@
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
+import { TransformarLista } from '@common/decorators/transformar-lista.decorator';
 import {
   CanalAtendimentoOrcamento,
   StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/entities';
-import { Transform } from 'class-transformer';
 import { IsArray, IsEnum, IsOptional } from 'class-validator';
-
-function normalizeStatus(value: unknown): StatusOrcamento[] | undefined {
-  if (value === undefined || value === null || value === '') {
-    return undefined;
-  }
-
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => String(item).trim())
-      .filter(Boolean) as StatusOrcamento[];
-  }
-
-  if (typeof value === 'string' || typeof value === 'number') {
-    return String(value)
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean) as StatusOrcamento[];
-  }
-
-  return undefined;
-}
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PesquisarOrcamentosDto extends PesquisaPaginadaDto {
+  @ApiPropertyOptional({ enum: StatusOrcamento, isArray: true })
   @IsOptional()
-  @Transform(({ value }) => normalizeStatus(value))
+  @TransformarLista<StatusOrcamento>()
   @IsArray({
     message: 'Os status devem ser informados em formato de lista.',
   })
@@ -40,12 +21,14 @@ export class PesquisarOrcamentosDto extends PesquisaPaginadaDto {
   })
   status?: StatusOrcamento[];
 
+  @ApiPropertyOptional({ enum: TipoOrcamento })
   @IsOptional()
   @IsEnum(TipoOrcamento, {
     message: 'O tipo informado deve ser um tipo de orçamento válido.',
   })
   tipo?: TipoOrcamento;
 
+  @ApiPropertyOptional({ enum: CanalAtendimentoOrcamento })
   @IsOptional()
   @IsEnum(CanalAtendimentoOrcamento, {
     message: 'O canal de atendimento informado deve ser válido.',

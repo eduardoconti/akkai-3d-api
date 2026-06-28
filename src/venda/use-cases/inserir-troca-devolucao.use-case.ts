@@ -71,7 +71,7 @@ export class InserirTrocaDevolucaoUseCase {
     );
     const ajusteCarteira = this.criarAjusteCarteira(trocaDevolucao);
 
-    return await this.trocaDevolucaoService.inserirTrocaDevolucao(
+    return this.trocaDevolucaoService.inserirTrocaDevolucao(
       trocaDevolucao,
       movimentacoesEstoque,
       ajusteCarteira,

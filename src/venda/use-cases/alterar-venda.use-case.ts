@@ -66,6 +66,6 @@ export class AlterarVendaUseCase {
       pagamentos,
     });
 
-    return await this.vendaService.alterarVenda(venda);
+    return this.vendaService.alterarVenda(venda);
   }
 }

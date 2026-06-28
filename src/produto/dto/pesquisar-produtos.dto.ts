@@ -1,29 +1,13 @@
-import { Transform } from 'class-transformer';
 import { IsArray, IsIn, IsInt, IsOptional, Min } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { TransformarListaNumerica } from '@common/decorators/transformar-lista.decorator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 
-function normalizeIdsCategorias(value: unknown): number[] | undefined {
-  if (value === undefined || value === null || value === '') {
-    return undefined;
-  }
-
-  const values = Array.isArray(value)
-    ? value
-    : typeof value === 'string' || typeof value === 'number'
-      ? String(value)
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean)
-      : undefined;
-
-  if (!values) {
-    return undefined;
-  }
-
-  return values.map((item) => Number(item));
-}
-
 export class PesquisarProdutosDto extends PesquisaPaginadaDto {
+  @ApiPropertyOptional({
+    default: 'nome',
+    enum: ['nome', 'codigo', 'nivelEstoque'],
+  })
   @IsOptional()
   @IsIn(['nome', 'codigo', 'nivelEstoque'], {
     message:
@@ -31,14 +15,16 @@ export class PesquisarProdutosDto extends PesquisaPaginadaDto {
   })
   ordenarPor?: 'nome' | 'codigo' | 'nivelEstoque' = 'nome';
 
+  @ApiPropertyOptional({ default: 'asc', enum: ['asc', 'desc'] })
   @IsOptional()
   @IsIn(['asc', 'desc'], {
     message: 'A direção da ordenação deve ser asc ou desc.',
   })
   direcao?: 'asc' | 'desc' = 'asc';
 
+  @ApiPropertyOptional({ type: Number, isArray: true })
   @IsOptional()
-  @Transform(({ value }) => normalizeIdsCategorias(value))
+  @TransformarListaNumerica()
   @IsArray({
     message: 'As categorias devem ser informadas em formato de lista.',
   })

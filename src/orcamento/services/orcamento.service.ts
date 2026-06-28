@@ -9,7 +9,10 @@ import { Orcamento } from '@orcamento/entities';
 import { PesquisarOrcamentosDto } from '@orcamento/dto';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { Repository } from 'typeorm';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class OrcamentoService {
@@ -96,13 +99,12 @@ export class OrcamentoService {
 
     const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async excluirOrcamento(id: number): Promise<void> {

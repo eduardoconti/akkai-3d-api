@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsDateString,
@@ -7,7 +7,9 @@ import {
   IsOptional,
   Min,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
+import { TransformarLista } from '@common/decorators/transformar-lista.decorator';
 import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
@@ -22,29 +24,8 @@ export const ORIGENS_PADRAO_MOVIMENTACAO_ESTOQUE = Object.values(
   OrigemMovimentacaoEstoque,
 ).filter((origem) => origem !== OrigemMovimentacaoEstoque.VENDA);
 
-function normalizarLista<T extends string>(
-  value: unknown,
-  valoresPadrao: T[],
-): T[] {
-  if (value === undefined || value === null || value === '') {
-    return valoresPadrao;
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item).trim()).filter(Boolean) as T[];
-  }
-
-  if (typeof value === 'string' || typeof value === 'number') {
-    return String(value)
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean) as T[];
-  }
-
-  return valoresPadrao;
-}
-
 export class PesquisarMovimentacoesEstoqueDto extends PesquisaPaginadaDto {
+  @ApiPropertyOptional({ format: 'date' })
   @IsOptional()
   @IsDateString(
     {},
@@ -54,6 +35,7 @@ export class PesquisarMovimentacoesEstoqueDto extends PesquisaPaginadaDto {
   )
   dataInicio?: string;
 
+  @ApiPropertyOptional({ format: 'date' })
   @IsOptional()
   @IsDateString(
     {},
@@ -63,10 +45,9 @@ export class PesquisarMovimentacoesEstoqueDto extends PesquisaPaginadaDto {
   )
   dataFim?: string;
 
+  @ApiPropertyOptional({ enum: TipoMovimentacaoEstoque, isArray: true })
   @IsOptional()
-  @Transform(({ value }) =>
-    normalizarLista(value, TIPOS_PADRAO_MOVIMENTACAO_ESTOQUE),
-  )
+  @TransformarLista(TIPOS_PADRAO_MOVIMENTACAO_ESTOQUE)
   @IsArray({
     message: 'Os tipos devem ser informados em formato de lista.',
   })
@@ -76,10 +57,9 @@ export class PesquisarMovimentacoesEstoqueDto extends PesquisaPaginadaDto {
   })
   tipos?: TipoMovimentacaoEstoque[] = TIPOS_PADRAO_MOVIMENTACAO_ESTOQUE;
 
+  @ApiPropertyOptional({ enum: OrigemMovimentacaoEstoque, isArray: true })
   @IsOptional()
-  @Transform(({ value }) =>
-    normalizarLista(value, ORIGENS_PADRAO_MOVIMENTACAO_ESTOQUE),
-  )
+  @TransformarLista(ORIGENS_PADRAO_MOVIMENTACAO_ESTOQUE)
   @IsArray({
     message: 'As origens devem ser informadas em formato de lista.',
   })
@@ -89,6 +69,7 @@ export class PesquisarMovimentacoesEstoqueDto extends PesquisaPaginadaDto {
   })
   origens?: OrigemMovimentacaoEstoque[] = ORIGENS_PADRAO_MOVIMENTACAO_ESTOQUE;
 
+  @ApiPropertyOptional({ type: Number, minimum: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'O produto deve ser um número inteiro.' })

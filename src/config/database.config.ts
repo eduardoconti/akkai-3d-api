@@ -47,6 +47,7 @@ import {
 import { DataSourceOptions } from 'typeorm';
 
 type DatabaseEnv = {
+  NODE_ENV: 'development' | 'test' | 'production';
   DATABASE_HOST: string;
   DATABASE_PORT: number;
   DATABASE_USERNAME: string;
@@ -103,7 +104,8 @@ export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
     entities,
     migrations: [join(__dirname, '../database/migrations/*{.ts,.js}')],
     migrationsTableName: 'typeorm_migrations',
-    synchronize: env.DATABASE_SYNCHRONIZE,
+    synchronize:
+      env.NODE_ENV === 'production' ? false : env.DATABASE_SYNCHRONIZE,
     logging: env.DATABASE_LOGGING,
   };
 }
@@ -112,6 +114,7 @@ export function getDatabaseConfigFromConfigService(
   configService: ConfigService,
 ): TypeOrmModuleOptions {
   return getDatabaseConfig({
+    NODE_ENV: configService.getOrThrow<DatabaseEnv['NODE_ENV']>('NODE_ENV'),
     DATABASE_HOST: configService.getOrThrow<string>('DATABASE_HOST'),
     DATABASE_PORT: configService.getOrThrow<number>('DATABASE_PORT'),
     DATABASE_USERNAME: configService.getOrThrow<string>('DATABASE_USERNAME'),

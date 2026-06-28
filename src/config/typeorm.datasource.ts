@@ -4,6 +4,7 @@ import { envValidationSchema } from './env.validation';
 import { getDatabaseConfig } from './database.config';
 
 type ValidatedEnv = {
+  NODE_ENV: 'development' | 'test' | 'production';
   DATABASE_HOST: string;
   DATABASE_PORT: number;
   DATABASE_USERNAME: string;
@@ -28,6 +29,7 @@ const value = validationResult.value as ValidatedEnv;
 
 export default new DataSource(
   getDatabaseConfig({
+    NODE_ENV: value.NODE_ENV,
     DATABASE_HOST: value.DATABASE_HOST,
     DATABASE_PORT: value.DATABASE_PORT,
     DATABASE_USERNAME: value.DATABASE_USERNAME,

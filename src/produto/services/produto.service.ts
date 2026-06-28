@@ -14,7 +14,10 @@ import {
 } from '@produto/dto';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class ProdutoService {
@@ -163,8 +166,8 @@ export class ProdutoService {
       parametros,
     );
 
-    return {
-      itens: produtos.map((produto) => ({
+    return criarResultadoPaginado(
+      produtos.map((produto) => ({
         id: Number(produto.id),
         nome: produto.nome,
         codigo: Number(produto.codigo),
@@ -182,14 +185,10 @@ export class ProdutoService {
           nome: produto.categoria_nome,
         },
       })),
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens: Number(contagem[0]?.total ?? 0),
-      totalPaginas: Math.max(
-        1,
-        Math.ceil(Number(contagem[0]?.total ?? 0) / pesquisa.tamanhoPagina),
-      ),
-    };
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
+      Number(contagem[0]?.total ?? 0),
+    );
   }
 
   async salvar(produto: Produto): Promise<Produto> {

@@ -13,7 +13,10 @@ import { Despesa } from '@financeiro/entities';
 import { DateService } from '@common/services/date.service';
 import { ResultadoPaginadoComTotalizadores } from '@common/interfaces/resultado-paginado.interface';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class DespesaService {
@@ -84,11 +87,12 @@ export class DespesaService {
     ]);
 
     return {
-      itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
+      ...criarResultadoPaginado(
+        itens,
+        pesquisa.pagina,
+        pesquisa.tamanhoPagina,
+        totalItens,
+      ),
       totalizadores: {
         valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
       },

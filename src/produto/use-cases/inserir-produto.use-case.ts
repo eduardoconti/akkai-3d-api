@@ -30,6 +30,6 @@ export class InserirProdutoUseCase {
       idUsuarioInclusao: this.currentUserContext.usuarioId,
     });
 
-    return await this.produtoService.salvar(novoProduto);
+    return this.produtoService.salvar(novoProduto);
   }
 }

@@ -10,7 +10,10 @@ import { TransferenciaCarteira } from '@financeiro/entities';
 import { DateService } from '@common/services/date.service';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class TransferenciaCarteiraService {
@@ -108,13 +111,12 @@ export class TransferenciaCarteiraService {
       filtrosQueryBuilder.clone().getCount(),
     ]);
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   private criarQueryBuilderPesquisa(

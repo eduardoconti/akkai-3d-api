@@ -16,6 +16,6 @@ export class AlterarStatusProdutoUseCase {
 
     produto.alterarStatus(input.status);
 
-    return await this.produtoService.salvar(produto);
+    return this.produtoService.salvar(produto);
   }
 }

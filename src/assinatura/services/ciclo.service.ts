@@ -15,7 +15,10 @@ import {
 import { PesquisarCiclosDto } from '@assinatura/dto';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 export interface InserirCiclosEmLoteResult {
   criados: number;
@@ -157,13 +160,12 @@ export class CicloService {
 
     const [itens, totalItens] = await qb.getManyAndCount();
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async obterCicloPorId(id: number): Promise<CicloAssinatura | null> {

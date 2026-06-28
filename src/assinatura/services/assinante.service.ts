@@ -10,7 +10,10 @@ import { Assinante, StatusAssinante } from '@assinatura/entities';
 import { PesquisarAssinantesDto } from '@assinatura/dto';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class AssinanteService {
@@ -62,13 +65,12 @@ export class AssinanteService {
 
     const [itens, totalItens] = await qb.getManyAndCount();
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async obterAssinantePorId(id: number): Promise<Assinante | null> {

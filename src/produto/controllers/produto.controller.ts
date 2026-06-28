@@ -86,116 +86,114 @@ export class ProdutoController {
   @ApiInserirProdutoDocs()
   @Post()
   @Permissions(PERMISSOES.PRODUTO.INSERIR)
-  async inserirProduto(@Body() input: InserirProdutoDto) {
+  inserirProduto(@Body() input: InserirProdutoDto) {
     return this.inserirProdutoUseCase.execute(input);
   }
 
   @ApiAlterarProdutoDocs()
   @Put(':id')
   @Permissions(PERMISSOES.PRODUTO.ALTERAR)
-  async alterarProduto(
+  alterarProduto(
     @Param('id') id: number,
     @Body() input: AlterarProdutoDto,
   ): Promise<Produto> {
-    return await this.alterarProdutoUseCase.execute({ id, ...input });
+    return this.alterarProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiAlterarStatusProdutoDocs()
   @Patch(':id/status')
   @Permissions(PERMISSOES.PRODUTO.ALTERAR_STATUS)
-  async alterarStatusProduto(
+  alterarStatusProduto(
     @Param('id') id: number,
     @Body() input: AlterarStatusProdutoDto,
   ): Promise<Produto> {
-    return await this.alterarStatusProdutoUseCase.execute({ id, ...input });
+    return this.alterarStatusProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiExcluirProdutoDocs()
   @Delete(':id')
   @Permissions(PERMISSOES.PRODUTO.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async excluirProduto(@Param('id') id: number): Promise<void> {
+  excluirProduto(@Param('id') id: number): Promise<void> {
     return this.excluirProdutoUseCase.execute({ id });
   }
 
   @ApiListarProdutosDocs()
   @Get()
   @Permissions(PERMISSOES.PRODUTO.LER)
-  async listarProdutos(
+  listarProdutos(
     @Query() pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
-    return await this.produtoService.listarProdutos(pesquisa);
+    return this.produtoService.listarProdutos(pesquisa);
   }
 
   @ApiListarCategoriasDocs()
   @Get('categorias')
   @Permissions(PERMISSOES.CATEGORIA_PRODUTO.LER)
-  async listarCategorias(
+  listarCategorias(
     @Query() pesquisa: PesquisarCategoriasDto,
   ): Promise<ResultadoPaginado<CategoriaProduto>> {
-    return await this.categoriaProdutoService.listarCategorias(pesquisa);
+    return this.categoriaProdutoService.listarCategorias(pesquisa);
   }
 
   @ApiListarMovimentacoesEstoqueProdutosDocs()
   @Get('estoque/movimentacoes')
   @Permissions(PERMISSOES.ESTOQUE.LER)
-  async listarMovimentacoesEstoqueProdutos(
+  listarMovimentacoesEstoqueProdutos(
     @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,
   ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
-    return await this.estoqueService.listarMovimentacoes(pesquisa);
+    return this.estoqueService.listarMovimentacoes(pesquisa);
   }
 
   @ApiInserirCategoriaDocs()
   @Post('categorias')
   @Permissions(PERMISSOES.CATEGORIA_PRODUTO.INSERIR)
-  async inserirCategoria(
+  inserirCategoria(
     @Body() input: InserirCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
-    return await this.inserirCategoriaProdutoUseCase.execute(input);
+    return this.inserirCategoriaProdutoUseCase.execute(input);
   }
 
   @ApiObterCategoriaPorIdDocs()
   @Get('categorias/:id')
   @Permissions(PERMISSOES.CATEGORIA_PRODUTO.LER)
-  async obterCategoriaPorId(
-    @Param('id') id: number,
-  ): Promise<CategoriaProduto> {
-    return await this.categoriaProdutoService.garantirCategoriaPorId(id);
+  obterCategoriaPorId(@Param('id') id: number): Promise<CategoriaProduto> {
+    return this.categoriaProdutoService.garantirCategoriaPorId(id);
   }
 
   @ApiAlterarCategoriaDocs()
   @Put('categorias/:id')
   @Permissions(PERMISSOES.CATEGORIA_PRODUTO.ALTERAR)
-  async alterarCategoria(
+  alterarCategoria(
     @Param('id') id: number,
     @Body() input: AlterarCategoriaProdutoDto,
   ): Promise<CategoriaProduto> {
-    return await this.alterarCategoriaProdutoUseCase.execute({ id, ...input });
+    return this.alterarCategoriaProdutoUseCase.execute({ id, ...input });
   }
 
   @ApiExcluirCategoriaDocs()
   @Delete('categorias/:id')
   @Permissions(PERMISSOES.CATEGORIA_PRODUTO.EXCLUIR)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async excluirCategoria(@Param('id') id: number): Promise<void> {
+  excluirCategoria(@Param('id') id: number): Promise<void> {
     return this.excluirCategoriaProdutoUseCase.execute({ id });
   }
 
   @ApiObterProdutoPorIdDocs()
   @Get(':id')
   @Permissions(PERMISSOES.PRODUTO.LER)
-  async getProdutoById(@Param('id') id: number): Promise<DetalheProdutoDto> {
-    return await this.produtoService.obterDetalheProdutoPorId(id);
+  getProdutoById(@Param('id') id: number): Promise<DetalheProdutoDto> {
+    return this.produtoService.obterDetalheProdutoPorId(id);
   }
 
   @ApiEntradaEstoqueDocs()
   @Post(':id/estoque/entrada')
   @Permissions(PERMISSOES.ESTOQUE.ENTRADA)
-  async entradaEstoque(
+  entradaEstoque(
     @Param('id') id: number,
     @Body() { quantidade, origem }: EntradaEstoqueDto,
   ) {
-    return await this.entradaEstoqueUseCase.execute({
+    return this.entradaEstoqueUseCase.execute({
       idProduto: id,
       quantidade,
       origem,
@@ -205,11 +203,11 @@ export class ProdutoController {
   @ApiSaidaEstoqueDocs()
   @Post(':id/estoque/saida')
   @Permissions(PERMISSOES.ESTOQUE.SAIDA)
-  async saidaEstoque(
+  saidaEstoque(
     @Param('id') id: number,
     @Body() { quantidade, origem }: SaidaEstoqueDto,
   ) {
-    return await this.saidaEstoqueUseCase.execute({
+    return this.saidaEstoqueUseCase.execute({
       idProduto: id,
       quantidade,
       origem,
@@ -219,13 +217,10 @@ export class ProdutoController {
   @ApiListarMovimentacoesEstoqueDocs()
   @Get(':id/estoque/movimentacoes')
   @Permissions(PERMISSOES.ESTOQUE.LER)
-  async listarMovimentacoesEstoque(
+  listarMovimentacoesEstoque(
     @Param('id') id: number,
     @Query() pesquisa: PesquisarMovimentacoesEstoqueDto,
   ): Promise<ResultadoPaginado<ListarMovimentacaoEstoqueDto>> {
-    return await this.estoqueService.listarMovimentacoesPorProduto(
-      id,
-      pesquisa,
-    );
+    return this.estoqueService.listarMovimentacoesPorProduto(id, pesquisa);
   }
 }

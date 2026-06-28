@@ -9,7 +9,10 @@ import { Repository } from 'typeorm';
 import { CategoriaProduto } from '@produto/entities';
 import { PesquisarCategoriasDto } from '@produto/dto';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarResultadoPaginado,
+} from '@common/utils/paginacao.util';
 
 @Injectable()
 export class CategoriaProdutoService {
@@ -58,13 +61,12 @@ export class CategoriaProdutoService {
 
     const [itens, totalItens] = await queryBuilder.getManyAndCount();
 
-    return {
+    return criarResultadoPaginado(
       itens,
-      pagina: pesquisa.pagina,
-      tamanhoPagina: pesquisa.tamanhoPagina,
+      pesquisa.pagina,
+      pesquisa.tamanhoPagina,
       totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / pesquisa.tamanhoPagina)),
-    };
+    );
   }
 
   async obterCategoriaPorId(id: number): Promise<CategoriaProduto | null> {

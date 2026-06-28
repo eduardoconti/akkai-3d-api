@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { calcularOffset } from '@common/utils/paginacao.util';
+import {
+  calcularOffset,
+  criarMetadadosPaginacao,
+} from '@common/utils/paginacao.util';
 import { DateService } from '@common/services/date.service';
 import { DataSource } from 'typeorm';
 import {
@@ -204,16 +207,17 @@ export class RelatorioService {
     const totalItens = Number(totais?.totalItens ?? 0);
 
     return {
+      ...criarMetadadosPaginacao(
+        filtro.pagina,
+        filtro.tamanhoPagina,
+        totalItens,
+      ),
       dataInicio: totais?.dataInicio ?? dataFim,
       dataFim: totais?.dataFim ?? dataFim,
       feirasHistorico: filtro.feirasHistorico,
       feirasConsideradas: Number(totais?.feirasConsideradas ?? 0),
       feirasPlanejamento: filtro.feirasPlanejamento,
       feirasEstoqueSeguranca: filtro.feirasEstoqueSeguranca,
-      pagina: filtro.pagina,
-      tamanhoPagina: filtro.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
       totalQuantidadeSugerida: Number(totais?.totalQuantidadeSugerida ?? 0),
       itens: rows.map((row) => this.mapearSugestaoProducao(row)),
     };
@@ -301,13 +305,14 @@ export class RelatorioService {
     const totalValorEstimado = Number(totais?.totalValorEstimado ?? 0);
 
     return {
+      ...criarMetadadosPaginacao(
+        filtro.pagina,
+        filtro.tamanhoPagina,
+        totalItens,
+      ),
       dataInicio,
       dataFim,
       diasNoPeriodo,
-      pagina: filtro.pagina,
-      tamanhoPagina: filtro.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
       totalQuantidadeProduzida,
       totalValorEstimado,
       mediaQuantidadePorDia:
@@ -805,10 +810,11 @@ export class RelatorioService {
     const totalItens = Number(totais?.totalItens ?? 0);
 
     return {
-      pagina: filtro.pagina,
-      tamanhoPagina: filtro.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
+      ...criarMetadadosPaginacao(
+        filtro.pagina,
+        filtro.tamanhoPagina,
+        totalItens,
+      ),
       totalQuantidade: Number(totais?.totalQuantidade ?? 0),
       totalValor: Number(totais?.totalValor ?? 0),
       totalValorTotal: Number(totais?.totalValorTotal ?? 0),
@@ -927,12 +933,13 @@ export class RelatorioService {
     const totalItens = Number(totalRows[0]?.totalItens ?? 0);
 
     return {
+      ...criarMetadadosPaginacao(
+        filtro.pagina,
+        filtro.tamanhoPagina,
+        totalItens,
+      ),
       dataInicio,
       dataFim,
-      pagina: filtro.pagina,
-      tamanhoPagina: filtro.tamanhoPagina,
-      totalItens,
-      totalPaginas: Math.max(1, Math.ceil(totalItens / filtro.tamanhoPagina)),
       itens: rows.map((row) => ({
         idProduto:
           row.idProduto === null || row.idProduto === undefined
