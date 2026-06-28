@@ -15,6 +15,14 @@ module.exports = {
     'main\\.ts$',
   ],
   coverageDirectory: '../coverage',
+  coverageThreshold: {
+    global: {
+      statements: 88,
+      branches: 73,
+      functions: 70,
+      lines: 88,
+    },
+  },
   testEnvironment: 'node',
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/$1',
