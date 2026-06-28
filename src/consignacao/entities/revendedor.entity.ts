@@ -8,17 +8,13 @@ import {
   ValueTransformer,
 } from 'typeorm';
 import { Consignacao } from './consignacao.entity';
+import { StatusRevendedor } from '@consignacao/enums';
 
 const percentualTransformer: ValueTransformer = {
   to: (value?: number | null) => value ?? 0,
   from: (value?: string | number | null) =>
     value === null || value === undefined ? 0 : Number(value),
 };
-
-export enum StatusRevendedor {
-  ATIVO = 'ATIVO',
-  INATIVO = 'INATIVO',
-}
 
 export interface RevendedorInput {
   nome: string;

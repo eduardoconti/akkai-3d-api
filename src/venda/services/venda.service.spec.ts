@@ -1,4 +1,3 @@
-import { Carteira } from '@financeiro/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Orcamento, StatusOrcamento } from '@orcamento/entities';
 import {
@@ -16,9 +15,6 @@ import { DateService } from '@common/services/date.service';
 describe('VendaService', () => {
   let service: VendaService;
 
-  let carteiraRepository: {
-    exists: jest.Mock;
-  };
   let vendaRepository: {
     createQueryBuilder: jest.Mock;
     findOne: jest.Mock;
@@ -42,9 +38,6 @@ describe('VendaService', () => {
   };
 
   beforeEach(async () => {
-    carteiraRepository = {
-      exists: jest.fn(),
-    };
     const queryBuilder = {
       leftJoinAndSelect: jest.fn().mockReturnThis(),
       distinct: jest.fn().mockReturnThis(),
@@ -86,10 +79,6 @@ describe('VendaService', () => {
       providers: [
         VendaService,
         {
-          provide: getRepositoryToken(Carteira),
-          useValue: carteiraRepository,
-        },
-        {
           provide: getRepositoryToken(Venda),
           useValue: vendaRepository,
         },
@@ -109,17 +98,6 @@ describe('VendaService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  it('deve verificar existência de carteira', async () => {
-    carteiraRepository.exists.mockResolvedValue(true);
-
-    const result = await service.existeCarteira(7);
-
-    expect(carteiraRepository.exists).toHaveBeenCalledWith({
-      where: { id: 7, ativa: true },
-    });
-    expect(result).toBe(true);
   });
 
   it('deve inserir venda dentro de transação vinculando movimentos aos itens', async () => {

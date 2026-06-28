@@ -1,4 +1,4 @@
-import { StatusConsignacao, StatusRevendedor } from '@consignacao/entities';
+import { StatusConsignacao, StatusRevendedor } from '@consignacao/enums';
 
 export class RevendedorResumoDto {
   id!: number;

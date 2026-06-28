@@ -23,7 +23,7 @@ import {
   TopProdutosMesDashboardDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
-import { TipoVenda } from '@venda/entities/venda.entity';
+import { TipoVenda } from '@venda/enums';
 
 type ResumoVendasPeriodoRow = {
   quantidadeItens: string | number;

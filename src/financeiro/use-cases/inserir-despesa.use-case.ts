@@ -7,7 +7,7 @@ import {
   DespesaService,
 } from '@financeiro/services';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
-import { FeiraService } from '@venda/services';
+import { ConsultaFeira } from '@venda/contracts';
 
 @Injectable()
 export class InserirDespesaUseCase {
@@ -15,7 +15,7 @@ export class InserirDespesaUseCase {
     private readonly despesaService: DespesaService,
     private readonly carteiraService: CarteiraService,
     private readonly categoriaDespesaService: CategoriaDespesaService,
-    private readonly feiraService: FeiraService,
+    private readonly consultaFeira: ConsultaFeira,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -25,7 +25,7 @@ export class InserirDespesaUseCase {
       input.idCategoria,
     );
     if (input.idFeira) {
-      await this.feiraService.garantirExisteFeira(input.idFeira);
+      await this.consultaFeira.garantirExisteFeira(input.idFeira);
     }
 
     const despesa = Despesa.criar({

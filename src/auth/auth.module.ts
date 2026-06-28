@@ -49,6 +49,5 @@ import { JwtStrategy } from '@auth/strategies';
       useClass: PermissionsGuard,
     },
   ],
-  exports: [AuthService],
 })
 export class AuthModule {}

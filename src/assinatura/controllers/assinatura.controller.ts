@@ -30,9 +30,8 @@ import {
   CicloAssinatura,
   KitMensal,
   PlanoAssinatura,
-  StatusAssinante,
-  StatusCiclo,
 } from '@assinatura/entities';
+import { StatusAssinante, StatusCiclo } from '@assinatura/enums';
 import {
   AssinanteService,
   CicloService,

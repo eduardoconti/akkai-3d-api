@@ -8,7 +8,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export class RegistrarItemVendaConsignadaDto {
   @ApiProperty({

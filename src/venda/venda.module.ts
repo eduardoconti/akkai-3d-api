@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { OrcamentoModule } from '@orcamento/orcamento.module';
 import { VendaController } from '@venda/controllers';
 import {
-  FeiraService,
   PrecoProdutoFeiraService,
   PrepararItensVendaService,
   PrepararPagamentosVendaService,
@@ -12,7 +11,6 @@ import {
 } from '@venda/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
-  Feira,
   ItemVenda,
   PagamentoVenda,
   PrecoProdutoFeira,
@@ -30,13 +28,12 @@ import {
   InserirTrocaDevolucaoUseCase,
   InserirVendaUseCase,
 } from '@venda/use-cases';
-import { Carteira } from '@financeiro/entities';
+import { FeiraModule } from '@venda/feira.module';
 
 @Module({
   controllers: [VendaController],
   providers: [
     VendaService,
-    FeiraService,
     PrecoProdutoFeiraService,
     PrepararItensVendaService,
     PrepararPagamentosVendaService,
@@ -52,6 +49,7 @@ import { Carteira } from '@financeiro/entities';
   imports: [
     ProdutoModule,
     FinanceiroModule,
+    FeiraModule,
     OrcamentoModule,
     TypeOrmModule.forFeature([
       Venda,
@@ -59,9 +57,7 @@ import { Carteira } from '@financeiro/entities';
       PagamentoVenda,
       TrocaDevolucao,
       ItemTrocaDevolucao,
-      Feira,
       PrecoProdutoFeira,
-      Carteira,
     ]),
   ],
 })

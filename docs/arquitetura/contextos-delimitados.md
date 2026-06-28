@@ -69,19 +69,24 @@ Não são contratos públicos adequados:
 
 ## Dependências legadas conhecidas
 
-As principais exceções atuais são:
+A fase 3 eliminou as dependências diretas `common -> auth` e as dependências de
+services concretos entre `financeiro` e `venda`. Consulta de feira, carteira e
+taxa agora ocorre por contratos públicos mínimos. As principais exceções que
+permanecem são:
 
-- `common -> auth`, pelo contexto do usuário atual;
-- `financeiro -> venda`, principalmente para validar feira;
-- `venda -> financeiro`, para carteiras, taxas e pagamentos;
-- `venda -> produto`, para catálogo e estoque;
-- `consignacao -> venda/produto/financeiro`, para efetivar operações;
+- `venda -> produto`, para catálogo, preços e estoque;
+- `venda -> orcamento`, para efetivar propostas comerciais;
+- `consignacao -> venda/produto`, para orquestrar vendas e estoque consignado;
+- casos de uso que ainda dependem de services concretos do próprio contexto;
+- services que ainda recebem DTOs HTTP;
 - entidades com relações TypeORM atravessando contextos.
 
 Essas exceções não são precedentes para código novo. O teste
 `src/arquitetura/arquitetura.spec.ts` mantém um orçamento máximo para cada uma.
-Uma refatoração pode reduzir qualquer orçamento sem atualizar o baseline. O
-baseline só deve ser aumentado após uma decisão arquitetural registrada.
+Imports de `contracts/` e `enums/` públicos não contam como violação entre
+contextos. Uma refatoração pode reduzir qualquer orçamento sem atualizar o
+baseline. O baseline só deve ser aumentado após uma decisão arquitetural
+registrada.
 
 ## Arquitetura interna pretendida
 

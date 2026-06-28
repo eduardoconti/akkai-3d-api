@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RelatorioController } from '@relatorio/controllers';
 import { RelatorioService } from '@relatorio/services';
-import { TipoVenda } from '@venda/entities/venda.entity';
+import { TipoVenda } from '@venda/enums';
 
 describe('RelatorioController', () => {
   let controller: RelatorioController;

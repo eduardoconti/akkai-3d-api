@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Assinante, StatusAssinante } from '@assinatura/entities';
+import { Assinante } from '@assinatura/entities';
+import { StatusAssinante } from '@assinatura/enums';
 import { PesquisarAssinantesDto } from '@assinatura/dto';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';

@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Assinante,
-  AssinanteInput,
-  StatusAssinante,
-} from '@assinatura/entities';
+import { Assinante, AssinanteInput } from '@assinatura/entities';
+import { StatusAssinante } from '@assinatura/enums';
 import { AssinanteService, PlanoService } from '@assinatura/services';
 
 @Injectable()

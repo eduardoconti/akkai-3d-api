@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { AjusteCarteira, TipoAjusteCarteira } from '@financeiro/entities';
-import { CarteiraService } from '@financeiro/services';
+import { AjusteCarteira } from '@financeiro/entities';
+import { TipoAjusteCarteira } from '@financeiro/enums';
+import { ConsultaCarteira } from '@financeiro/contracts';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { MovimentacaoEstoque } from '@produto/entities';
 import {
-  MovimentacaoEstoque,
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 import { ProdutoService } from '@produto/services';
+import { ItemTrocaDevolucao, TrocaDevolucao } from '@venda/entities';
 import {
-  ItemTrocaDevolucao,
   TipoDiferencaTrocaDevolucao,
   TipoItemTrocaDevolucao,
-  TrocaDevolucao,
-} from '@venda/entities';
+} from '@venda/enums';
 import { TrocaDevolucaoService } from '@venda/services';
 
 export interface ExecutarInserirTrocaDevolucaoInput {
@@ -35,7 +35,7 @@ export class InserirTrocaDevolucaoUseCase {
   constructor(
     private readonly trocaDevolucaoService: TrocaDevolucaoService,
     private readonly produtoService: ProdutoService,
-    private readonly carteiraService: CarteiraService,
+    private readonly consultaCarteira: ConsultaCarteira,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -60,7 +60,7 @@ export class InserirTrocaDevolucaoUseCase {
     });
 
     if (trocaDevolucao.valorDiferenca > 0) {
-      await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+      await this.consultaCarteira.garantirCarteiraAceitaMeioPagamento(
         trocaDevolucao.idCarteira!,
         trocaDevolucao.meioPagamento!,
       );

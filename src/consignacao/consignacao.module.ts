@@ -50,6 +50,5 @@ import { FinanceiroModule } from '@financeiro/financeiro.module';
     RegistrarVendasRevendedorConsignadoUseCase,
     RegistrarDevolucaoConsignadaUseCase,
   ],
-  exports: [RevendedorService, ConsignacaoService],
 })
 export class ConsignacaoModule {}

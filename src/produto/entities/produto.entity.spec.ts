@@ -1,9 +1,5 @@
-import {
-  CriarProdutoInput,
-  Produto,
-  ProdutoInput,
-  StatusProduto,
-} from './produto.entity';
+import { StatusProduto } from '@produto/enums';
+import { CriarProdutoInput, Produto, ProdutoInput } from './produto.entity';
 
 describe('Produto', () => {
   const input: CriarProdutoInput = {

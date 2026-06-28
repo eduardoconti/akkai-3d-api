@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { RelatorioService } from '@relatorio/services';
-import { TipoVenda } from '@venda/entities/venda.entity';
+import { TipoVenda } from '@venda/enums';
 import { DateService } from '@common/services/date.service';
 
 describe('RelatorioService', () => {

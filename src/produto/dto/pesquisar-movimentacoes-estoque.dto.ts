@@ -13,7 +13,7 @@ import { TransformarLista } from '@common/decorators/transformar-lista.decorator
 import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 
 export const TIPOS_PADRAO_MOVIMENTACAO_ESTOQUE = [
   TipoMovimentacaoEstoque.ENTRADA,

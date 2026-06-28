@@ -10,6 +10,7 @@ import {
   ValueTransformer,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
+import { StatusConsignacao } from '@consignacao/enums';
 import { ItemConsignacao } from './item-consignacao.entity';
 import { Revendedor } from './revendedor.entity';
 
@@ -18,12 +19,6 @@ const percentualTransformer: ValueTransformer = {
   from: (value?: string | number | null) =>
     value === null || value === undefined ? 0 : Number(value),
 };
-
-export enum StatusConsignacao {
-  ABERTA = 'ABERTA',
-  FECHADA = 'FECHADA',
-  CANCELADA = 'CANCELADA',
-}
 
 export interface CriarConsignacaoInput {
   idRevendedor: number;

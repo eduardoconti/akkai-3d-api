@@ -6,7 +6,7 @@ import {
   DespesaService,
 } from '@financeiro/services';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import { FeiraService } from '@venda/services';
+import { ConsultaFeira } from '@venda/contracts';
 
 export interface AlterarDespesaInput {
   id: number;
@@ -26,7 +26,7 @@ export class AlterarDespesaUseCase {
     private readonly despesaService: DespesaService,
     private readonly carteiraService: CarteiraService,
     private readonly categoriaDespesaService: CategoriaDespesaService,
-    private readonly feiraService: FeiraService,
+    private readonly consultaFeira: ConsultaFeira,
   ) {}
 
   async execute(input: AlterarDespesaInput): Promise<Despesa> {
@@ -37,7 +37,7 @@ export class AlterarDespesaUseCase {
       input.idCategoria,
     );
     if (input.idFeira) {
-      await this.feiraService.garantirExisteFeira(input.idFeira);
+      await this.consultaFeira.garantirExisteFeira(input.idFeira);
     }
 
     despesa.atualizar(input);

@@ -1,5 +1,7 @@
 import { OrcamentoService } from '@orcamento/services';
-import { MeioPagamento, TipoVenda, Venda } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { Venda } from '@venda/entities';
+import { TipoVenda } from '@venda/enums';
 import {
   FeiraService,
   PrepararItensVendaService,

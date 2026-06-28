@@ -11,7 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TipoAjusteCarteira } from '@financeiro/entities';
+import { TipoAjusteCarteira } from '@financeiro/enums';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirAjusteCarteiraDto {

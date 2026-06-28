@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { MovimentacaoEstoque } from '@produto/entities';
 import {
-  MovimentacaoEstoque,
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 import { ProdutoService } from '@produto/services';
-import { ItemVendaInput, TipoVenda } from '@venda/entities';
+import { ItemVendaInput } from '@venda/entities';
+import { TipoVenda } from '@venda/enums';
 import { PrecoProdutoFeiraService } from '@venda/services/preco-produto-feira.service';
 
 export interface PrepararItemVendaInput {

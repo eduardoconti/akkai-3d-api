@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator';
-import { StatusProduto } from '@produto/entities';
+import { StatusProduto } from '@produto/enums';
 
 export class AlterarStatusProdutoDto {
   @IsEnum(StatusProduto, {

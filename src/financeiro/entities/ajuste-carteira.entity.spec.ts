@@ -1,8 +1,8 @@
 import {
   AjusteCarteira,
   CriarAjusteCarteiraInput,
-  TipoAjusteCarteira,
 } from './ajuste-carteira.entity';
+import { TipoAjusteCarteira } from '@financeiro/enums';
 
 describe('AjusteCarteira', () => {
   const input: CriarAjusteCarteiraInput = {

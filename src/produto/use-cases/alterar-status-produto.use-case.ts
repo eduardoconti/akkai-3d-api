@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Produto, StatusProduto } from '@produto/entities';
+import { Produto } from '@produto/entities';
+import { StatusProduto } from '@produto/enums';
 import { ProdutoService } from '@produto/services';
 
 export interface AlterarStatusProdutoInput {

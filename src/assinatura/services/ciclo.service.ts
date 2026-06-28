@@ -7,11 +7,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import {
-  CicloAssinatura,
-  ItemCicloAssinatura,
-  StatusCiclo,
-} from '@assinatura/entities';
+import { CicloAssinatura, ItemCicloAssinatura } from '@assinatura/entities';
+import { StatusCiclo } from '@assinatura/enums';
 import { PesquisarCiclosDto } from '@assinatura/dto';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';

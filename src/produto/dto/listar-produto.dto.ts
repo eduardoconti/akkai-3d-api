@@ -1,4 +1,4 @@
-import { StatusProduto } from '@produto/entities';
+import { StatusProduto } from '@produto/enums';
 
 class CategoriaProdutoResumoListaDto {
   id!: number;

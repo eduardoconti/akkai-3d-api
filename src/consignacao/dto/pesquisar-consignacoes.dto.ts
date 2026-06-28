@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsIn, IsInt, IsOptional, Min } from 'class-validator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
-import { StatusConsignacao } from '@consignacao/entities';
+import { StatusConsignacao } from '@consignacao/enums';
 
 export class PesquisarConsignacoesDto extends PesquisaPaginadaDto {
   @ApiPropertyOptional({

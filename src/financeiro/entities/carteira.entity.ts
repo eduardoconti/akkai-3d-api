@@ -6,7 +6,6 @@ import {
   ValueTransformer,
 } from 'typeorm';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import { PagamentoVenda } from '@venda/entities/pagamento-venda.entity';
 import { AjusteCarteira } from './ajuste-carteira.entity';
 import { Despesa } from './despesa.entity';
 import { TaxaMeioPagamentoCarteira } from './taxa-meio-pagamento-carteira.entity';
@@ -61,9 +60,6 @@ export class Carteira {
     nullable: true,
   })
   percentualImpostoVenda?: number | null;
-
-  @OneToMany(() => PagamentoVenda, (pagamento) => pagamento.carteira)
-  pagamentosVenda!: PagamentoVenda[];
 
   @OneToMany(() => Despesa, (despesa) => despesa.carteira)
   despesas!: Despesa[];

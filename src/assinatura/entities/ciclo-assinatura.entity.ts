@@ -9,18 +9,11 @@ import {
   Unique,
 } from 'typeorm';
 import { Assinante } from './assinante.entity';
+import { StatusCiclo } from '@assinatura/enums';
 import {
   ItemCicloAssinatura,
   ItemCicloAssinaturaInput,
 } from './item-ciclo-assinatura.entity';
-
-export enum StatusCiclo {
-  PENDENTE = 'PENDENTE',
-  EM_PREPARO = 'EM_PREPARO',
-  ENVIADO = 'ENVIADO',
-  ENTREGUE = 'ENTREGUE',
-  CANCELADO = 'CANCELADO',
-}
 
 export interface CicloAssinaturaInput {
   idAssinante: number;

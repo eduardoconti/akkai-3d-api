@@ -12,11 +12,7 @@ import {
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
 import { CategoriaProduto, MovimentacaoEstoque } from '@produto/entities';
-
-export enum StatusProduto {
-  ATIVO = 'ATIVO',
-  INATIVO = 'INATIVO',
-}
+import { StatusProduto } from '@produto/enums';
 
 export interface ProdutoInput {
   nome: string;

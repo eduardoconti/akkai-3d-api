@@ -4,7 +4,7 @@ import {
   CanalAtendimentoOrcamento,
   StatusOrcamento,
   TipoOrcamento,
-} from '@orcamento/entities';
+} from '@orcamento/enums';
 import { IsArray, IsEnum, IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 

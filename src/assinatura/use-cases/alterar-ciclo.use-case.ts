@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   CicloAssinatura,
   ItemCicloAssinaturaInput,
-  StatusCiclo,
 } from '@assinatura/entities';
+import { StatusCiclo } from '@assinatura/enums';
 import { CicloService } from '@assinatura/services';
 import { ProdutoService } from '@produto/services';
 

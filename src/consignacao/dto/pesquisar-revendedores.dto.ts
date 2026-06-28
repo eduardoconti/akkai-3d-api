@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsIn } from 'class-validator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
-import { StatusRevendedor } from '@consignacao/entities';
+import { StatusRevendedor } from '@consignacao/enums';
 
 export class PesquisarRevendedoresDto extends PesquisaPaginadaDto {
   @ApiPropertyOptional({

@@ -1,9 +1,11 @@
 import {
   CriarMovimentacaoEstoqueInput,
   MovimentacaoEstoque,
+} from './movimentacao-estoque.entity';
+import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from './movimentacao-estoque.entity';
+} from '@produto/enums';
 
 describe('MovimentacaoEstoque', () => {
   describe('criar', () => {

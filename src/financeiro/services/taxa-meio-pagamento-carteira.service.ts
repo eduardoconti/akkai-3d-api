@@ -4,9 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import { TaxaMeioPagamentoCarteira } from '@financeiro/entities';
+import { ConsultaTaxaPagamento } from '@financeiro/contracts';
 
 @Injectable()
-export class TaxaMeioPagamentoCarteiraService {
+export class TaxaMeioPagamentoCarteiraService implements ConsultaTaxaPagamento {
   private readonly logger = new Logger(TaxaMeioPagamentoCarteiraService.name);
 
   constructor(

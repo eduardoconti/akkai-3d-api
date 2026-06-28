@@ -12,7 +12,8 @@ import {
   criarResultadoPaginado,
 } from '@common/utils/paginacao.util';
 import { PesquisarRevendedoresDto } from '@consignacao/dto';
-import { Revendedor, StatusRevendedor } from '@consignacao/entities';
+import { Revendedor } from '@consignacao/entities';
+import { StatusRevendedor } from '@consignacao/enums';
 
 @Injectable()
 export class RevendedorService {

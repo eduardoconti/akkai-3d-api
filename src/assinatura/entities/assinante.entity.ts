@@ -7,12 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { PlanoAssinatura } from './plano-assinatura.entity';
-
-export enum StatusAssinante {
-  ATIVO = 'ATIVO',
-  PAUSADO = 'PAUSADO',
-  CANCELADO = 'CANCELADO',
-}
+import { StatusAssinante } from '@assinatura/enums';
 
 export interface AssinanteInput {
   nome: string;

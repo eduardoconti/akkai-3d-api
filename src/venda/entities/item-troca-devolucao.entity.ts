@@ -8,12 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Produto } from '@produto/entities';
+import { TipoItemTrocaDevolucao } from '@venda/enums';
 import { TrocaDevolucao } from './troca-devolucao.entity';
-
-export enum TipoItemTrocaDevolucao {
-  DEVOLVIDO = 'DEVOLVIDO',
-  ENTREGUE = 'ENTREGUE',
-}
 
 export interface ItemTrocaDevolucaoInput {
   idProduto: number;

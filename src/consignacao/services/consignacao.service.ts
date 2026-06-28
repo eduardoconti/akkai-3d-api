@@ -19,24 +19,19 @@ import {
   PesquisarConsignacoesDto,
   RegistrarItemVendaConsignadaDto,
 } from '@consignacao/dto';
-import {
-  Consignacao,
-  ItemConsignacao,
-  StatusConsignacao,
-} from '@consignacao/entities';
+import { Consignacao, ItemConsignacao } from '@consignacao/entities';
+import { StatusConsignacao } from '@consignacao/enums';
 import {
   CriarMovimentacaoEstoqueInput,
   MovimentacaoEstoque,
-  OrigemMovimentacaoEstoque,
-  TipoMovimentacaoEstoque,
 } from '@produto/entities';
 import {
-  ItemVendaInput,
-  MeioPagamento,
-  PagamentoVendaInput,
-  TipoVenda,
-  Venda,
-} from '@venda/entities';
+  OrigemMovimentacaoEstoque,
+  TipoMovimentacaoEstoque,
+} from '@produto/enums';
+import { ItemVendaInput, PagamentoVendaInput, Venda } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { TipoVenda } from '@venda/enums';
 
 export interface RegistrarPagamentoVendaConsignadaInput {
   idCarteira: number;

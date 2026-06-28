@@ -8,27 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Feira } from '@venda/entities/feira.entity';
-
-export enum StatusOrcamento {
-  ATENDIMENTO = 'ATENDIMENTO',
-  PENDENTE = 'PENDENTE',
-  AGUARDANDO_APROVACAO = 'AGUARDANDO_APROVACAO',
-  APROVADO = 'APROVADO',
-  PRODUZIDO = 'PRODUZIDO',
-  FINALIZADO = 'FINALIZADO',
-  CANCELADO = 'CANCELADO',
-}
-
-export enum TipoOrcamento {
-  FEIRA = 'FEIRA',
-  LOJA = 'LOJA',
-  ONLINE = 'ONLINE',
-}
-
-export enum CanalAtendimentoOrcamento {
-  WPP = 'WPP',
-  INSTAGRAM = 'INSTAGRAM',
-}
+import {
+  CanalAtendimentoOrcamento,
+  StatusOrcamento,
+  TipoOrcamento,
+} from '@orcamento/enums';
 
 @Entity('orcamento')
 @Index('idx_orcamento_data_inclusao', ['dataInclusao'])

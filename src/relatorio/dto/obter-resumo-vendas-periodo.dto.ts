@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
-import { TipoVenda } from '@venda/entities/venda.entity';
+import { TipoVenda } from '@venda/enums';
 
 export class ObterResumoVendasPeriodoDto {
   @IsOptional()

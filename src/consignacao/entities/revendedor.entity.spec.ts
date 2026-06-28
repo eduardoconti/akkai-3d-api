@@ -1,4 +1,5 @@
-import { Revendedor, StatusRevendedor } from './revendedor.entity';
+import { StatusRevendedor } from '@consignacao/enums';
+import { Revendedor } from './revendedor.entity';
 
 describe('Revendedor', () => {
   it('deve criar revendedor com desconto padrão zerado', () => {

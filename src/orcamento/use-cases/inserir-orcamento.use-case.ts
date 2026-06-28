@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Orcamento } from '@orcamento/entities';
 import {
   CanalAtendimentoOrcamento,
-  Orcamento,
   StatusOrcamento,
   TipoOrcamento,
-} from '@orcamento/entities';
+} from '@orcamento/enums';
 import { OrcamentoService } from '@orcamento/services';
 
 export interface InserirOrcamentoInput {

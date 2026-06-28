@@ -1,3 +1,4 @@
+export * from '../enums';
 export * from './feira.entity';
 export * from './item-troca-devolucao.entity';
 export * from './item-venda.entity';

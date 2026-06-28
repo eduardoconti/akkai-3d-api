@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CarteiraService,
-  TaxaMeioPagamentoCarteiraService,
-} from '@financeiro/services';
-import { MeioPagamento, PagamentoVendaInput } from '@venda/entities';
+import { ConsultaCarteira, ConsultaTaxaPagamento } from '@financeiro/contracts';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { PagamentoVendaInput } from '@venda/entities';
 
 export interface PrepararPagamentoVendaInput {
   idCarteira: number;
@@ -14,8 +12,8 @@ export interface PrepararPagamentoVendaInput {
 @Injectable()
 export class PrepararPagamentosVendaService {
   constructor(
-    private readonly carteiraService: CarteiraService,
-    private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
+    private readonly consultaCarteira: ConsultaCarteira,
+    private readonly consultaTaxaPagamento: ConsultaTaxaPagamento,
   ) {}
 
   async preparar(
@@ -25,13 +23,13 @@ export class PrepararPagamentosVendaService {
 
     for (const pagamento of pagamentosInput) {
       const carteira =
-        await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+        await this.consultaCarteira.garantirCarteiraAceitaMeioPagamento(
           pagamento.idCarteira,
           pagamento.meioPagamento,
         );
 
       const taxaMeioPagamentoCarteira =
-        await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
+        await this.consultaTaxaPagamento.obterTaxaAtivaPorCarteiraEMeioPagamento(
           pagamento.idCarteira,
           pagamento.meioPagamento,
         );

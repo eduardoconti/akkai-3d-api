@@ -4,9 +4,11 @@ import { Repository } from 'typeorm';
 import {
   CriarMovimentacaoEstoqueInput,
   MovimentacaoEstoque,
+} from '@produto/entities';
+import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 import {
   ListarMovimentacaoEstoqueDto,
   ORIGENS_PADRAO_MOVIMENTACAO_ESTOQUE,

@@ -54,9 +54,7 @@ export class PagamentoVenda {
   @Column({ type: 'integer', name: 'id_carteira' })
   idCarteira!: number;
 
-  @ManyToOne(() => Carteira, (carteira) => carteira.pagamentosVenda, {
-    onDelete: 'NO ACTION',
-  })
+  @ManyToOne(() => Carteira, { onDelete: 'NO ACTION' })
   @JoinColumn({
     name: 'id_carteira',
     foreignKeyConstraintName: 'fk_pagamento_venda_carteira',

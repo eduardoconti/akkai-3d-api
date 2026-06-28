@@ -1,7 +1,7 @@
 import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 
 class ProdutoResumoMovimentacaoDto {
   id!: number;

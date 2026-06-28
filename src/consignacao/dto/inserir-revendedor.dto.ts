@@ -11,7 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
-import { StatusRevendedor } from '@consignacao/entities';
+import { StatusRevendedor } from '@consignacao/enums';
 
 export class InserirRevendedorDto {
   @ApiProperty({

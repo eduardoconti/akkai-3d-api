@@ -16,7 +16,8 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { MeioPagamento, TipoVenda } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
+import { TipoVenda } from '@venda/enums';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class InserirVendaDto {

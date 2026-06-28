@@ -9,8 +9,8 @@ import {
   TaxaMeioPagamentoCarteira,
   TransferenciaCarteira,
 } from '@financeiro/entities';
-import { Feira } from '@venda/entities';
-import { FeiraService } from '@venda/services';
+import { FeiraModule } from '@venda/feira.module';
+import { ConsultaCarteira, ConsultaTaxaPagamento } from '@financeiro/contracts';
 import {
   AjusteCarteiraService,
   CarteiraService,
@@ -46,9 +46,9 @@ import {
       Despesa,
       CategoriaDespesa,
       TransferenciaCarteira,
-      Feira,
     ]),
     TypeOrmModule.forFeature([TaxaMeioPagamentoCarteira]),
+    FeiraModule,
   ],
   controllers: [FinanceiroController],
   providers: [
@@ -58,7 +58,14 @@ import {
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,
     TransferenciaCarteiraService,
-    FeiraService,
+    {
+      provide: ConsultaCarteira,
+      useExisting: CarteiraService,
+    },
+    {
+      provide: ConsultaTaxaPagamento,
+      useExisting: TaxaMeioPagamentoCarteiraService,
+    },
     InserirAjusteCarteiraUseCase,
     InserirCarteiraUseCase,
     AlterarCarteiraUseCase,
@@ -76,13 +83,6 @@ import {
     AlterarTaxaMeioPagamentoCarteiraUseCase,
     ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ],
-  exports: [
-    CarteiraService,
-    AjusteCarteiraService,
-    DespesaService,
-    CategoriaDespesaService,
-    TaxaMeioPagamentoCarteiraService,
-    TransferenciaCarteiraService,
-  ],
+  exports: [ConsultaCarteira, ConsultaTaxaPagamento],
 })
 export class FinanceiroModule {}

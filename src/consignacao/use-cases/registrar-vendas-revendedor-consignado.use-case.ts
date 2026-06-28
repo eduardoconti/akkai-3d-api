@@ -4,12 +4,9 @@ import {
   RegistrarItemVendaConsignadaDto,
 } from '@consignacao/dto';
 import { ConsignacaoService } from '@consignacao/services';
-import {
-  CarteiraService,
-  TaxaMeioPagamentoCarteiraService,
-} from '@financeiro/services';
+import { ConsultaCarteira, ConsultaTaxaPagamento } from '@financeiro/contracts';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
-import { MeioPagamento } from '@venda/entities';
+import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 
 export interface RegistrarVendasRevendedorConsignadoInput {
   idRevendedor: number;
@@ -22,8 +19,8 @@ export interface RegistrarVendasRevendedorConsignadoInput {
 export class RegistrarVendasRevendedorConsignadoUseCase {
   constructor(
     private readonly consignacaoService: ConsignacaoService,
-    private readonly carteiraService: CarteiraService,
-    private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
+    private readonly consultaCarteira: ConsultaCarteira,
+    private readonly consultaTaxaPagamento: ConsultaTaxaPagamento,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 
@@ -31,12 +28,12 @@ export class RegistrarVendasRevendedorConsignadoUseCase {
     input: RegistrarVendasRevendedorConsignadoInput,
   ): Promise<DetalheConsignacaoDto[]> {
     const carteira =
-      await this.carteiraService.garantirCarteiraAceitaMeioPagamento(
+      await this.consultaCarteira.garantirCarteiraAceitaMeioPagamento(
         input.idCarteira,
         input.meioPagamento,
       );
     const taxaMeioPagamentoCarteira =
-      await this.taxaMeioPagamentoCarteiraService.obterTaxaAtivaPorCarteiraEMeioPagamento(
+      await this.consultaTaxaPagamento.obterTaxaAtivaPorCarteiraEMeioPagamento(
         input.idCarteira,
         input.meioPagamento,
       );

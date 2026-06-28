@@ -4,7 +4,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Produto, StatusProduto } from '@produto/entities';
+import { Produto } from '@produto/entities';
+import { StatusProduto } from '@produto/enums';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {

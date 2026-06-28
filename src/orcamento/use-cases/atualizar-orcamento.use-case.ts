@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { StatusOrcamento, TipoOrcamento } from '@orcamento/entities';
+import { StatusOrcamento, TipoOrcamento } from '@orcamento/enums';
 import { AtualizarOrcamentoDto } from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
 import { OrcamentoService } from '@orcamento/services';

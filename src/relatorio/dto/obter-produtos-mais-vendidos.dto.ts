@@ -10,7 +10,7 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 import { TransformarListaNumerica } from '@common/decorators/transformar-lista.decorator';
-import { TipoVenda } from '@venda/entities/venda.entity';
+import { TipoVenda } from '@venda/enums';
 
 export class ObterProdutosMaisVendidosDto extends PesquisaPaginadaDto {
   @ApiPropertyOptional({ format: 'date' })

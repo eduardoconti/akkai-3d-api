@@ -14,7 +14,7 @@ import {
   CanalAtendimentoOrcamento,
   StatusOrcamento,
   TipoOrcamento,
-} from '@orcamento/entities';
+} from '@orcamento/enums';
 
 export class AtualizarOrcamentoDto {
   @IsOptional()

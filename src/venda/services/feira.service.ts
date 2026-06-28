@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConsultaFeira } from '@venda/contracts';
 import { PesquisarFeirasDto } from '@venda/dto';
 import { Feira } from '@venda/entities';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
@@ -16,7 +17,7 @@ import {
 } from '@common/utils/paginacao.util';
 
 @Injectable()
-export class FeiraService {
+export class FeiraService implements ConsultaFeira {
   private readonly logger = new Logger(FeiraService.name);
 
   constructor(

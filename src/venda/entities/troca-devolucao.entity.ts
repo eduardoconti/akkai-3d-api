@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { User } from '@auth/entities/user.entity';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import { Carteira } from '@financeiro/entities';
+import { TipoDiferencaTrocaDevolucao } from '@venda/enums';
 import {
   Check,
   Column,
@@ -16,12 +16,6 @@ import {
   ItemTrocaDevolucao,
   ItemTrocaDevolucaoInput,
 } from './item-troca-devolucao.entity';
-
-export enum TipoDiferencaTrocaDevolucao {
-  A_PAGAR = 'A_PAGAR',
-  A_DEVOLVER = 'A_DEVOLVER',
-  SEM_DIFERENCA = 'SEM_DIFERENCA',
-}
 
 export interface TrocaDevolucaoInput {
   dataTrocaDevolucao: string | Date;
@@ -85,13 +79,6 @@ export class TrocaDevolucao {
 
   @Column({ type: 'integer', name: 'id_carteira', nullable: true })
   idCarteira?: number;
-
-  @ManyToOne(() => Carteira, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({
-    name: 'id_carteira',
-    foreignKeyConstraintName: 'fk_troca_devolucao_carteira',
-  })
-  carteira?: Carteira;
 
   @Column({
     type: 'enum',

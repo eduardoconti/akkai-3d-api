@@ -4,9 +4,11 @@ import { ConsignacaoService } from '@consignacao/services';
 import {
   CriarMovimentacaoEstoqueInput,
   MovimentacaoEstoque,
+} from '@produto/entities';
+import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
-} from '@produto/entities';
+} from '@produto/enums';
 import { DetalheConsignacaoDto } from '@consignacao/dto/listar-consignacao.dto';
 
 export interface ExcluirItemConsignacaoInput {

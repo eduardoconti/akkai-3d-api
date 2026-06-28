@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 import { EstoqueService } from '@produto/services';
-import { OrigemMovimentacaoEstoque } from '@produto/entities';
+import { OrigemMovimentacaoEstoque } from '@produto/enums';
 
 export interface EntradaEstoqueInput {
   idProduto: number;

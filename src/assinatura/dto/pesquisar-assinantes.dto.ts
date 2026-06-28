@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
-import { StatusAssinante } from '@assinatura/entities';
+import { StatusAssinante } from '@assinatura/enums';
 
 export class PesquisarAssinantesDto extends PesquisaPaginadaDto {
   @IsOptional()

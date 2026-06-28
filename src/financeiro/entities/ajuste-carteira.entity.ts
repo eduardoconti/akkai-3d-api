@@ -8,12 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
+import { TipoAjusteCarteira } from '@financeiro/enums';
 import { Carteira } from './carteira.entity';
-
-export enum TipoAjusteCarteira {
-  CREDITO = 'CREDITO',
-  DEBITO = 'DEBITO',
-}
 
 export interface AjusteCarteiraInput {
   idCarteira: number;

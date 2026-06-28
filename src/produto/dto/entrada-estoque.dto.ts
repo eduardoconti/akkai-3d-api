@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, Max, Min } from 'class-validator';
-import { OrigemMovimentacaoEstoque } from '@produto/entities';
+import { OrigemMovimentacaoEstoque } from '@produto/enums';
 
 export class EntradaEstoqueDto {
   @Type(() => Number)

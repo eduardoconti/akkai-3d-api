@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import { TipoVenda } from '@venda/entities';
+import { TipoVenda } from '@venda/enums';
 
 export class PesquisarVendasDto extends PesquisaPaginadaDto {
   @IsOptional()

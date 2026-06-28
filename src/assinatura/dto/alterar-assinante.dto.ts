@@ -9,7 +9,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { StatusAssinante } from '@assinatura/entities';
+import { StatusAssinante } from '@assinatura/enums';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class AlterarAssinanteDto {

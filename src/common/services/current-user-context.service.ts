@@ -5,10 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
 type AuthenticatedRequest = {
-  user?: JwtPayload;
+  user?: {
+    sub: number;
+    [chave: string]: unknown;
+  };
 };
 
 @Injectable({ scope: Scope.REQUEST })

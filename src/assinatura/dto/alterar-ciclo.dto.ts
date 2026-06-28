@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { StatusCiclo } from '@assinatura/entities';
+import { StatusCiclo } from '@assinatura/enums';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 
 export class AlterarItemCicloDto {

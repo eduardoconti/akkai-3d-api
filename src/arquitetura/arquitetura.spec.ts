@@ -16,34 +16,31 @@ const CONTEXTOS = new Set([
 const ORCAMENTO_DEPENDENCIAS_CONTEXTO: Record<string, number> = {
   'assinatura->auth': 3,
   'assinatura->produto': 7,
-  'common->auth': 1,
   'consignacao->auth': 3,
-  'consignacao->financeiro': 2,
+  'consignacao->financeiro': 1,
   'consignacao->produto': 10,
-  'consignacao->venda': 3,
+  'consignacao->venda': 1,
   'financeiro->auth': 6,
-  'financeiro->venda': 6,
+  'financeiro->venda': 2,
   'orcamento->auth': 2,
   'orcamento->venda': 1,
   'produto->auth': 4,
   'produto->venda': 2,
   'relatorio->auth': 2,
-  'relatorio->venda': 3,
   'venda->auth': 4,
-  'venda->consignacao': 1,
-  'venda->financeiro': 9,
+  'venda->financeiro': 4,
   'venda->orcamento': 3,
   'venda->produto': 12,
 };
 
 const ORCAMENTO_VIOLACOES_CAMADAS: Record<string, number> = {
-  'common depende de contexto de negócio': 1,
+  'common depende de contexto de negócio': 0,
   'entidade depende de NestJS': 3,
-  'DTO depende de arquivo de entidade': 27,
-  'caso de uso depende de service concreto': 83,
+  'DTO depende de arquivo de entidade': 0,
+  'caso de uso depende de service concreto': 79,
   'service depende de DTO HTTP': 18,
-  'importação de entidade cruza contexto': 46,
-  'importação de service cruza contexto': 37,
+  'importação de entidade cruza contexto': 35,
+  'importação de service cruza contexto': 31,
 };
 
 type Importacao = {
@@ -132,6 +129,8 @@ function contarDependenciasEntreContextos(
       !importacao.contextoDestino ||
       !CONTEXTOS.has(importacao.contextoDestino) ||
       importacao.contextoDestino === 'common' ||
+      importacao.especificador.includes('/contracts') ||
+      importacao.especificador.includes('/enums') ||
       importacao.contextoDestino === importacao.contextoOrigem
     ) {
       continue;

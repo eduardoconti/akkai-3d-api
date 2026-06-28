@@ -15,7 +15,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
-import { TipoItemTrocaDevolucao } from '@venda/entities';
+import { TipoItemTrocaDevolucao } from '@venda/enums';
 
 export class InserirTrocaDevolucaoDto {
   @ApiProperty({

@@ -7,8 +7,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Carteira } from '@financeiro/entities';
-import { ItemVenda, PagamentoVenda, TipoVenda, Venda } from '@venda/entities';
+import { ItemVenda, PagamentoVenda, Venda } from '@venda/entities';
+import { TipoVenda } from '@venda/enums';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
@@ -28,17 +28,9 @@ export class VendaService {
   constructor(
     @InjectRepository(Venda)
     private readonly vendaRepository: Repository<Venda>,
-    @InjectRepository(Carteira)
-    private readonly carteiraRepository: Repository<Carteira>,
     private readonly dataSource: DataSource,
     private readonly dateService: DateService,
   ) {}
-
-  async existeCarteira(idCarteira: number): Promise<boolean> {
-    return this.carteiraRepository.exists({
-      where: { id: idCarteira, ativa: true },
-    });
-  }
 
   async obterVendaPorId(id: number): Promise<Venda | null> {
     const venda = await this.vendaRepository.findOne({

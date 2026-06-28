@@ -10,18 +10,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '@auth/entities/user.entity';
-import { Consignacao } from '@consignacao/entities/consignacao.entity';
 import { Orcamento } from '@orcamento/entities';
+import { TipoVenda } from '@venda/enums';
 import { Feira } from './feira.entity';
 import { ItemVenda, ItemVendaInput } from './item-venda.entity';
 import { PagamentoVenda, PagamentoVendaInput } from './pagamento-venda.entity';
 
-export enum TipoVenda {
-  FEIRA = 'FEIRA',
-  LOJA = 'LOJA',
-  ONLINE = 'ONLINE',
-  CONSIGNACAO = 'CONSIGNACAO',
-}
 export interface InserirVendaInput {
   dataVenda: string | Date;
   tipo: TipoVenda;
@@ -97,13 +91,6 @@ export class Venda {
   @Column({ type: 'integer', name: 'id_consignacao', nullable: true })
   idConsignacao?: number;
 
-  @ManyToOne(() => Consignacao, { nullable: true })
-  @JoinColumn({
-    name: 'id_consignacao',
-    foreignKeyConstraintName: 'fk_venda_consignacao',
-  })
-  consignacao?: Consignacao;
-
   @Column({ type: 'integer', name: 'id_orcamento', nullable: true })
   idOrcamento?: number;
 
@@ -140,7 +127,6 @@ export class Venda {
     this.idConsignacao = inserirVendaInput.idConsignacao;
     this.idOrcamento = inserirVendaInput.idOrcamento;
     this.feira = undefined;
-    this.consignacao = undefined;
     this.orcamento = undefined;
     this.desconto = inserirVendaInput.desconto ?? 0;
     this.itens = inserirVendaInput.itens.map((item) => ItemVenda.criar(item));

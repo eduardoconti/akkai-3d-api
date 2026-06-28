@@ -10,6 +10,7 @@ import { Carteira } from '@financeiro/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { DataSource, Repository } from 'typeorm';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
+import { ConsultaCarteira } from '@financeiro/contracts';
 
 type ListarCarteiraRow = {
   id: number;
@@ -22,7 +23,7 @@ type ListarCarteiraRow = {
 };
 
 @Injectable()
-export class CarteiraService {
+export class CarteiraService implements ConsultaCarteira {
   private readonly logger = new Logger(CarteiraService.name);
 
   constructor(
