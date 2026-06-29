@@ -402,6 +402,11 @@ describe('VendaService', () => {
       'total_itens_venda',
       'total_itens_venda.id_venda = venda.id',
     );
+    expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+      expect.not.stringContaining('WHERE item_total.id_produto = :idProduto'),
+      'total_itens_venda',
+      'total_itens_venda.id_venda = venda.id',
+    );
   });
 
   it('deve listar vendas filtradas por tipo', async () => {
@@ -437,6 +442,7 @@ describe('VendaService', () => {
     const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
       ?.value as {
       andWhere: jest.Mock;
+      leftJoin: jest.Mock;
     };
 
     expect(queryBuilder.andWhere).toHaveBeenCalledWith(
@@ -463,6 +469,11 @@ describe('VendaService', () => {
         'pagamento_filtro.meio_pagamento = :meioPagamento',
       ),
       expect.objectContaining({ meioPagamento: MeioPagamento.PIX }),
+    );
+    expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+      expect.stringContaining('WHERE item_total.id_produto = :idProduto'),
+      'total_itens_venda',
+      'total_itens_venda.id_venda = venda.id',
     );
   });
 

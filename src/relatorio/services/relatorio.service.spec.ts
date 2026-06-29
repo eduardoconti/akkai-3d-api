@@ -153,6 +153,14 @@ describe('RelatorioService', () => {
         '2026-12-31 23:59:59.999',
       ]),
     );
+    const [consultaDashboard] = dataSource.query.mock.calls[0] as [string];
+    expect(consultaDashboard).toContain(
+      'item.brinde = false AND item.id_produto IS NOT NULL',
+    );
+    expect(consultaDashboard).toContain('item.brinde = true');
+    expect(consultaDashboard).toContain(
+      'item.brinde = false AND item.id_produto IS NULL',
+    );
     expect(result).toEqual({
       ano: 2026,
       totalQuantidadeItensVendidos: 36,
@@ -207,6 +215,13 @@ describe('RelatorioService', () => {
         },
       ],
     });
+    for (const item of result.itens) {
+      expect(item.quantidadeItensVendidos).toBe(
+        item.quantidadeItensCatalogo +
+          item.quantidadeBrindes +
+          item.quantidadeItensAvulsos,
+      );
+    }
   });
 
   it('deve usar ano local atual no resumo mensal quando o filtro não informar ano', async () => {

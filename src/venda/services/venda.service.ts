@@ -163,6 +163,9 @@ export class VendaService {
       .orderBy('venda.dataVenda', 'DESC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
+    const filtroProdutoTotalizadores = pesquisa.idProduto
+      ? 'WHERE item_total.id_produto = :idProduto'
+      : '';
 
     const totalizadoresRaw = (await filtrosQueryBuilder
       .clone()
@@ -185,6 +188,7 @@ export class VendaService {
             ELSE 0
           END) AS quantidade_itens_avulsos
         FROM item_venda item_total
+        ${filtroProdutoTotalizadores}
         GROUP BY item_total.id_venda)`,
         'total_itens_venda',
         'total_itens_venda.id_venda = venda.id',
