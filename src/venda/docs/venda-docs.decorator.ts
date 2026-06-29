@@ -306,6 +306,10 @@ export function ApiListarVendasDocs() {
           totalPaginas: 1,
           itens: [VENDA_EXEMPLO],
           totalizadores: {
+            quantidadeItensVendidos: 25,
+            quantidadeItensCatalogo: 20,
+            quantidadeBrindes: 3,
+            quantidadeItensAvulsos: 2,
             valorTotal: 2200,
             descontoTotal: 0,
             valorLiquido: 2046,

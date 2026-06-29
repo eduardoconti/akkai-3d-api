@@ -39,6 +39,7 @@ describe('VendaService', () => {
 
   beforeEach(async () => {
     const queryBuilder = {
+      leftJoin: jest.fn().mockReturnThis(),
       leftJoinAndSelect: jest.fn().mockReturnThis(),
       distinct: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
@@ -49,6 +50,10 @@ describe('VendaService', () => {
       select: jest.fn().mockReturnThis(),
       addSelect: jest.fn().mockReturnThis(),
       getRawOne: jest.fn().mockResolvedValue({
+        quantidadeItensVendidos: '12',
+        quantidadeItensCatalogo: '8',
+        quantidadeBrindes: '3',
+        quantidadeItensAvulsos: '1',
         valorTotal: '5000',
         descontoTotal: '200',
         valorLiquido: '4600',
@@ -366,11 +371,37 @@ describe('VendaService', () => {
       totalItens: 1,
       totalPaginas: 1,
       totalizadores: {
+        quantidadeItensVendidos: 12,
+        quantidadeItensCatalogo: 8,
+        quantidadeBrindes: 3,
+        quantidadeItensAvulsos: 1,
         valorTotal: 5000,
         descontoTotal: 200,
         valorLiquido: 4600,
       },
     });
+
+    const queryBuilder = vendaRepository.createQueryBuilder.mock.results[0]
+      ?.value as { leftJoin: jest.Mock };
+    expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'item_total.brinde = false AND item_total.id_produto IS NOT NULL',
+      ),
+      'total_itens_venda',
+      'total_itens_venda.id_venda = venda.id',
+    );
+    expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+      expect.stringContaining('item_total.brinde = true'),
+      'total_itens_venda',
+      'total_itens_venda.id_venda = venda.id',
+    );
+    expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'item_total.brinde = false AND item_total.id_produto IS NULL',
+      ),
+      'total_itens_venda',
+      'total_itens_venda.id_venda = venda.id',
+    );
   });
 
   it('deve listar vendas filtradas por tipo', async () => {
@@ -467,6 +498,7 @@ describe('VendaService', () => {
 
   it('deve retornar totalPaginas mínimo 1 quando não há vendas', async () => {
     const queryBuilder = {
+      leftJoin: jest.fn().mockReturnThis(),
       leftJoinAndSelect: jest.fn().mockReturnThis(),
       distinct: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
@@ -490,5 +522,14 @@ describe('VendaService', () => {
     const result = await service.listarVendas({ pagina: 1, tamanhoPagina: 10 });
 
     expect(result.totalPaginas).toBe(1);
+    expect(result.totalizadores).toEqual({
+      quantidadeItensVendidos: 0,
+      quantidadeItensCatalogo: 0,
+      quantidadeBrindes: 0,
+      quantidadeItensAvulsos: 0,
+      valorTotal: 0,
+      descontoTotal: 0,
+      valorLiquido: 0,
+    });
   });
 });

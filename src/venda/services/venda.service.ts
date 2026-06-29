@@ -166,6 +166,29 @@ export class VendaService {
 
     const totalizadoresRaw = (await filtrosQueryBuilder
       .clone()
+      .leftJoin(
+        `(SELECT
+          item_total.id_venda,
+          SUM(item_total.quantidade) AS quantidade_itens_vendidos,
+          SUM(CASE
+            WHEN item_total.brinde = false AND item_total.id_produto IS NOT NULL
+              THEN item_total.quantidade
+            ELSE 0
+          END) AS quantidade_itens_catalogo,
+          SUM(CASE
+            WHEN item_total.brinde = true THEN item_total.quantidade
+            ELSE 0
+          END) AS quantidade_brindes,
+          SUM(CASE
+            WHEN item_total.brinde = false AND item_total.id_produto IS NULL
+              THEN item_total.quantidade
+            ELSE 0
+          END) AS quantidade_itens_avulsos
+        FROM item_venda item_total
+        GROUP BY item_total.id_venda)`,
+        'total_itens_venda',
+        'total_itens_venda.id_venda = venda.id',
+      )
       .select('COALESCE(SUM(venda.valorTotal), 0)', 'valorTotal')
       .addSelect('COALESCE(SUM(venda.desconto), 0)', 'descontoTotal')
       .addSelect(
@@ -176,10 +199,30 @@ export class VendaService {
         ), 0)), 0)`,
         'valorLiquido',
       )
+      .addSelect(
+        'COALESCE(SUM(total_itens_venda.quantidade_itens_vendidos), 0)',
+        'quantidadeItensVendidos',
+      )
+      .addSelect(
+        'COALESCE(SUM(total_itens_venda.quantidade_itens_catalogo), 0)',
+        'quantidadeItensCatalogo',
+      )
+      .addSelect(
+        'COALESCE(SUM(total_itens_venda.quantidade_brindes), 0)',
+        'quantidadeBrindes',
+      )
+      .addSelect(
+        'COALESCE(SUM(total_itens_venda.quantidade_itens_avulsos), 0)',
+        'quantidadeItensAvulsos',
+      )
       .getRawOne()) as {
       valorTotal?: string;
       descontoTotal?: string;
       valorLiquido?: string;
+      quantidadeItensVendidos?: string;
+      quantidadeItensCatalogo?: string;
+      quantidadeBrindes?: string;
+      quantidadeItensAvulsos?: string;
     } | null;
 
     const [itens, totalItens] = await Promise.all([
@@ -195,6 +238,16 @@ export class VendaService {
         totalItens,
       ),
       totalizadores: {
+        quantidadeItensVendidos: Number(
+          totalizadoresRaw?.quantidadeItensVendidos ?? 0,
+        ),
+        quantidadeItensCatalogo: Number(
+          totalizadoresRaw?.quantidadeItensCatalogo ?? 0,
+        ),
+        quantidadeBrindes: Number(totalizadoresRaw?.quantidadeBrindes ?? 0),
+        quantidadeItensAvulsos: Number(
+          totalizadoresRaw?.quantidadeItensAvulsos ?? 0,
+        ),
         valorTotal: Number(totalizadoresRaw?.valorTotal ?? 0),
         descontoTotal: Number(totalizadoresRaw?.descontoTotal ?? 0),
         valorLiquido: Number(totalizadoresRaw?.valorLiquido ?? 0),
