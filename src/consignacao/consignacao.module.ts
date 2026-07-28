@@ -16,6 +16,7 @@ import {
   AlterarItemConsignacaoUseCase,
   AlterarRevendedorUseCase,
   ExcluirItemConsignacaoUseCase,
+  FecharConsignacaoUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
@@ -24,6 +25,7 @@ import {
 import { ProdutoModule } from '@produto/produto.module';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { FinanceiroModule } from '@financeiro/financeiro.module';
+import { FechamentoConsignacao } from '@consignacao/contracts';
 
 @Module({
   imports: [
@@ -41,12 +43,17 @@ import { FinanceiroModule } from '@financeiro/financeiro.module';
     RevendedorService,
     ConsignacaoService,
     ConsignacaoPdfService,
+    {
+      provide: FechamentoConsignacao,
+      useExisting: ConsignacaoService,
+    },
     InserirRevendedorUseCase,
     AlterarRevendedorUseCase,
     InserirConsignacaoUseCase,
     AdicionarItemConsignacaoUseCase,
     AlterarItemConsignacaoUseCase,
     ExcluirItemConsignacaoUseCase,
+    FecharConsignacaoUseCase,
     RegistrarVendasRevendedorConsignadoUseCase,
     RegistrarDevolucaoConsignadaUseCase,
   ],

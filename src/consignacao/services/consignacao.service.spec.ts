@@ -17,6 +17,8 @@ import { ConsignacaoService } from './consignacao.service';
 
 type GerenciadorTransacaoTeste = {
   delete: jest.Mock;
+  find?: jest.Mock;
+  findOne?: jest.Mock;
   save: jest.Mock;
 };
 
@@ -39,7 +41,14 @@ describe('ConsignacaoService', () => {
     };
     dataSource = {
       transaction: jest.fn((callback: CallbackTransacaoTeste) =>
-        Promise.resolve(callback({ delete: jest.fn(), save: jest.fn() })),
+        Promise.resolve(
+          callback({
+            delete: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            save: jest.fn(),
+          }),
+        ),
       ),
     };
 
@@ -48,6 +57,162 @@ describe('ConsignacaoService', () => {
       itemConsignacaoRepository as unknown as Repository<ItemConsignacao>,
       dataSource as unknown as DataSource,
     );
+  });
+
+  it('deve fechar consignação com venda e devolução na mesma transação', async () => {
+    const consignacao = criarConsignacaoComItens([], {
+      percentualDesconto: 10,
+    });
+    const itens = [
+      criarItemConsignacao({
+        id: 2,
+        idProduto: 10,
+        quantidadeEnviada: 5,
+      }),
+      criarItemConsignacao({
+        id: 3,
+        idProduto: 20,
+        quantidadeEnviada: 3,
+      }),
+    ];
+    const manager = {
+      delete: jest.fn(),
+      find: jest.fn().mockResolvedValue(itens),
+      findOne: jest.fn().mockResolvedValue(consignacao),
+      save: jest.fn(),
+    };
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne.mockResolvedValue(
+      criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
+    );
+
+    await service.fecharConsignacao(
+      1,
+      [
+        { idItem: 2, quantidadeVendida: 4 },
+        { idItem: 3, quantidadeVendida: 0 },
+      ],
+      { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+      7,
+    );
+
+    expect(itens[0]).toMatchObject({
+      quantidadeVendida: 4,
+      quantidadeDevolvida: 1,
+    });
+    expect(itens[1]).toMatchObject({
+      quantidadeVendida: 0,
+      quantidadeDevolvida: 3,
+    });
+    expect(manager.save).toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      expect.arrayContaining([
+        expect.objectContaining({ idProduto: 10, quantidade: 1 }),
+        expect.objectContaining({ idProduto: 20, quantidade: 3 }),
+      ]),
+    );
+    expect(manager.save).toHaveBeenCalledWith(
+      Venda,
+      expect.objectContaining({
+        idConsignacao: 1,
+        idUsuarioInclusao: 7,
+        valorTotal: 9000,
+      }),
+    );
+    expect(consignacao.status).toBe(StatusConsignacao.FECHADA);
+  });
+
+  it('deve fechar consignação totalmente vendida sem gerar devolução', async () => {
+    const consignacao = criarConsignacaoComItens([]);
+    const itens = [criarItemConsignacao({ quantidadeEnviada: 2 })];
+    const manager = {
+      delete: jest.fn(),
+      find: jest.fn().mockResolvedValue(itens),
+      findOne: jest.fn().mockResolvedValue(consignacao),
+      save: jest.fn(),
+    };
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne.mockResolvedValue(
+      criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
+    );
+
+    await service.fecharConsignacao(
+      1,
+      [{ idItem: 2, quantidadeVendida: 2 }],
+      { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+      7,
+    );
+
+    expect(manager.save).not.toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      expect.anything(),
+    );
+    expect(manager.save).toHaveBeenCalledWith(Venda, expect.any(Venda));
+  });
+
+  it('deve fechar consignação totalmente devolvida sem gerar venda', async () => {
+    const consignacao = criarConsignacaoComItens([]);
+    const itens = [criarItemConsignacao({ quantidadeEnviada: 2 })];
+    const manager = {
+      delete: jest.fn(),
+      find: jest.fn().mockResolvedValue(itens),
+      findOne: jest.fn().mockResolvedValue(consignacao),
+      save: jest.fn(),
+    };
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+    consignacaoRepository.findOne.mockResolvedValue(
+      criarConsignacaoDetalhe({ status: StatusConsignacao.FECHADA }),
+    );
+
+    await service.fecharConsignacao(
+      1,
+      [{ idItem: 2, quantidadeVendida: 0 }],
+      undefined,
+      7,
+    );
+
+    expect(manager.save).toHaveBeenCalledWith(
+      MovimentacaoEstoque,
+      expect.arrayContaining([
+        expect.objectContaining({ quantidade: 2, idProduto: 10 }),
+      ]),
+    );
+    expect(manager.save).not.toHaveBeenCalledWith(Venda, expect.anything());
+  });
+
+  it('deve rejeitar fechamento sem todos os itens com saldo', async () => {
+    const manager = {
+      delete: jest.fn(),
+      find: jest
+        .fn()
+        .mockResolvedValue([
+          criarItemConsignacao({ id: 2 }),
+          criarItemConsignacao({ id: 3, idProduto: 20 }),
+        ]),
+      findOne: jest.fn().mockResolvedValue(criarConsignacaoComItens([])),
+      save: jest.fn(),
+    };
+    dataSource.transaction.mockImplementation((callback) =>
+      Promise.resolve(callback(manager)),
+    );
+
+    await expect(
+      service.fecharConsignacao(
+        1,
+        [{ idItem: 2, quantidadeVendida: 1 }],
+        { idCarteira: 4, meioPagamento: MeioPagamento.PIX },
+        7,
+      ),
+    ).rejects.toThrow(
+      'Informe todos e somente os itens com saldo disponível para fechar a consignação.',
+    );
+    expect(manager.save).not.toHaveBeenCalled();
   });
 
   it('deve registrar vendas por revendedor usando as consignações mais antigas', async () => {

@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { ContextoUsuario } from '@common/contracts';
 
 type AuthenticatedRequest = {
   user?: {
@@ -14,7 +15,7 @@ type AuthenticatedRequest = {
 };
 
 @Injectable({ scope: Scope.REQUEST })
-export class CurrentUserContext {
+export class CurrentUserContext implements ContextoUsuario {
   constructor(
     @Inject(REQUEST) private readonly request: AuthenticatedRequest,
   ) {}

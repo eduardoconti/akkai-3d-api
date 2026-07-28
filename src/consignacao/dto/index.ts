@@ -1,5 +1,6 @@
 export * from './alterar-revendedor.dto';
 export * from './alterar-item-consignacao.dto';
+export * from './fechar-consignacao.dto';
 export * from './inserir-consignacao.dto';
 export * from './inserir-revendedor.dto';
 export * from './listar-consignacao.dto';

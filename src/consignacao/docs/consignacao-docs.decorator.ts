@@ -9,6 +9,7 @@ import {
 import {
   AlterarItemConsignacaoDto,
   AlterarRevendedorDto,
+  FecharConsignacaoDto,
   InserirConsignacaoDto,
   InserirItemConsignacaoDto,
   InserirRevendedorDto,
@@ -102,6 +103,25 @@ export function ApiObterConsignacaoPorIdDocs() {
     ApiOkResponse({ description: 'Consignação encontrada com sucesso.' }),
     ApiNotFoundErrorResponse('/consignacao/1', 'Consignação não encontrada.'),
     ApiUnauthorizedErrorResponse('/consignacao/1'),
+  );
+}
+
+export function ApiFecharConsignacaoDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Fecha completamente uma consignação aberta.',
+      description:
+        'Registra como venda as quantidades informadas e devolve ao estoque todo o saldo restante.',
+    }),
+    ApiIdParamDocs('Identificador da consignação.'),
+    ApiBody({ type: FecharConsignacaoDto }),
+    ApiOkResponse({ description: 'Consignação fechada com sucesso.' }),
+    ApiValidationErrorResponse('/consignacao/1/fechamento'),
+    ApiNotFoundErrorResponse(
+      '/consignacao/1/fechamento',
+      'Consignação não encontrada.',
+    ),
+    ApiUnauthorizedErrorResponse('/consignacao/1/fechamento'),
   );
 }
 

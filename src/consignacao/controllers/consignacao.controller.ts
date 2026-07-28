@@ -20,6 +20,7 @@ import {
   AlterarItemConsignacaoDto,
   AlterarRevendedorDto,
   DetalheConsignacaoDto,
+  FecharConsignacaoDto,
   InserirConsignacaoDto,
   InserirItemConsignacaoDto,
   InserirRevendedorDto,
@@ -40,6 +41,7 @@ import {
   AlterarItemConsignacaoUseCase,
   AlterarRevendedorUseCase,
   ExcluirItemConsignacaoUseCase,
+  FecharConsignacaoUseCase,
   InserirConsignacaoUseCase,
   InserirRevendedorUseCase,
   RegistrarDevolucaoConsignadaUseCase,
@@ -50,6 +52,7 @@ import {
   ApiAdicionarItemConsignacaoDocs,
   ApiAlterarItemConsignacaoDocs,
   ApiExcluirItemConsignacaoDocs,
+  ApiFecharConsignacaoDocs,
   ApiInserirConsignacaoDocs,
   ApiInserirRevendedorDocs,
   ApiListarConsignacoesDocs,
@@ -74,6 +77,7 @@ export class ConsignacaoController {
     private readonly adicionarItemConsignacaoUseCase: AdicionarItemConsignacaoUseCase,
     private readonly alterarItemConsignacaoUseCase: AlterarItemConsignacaoUseCase,
     private readonly excluirItemConsignacaoUseCase: ExcluirItemConsignacaoUseCase,
+    private readonly fecharConsignacaoUseCase: FecharConsignacaoUseCase,
     private readonly registrarVendasRevendedorConsignadoUseCase: RegistrarVendasRevendedorConsignadoUseCase,
     private readonly registrarDevolucaoConsignadaUseCase: RegistrarDevolucaoConsignadaUseCase,
   ) {}
@@ -155,6 +159,19 @@ export class ConsignacaoController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<DetalheConsignacaoDto> {
     return this.consignacaoService.garantirDetalheConsignacao(id);
+  }
+
+  @ApiFecharConsignacaoDocs()
+  @Post(':id/fechamento')
+  @Permissions(
+    PERMISSOES.CONSIGNACAO.REGISTRAR_VENDA,
+    PERMISSOES.CONSIGNACAO.REGISTRAR_DEVOLUCAO,
+  )
+  async fecharConsignacao(
+    @Param('id', ParseIntPipe) idConsignacao: number,
+    @Body() input: FecharConsignacaoDto,
+  ): Promise<DetalheConsignacaoDto> {
+    return this.fecharConsignacaoUseCase.execute(idConsignacao, input);
   }
 
   @ApiAdicionarItemConsignacaoDocs()

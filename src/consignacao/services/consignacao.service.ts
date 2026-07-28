@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -14,6 +15,7 @@ import {
 } from '@common/utils/paginacao.util';
 import {
   DetalheConsignacaoDto,
+  FecharItemConsignacaoDto,
   ItemConsignacaoDto,
   ListarConsignacaoDto,
   PesquisarConsignacoesDto,
@@ -32,6 +34,10 @@ import {
 import { ItemVendaInput, PagamentoVendaInput, Venda } from '@venda/entities';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { TipoVenda } from '@venda/enums';
+import {
+  FechamentoConsignacao,
+  PagamentoFechamentoConsignacao,
+} from '@consignacao/contracts';
 
 export interface RegistrarPagamentoVendaConsignadaInput {
   idCarteira: number;
@@ -46,7 +52,7 @@ interface RegistroVendaConsignadaAgrupado {
 }
 
 @Injectable()
-export class ConsignacaoService {
+export class ConsignacaoService implements FechamentoConsignacao {
   private readonly logger = new Logger(ConsignacaoService.name);
 
   constructor(
@@ -312,6 +318,115 @@ export class ConsignacaoService {
     return this.garantirDetalheConsignacao(idConsignacao);
   }
 
+  async fecharConsignacao(
+    idConsignacao: number,
+    itensFechamento: FecharItemConsignacaoDto[],
+    pagamento: PagamentoFechamentoConsignacao | undefined,
+    idUsuarioInclusao: number,
+  ): Promise<DetalheConsignacaoDto> {
+    await this.dataSource
+      .transaction(async (manager) => {
+        const consignacao = await manager.findOne(Consignacao, {
+          where: { id: idConsignacao },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (!consignacao) {
+          throw new NotFoundException(
+            `Consignação com ID ${idConsignacao} não encontrada`,
+          );
+        }
+
+        if (consignacao.status !== StatusConsignacao.ABERTA) {
+          throw new BadRequestException(
+            'A consignação precisa estar aberta para ser fechada.',
+          );
+        }
+
+        const itens = await manager.find(ItemConsignacao, {
+          where: { idConsignacao },
+          relations: { produto: true },
+          order: { id: 'ASC' },
+        });
+        consignacao.itens = itens;
+        const itensComSaldo = itens.filter(
+          (item) => item.quantidadeDisponivel > 0,
+        );
+
+        this.validarItensFechamento(itensComSaldo, itensFechamento);
+
+        const quantidadesPorItem = new Map(
+          itensFechamento.map((item) => [item.idItem, item.quantidadeVendida]),
+        );
+        const itensVenda: ItemVendaInput[] = [];
+        const movimentacoes: MovimentacaoEstoque[] = [];
+
+        for (const item of itensComSaldo) {
+          const quantidadeVendida = quantidadesPorItem.get(item.id) ?? 0;
+          const quantidadeDevolvida =
+            item.quantidadeDisponivel - quantidadeVendida;
+
+          if (quantidadeVendida > 0) {
+            item.quantidadeVendida += quantidadeVendida;
+            itensVenda.push(
+              this.criarItemVendaInput(
+                item,
+                quantidadeVendida,
+                consignacao.percentualDesconto,
+              ),
+            );
+          }
+
+          if (quantidadeDevolvida > 0) {
+            item.quantidadeDevolvida += quantidadeDevolvida;
+            movimentacoes.push(
+              MovimentacaoEstoque.criar({
+                idProduto: item.idProduto,
+                quantidade: quantidadeDevolvida,
+                tipo: TipoMovimentacaoEstoque.ENTRADA,
+                origem: OrigemMovimentacaoEstoque.CONSIGNACAO,
+                idUsuarioInclusao,
+              }),
+            );
+          }
+        }
+
+        if (itensVenda.length > 0 && !pagamento) {
+          throw new BadRequestException(
+            'Informe o pagamento para fechar a consignação com vendas.',
+          );
+        }
+
+        consignacao.status = StatusConsignacao.FECHADA;
+        await manager.save(ItemConsignacao, itensComSaldo);
+        await manager.save(Consignacao, consignacao);
+
+        if (movimentacoes.length > 0) {
+          await manager.save(MovimentacaoEstoque, movimentacoes);
+        }
+
+        if (itensVenda.length > 0 && pagamento) {
+          const venda = this.criarVendaConsignada(
+            consignacao.id,
+            itensVenda,
+            pagamento,
+            idUsuarioInclusao,
+          );
+          await manager.save(Venda, venda);
+        }
+      })
+      .catch((error: unknown) => {
+        if (error instanceof HttpException) {
+          throw error;
+        }
+
+        this.logger.error('Erro ao fechar consignação', error);
+        throw new InternalServerErrorException('Erro ao fechar consignação');
+      });
+
+    return this.garantirDetalheConsignacao(idConsignacao);
+  }
+
   async adicionarItem(
     idConsignacao: number,
     item: ItemConsignacao,
@@ -530,6 +645,50 @@ export class ConsignacaoService {
       }
 
       idsProdutos.add(item.idProduto);
+    }
+  }
+
+  private validarItensFechamento(
+    itensComSaldo: ItemConsignacao[],
+    itensFechamento: FecharItemConsignacaoDto[],
+  ): void {
+    const idsInformados = new Set<number>();
+
+    for (const itemFechamento of itensFechamento) {
+      if (idsInformados.has(itemFechamento.idItem)) {
+        throw new BadRequestException(
+          'O fechamento não pode repetir o mesmo item.',
+        );
+      }
+      idsInformados.add(itemFechamento.idItem);
+    }
+
+    const idsEsperados = new Set(itensComSaldo.map((item) => item.id));
+    const temConjuntoInvalido =
+      idsInformados.size !== idsEsperados.size ||
+      Array.from(idsInformados).some((id) => !idsEsperados.has(id));
+
+    if (temConjuntoInvalido) {
+      throw new BadRequestException(
+        'Informe todos e somente os itens com saldo disponível para fechar a consignação.',
+      );
+    }
+
+    for (const item of itensComSaldo) {
+      const itemFechamento = itensFechamento.find(
+        (itemInformado) => itemInformado.idItem === item.id,
+      );
+
+      if (
+        !itemFechamento ||
+        !Number.isInteger(itemFechamento.quantidadeVendida) ||
+        itemFechamento.quantidadeVendida < 0 ||
+        itemFechamento.quantidadeVendida > item.quantidadeDisponivel
+      ) {
+        throw new BadRequestException(
+          `A quantidade vendida do item ${item.id} deve estar entre zero e ${item.quantidadeDisponivel}.`,
+        );
+      }
     }
   }
 

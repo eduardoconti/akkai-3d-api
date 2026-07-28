@@ -36,15 +36,6 @@ export class AtualizarOrcamentoUseCase {
     }
 
     if (
-      input.status === StatusOrcamento.FINALIZADO &&
-      orcamento.status !== StatusOrcamento.FINALIZADO
-    ) {
-      throw new BadRequestException(
-        'Finalize o orçamento pela venda para alterar o status para finalizado.',
-      );
-    }
-
-    if (
       input.status === StatusOrcamento.CANCELADO &&
       orcamento.status === StatusOrcamento.FINALIZADO
     ) {

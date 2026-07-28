@@ -70,7 +70,7 @@ describe('AtualizarOrcamentoUseCase', () => {
     expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
   });
 
-  it('deve impedir alteração direta para status finalizado', async () => {
+  it('deve permitir alteração direta para status finalizado sem venda', async () => {
     const orcamento = Object.assign(new Orcamento(), {
       id: 1,
       tipo: TipoOrcamento.LOJA,
@@ -78,10 +78,10 @@ describe('AtualizarOrcamentoUseCase', () => {
     });
     orcamentoService.buscarPorId.mockResolvedValue(orcamento);
 
-    await expect(
-      useCase.execute(1, { status: StatusOrcamento.FINALIZADO }),
-    ).rejects.toThrow(BadRequestException);
-    expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
+    await useCase.execute(1, { status: StatusOrcamento.FINALIZADO });
+
+    expect(orcamento.status).toBe(StatusOrcamento.FINALIZADO);
+    expect(orcamentoService.atualizarOrcamento).toHaveBeenCalledWith(orcamento);
   });
 
   it('deve impedir cancelar orçamento finalizado', async () => {
