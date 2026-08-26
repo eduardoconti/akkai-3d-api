@@ -4,3 +4,4 @@ export * from './despesa.service';
 export * from './categoria-despesa.service';
 export * from './taxa-meio-pagamento-carteira.service';
 export * from './transferencia-carteira.service';
+export * from './caixa.service';

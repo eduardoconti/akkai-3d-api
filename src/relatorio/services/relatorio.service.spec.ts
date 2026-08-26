@@ -637,7 +637,7 @@ describe('RelatorioService', () => {
     expect(result.itens[0]?.categoria).toBeNull();
   });
 
-  it('deve usar dataInicio como dataFim em produtos mais vendidos quando não informado', async () => {
+  it('deve aplicar somente o limite inicial quando a data final não for informada', async () => {
     dataSource.query
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ totalItens: 0 }]);
@@ -649,12 +649,51 @@ describe('RelatorioService', () => {
     });
 
     expect(dataSource.query).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.arrayContaining([
-        '2026-03-31 00:00:00.000',
-        '2026-03-31 23:59:59.999',
-      ]),
+      expect.stringContaining('v.data_venda >= $1'),
+      ['2026-03-31 00:00:00.000', 10, 0],
     );
+  });
+
+  it('deve aplicar somente o limite final quando a data inicial não for informada', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ totalItens: 0 }]);
+
+    const result = await service.obterProdutosMaisVendidosPorPeriodo({
+      dataFim: '2026-03-31',
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.stringContaining('v.data_venda <= $1'),
+      ['2026-03-31 23:59:59.999', 10, 0],
+    );
+    expect(result).toMatchObject({
+      dataInicio: null,
+      dataFim: '2026-03-31',
+    });
+  });
+
+  it('deve consultar todo o histórico quando o período não for informado', async () => {
+    dataSource.query
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ totalItens: 0 }]);
+
+    const result = await service.obterProdutosMaisVendidosPorPeriodo({
+      pagina: 1,
+      tamanhoPagina: 10,
+    });
+
+    const [consulta, parametros] = dataSource.query.mock.calls[0] as [
+      string,
+      unknown[],
+    ];
+    expect(consulta).not.toContain('v.data_venda >=');
+    expect(consulta).not.toContain('v.data_venda <=');
+    expect(parametros).toEqual([10, 0]);
+    expect(dateServiceMock.toUtcDateRange).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ dataInicio: null, dataFim: null });
   });
 
   it('deve retornar totalPaginas mínimo 1 quando não há produtos', async () => {

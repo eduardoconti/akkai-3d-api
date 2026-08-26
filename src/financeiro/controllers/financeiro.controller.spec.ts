@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ContextoUsuario } from '@common/contracts';
 import { FinanceiroController } from '@financeiro/controllers';
 import {
   AjusteCarteiraService,
@@ -7,6 +8,7 @@ import {
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
   TransferenciaCarteiraService,
+  CaixaService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
@@ -45,6 +47,14 @@ describe('FinanceiroController', () => {
     listarTransferenciasPorCarteira: jest.Mock;
     pesquisarTransferencias: jest.Mock;
   };
+  let caixaService: {
+    abrir: jest.Mock;
+    alterar: jest.Mock;
+    pesquisar: jest.Mock;
+    obterAbertoPorFeira: jest.Mock;
+    obterPorId: jest.Mock;
+    fechar: jest.Mock;
+  };
   let alterarCarteiraUseCase: { execute: jest.Mock };
   let inserirAjusteCarteiraUseCase: { execute: jest.Mock };
   let inserirCarteiraUseCase: { execute: jest.Mock };
@@ -79,6 +89,14 @@ describe('FinanceiroController', () => {
       listarTransferenciasPorCarteira: jest.fn(),
       pesquisarTransferencias: jest.fn(),
     };
+    caixaService = {
+      abrir: jest.fn(),
+      alterar: jest.fn(),
+      pesquisar: jest.fn(),
+      obterAbertoPorFeira: jest.fn(),
+      obterPorId: jest.fn(),
+      fechar: jest.fn(),
+    };
     alterarCarteiraUseCase = { execute: jest.fn() };
     inserirAjusteCarteiraUseCase = { execute: jest.fn() };
     inserirCarteiraUseCase = { execute: jest.fn() };
@@ -111,6 +129,11 @@ describe('FinanceiroController', () => {
           provide: TransferenciaCarteiraService,
           useValue: transferenciaCarteiraService,
         },
+        {
+          provide: CaixaService,
+          useValue: caixaService,
+        },
+        { provide: ContextoUsuario, useValue: { usuarioId: 1 } },
         { provide: AlterarCarteiraUseCase, useValue: alterarCarteiraUseCase },
         {
           provide: InserirAjusteCarteiraUseCase,
@@ -161,6 +184,20 @@ describe('FinanceiroController', () => {
     }).compile();
 
     controller = module.get<FinanceiroController>(FinanceiroController);
+  });
+
+  it('deve delegar alteração de caixa', async () => {
+    const input = {
+      idFeira: 2,
+      carteiras: [{ idCarteira: 1, valorAbertura: 15000 }],
+      observacao: 'Troco corrigido',
+    };
+    caixaService.alterar.mockResolvedValue({ id: 3, ...input });
+
+    const resultado = await controller.alterarCaixa(3, input);
+
+    expect(caixaService.alterar).toHaveBeenCalledWith(3, input);
+    expect(resultado).toEqual({ id: 3, ...input });
   });
 
   it('deve delegar inserção de carteira', async () => {

@@ -14,3 +14,7 @@ export * from './listar-taxa-meio-pagamento-carteira.dto';
 export * from './inserir-transferencia-carteira.dto';
 export * from './alterar-transferencia-carteira.dto';
 export * from './pesquisar-transferencias-carteira.dto';
+export * from './abrir-caixa.dto';
+export * from './alterar-caixa.dto';
+export * from './fechar-caixa.dto';
+export * from './pesquisar-caixas.dto';

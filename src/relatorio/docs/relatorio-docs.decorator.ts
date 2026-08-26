@@ -175,9 +175,9 @@ export function ApiDespesasCategoriasMesDashboardDocs() {
 export function ApiProdutosMaisVendidosDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Obtém o relatório de produtos mais vendidos por período.',
+      summary: 'Obtém o relatório de produtos mais vendidos.',
       description:
-        'Permite filtrar por período, tipo de venda, feira e múltiplas categorias, retornando o ranking paginado dos produtos mais vendidos.',
+        'Permite filtrar opcionalmente por período, tipo de venda, feira e múltiplas categorias. Sem período, considera todo o histórico de vendas.',
     }),
     ApiQuery({
       name: 'pagina',
@@ -198,14 +198,16 @@ export function ApiProdutosMaisVendidosDocs() {
       required: false,
       type: String,
       example: '2026-04-01',
-      description: 'Data inicial do período, no formato YYYY-MM-DD.',
+      description:
+        'Data inicial opcional, no formato YYYY-MM-DD. Quando isolada, considera as vendas a partir desta data.',
     }),
     ApiQuery({
       name: 'dataFim',
       required: false,
       type: String,
       example: '2026-04-30',
-      description: 'Data final do período, no formato YYYY-MM-DD.',
+      description:
+        'Data final opcional, no formato YYYY-MM-DD. Quando isolada, considera as vendas até esta data.',
     }),
     ApiQuery({
       name: 'tipoVenda',

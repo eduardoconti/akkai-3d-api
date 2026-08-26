@@ -14,6 +14,10 @@ export class DateService {
     return toUtcDateRange(dateStr, this.tzOffset);
   }
 
+  obterDataHoraAtual(): Date {
+    return new Date();
+  }
+
   obterAnoMesAtualLocal(data: Date = new Date()): { ano: number; mes: number } {
     const dataLocal = new Date(data.getTime() + this.tzOffset * 60 * 60 * 1000);
 

@@ -49,6 +49,12 @@ export const PERMISSOES = {
     SAIDA: 'estoque.saida',
   },
   FINANCEIRO: {
+    CAIXA: {
+      LER: 'caixa.ler',
+      ABRIR: 'caixa.abrir',
+      ALTERAR: 'caixa.alterar',
+      FECHAR: 'caixa.fechar',
+    },
     CARTEIRA: {
       LER: 'carteira.ler',
       INSERIR: 'carteira.inserir',

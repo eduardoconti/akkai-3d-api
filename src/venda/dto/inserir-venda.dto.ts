@@ -45,6 +45,12 @@ export class InserirVendaDto {
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt({ message: 'O caixa da venda deve ser um número inteiro.' })
+  @Min(1, { message: 'O caixa da venda deve ser maior que zero.' })
+  idCaixa?: number;
+
+  @IsOptional()
+  @Type(() => Number)
   @IsInt({ message: 'O orçamento da venda deve ser um número inteiro.' })
   @Min(1, { message: 'O orçamento da venda deve ser maior que zero.' })
   @Max(2147483647, {

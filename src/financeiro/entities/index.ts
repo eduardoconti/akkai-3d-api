@@ -1,5 +1,7 @@
 export * from './ajuste-carteira.entity';
 export * from './carteira.entity';
+export * from './caixa.entity';
+export * from './conferencia-carteira-caixa.entity';
 export * from './categoria-despesa.entity';
 export * from './despesa.entity';
 export * from './taxa-meio-pagamento-carteira.entity';

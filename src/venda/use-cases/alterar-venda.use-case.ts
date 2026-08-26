@@ -9,12 +9,14 @@ import {
   VendaService,
 } from '@venda/services';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { ConsultaCaixa } from '@financeiro/contracts';
 
 export interface ExecutarAlterarVendaInput {
   id: number;
   dataVenda: string;
   tipo: TipoVenda;
   idFeira?: number;
+  idCaixa?: number;
   desconto?: number;
   itens: {
     quantidade: number;
@@ -38,6 +40,7 @@ export class AlterarVendaUseCase {
     private readonly prepararItensVendaService: PrepararItensVendaService,
     private readonly prepararPagamentosVendaService: PrepararPagamentosVendaService,
     private readonly currentUserContext: CurrentUserContext,
+    private readonly consultaCaixa: ConsultaCaixa,
   ) {}
 
   async execute(input: ExecutarAlterarVendaInput): Promise<Venda> {
@@ -51,6 +54,14 @@ export class AlterarVendaUseCase {
       await this.feiraService.garantirExisteFeira(input.idFeira);
     }
 
+    if (input.tipo === TipoVenda.FEIRA) {
+      await this.consultaCaixa.garantirCaixaAbertoParaVenda({
+        idCaixa: input.idCaixa ?? venda.idCaixa,
+        idFeira: input.idFeira,
+        idsCarteiras: input.pagamentos.map((pagamento) => pagamento.idCarteira),
+      });
+    }
+
     const itens = await this.prepararItensVendaService.preparar({
       tipo: input.tipo,
       idFeira: input.idFeira,
@@ -62,6 +73,10 @@ export class AlterarVendaUseCase {
       dataVenda: input.dataVenda,
       tipo: input.tipo,
       idFeira: input.idFeira,
+      idCaixa:
+        input.tipo === TipoVenda.FEIRA
+          ? (input.idCaixa ?? venda.idCaixa)
+          : undefined,
       idOrcamento: venda.idOrcamento,
       desconto: input.desconto,
       itens,

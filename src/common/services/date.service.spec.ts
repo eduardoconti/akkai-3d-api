@@ -26,6 +26,19 @@ describe('DateService', () => {
     expect(result.end).toBe('2026-04-05 02:59:59.999');
   });
 
+  it('deve obter a data e hora atual', () => {
+    const agora = new Date('2026-08-25T20:30:00.000Z');
+    jest.useFakeTimers().setSystemTime(agora);
+
+    try {
+      const service = buildService(-3);
+
+      expect(service.obterDataHoraAtual()).toEqual(agora);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('deve obter mês local atual respeitando offset negativo', () => {
     const service = buildService(-3);
 

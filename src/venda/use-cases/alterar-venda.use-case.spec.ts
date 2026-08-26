@@ -22,6 +22,7 @@ import {
   ExecutarAlterarVendaInput,
 } from '@venda/use-cases';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { ConsultaCaixa } from '@financeiro/contracts';
 
 describe('AlterarVendaUseCase', () => {
   const dataVenda = '2026-04-01T12:00:00.000Z';
@@ -98,6 +99,7 @@ describe('AlterarVendaUseCase', () => {
       prepararItensVendaService,
       prepararPagamentosVendaService,
       currentUserContext as CurrentUserContext,
+      { garantirCaixaAbertoParaVenda: jest.fn() } as unknown as ConsultaCaixa,
     );
   });
 

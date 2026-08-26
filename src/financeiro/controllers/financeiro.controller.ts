@@ -11,6 +11,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PERMISSOES } from '@auth/constants/permissoes.constants';
 import { Permissions } from '@auth/decorators/permissions.decorator';
 import {
@@ -28,6 +29,10 @@ import {
   PesquisarDespesasDto,
   PesquisarTransferenciasCarteiraDto,
   TotalizadoresDespesasDto,
+  AbrirCaixaDto,
+  AlterarCaixaDto,
+  FecharCaixaDto,
+  PesquisarCaixasDto,
 } from '@financeiro/dto';
 import {
   Carteira,
@@ -36,6 +41,7 @@ import {
   AjusteCarteira,
   TaxaMeioPagamentoCarteira,
   TransferenciaCarteira,
+  Caixa,
 } from '@financeiro/entities';
 import {
   AjusteCarteiraService,
@@ -44,6 +50,7 @@ import {
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
   TransferenciaCarteiraService,
+  CaixaService,
 } from '@financeiro/services';
 import {
   AlterarCarteiraUseCase,
@@ -67,6 +74,7 @@ import {
   ResultadoPaginado,
   ResultadoPaginadoComTotalizadores,
 } from '@common/interfaces/resultado-paginado.interface';
+import { ContextoUsuario } from '@common/contracts';
 import { ApiProtectedController } from '@common/docs/decorators/api-controller-docs.decorator';
 import {
   ApiAlterarCarteiraDocs,
@@ -106,6 +114,8 @@ export class FinanceiroController {
     private readonly categoriaDespesaService: CategoriaDespesaService,
     private readonly taxaMeioPagamentoCarteiraService: TaxaMeioPagamentoCarteiraService,
     private readonly transferenciaCarteiraService: TransferenciaCarteiraService,
+    private readonly caixaService: CaixaService,
+    private readonly contextoUsuario: ContextoUsuario,
     private readonly alterarCarteiraUseCase: AlterarCarteiraUseCase,
     private readonly inserirAjusteCarteiraUseCase: InserirAjusteCarteiraUseCase,
     private readonly inserirCarteiraUseCase: InserirCarteiraUseCase,
@@ -123,6 +133,65 @@ export class FinanceiroController {
     private readonly alterarTaxaMeioPagamentoCarteiraUseCase: AlterarTaxaMeioPagamentoCarteiraUseCase,
     private readonly excluirTaxaMeioPagamentoCarteiraUseCase: ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ) {}
+
+  @Post('caixas/abrir')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.ABRIR)
+  async abrirCaixa(@Body() input: AbrirCaixaDto): Promise<Caixa> {
+    return this.caixaService.abrir({
+      ...input,
+      idUsuario: this.contextoUsuario.usuarioId,
+    });
+  }
+
+  @Put('caixas/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.ALTERAR)
+  @ApiOperation({ summary: 'Alterar um caixa aberto' })
+  @ApiResponse({ status: HttpStatus.OK, type: Caixa })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Dados inválidos ou feira alterada após o início das vendas.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Caixa fechado ou outra abertura ativa para a feira.',
+  })
+  async alterarCaixa(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: AlterarCaixaDto,
+  ): Promise<Caixa> {
+    return this.caixaService.alterar(id, input);
+  }
+
+  @Get('caixas/aberto')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.LER)
+  async obterCaixaAberto(
+    @Query('idFeira', ParseIntPipe) idFeira: number,
+  ): Promise<Caixa | null> {
+    return this.caixaService.obterAbertoPorFeira(idFeira);
+  }
+
+  @Get('caixas')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.LER)
+  async pesquisarCaixas(
+    @Query() pesquisa: PesquisarCaixasDto,
+  ): Promise<ResultadoPaginado<Caixa>> {
+    return this.caixaService.pesquisar(pesquisa);
+  }
+
+  @Get('caixas/:id')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.LER)
+  async obterCaixa(@Param('id', ParseIntPipe) id: number): Promise<Caixa> {
+    return this.caixaService.obterPorId(id);
+  }
+
+  @Post('caixas/:id/fechar')
+  @Permissions(PERMISSOES.FINANCEIRO.CAIXA.FECHAR)
+  async fecharCaixa(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: FecharCaixaDto,
+  ): Promise<Caixa> {
+    return this.caixaService.fechar(id, input, this.contextoUsuario.usuarioId);
+  }
 
   @ApiInserirCarteiraDocs()
   @Post('carteiras')

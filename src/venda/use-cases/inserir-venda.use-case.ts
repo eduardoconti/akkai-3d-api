@@ -10,11 +10,13 @@ import {
 } from '@venda/services';
 import { Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { ConsultaCaixa } from '@financeiro/contracts';
 
 export interface ExecutarInserirVendaInput {
   dataVenda: string;
   tipo: TipoVenda;
   idFeira?: number;
+  idCaixa?: number;
   idOrcamento?: number;
   desconto?: number;
   itens: {
@@ -39,6 +41,7 @@ export class InserirVendaUseCase {
     private readonly prepararPagamentosVendaService: PrepararPagamentosVendaService,
     private readonly currentUserContext: CurrentUserContext,
     private readonly orcamentoService: OrcamentoService,
+    private readonly consultaCaixa: ConsultaCaixa,
   ) {}
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
@@ -49,6 +52,16 @@ export class InserirVendaUseCase {
 
     if (inserirVendaInput.idFeira !== undefined) {
       await this.feiraService.garantirExisteFeira(inserirVendaInput.idFeira);
+    }
+
+    if (inserirVendaInput.tipo === TipoVenda.FEIRA) {
+      await this.consultaCaixa.garantirCaixaAbertoParaVenda({
+        idCaixa: inserirVendaInput.idCaixa,
+        idFeira: inserirVendaInput.idFeira,
+        idsCarteiras: inserirVendaInput.pagamentos.map(
+          (pagamento) => pagamento.idCarteira,
+        ),
+      });
     }
 
     const itens = await this.prepararItensVendaService.preparar({
@@ -62,6 +75,7 @@ export class InserirVendaUseCase {
       dataVenda: inserirVendaInput.dataVenda,
       tipo: inserirVendaInput.tipo,
       idFeira: inserirVendaInput.idFeira,
+      idCaixa: inserirVendaInput.idCaixa,
       idOrcamento: inserirVendaInput.idOrcamento,
       desconto: inserirVendaInput.desconto,
       itens,

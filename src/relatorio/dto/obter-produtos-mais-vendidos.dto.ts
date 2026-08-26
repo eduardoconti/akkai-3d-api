@@ -21,7 +21,7 @@ export class ObterProdutosMaisVendidosDto extends PesquisaPaginadaDto {
       message: 'A data inicial deve estar em um formato de data válido.',
     },
   )
-  dataInicio!: string;
+  dataInicio?: string;
 
   @ApiPropertyOptional({ format: 'date' })
   @IsOptional()

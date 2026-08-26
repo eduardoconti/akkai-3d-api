@@ -20,6 +20,7 @@ export interface InserirVendaInput {
   dataVenda: string | Date;
   tipo: TipoVenda;
   idFeira?: number;
+  idCaixa?: number;
   idConsignacao?: number;
   idOrcamento?: number;
   desconto?: number;
@@ -30,6 +31,7 @@ export interface InserirVendaInput {
 @Check('ck_venda_desconto_nao_negativo', '"desconto" >= 0')
 @Check('ck_venda_valor_total_nao_negativo', '"valor_total" >= 0')
 @Index('idx_venda_id_feira', ['idFeira'])
+@Index('idx_venda_id_caixa', ['idCaixa'])
 @Index('idx_venda_data_inclusao', ['dataInclusao'])
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
 @Index('idx_venda_data_venda', ['dataVenda'])
@@ -88,6 +90,9 @@ export class Venda {
   })
   feira?: Feira;
 
+  @Column({ type: 'integer', name: 'id_caixa', nullable: true })
+  idCaixa?: number;
+
   @Column({ type: 'integer', name: 'id_consignacao', nullable: true })
   idConsignacao?: number;
 
@@ -124,6 +129,7 @@ export class Venda {
     this.dataVenda = this.criarDataVenda(inserirVendaInput.dataVenda);
     this.tipo = inserirVendaInput.tipo;
     this.idFeira = inserirVendaInput.idFeira;
+    this.idCaixa = inserirVendaInput.idCaixa;
     this.idConsignacao = inserirVendaInput.idConsignacao;
     this.idOrcamento = inserirVendaInput.idOrcamento;
     this.feira = undefined;

@@ -832,9 +832,9 @@ export class RelatorioService {
     filtro: ObterProdutosMaisVendidosDto,
   ): Promise<ProdutosMaisVendidosPeriodoDto> {
     const dataInicio = filtro.dataInicio;
-    const dataFim = filtro.dataFim ?? filtro.dataInicio;
+    const dataFim = filtro.dataFim;
 
-    if (dataFim < dataInicio) {
+    if (dataInicio && dataFim && dataFim < dataInicio) {
       throw new BadRequestException(
         'A data final não pode ser menor que a data inicial.',
       );
@@ -846,16 +846,20 @@ export class RelatorioService {
       );
     }
 
-    const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
-    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+    const parameters: Array<string | number | number[]> = [];
+    const conditions = ['item.brinde = false', 'item.id_produto IS NOT NULL'];
 
-    const parameters: Array<string | number | number[]> = [
-      rangeInicio.start,
-      rangeFim.end,
-    ];
-    const conditions = [
-      'v.data_venda BETWEEN $1 AND $2 AND item.brinde = false AND item.id_produto IS NOT NULL',
-    ];
+    if (dataInicio) {
+      const rangeInicio = this.dateService.toUtcDateRange(dataInicio);
+      parameters.push(rangeInicio.start);
+      conditions.push(`v.data_venda >= $${parameters.length}`);
+    }
+
+    if (dataFim) {
+      const rangeFim = this.dateService.toUtcDateRange(dataFim);
+      parameters.push(rangeFim.end);
+      conditions.push(`v.data_venda <= $${parameters.length}`);
+    }
 
     if (filtro.tipoVenda) {
       parameters.push(filtro.tipoVenda);
@@ -938,8 +942,8 @@ export class RelatorioService {
         filtro.tamanhoPagina,
         totalItens,
       ),
-      dataInicio,
-      dataFim,
+      dataInicio: dataInicio ?? null,
+      dataFim: dataFim ?? null,
       itens: rows.map((row) => ({
         idProduto:
           row.idProduto === null || row.idProduto === undefined

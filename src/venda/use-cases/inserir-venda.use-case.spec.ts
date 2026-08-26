@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
+import { ConsultaCaixa } from '@financeiro/contracts';
 import {
   CarteiraService,
   TaxaMeioPagamentoCarteiraService,
@@ -114,6 +115,7 @@ describe('InserirVendaUseCase', () => {
       prepararPagamentosVendaService,
       currentUserContext as CurrentUserContext,
       orcamentoService,
+      { garantirCaixaAbertoParaVenda: jest.fn() } as unknown as ConsultaCaixa,
     );
   });
 

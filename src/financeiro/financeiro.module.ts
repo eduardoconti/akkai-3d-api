@@ -3,17 +3,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinanceiroController } from '@financeiro/controllers';
 import {
   AjusteCarteira,
+  Caixa,
   Carteira,
   CategoriaDespesa,
   Despesa,
   TaxaMeioPagamentoCarteira,
   TransferenciaCarteira,
+  ConferenciaCarteiraCaixa,
 } from '@financeiro/entities';
 import { FeiraModule } from '@venda/feira.module';
-import { ConsultaCarteira, ConsultaTaxaPagamento } from '@financeiro/contracts';
+import {
+  ConsultaCaixa,
+  ConsultaCarteira,
+  ConsultaTaxaPagamento,
+} from '@financeiro/contracts';
 import {
   AjusteCarteiraService,
   CarteiraService,
+  CaixaService,
   CategoriaDespesaService,
   DespesaService,
   TaxaMeioPagamentoCarteiraService,
@@ -42,10 +49,12 @@ import {
   imports: [
     TypeOrmModule.forFeature([
       AjusteCarteira,
+      Caixa,
       Carteira,
       Despesa,
       CategoriaDespesa,
       TransferenciaCarteira,
+      ConferenciaCarteiraCaixa,
     ]),
     TypeOrmModule.forFeature([TaxaMeioPagamentoCarteira]),
     FeiraModule,
@@ -58,6 +67,8 @@ import {
     CategoriaDespesaService,
     TaxaMeioPagamentoCarteiraService,
     TransferenciaCarteiraService,
+    CaixaService,
+    { provide: ConsultaCaixa, useExisting: CaixaService },
     {
       provide: ConsultaCarteira,
       useExisting: CarteiraService,
@@ -83,6 +94,6 @@ import {
     AlterarTaxaMeioPagamentoCarteiraUseCase,
     ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ],
-  exports: [ConsultaCarteira, ConsultaTaxaPagamento],
+  exports: [ConsultaCarteira, ConsultaTaxaPagamento, ConsultaCaixa],
 })
 export class FinanceiroModule {}
