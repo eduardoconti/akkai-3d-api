@@ -126,6 +126,56 @@ describe('CaixaService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('deve calcular os valores esperados ao detalhar um caixa aberto', async () => {
+    caixaRepository.findOne.mockResolvedValueOnce({
+      id: 3,
+      idFeira: 1,
+      status: StatusCaixa.ABERTO,
+      conferencias: [
+        { idCarteira: 1, valorAbertura: 13000 },
+        { idCarteira: 2, valorAbertura: 20000 },
+      ],
+    });
+    dataSource.query.mockResolvedValueOnce([{ idCarteira: 1, total: '85000' }]);
+
+    const resultado = await service.obterDetalhadoPorId(3);
+
+    expect(resultado.conferencias).toEqual([
+      expect.objectContaining({
+        idCarteira: 1,
+        totalEntradas: 85000,
+        valorEsperadoFechamento: 98000,
+      }),
+      expect.objectContaining({
+        idCarteira: 2,
+        totalEntradas: 0,
+        valorEsperadoFechamento: 20000,
+      }),
+    ]);
+    expect(caixaRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('deve manter os valores persistidos ao detalhar um caixa fechado', async () => {
+    const caixa = {
+      id: 3,
+      status: StatusCaixa.FECHADO,
+      conferencias: [
+        {
+          idCarteira: 1,
+          valorAbertura: 13000,
+          totalEntradas: 85000,
+          valorEsperadoFechamento: 98000,
+        },
+      ],
+    };
+    caixaRepository.findOne.mockResolvedValueOnce(caixa);
+
+    const resultado = await service.obterDetalhadoPorId(3);
+
+    expect(resultado).toBe(caixa);
+    expect(dataSource.query).not.toHaveBeenCalled();
+  });
+
   it('deve alterar os valores de abertura de um caixa aberto', async () => {
     const caixa = {
       id: 3,
@@ -143,7 +193,9 @@ describe('CaixaService', () => {
         },
       ],
     });
-    dataSource.query.mockResolvedValueOnce([{ existe: true }]);
+    dataSource.query
+      .mockResolvedValueOnce([{ existe: true }])
+      .mockResolvedValueOnce([]);
 
     const resultado = await service.alterar(3, {
       idFeira: 1,

@@ -35,6 +35,10 @@ interface PesquisarCaixasInput {
   dataFim?: string;
   idFeira?: number;
 }
+interface EntradaCarteiraCaixaRow {
+  idCarteira: number;
+  total: string | number;
+}
 
 @Injectable()
 export class CaixaService implements ConsultaCaixa {
@@ -126,7 +130,7 @@ export class CaixaService implements ConsultaCaixa {
     });
 
     await this.caixaRepository.save(caixa);
-    return this.obterPorId(id);
+    return this.obterDetalhadoPorId(id);
   }
 
   async obterAbertoPorFeira(idFeira: number): Promise<Caixa | null> {
@@ -222,6 +226,17 @@ export class CaixaService implements ConsultaCaixa {
     return caixa;
   }
 
+  async obterDetalhadoPorId(id: number): Promise<Caixa> {
+    const caixa = await this.obterPorId(id);
+    if (caixa.status === StatusCaixa.FECHADO) {
+      return caixa;
+    }
+
+    const entradas = await this.obterEntradasPorCarteira(id);
+    this.preencherValoresEsperados(caixa, entradas);
+    return caixa;
+  }
+
   async garantirCaixaAbertoParaVenda(input: {
     idCaixa?: number;
     idFeira?: number;
@@ -273,27 +288,42 @@ export class CaixaService implements ConsultaCaixa {
         'Informe o fechamento de todas as carteiras do caixa.',
       );
     }
-    const rows: Array<{ idCarteira: number; total: string }> =
-      await this.dataSource.query(
-        `SELECT p.id_carteira AS "idCarteira", COALESCE(SUM(p.valor - COALESCE(p.valor_taxa, 0)), 0) AS total
-       FROM pagamento_venda p INNER JOIN venda v ON v.id = p.id_venda
-       WHERE v.id_caixa = $1 GROUP BY p.id_carteira`,
-        [id],
-      );
-    const entradas = new Map(
-      rows.map((row) => [Number(row.idCarteira), Number(row.total)]),
-    );
+    const entradas = await this.obterEntradasPorCarteira(id);
+    this.preencherValoresEsperados(caixa, entradas);
     for (const item of caixa.conferencias) {
-      item.totalEntradas = entradas.get(item.idCarteira) ?? 0;
-      item.valorEsperadoFechamento = item.valorAbertura + item.totalEntradas;
       item.valorInformadoFechamento = informados.get(item.idCarteira)!;
       item.diferenca =
-        item.valorInformadoFechamento - item.valorEsperadoFechamento;
+        item.valorInformadoFechamento - item.valorEsperadoFechamento!;
     }
     caixa.status = StatusCaixa.FECHADO;
     caixa.dataFechamento = this.dateService.obterDataHoraAtual();
     caixa.idUsuarioFechamento = idUsuario;
     await this.conferenciaRepository.save(caixa.conferencias);
     return this.caixaRepository.save(caixa);
+  }
+
+  private async obterEntradasPorCarteira(
+    idCaixa: number,
+  ): Promise<Map<number, number>> {
+    const rows: EntradaCarteiraCaixaRow[] = await this.dataSource.query(
+      `SELECT p.id_carteira AS "idCarteira", COALESCE(SUM(p.valor - COALESCE(p.valor_taxa, 0)), 0) AS total
+       FROM pagamento_venda p INNER JOIN venda v ON v.id = p.id_venda
+       WHERE v.id_caixa = $1 GROUP BY p.id_carteira`,
+      [idCaixa],
+    );
+
+    return new Map(
+      rows.map((row) => [Number(row.idCarteira), Number(row.total)]),
+    );
+  }
+
+  private preencherValoresEsperados(
+    caixa: Caixa,
+    entradas: Map<number, number>,
+  ): void {
+    caixa.conferencias.forEach((item) => {
+      item.totalEntradas = entradas.get(item.idCarteira) ?? 0;
+      item.valorEsperadoFechamento = item.valorAbertura + item.totalEntradas;
+    });
   }
 }

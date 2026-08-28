@@ -53,6 +53,7 @@ describe('FinanceiroController', () => {
     pesquisar: jest.Mock;
     obterAbertoPorFeira: jest.Mock;
     obterPorId: jest.Mock;
+    obterDetalhadoPorId: jest.Mock;
     fechar: jest.Mock;
   };
   let alterarCarteiraUseCase: { execute: jest.Mock };
@@ -95,6 +96,7 @@ describe('FinanceiroController', () => {
       pesquisar: jest.fn(),
       obterAbertoPorFeira: jest.fn(),
       obterPorId: jest.fn(),
+      obterDetalhadoPorId: jest.fn(),
       fechar: jest.fn(),
     };
     alterarCarteiraUseCase = { execute: jest.fn() };
@@ -198,6 +200,16 @@ describe('FinanceiroController', () => {
 
     expect(caixaService.alterar).toHaveBeenCalledWith(3, input);
     expect(resultado).toEqual({ id: 3, ...input });
+  });
+
+  it('deve delegar a consulta detalhada do caixa', async () => {
+    const caixa = { id: 3, status: 'ABERTO', conferencias: [] };
+    caixaService.obterDetalhadoPorId.mockResolvedValue(caixa);
+
+    const resultado = await controller.obterCaixa(3);
+
+    expect(caixaService.obterDetalhadoPorId).toHaveBeenCalledWith(3);
+    expect(resultado).toBe(caixa);
   });
 
   it('deve delegar inserção de carteira', async () => {

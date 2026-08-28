@@ -181,7 +181,7 @@ export class FinanceiroController {
   @Get('caixas/:id')
   @Permissions(PERMISSOES.FINANCEIRO.CAIXA.LER)
   async obterCaixa(@Param('id', ParseIntPipe) id: number): Promise<Caixa> {
-    return this.caixaService.obterPorId(id);
+    return this.caixaService.obterDetalhadoPorId(id);
   }
 
   @Post('caixas/:id/fechar')
