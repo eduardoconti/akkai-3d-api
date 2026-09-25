@@ -16,6 +16,7 @@ describe('CaixaService', () => {
   };
   const carteiraService = { garantirExisteCarteira: jest.fn() };
   const dataSource = { query: jest.fn() };
+  const dataAbertura = new Date('2026-08-25T12:00:00.000Z');
   const dataHoraAtual = new Date('2026-08-25T20:30:00.000Z');
   const dateService = {
     toUtcDateRange: jest.fn((data: string) => ({
@@ -23,6 +24,9 @@ describe('CaixaService', () => {
       end: `${data} 23:59:59.999`,
     })),
     obterDataHoraAtual: jest.fn(() => dataHoraAtual),
+    obterDataAtualLocal: jest.fn((data: Date) =>
+      data.toISOString().slice(0, 10),
+    ),
   };
   let service: CaixaService;
 
@@ -113,6 +117,7 @@ describe('CaixaService', () => {
     caixaRepository.findOne.mockResolvedValueOnce({
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.ABERTO,
       conferencias: [{ idCarteira: 2 }],
     });
@@ -130,21 +135,36 @@ describe('CaixaService', () => {
     caixaRepository.findOne.mockResolvedValueOnce({
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.ABERTO,
       conferencias: [
         { idCarteira: 1, valorAbertura: 13000 },
         { idCarteira: 2, valorAbertura: 20000 },
       ],
     });
-    dataSource.query.mockResolvedValueOnce([{ idCarteira: 1, total: '85000' }]);
+    dataSource.query
+      .mockResolvedValueOnce([{ idCarteira: 1, total: '85000' }])
+      .mockResolvedValueOnce([{ idCarteira: 1, total: '12000' }]);
 
     const resultado = await service.obterDetalhadoPorId(3);
 
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.stringContaining('COALESCE(SUM(p.valor), 0)'),
+      [3],
+    );
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.not.stringContaining('valor_taxa'),
+      [3],
+    );
+    expect(dataSource.query).toHaveBeenCalledWith(
+      expect.stringContaining('d.data_lancamento >= $2'),
+      [3, '2026-08-25 03:00:00.000', '2026-08-25 23:59:59.999'],
+    );
     expect(resultado.conferencias).toEqual([
       expect.objectContaining({
         idCarteira: 1,
         totalEntradas: 85000,
-        valorEsperadoFechamento: 98000,
+        valorEsperadoFechamento: 86000,
       }),
       expect.objectContaining({
         idCarteira: 2,
@@ -180,6 +200,7 @@ describe('CaixaService', () => {
     const caixa = {
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.ABERTO,
       observacao: null,
       conferencias: [{ id: 8, idCarteira: 2, valorAbertura: 20000 }],
@@ -195,6 +216,7 @@ describe('CaixaService', () => {
     });
     dataSource.query
       .mockResolvedValueOnce([{ existe: true }])
+      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([]);
 
     const resultado = await service.alterar(3, {
@@ -219,6 +241,7 @@ describe('CaixaService', () => {
     caixaRepository.findOne.mockResolvedValueOnce({
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.FECHADO,
       conferencias: [{ idCarteira: 2, valorAbertura: 20000 }],
     });
@@ -235,6 +258,7 @@ describe('CaixaService', () => {
     caixaRepository.findOne.mockResolvedValueOnce({
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.ABERTO,
       conferencias: [{ idCarteira: 2, valorAbertura: 20000 }],
     });
@@ -250,28 +274,31 @@ describe('CaixaService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('deve calcular fechamento usando abertura e entradas da sessão', async () => {
+  it('deve calcular fechamento usando abertura, entradas e despesas da sessão', async () => {
     const caixa = {
       id: 3,
       idFeira: 1,
+      dataAbertura,
       status: StatusCaixa.ABERTO,
       conferencias: [{ idCarteira: 2, valorAbertura: 20000 }],
     };
     caixaRepository.findOne.mockResolvedValueOnce(caixa);
-    dataSource.query.mockResolvedValueOnce([{ idCarteira: 2, total: '85000' }]);
+    dataSource.query
+      .mockResolvedValueOnce([{ idCarteira: 2, total: '85000' }])
+      .mockResolvedValueOnce([{ idCarteira: 2, total: '5000' }]);
 
     const resultado = await service.fechar(
       3,
       {
-        carteiras: [{ idCarteira: 2, valorInformadoFechamento: 104700 }],
+        carteiras: [{ idCarteira: 2, valorInformadoFechamento: 99700 }],
       },
       7,
     );
 
     expect(resultado.conferencias[0]).toMatchObject({
       totalEntradas: 85000,
-      valorEsperadoFechamento: 105000,
-      valorInformadoFechamento: 104700,
+      valorEsperadoFechamento: 100000,
+      valorInformadoFechamento: 99700,
       diferenca: -300,
     });
     expect(resultado.status).toBe(StatusCaixa.FECHADO);

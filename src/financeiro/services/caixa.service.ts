@@ -35,7 +35,7 @@ interface PesquisarCaixasInput {
   dataFim?: string;
   idFeira?: number;
 }
-interface EntradaCarteiraCaixaRow {
+interface TotalCarteiraCaixaRow {
   idCarteira: number;
   total: string | number;
 }
@@ -232,8 +232,15 @@ export class CaixaService implements ConsultaCaixa {
       return caixa;
     }
 
-    const entradas = await this.obterEntradasPorCarteira(id);
-    this.preencherValoresEsperados(caixa, entradas);
+    const [entradas, despesas] = await Promise.all([
+      this.obterEntradasPorCarteira(id),
+      this.obterDespesasPorCarteira(
+        id,
+        caixa.dataAbertura,
+        this.dateService.obterDataHoraAtual(),
+      ),
+    ]);
+    this.preencherValoresEsperados(caixa, entradas, despesas);
     return caixa;
   }
 
@@ -288,15 +295,19 @@ export class CaixaService implements ConsultaCaixa {
         'Informe o fechamento de todas as carteiras do caixa.',
       );
     }
-    const entradas = await this.obterEntradasPorCarteira(id);
-    this.preencherValoresEsperados(caixa, entradas);
+    const dataFechamento = this.dateService.obterDataHoraAtual();
+    const [entradas, despesas] = await Promise.all([
+      this.obterEntradasPorCarteira(id),
+      this.obterDespesasPorCarteira(id, caixa.dataAbertura, dataFechamento),
+    ]);
+    this.preencherValoresEsperados(caixa, entradas, despesas);
     for (const item of caixa.conferencias) {
       item.valorInformadoFechamento = informados.get(item.idCarteira)!;
       item.diferenca =
         item.valorInformadoFechamento - item.valorEsperadoFechamento!;
     }
     caixa.status = StatusCaixa.FECHADO;
-    caixa.dataFechamento = this.dateService.obterDataHoraAtual();
+    caixa.dataFechamento = dataFechamento;
     caixa.idUsuarioFechamento = idUsuario;
     await this.conferenciaRepository.save(caixa.conferencias);
     return this.caixaRepository.save(caixa);
@@ -305,8 +316,8 @@ export class CaixaService implements ConsultaCaixa {
   private async obterEntradasPorCarteira(
     idCaixa: number,
   ): Promise<Map<number, number>> {
-    const rows: EntradaCarteiraCaixaRow[] = await this.dataSource.query(
-      `SELECT p.id_carteira AS "idCarteira", COALESCE(SUM(p.valor - COALESCE(p.valor_taxa, 0)), 0) AS total
+    const rows: TotalCarteiraCaixaRow[] = await this.dataSource.query(
+      `SELECT p.id_carteira AS "idCarteira", COALESCE(SUM(p.valor), 0) AS total
        FROM pagamento_venda p INNER JOIN venda v ON v.id = p.id_venda
        WHERE v.id_caixa = $1 GROUP BY p.id_carteira`,
       [idCaixa],
@@ -317,13 +328,40 @@ export class CaixaService implements ConsultaCaixa {
     );
   }
 
+  private async obterDespesasPorCarteira(
+    idCaixa: number,
+    dataAbertura: Date,
+    dataLimite: Date,
+  ): Promise<Map<number, number>> {
+    const dataInicioLocal = this.dateService.obterDataAtualLocal(dataAbertura);
+    const dataFimLocal = this.dateService.obterDataAtualLocal(dataLimite);
+    const dataInicio = this.dateService.toUtcDateRange(dataInicioLocal).start;
+    const dataFim = this.dateService.toUtcDateRange(dataFimLocal).end;
+    const rows: TotalCarteiraCaixaRow[] = await this.dataSource.query(
+      `SELECT d.id_carteira AS "idCarteira", COALESCE(SUM(d.valor), 0) AS total
+       FROM despesa d
+       INNER JOIN conferencia_carteira_caixa ccc
+         ON ccc.id_carteira = d.id_carteira AND ccc.id_caixa = $1
+       WHERE d.data_lancamento >= $2 AND d.data_lancamento <= $3
+       GROUP BY d.id_carteira`,
+      [idCaixa, dataInicio, dataFim],
+    );
+
+    return new Map(
+      rows.map((row) => [Number(row.idCarteira), Number(row.total)]),
+    );
+  }
+
   private preencherValoresEsperados(
     caixa: Caixa,
     entradas: Map<number, number>,
+    despesas: Map<number, number>,
   ): void {
     caixa.conferencias.forEach((item) => {
       item.totalEntradas = entradas.get(item.idCarteira) ?? 0;
-      item.valorEsperadoFechamento = item.valorAbertura + item.totalEntradas;
+      const totalDespesas = despesas.get(item.idCarteira) ?? 0;
+      item.valorEsperadoFechamento =
+        item.valorAbertura + item.totalEntradas - totalDespesas;
     });
   }
 }
