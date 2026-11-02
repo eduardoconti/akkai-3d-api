@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 import { ConsultaCaixa } from '@financeiro/contracts';
 import {
@@ -29,6 +29,9 @@ import {
 describe('InserirVendaUseCase', () => {
   let useCase: InserirVendaUseCase;
   let inserirVendaMock: jest.MockedFunction<(venda: Venda) => Promise<Venda>>;
+  let obterVendaPorChaveIdempotenciaMock: jest.MockedFunction<
+    (chave: string) => Promise<Venda | null>
+  >;
   let garantirOrcamentoPodeSerFinalizadoMock: jest.MockedFunction<
     (id: number) => Promise<Orcamento>
   >;
@@ -57,6 +60,7 @@ describe('InserirVendaUseCase', () => {
 
   beforeEach(() => {
     inserirVendaMock = jest.fn<Promise<Venda>, [Venda]>();
+    obterVendaPorChaveIdempotenciaMock = jest.fn().mockResolvedValue(null);
     garantirOrcamentoPodeSerFinalizadoMock = jest.fn();
     garantirExisteFeiraMock = jest.fn<Promise<void>, [number]>();
     garantirCarteiraAceitaMeioPagamentoMock = jest.fn();
@@ -70,6 +74,7 @@ describe('InserirVendaUseCase', () => {
 
     const vendaService = {
       inserirVenda: inserirVendaMock,
+      obterVendaPorChaveIdempotencia: obterVendaPorChaveIdempotenciaMock,
     } as unknown as VendaService;
 
     const feiraService = {
@@ -675,5 +680,73 @@ describe('InserirVendaUseCase', () => {
         ],
       }),
     );
+  });
+  describe('idempotência', () => {
+    const chaveIdempotencia = '7b0c7d4e-5a62-4c75-9f0c-0d3f6a7d2b11';
+    const criarInput = (): ExecutarInserirVendaInput => ({
+      dataVenda: '2026-04-01T12:00:00.000Z',
+      tipo: TipoVenda.LOJA,
+      chaveIdempotencia,
+      itens: [{ quantidade: 1, nomeProduto: 'Avulso', valorUnitario: 1000 }],
+      pagamentos: [criarPagamentoInput(1000)],
+    });
+
+    beforeEach(() => {
+      garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+        id: 1,
+        ativa: true,
+        meiosPagamento: [MeioPagamento.PIX],
+      });
+      obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+    });
+
+    it('deve devolver a venda já registrada sem inserir novamente', async () => {
+      const registrada = Object.assign(new Venda(), {
+        id: 55,
+        idUsuarioInclusao: 7,
+      });
+      obterVendaPorChaveIdempotenciaMock.mockResolvedValue(registrada);
+
+      const result = await useCase.execute(criarInput());
+
+      expect(result).toBe(registrada);
+      expect(obterVendaPorChaveIdempotenciaMock).toHaveBeenCalledWith(
+        chaveIdempotencia,
+      );
+      expect(inserirVendaMock).not.toHaveBeenCalled();
+      expect(garantirCarteiraAceitaMeioPagamentoMock).not.toHaveBeenCalled();
+    });
+
+    it('deve lançar ConflictException quando a chave pertence a outro usuário', async () => {
+      obterVendaPorChaveIdempotenciaMock.mockResolvedValue(
+        Object.assign(new Venda(), { id: 55, idUsuarioInclusao: 99 }),
+      );
+
+      await expect(useCase.execute(criarInput())).rejects.toThrow(
+        ConflictException,
+      );
+      expect(inserirVendaMock).not.toHaveBeenCalled();
+    });
+
+    it('deve inserir a venda com a chave quando ainda não houver registro', async () => {
+      inserirVendaMock.mockResolvedValue(Object.assign(new Venda(), { id: 1 }));
+
+      await useCase.execute(criarInput());
+
+      expect(inserirVendaMock).toHaveBeenCalledWith(
+        expect.objectContaining({ chaveIdempotencia }),
+      );
+    });
+
+    it('não deve consultar a chave quando ela não for informada', async () => {
+      inserirVendaMock.mockResolvedValue(Object.assign(new Venda(), { id: 1 }));
+      const input = criarInput();
+      delete input.chaveIdempotencia;
+
+      await useCase.execute(input);
+
+      expect(obterVendaPorChaveIdempotenciaMock).not.toHaveBeenCalled();
+      expect(inserirVendaMock).toHaveBeenCalled();
+    });
   });
 });

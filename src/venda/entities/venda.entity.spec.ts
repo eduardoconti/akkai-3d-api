@@ -281,4 +281,35 @@ describe('ItemVenda', () => {
     const item = ItemVenda.criar(base);
     expect(item.idProduto).toBeUndefined();
   });
+  describe('chave de idempotência', () => {
+    const criarInput = (chaveIdempotencia?: string) => ({
+      dataVenda: '2026-04-01T12:00:00.000Z',
+      tipo: TipoVenda.LOJA,
+      chaveIdempotencia,
+      itens: [{ quantidade: 1, valorUnitario: 100, nomeProduto: 'Avulso' }],
+      pagamentos: [
+        { idCarteira: 1, meioPagamento: MeioPagamento.DIN, valor: 100 },
+      ],
+    });
+
+    it('deve guardar a chave informada ao criar a venda', () => {
+      const venda = Venda.criar(criarInput('chave-1'));
+
+      expect(venda.chaveIdempotencia).toBe('chave-1');
+    });
+
+    it('deve manter a chave vazia quando ela não for informada', () => {
+      const venda = Venda.criar(criarInput());
+
+      expect(venda.chaveIdempotencia).toBeUndefined();
+    });
+
+    it('não deve alterar a chave ao atualizar a venda', () => {
+      const venda = Venda.criar(criarInput('chave-1'));
+
+      venda.atualizar(criarInput('outra-chave'));
+
+      expect(venda.chaveIdempotencia).toBe('chave-1');
+    });
+  });
 });

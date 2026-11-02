@@ -8,7 +8,7 @@ import {
   PrepararPagamentosVendaService,
   VendaService,
 } from '@venda/services';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CurrentUserContext } from '@common/services/current-user-context.service';
 import { ConsultaCaixa } from '@financeiro/contracts';
 
@@ -19,6 +19,7 @@ export interface ExecutarInserirVendaInput {
   idCaixa?: number;
   idOrcamento?: number;
   desconto?: number;
+  chaveIdempotencia?: string;
   itens: {
     quantidade: number;
     brinde?: boolean;
@@ -46,6 +47,15 @@ export class InserirVendaUseCase {
 
   async execute(inserirVendaInput: ExecutarInserirVendaInput): Promise<Venda> {
     const idUsuarioInclusao = this.currentUserContext.usuarioId;
+    const vendaJaRegistrada = await this.obterVendaJaRegistrada(
+      inserirVendaInput.chaveIdempotencia,
+      idUsuarioInclusao,
+    );
+
+    if (vendaJaRegistrada) {
+      return vendaJaRegistrada;
+    }
+
     const pagamentos = await this.prepararPagamentosVendaService.preparar(
       inserirVendaInput.pagamentos,
     );
@@ -78,6 +88,7 @@ export class InserirVendaUseCase {
       idCaixa: inserirVendaInput.idCaixa,
       idOrcamento: inserirVendaInput.idOrcamento,
       desconto: inserirVendaInput.desconto,
+      chaveIdempotencia: inserirVendaInput.chaveIdempotencia,
       itens,
       pagamentos,
     });
@@ -91,5 +102,29 @@ export class InserirVendaUseCase {
     }
 
     return this.vendaService.inserirVenda(venda);
+  }
+
+  /**
+   * Reenvios da mesma venda (ex.: sincronização offline com resposta perdida)
+   * devolvem a venda original, sem repetir estoque nem pagamentos.
+   */
+  private async obterVendaJaRegistrada(
+    chaveIdempotencia: string | undefined,
+    idUsuario: number,
+  ): Promise<Venda | null> {
+    if (!chaveIdempotencia) {
+      return null;
+    }
+
+    const venda =
+      await this.vendaService.obterVendaPorChaveIdempotencia(chaveIdempotencia);
+
+    if (venda && venda.idUsuarioInclusao !== idUsuario) {
+      throw new ConflictException(
+        'A chave de idempotência informada já foi utilizada.',
+      );
+    }
+
+    return venda;
   }
 }

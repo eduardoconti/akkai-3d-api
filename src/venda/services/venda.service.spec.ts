@@ -80,18 +80,7 @@ describe('VendaService', () => {
         save: jest.fn(),
         delete: jest.fn(),
         findOne: jest.fn(),
-        query: jest
-          .fn()
-          .mockImplementation((_sql: string, parametros: [number[]]) =>
-            Promise.resolve(
-              Array.isArray(parametros?.[0])
-                ? parametros[0].map((idProduto) => ({
-                    idProduto,
-                    quantidadeDisponivel: 1000,
-                  }))
-                : [],
-            ),
-          ),
+        query: jest.fn().mockResolvedValue([]),
       },
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
@@ -152,6 +141,34 @@ describe('VendaService', () => {
     expect(queryRunner.commitTransaction).toHaveBeenCalled();
     expect(result).toBe(venda);
     expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it('deve permitir venda de produto sem estoque, sem consultar o saldo', async () => {
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      tipo: TipoVenda.LOJA,
+      itens: [
+        Object.assign(new ItemVenda(), {
+          id: 10,
+          idProduto: 7,
+          quantidade: 5,
+          movimentacaoEstoque: Object.assign(new MovimentacaoEstoque(), {
+            idProduto: 7,
+            quantidade: 5,
+          }),
+        }),
+      ],
+    });
+    queryRunner.manager.save.mockResolvedValueOnce(venda);
+
+    await expect(service.inserirVenda(venda)).resolves.toBeDefined();
+
+    expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    expect(queryRunner.rollbackTransaction).not.toHaveBeenCalled();
+    expect(queryRunner.manager.query).not.toHaveBeenCalledWith(
+      expect.stringContaining('movimentacao_estoque'),
+      expect.anything(),
+    );
   });
 
   it('deve extrair movimentações dos próprios itens de catálogo', async () => {
@@ -300,6 +317,73 @@ describe('VendaService', () => {
 
     await expect(service.garantirExisteVenda(99)).rejects.toThrow(
       'Venda com ID 99 não encontrada.',
+    );
+  });
+
+  it('deve obter venda por chave de idempotência com relações', async () => {
+    vendaRepository.findOne.mockResolvedValue(
+      Object.assign(new Venda(), { id: 8 }),
+    );
+
+    const result = await service.obterVendaPorChaveIdempotencia('chave-1');
+
+    expect(vendaRepository.findOne).toHaveBeenCalledWith({
+      where: { chaveIdempotencia: 'chave-1' },
+      relations: {
+        itens: { produto: true },
+        feira: true,
+        pagamentos: { carteira: true },
+        orcamento: true,
+      },
+    });
+    expect(result).toEqual(expect.objectContaining({ id: 8 }));
+  });
+
+  it('deve devolver a venda existente quando a chave de idempotência colidir', async () => {
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [],
+      tipo: TipoVenda.LOJA,
+      chaveIdempotencia: 'chave-1',
+      idUsuarioInclusao: 7,
+    });
+    queryRunner.manager.save.mockRejectedValueOnce({
+      driverError: {
+        code: '23505',
+        constraint: 'uk_venda_chave_idempotencia',
+      },
+    });
+    vendaRepository.findOne.mockResolvedValue(
+      Object.assign(new Venda(), { id: 42, idUsuarioInclusao: 7 }),
+    );
+
+    const result = await service.inserirVenda(venda);
+
+    expect(result).toEqual(expect.objectContaining({ id: 42 }));
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
+  });
+
+  it('deve lançar ConflictException quando a chave colidir com venda de outro usuário', async () => {
+    const venda = Object.assign(new Venda(), {
+      id: 1,
+      itens: [],
+      tipo: TipoVenda.LOJA,
+      chaveIdempotencia: 'chave-1',
+      idUsuarioInclusao: 7,
+    });
+    queryRunner.manager.save.mockRejectedValueOnce({
+      driverError: {
+        code: '23505',
+        constraint: 'uk_venda_chave_idempotencia',
+      },
+    });
+    vendaRepository.findOne.mockResolvedValue(
+      Object.assign(new Venda(), { id: 42, idUsuarioInclusao: 99 }),
+    );
+
+    await expect(service.inserirVenda(venda)).rejects.toThrow(
+      ConflictException,
     );
   });
 

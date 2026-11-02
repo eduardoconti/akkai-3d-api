@@ -46,6 +46,22 @@ export class VendaService {
     return venda ? this.adicionarValorLiquido(venda) : null;
   }
 
+  async obterVendaPorChaveIdempotencia(
+    chaveIdempotencia: string,
+  ): Promise<Venda | null> {
+    const venda = await this.vendaRepository.findOne({
+      where: { chaveIdempotencia },
+      relations: {
+        itens: { produto: true },
+        feira: true,
+        orcamento: true,
+        pagamentos: { carteira: true },
+      },
+    });
+
+    return venda ? this.adicionarValorLiquido(venda) : null;
+  }
+
   async garantirExisteVenda(id: number): Promise<Venda> {
     const venda = await this.obterVendaPorId(id);
 
@@ -84,6 +100,10 @@ export class VendaService {
 
       if (this.ehViolacaoUnicidadeOrcamentoVenda(error)) {
         throw new ConflictException('Orçamento já possui venda vinculada.');
+      }
+
+      if (venda.chaveIdempotencia && this.ehViolacaoChaveIdempotencia(error)) {
+        return this.obterVendaJaRegistrada(venda);
       }
 
       throw new InternalServerErrorException('Erro ao inserir venda');
@@ -405,46 +425,38 @@ export class VendaService {
         throw new ConflictException('Orçamento já finalizado ou inexistente.');
       }
     }
+  }
 
-    const quantidades = new Map<number, number>();
-    for (const item of venda.obterItensCatalogo()) {
-      quantidades.set(
-        item.idProduto!,
-        (quantidades.get(item.idProduto!) ?? 0) + item.quantidade,
+  /**
+   * Requisições concorrentes com a mesma chave: a que perde a corrida devolve
+   * a venda já registrada em vez de falhar.
+   */
+  private async obterVendaJaRegistrada(venda: Venda): Promise<Venda> {
+    const registrada = await this.obterVendaPorChaveIdempotencia(
+      venda.chaveIdempotencia as string,
+    );
+
+    if (
+      !registrada ||
+      registrada.idUsuarioInclusao !== venda.idUsuarioInclusao
+    ) {
+      throw new ConflictException(
+        'A chave de idempotência informada já foi utilizada.',
       );
     }
-    const idsProdutos = [...quantidades.keys()].sort((a, b) => a - b);
-    if (idsProdutos.length === 0) return;
 
-    await manager.query(
-      'SELECT id FROM produto WHERE id = ANY($1) ORDER BY id FOR UPDATE',
-      [idsProdutos],
+    return registrada;
+  }
+
+  private ehViolacaoChaveIdempotencia(error: unknown): boolean {
+    const driverError = (
+      error as { driverError?: { code?: string; constraint?: string } }
+    ).driverError;
+
+    return (
+      driverError?.code === '23505' &&
+      driverError.constraint === 'uk_venda_chave_idempotencia'
     );
-    const estoques = await manager.query<
-      Array<{ idProduto: number; quantidadeDisponivel: string | number }>
-    >(
-      `SELECT p.id AS "idProduto",
-         COALESCE(SUM(CASE WHEN me.tipo = 'E' THEN me.quantidade ELSE -me.quantidade END), 0) AS "quantidadeDisponivel"
-       FROM produto p
-       LEFT JOIN movimentacao_estoque me ON me.id_produto = p.id
-       WHERE p.id = ANY($1)
-       GROUP BY p.id
-       ORDER BY p.id`,
-      [idsProdutos],
-    );
-    const saldos = new Map(
-      estoques.map((item) => [
-        Number(item.idProduto),
-        Number(item.quantidadeDisponivel),
-      ]),
-    );
-    for (const [idProduto, quantidade] of quantidades) {
-      if ((saldos.get(idProduto) ?? -1) < quantidade) {
-        throw new ConflictException(
-          'Estoque insuficiente para o produto com ID ' + idProduto + '.',
-        );
-      }
-    }
   }
 
   private ehViolacaoUnicidadeOrcamentoVenda(error: unknown): boolean {

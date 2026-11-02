@@ -10,6 +10,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -66,6 +67,12 @@ export class InserirVendaDto {
     message: 'O desconto da venda deve ser de no máximo R$ 500,00.',
   })
   desconto?: number;
+
+  @IsOptional()
+  @IsUUID('4', {
+    message: 'A chave de idempotência da venda deve ser um UUID válido.',
+  })
+  chaveIdempotencia?: string;
 
   @IsArray({ message: 'Os itens da venda devem ser enviados em uma lista.' })
   @ArrayMinSize(1, {

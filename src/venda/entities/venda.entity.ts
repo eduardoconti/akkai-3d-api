@@ -24,6 +24,7 @@ export interface InserirVendaInput {
   idConsignacao?: number;
   idOrcamento?: number;
   desconto?: number;
+  chaveIdempotencia?: string;
   itens: ItemVendaInput[];
   pagamentos: PagamentoVendaInput[];
 }
@@ -39,6 +40,10 @@ export interface InserirVendaInput {
 @Index('uk_venda_id_orcamento', ['idOrcamento'], {
   unique: true,
   where: '"id_orcamento" IS NOT NULL',
+})
+@Index('uk_venda_chave_idempotencia', ['chaveIdempotencia'], {
+  unique: true,
+  where: '"chave_idempotencia" IS NOT NULL',
 })
 export class Venda {
   @PrimaryGeneratedColumn({
@@ -69,6 +74,14 @@ export class Venda {
   desconto!: number;
 
   valorLiquido?: number;
+
+  @Column({
+    type: 'varchar',
+    length: 64,
+    name: 'chave_idempotencia',
+    nullable: true,
+  })
+  chaveIdempotencia?: string;
 
   @Column({ type: 'integer', name: 'id_usuario_inclusao' })
   idUsuarioInclusao!: number;
@@ -121,6 +134,7 @@ export class Venda {
   static criar(inserirVendaInput: InserirVendaInput): Venda {
     const venda = new Venda();
     venda.dataInclusao = new Date();
+    venda.chaveIdempotencia = inserirVendaInput.chaveIdempotencia;
     venda.atualizar(inserirVendaInput);
     return venda;
   }
