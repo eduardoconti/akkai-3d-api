@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { PERMISSOES } from '@auth/constants/permissoes.constants';
 import {
   AlterarCadastroDto,
@@ -244,6 +244,9 @@ export class AuthService {
     user.role = role;
 
     const savedUser = await this.userRepository.save(user);
+    if (alterouPapel || alterouStatus) {
+      await this.revogarSessoesAtivasDoUsuario(user.id);
+    }
     const updatedUser = await this.findUserByIdWithRole(savedUser.id);
 
     if (!updatedUser) {
@@ -284,6 +287,7 @@ export class AuthService {
     );
 
     await this.userRepository.save(user);
+    await this.revogarSessoesAtivasDoUsuario(user.id);
   }
 
   async findActiveUserById(userId: number): Promise<User | null> {
@@ -410,6 +414,13 @@ export class AuthService {
   private async revokeSession(session: RefreshSession): Promise<void> {
     session.revokedAt = new Date();
     await this.refreshSessionRepository.save(session);
+  }
+
+  private async revogarSessoesAtivasDoUsuario(userId: number): Promise<void> {
+    await this.refreshSessionRepository.update(
+      { userId, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
   }
 
   private getRefreshExpiryDate(): Date {

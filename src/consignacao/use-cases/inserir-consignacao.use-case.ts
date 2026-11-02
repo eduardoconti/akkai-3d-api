@@ -11,7 +11,7 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/enums';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 import { DetalheConsignacaoDto } from '@consignacao/dto/listar-consignacao.dto';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class InserirConsignacaoUseCase {
   constructor(
     private readonly consignacaoService: ConsignacaoService,
     private readonly revendedorService: RevendedorService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
     private readonly currentUserContext: CurrentUserContext,
   ) {}
 

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ItemKitMensal, KitMensal, KitMensalInput } from '@assinatura/entities';
 import { KitMensalService, PlanoService } from '@assinatura/services';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 
 @Injectable()
 export class InserirKitMensalUseCase {
   constructor(
     private readonly kitMensalService: KitMensalService,
     private readonly planoService: PlanoService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
   ) {}
 
   async execute(input: KitMensalInput): Promise<KitMensal> {

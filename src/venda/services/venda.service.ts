@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ItemVenda, PagamentoVenda, Venda } from '@venda/entities';
 import { TipoVenda } from '@venda/enums';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovimentacaoEstoque } from '@produto/entities';
 import { PesquisarVendasDto, TotalizadoresVendasDto } from '@venda/dto';
@@ -61,6 +61,7 @@ export class VendaService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
+      await this.validarEstadoTransacional(queryRunner.manager, venda, true);
 
       const vendaSalva = await queryRunner.manager.save(venda);
       const movimentacoesEstoque = this.extrairMovimentacoesEstoque(vendaSalva);
@@ -99,6 +100,7 @@ export class VendaService {
 
       await queryRunner.manager.delete(PagamentoVenda, { idVenda: venda.id });
       await queryRunner.manager.delete(ItemVenda, { idVenda: venda.id });
+      await this.validarEstadoTransacional(queryRunner.manager, venda);
       const vendaSalva = await queryRunner.manager.save(venda);
       const movimentacoesEstoque = this.extrairMovimentacoesEstoque(vendaSalva);
       await queryRunner.manager.save(movimentacoesEstoque);
@@ -109,6 +111,9 @@ export class VendaService {
         error instanceof Error ? error.message : 'Erro desconhecido';
       this.logger.error('Erro ao alterar venda', errorMessage);
       await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new InternalServerErrorException('Erro ao alterar venda');
     } finally {
       await queryRunner.release();
@@ -130,6 +135,9 @@ export class VendaService {
         error instanceof Error ? error.message : 'Erro desconhecido';
       this.logger.error('Erro ao excluir venda', errorMessage);
       await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new InternalServerErrorException('Erro ao excluir venda');
     } finally {
       await queryRunner.release();
@@ -362,6 +370,81 @@ export class VendaService {
 
       return movimentacao;
     });
+  }
+
+  private async validarEstadoTransacional(
+    manager: EntityManager,
+    venda: Venda,
+    validarOrcamento = false,
+  ): Promise<void> {
+    if (venda.idCaixa !== undefined) {
+      const caixas = await manager.query<
+        Array<{ idFeira: number; status: string }>
+      >(
+        'SELECT id_feira AS "idFeira", status FROM caixa WHERE id = $1 FOR UPDATE',
+        [venda.idCaixa],
+      );
+      const caixa = caixas[0];
+      if (
+        !caixa ||
+        caixa.status !== 'ABERTO' ||
+        caixa.idFeira !== venda.idFeira
+      ) {
+        throw new ConflictException(
+          'O caixa informado não está mais aberto para esta feira.',
+        );
+      }
+    }
+
+    if (validarOrcamento && venda.idOrcamento !== undefined) {
+      const orcamentos = await manager.query<Array<{ status: string }>>(
+        'SELECT status FROM orcamento WHERE id = $1 FOR UPDATE',
+        [venda.idOrcamento],
+      );
+      if (!orcamentos[0] || orcamentos[0].status === 'FINALIZADO') {
+        throw new ConflictException('Orçamento já finalizado ou inexistente.');
+      }
+    }
+
+    const quantidades = new Map<number, number>();
+    for (const item of venda.obterItensCatalogo()) {
+      quantidades.set(
+        item.idProduto!,
+        (quantidades.get(item.idProduto!) ?? 0) + item.quantidade,
+      );
+    }
+    const idsProdutos = [...quantidades.keys()].sort((a, b) => a - b);
+    if (idsProdutos.length === 0) return;
+
+    await manager.query(
+      'SELECT id FROM produto WHERE id = ANY($1) ORDER BY id FOR UPDATE',
+      [idsProdutos],
+    );
+    const estoques = await manager.query<
+      Array<{ idProduto: number; quantidadeDisponivel: string | number }>
+    >(
+      `SELECT p.id AS "idProduto",
+         COALESCE(SUM(CASE WHEN me.tipo = 'E' THEN me.quantidade ELSE -me.quantidade END), 0) AS "quantidadeDisponivel"
+       FROM produto p
+       LEFT JOIN movimentacao_estoque me ON me.id_produto = p.id
+       WHERE p.id = ANY($1)
+       GROUP BY p.id
+       ORDER BY p.id`,
+      [idsProdutos],
+    );
+    const saldos = new Map(
+      estoques.map((item) => [
+        Number(item.idProduto),
+        Number(item.quantidadeDisponivel),
+      ]),
+    );
+    for (const [idProduto, quantidade] of quantidades) {
+      if ((saldos.get(idProduto) ?? -1) < quantidade) {
+        throw new ConflictException(
+          'Estoque insuficiente para o produto com ID ' + idProduto + '.',
+        );
+      }
+    }
   }
 
   private ehViolacaoUnicidadeOrcamentoVenda(error: unknown): boolean {

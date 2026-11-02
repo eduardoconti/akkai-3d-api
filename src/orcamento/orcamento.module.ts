@@ -7,15 +7,17 @@ import {
   AtualizarOrcamentoUseCase,
   InserirOrcamentoUseCase,
 } from '@orcamento/use-cases';
+import { FinalizacaoOrcamento } from '@orcamento/contracts';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Orcamento])],
   controllers: [OrcamentoController],
   providers: [
     OrcamentoService,
+    { provide: FinalizacaoOrcamento, useExisting: OrcamentoService },
     InserirOrcamentoUseCase,
     AtualizarOrcamentoUseCase,
   ],
-  exports: [OrcamentoService],
+  exports: [FinalizacaoOrcamento],
 })
 export class OrcamentoModule {}

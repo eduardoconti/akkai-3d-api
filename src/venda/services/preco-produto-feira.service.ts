@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import {
   PesquisarPrecosProdutosFeiraDto,
@@ -28,7 +28,7 @@ export class PrecoProdutoFeiraService {
     @InjectRepository(PrecoProdutoFeira)
     private readonly precoProdutoFeiraRepository: Repository<PrecoProdutoFeira>,
     private readonly feiraService: FeiraService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
   ) {}
 
   async listarPorFeira(idFeira: number): Promise<PrecoProdutoFeira[]> {

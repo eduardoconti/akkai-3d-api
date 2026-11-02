@@ -97,6 +97,7 @@ describe('InserirVendaUseCase', () => {
     const orcamentoService = {
       garantirOrcamentoPodeSerFinalizado:
         garantirOrcamentoPodeSerFinalizadoMock,
+      garantirPodeSerFinalizado: garantirOrcamentoPodeSerFinalizadoMock,
     } as unknown as OrcamentoService;
 
     const prepararItensVendaService = new PrepararItensVendaService(

@@ -40,7 +40,7 @@ const ORCAMENTO_VIOLACOES_CAMADAS: Record<string, number> = {
   'caso de uso depende de service concreto': 79,
   'service depende de DTO HTTP': 18,
   'importação de entidade cruza contexto': 35,
-  'importação de service cruza contexto': 31,
+  'importação de service cruza contexto': 22,
 };
 
 type Importacao = {

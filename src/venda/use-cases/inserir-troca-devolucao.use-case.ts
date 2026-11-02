@@ -9,7 +9,7 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/enums';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 import { ItemTrocaDevolucao, TrocaDevolucao } from '@venda/entities';
 import {
   TipoDiferencaTrocaDevolucao,
@@ -34,7 +34,7 @@ export interface ExecutarInserirTrocaDevolucaoInput {
 export class InserirTrocaDevolucaoUseCase {
   constructor(
     private readonly trocaDevolucaoService: TrocaDevolucaoService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
     private readonly consultaCarteira: ConsultaCarteira,
     private readonly currentUserContext: CurrentUserContext,
   ) {}

@@ -10,6 +10,7 @@ import { Caixa, ConferenciaCarteiraCaixa } from '@financeiro/entities';
 import { StatusCaixa } from '@financeiro/enums';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { DateService } from '@common/services/date.service';
+import { lancarExcecaoConflito } from '@common/database/lancar-excecao-conflito';
 import {
   calcularOffset,
   criarResultadoPaginado,
@@ -71,7 +72,15 @@ export class CaixaService implements ConsultaCaixa {
         this.conferenciaRepository.create(item),
       ),
     });
-    const caixaSalvo = await this.caixaRepository.save(caixa);
+    const caixaSalvo = await this.caixaRepository
+      .save(caixa)
+      .catch((error) =>
+        lancarExcecaoConflito(
+          error,
+          'Já existe um caixa aberto para esta feira.',
+          'Erro ao abrir caixa.',
+        ),
+      );
     return this.obterPorId(caixaSalvo.id);
   }
 

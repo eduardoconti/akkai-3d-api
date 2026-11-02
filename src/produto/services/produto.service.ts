@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Produto } from '@produto/entities';
 import { StatusProduto } from '@produto/enums';
+import { ConsultaProduto } from '@produto/contracts';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
@@ -21,7 +22,7 @@ import {
 } from '@common/utils/paginacao.util';
 
 @Injectable()
-export class ProdutoService {
+export class ProdutoService implements ConsultaProduto {
   private readonly logger = new Logger(ProdutoService.name);
 
   constructor(

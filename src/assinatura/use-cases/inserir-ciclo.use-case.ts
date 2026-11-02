@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CicloAssinatura, CicloAssinaturaInput } from '@assinatura/entities';
 import { StatusCiclo } from '@assinatura/enums';
 import { AssinanteService, CicloService } from '@assinatura/services';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 
 @Injectable()
 export class InserirCicloUseCase {
   constructor(
     private readonly cicloService: CicloService,
     private readonly assinanteService: AssinanteService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
   ) {}
 
   async execute(input: CicloAssinaturaInput): Promise<CicloAssinatura> {

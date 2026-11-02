@@ -1,4 +1,4 @@
-import { OrcamentoService } from '@orcamento/services';
+import { FinalizacaoOrcamento } from '@orcamento/contracts';
 import { MeioPagamento } from '@common/enums/meio-pagamento.enum';
 import { Venda } from '@venda/entities';
 import { TipoVenda } from '@venda/enums';
@@ -40,7 +40,7 @@ export class InserirVendaUseCase {
     private readonly prepararItensVendaService: PrepararItensVendaService,
     private readonly prepararPagamentosVendaService: PrepararPagamentosVendaService,
     private readonly currentUserContext: CurrentUserContext,
-    private readonly orcamentoService: OrcamentoService,
+    private readonly finalizacaoOrcamento: FinalizacaoOrcamento,
     private readonly consultaCaixa: ConsultaCaixa,
   ) {}
 
@@ -85,7 +85,7 @@ export class InserirVendaUseCase {
 
     if (inserirVendaInput.idOrcamento) {
       venda.orcamento =
-        await this.orcamentoService.garantirOrcamentoPodeSerFinalizado(
+        await this.finalizacaoOrcamento.garantirPodeSerFinalizado(
           inserirVendaInput.idOrcamento,
         );
     }

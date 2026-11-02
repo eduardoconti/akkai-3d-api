@@ -5,7 +5,7 @@ import {
 } from '@assinatura/entities';
 import { StatusCiclo } from '@assinatura/enums';
 import { CicloService } from '@assinatura/services';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 
 export interface AlterarCicloInput {
   id: number;
@@ -20,7 +20,7 @@ export interface AlterarCicloInput {
 export class AlterarCicloUseCase {
   constructor(
     private readonly cicloService: CicloService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
   ) {}
 
   async execute(input: AlterarCicloInput): Promise<CicloAssinatura> {

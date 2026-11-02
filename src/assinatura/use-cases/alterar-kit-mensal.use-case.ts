@@ -5,7 +5,7 @@ import {
   KitMensal,
 } from '@assinatura/entities';
 import { KitMensalService } from '@assinatura/services';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 
 export interface AlterarKitMensalInput {
   id: number;
@@ -21,7 +21,7 @@ export interface AlterarKitMensalInput {
 export class AlterarKitMensalUseCase {
   constructor(
     private readonly kitMensalService: KitMensalService,
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
   ) {}
 
   async execute(input: AlterarKitMensalInput): Promise<KitMensal> {

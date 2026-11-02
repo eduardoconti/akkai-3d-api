@@ -22,7 +22,12 @@ describe('VendaService', () => {
   let queryRunner: {
     connect: jest.Mock;
     startTransaction: jest.Mock;
-    manager: { save: jest.Mock; delete: jest.Mock; findOne: jest.Mock };
+    manager: {
+      save: jest.Mock;
+      delete: jest.Mock;
+      findOne: jest.Mock;
+      query: jest.Mock;
+    };
     commitTransaction: jest.Mock;
     rollbackTransaction: jest.Mock;
     release: jest.Mock;
@@ -71,7 +76,23 @@ describe('VendaService', () => {
     queryRunner = {
       connect: jest.fn(),
       startTransaction: jest.fn(),
-      manager: { save: jest.fn(), delete: jest.fn(), findOne: jest.fn() },
+      manager: {
+        save: jest.fn(),
+        delete: jest.fn(),
+        findOne: jest.fn(),
+        query: jest
+          .fn()
+          .mockImplementation((_sql: string, parametros: [number[]]) =>
+            Promise.resolve(
+              Array.isArray(parametros?.[0])
+                ? parametros[0].map((idProduto) => ({
+                    idProduto,
+                    quantidadeDisponivel: 1000,
+                  }))
+                : [],
+            ),
+          ),
+      },
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
       release: jest.fn(),

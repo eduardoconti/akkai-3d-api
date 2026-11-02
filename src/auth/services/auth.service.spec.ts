@@ -30,6 +30,7 @@ describe('AuthService', () => {
     findOne: jest.Mock;
     create: jest.Mock;
     save: jest.Mock;
+    update: jest.Mock;
   };
   let jwtService: {
     signAsync: jest.Mock;
@@ -57,6 +58,7 @@ describe('AuthService', () => {
       findOne: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
+      update: jest.fn(),
     };
     jwtService = {
       signAsync: jest.fn(),

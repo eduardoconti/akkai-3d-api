@@ -13,9 +13,10 @@ import {
   calcularOffset,
   criarResultadoPaginado,
 } from '@common/utils/paginacao.util';
+import { FinalizacaoOrcamento } from '@orcamento/contracts';
 
 @Injectable()
-export class OrcamentoService {
+export class OrcamentoService implements FinalizacaoOrcamento {
   private readonly logger = new Logger(OrcamentoService.name);
 
   constructor(
@@ -53,6 +54,10 @@ export class OrcamentoService {
 
     orcamento.finalizar();
     return orcamento;
+  }
+
+  async garantirPodeSerFinalizado(id: number): Promise<Orcamento> {
+    return this.garantirOrcamentoPodeSerFinalizado(id);
   }
 
   async listarOrcamentos(

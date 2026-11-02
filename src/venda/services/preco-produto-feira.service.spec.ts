@@ -5,7 +5,7 @@ import {
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Produto } from '@produto/entities';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 import { PrecoProdutoFeira } from '@venda/entities';
 import { FeiraService, PrecoProdutoFeiraService } from '@venda/services';
 
@@ -44,7 +44,7 @@ describe('PrecoProdutoFeiraService', () => {
           },
         },
         {
-          provide: ProdutoService,
+          provide: ConsultaProduto,
           useValue: {
             garantirExisteProduto: garantirExisteProdutoMock,
           },

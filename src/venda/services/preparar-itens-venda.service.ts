@@ -4,7 +4,7 @@ import {
   OrigemMovimentacaoEstoque,
   TipoMovimentacaoEstoque,
 } from '@produto/enums';
-import { ProdutoService } from '@produto/services';
+import { ConsultaProduto } from '@produto/contracts';
 import { ItemVendaInput } from '@venda/entities';
 import { TipoVenda } from '@venda/enums';
 import { PrecoProdutoFeiraService } from '@venda/services/preco-produto-feira.service';
@@ -27,7 +27,7 @@ export interface PrepararItensVendaInput {
 @Injectable()
 export class PrepararItensVendaService {
   constructor(
-    private readonly produtoService: ProdutoService,
+    private readonly produtoService: ConsultaProduto,
     private readonly precoProdutoFeiraService: PrecoProdutoFeiraService,
   ) {}
 
