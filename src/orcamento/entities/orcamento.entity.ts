@@ -5,6 +5,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Feira } from '@venda/entities/feira.entity';
@@ -13,6 +14,7 @@ import {
   StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/enums';
+import { ItemOrcamento, ItemOrcamentoInput } from './item-orcamento.entity';
 
 @Entity('orcamento')
 @Index('idx_orcamento_data_inclusao', ['dataInclusao'])
@@ -84,6 +86,28 @@ export class Orcamento {
 
   @Column({ type: 'integer', nullable: true })
   valor?: number;
+
+  /** Produtos do catálogo informados no orçamento (carregados sob demanda). */
+  @OneToMany(() => ItemOrcamento, (item) => item.orcamento, { cascade: true })
+  itens?: ItemOrcamento[];
+
+  /** Substitui os produtos do orçamento; orçamento finalizado não pode mudar. */
+  definirItens(itens: ItemOrcamentoInput[]): void {
+    if (this.status === StatusOrcamento.FINALIZADO) {
+      throw new BadRequestException(
+        `Orçamento #${this.id} já está finalizado e não pode ter os produtos alterados.`,
+      );
+    }
+
+    const idsProdutos = itens.map((item) => item.idProduto);
+    if (new Set(idsProdutos).size !== idsProdutos.length) {
+      throw new BadRequestException(
+        'O mesmo produto não pode ser informado mais de uma vez no orçamento.',
+      );
+    }
+
+    this.itens = itens.map((item) => ItemOrcamento.criar(item));
+  }
 
   finalizar(): void {
     if (this.status === StatusOrcamento.FINALIZADO) {

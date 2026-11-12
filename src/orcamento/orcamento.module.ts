@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrcamentoController } from '@orcamento/controllers';
-import { Orcamento } from '@orcamento/entities';
-import { OrcamentoService } from '@orcamento/services';
+import { ItemOrcamento, Orcamento } from '@orcamento/entities';
+import { ProdutoModule } from '@produto/produto.module';
+import {
+  OrcamentoService,
+  PrepararItensOrcamentoService,
+} from '@orcamento/services';
 import {
   AtualizarOrcamentoUseCase,
   InserirOrcamentoUseCase,
@@ -10,10 +14,14 @@ import {
 import { FinalizacaoOrcamento } from '@orcamento/contracts';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Orcamento])],
+  imports: [
+    TypeOrmModule.forFeature([Orcamento, ItemOrcamento]),
+    ProdutoModule,
+  ],
   controllers: [OrcamentoController],
   providers: [
     OrcamentoService,
+    PrepararItensOrcamentoService,
     { provide: FinalizacaoOrcamento, useExisting: OrcamentoService },
     InserirOrcamentoUseCase,
     AtualizarOrcamentoUseCase,

@@ -5,7 +5,11 @@ import {
   StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/enums';
-import { OrcamentoService } from '@orcamento/services';
+import {
+  OrcamentoService,
+  PrepararItemOrcamentoInput,
+  PrepararItensOrcamentoService,
+} from '@orcamento/services';
 
 export interface InserirOrcamentoInput {
   nomeCliente: string;
@@ -17,11 +21,15 @@ export interface InserirOrcamentoInput {
   canalAtendimento?: CanalAtendimentoOrcamento;
   idFeira?: number;
   valor?: number;
+  itens?: PrepararItemOrcamentoInput[];
 }
 
 @Injectable()
 export class InserirOrcamentoUseCase {
-  constructor(private readonly orcamentoService: OrcamentoService) {}
+  constructor(
+    private readonly orcamentoService: OrcamentoService,
+    private readonly prepararItensOrcamentoService: PrepararItensOrcamentoService,
+  ) {}
 
   async execute(input: InserirOrcamentoInput): Promise<Orcamento> {
     if (input.tipo === TipoOrcamento.ONLINE && !input.canalAtendimento) {
@@ -43,6 +51,12 @@ export class InserirOrcamentoUseCase {
     orcamento.idFeira =
       input.tipo === TipoOrcamento.FEIRA ? input.idFeira : undefined;
     orcamento.valor = input.valor;
+
+    if (input.itens?.length) {
+      orcamento.definirItens(
+        await this.prepararItensOrcamentoService.preparar(input.itens),
+      );
+    }
 
     return this.orcamentoService.inserirOrcamento(orcamento);
   }

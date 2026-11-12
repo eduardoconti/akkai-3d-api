@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Orcamento } from '@orcamento/entities';
+import { ItemOrcamento, Orcamento } from '@orcamento/entities';
 import { PesquisarOrcamentosDto } from '@orcamento/dto';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
 import { Repository } from 'typeorm';
@@ -38,6 +38,33 @@ export class OrcamentoService implements FinalizacaoOrcamento {
     });
   }
 
+  /**
+   * Salva o orçamento trocando todos os seus produtos pelos de `orcamento.itens`.
+   * Os antigos são removidos antes porque o cascade só insere e atualiza.
+   */
+  async atualizarOrcamentoSubstituindoItens(
+    orcamento: Orcamento,
+  ): Promise<Orcamento> {
+    return this.orcamentoRepository.manager
+      .transaction(async (manager) => {
+        await manager.delete(ItemOrcamento, { idOrcamento: orcamento.id });
+        return manager.save(orcamento);
+      })
+      .catch((error) => {
+        this.logger.error('Erro ao atualizar produtos do orçamento', error);
+        throw new InternalServerErrorException(
+          'Erro ao atualizar produtos do orçamento',
+        );
+      });
+  }
+
+  async buscarComItens(id: number): Promise<Orcamento | null> {
+    return this.orcamentoRepository.findOne({
+      where: { id },
+      relations: ['feira', 'itens'],
+    });
+  }
+
   async buscarPorId(id: number): Promise<Orcamento | null> {
     return this.orcamentoRepository.findOne({
       where: { id },
@@ -67,8 +94,10 @@ export class OrcamentoService implements FinalizacaoOrcamento {
     const queryBuilder = this.orcamentoRepository
       .createQueryBuilder('orcamento')
       .leftJoinAndSelect('orcamento.feira', 'feira')
+      .leftJoinAndSelect('orcamento.itens', 'item')
       .orderBy('orcamento.dataInclusao', 'DESC')
       .addOrderBy('orcamento.id', 'DESC')
+      .addOrderBy('item.id', 'ASC')
       .skip(offset)
       .take(pesquisa.tamanhoPagina);
     const termo = pesquisa.termo?.toLowerCase();

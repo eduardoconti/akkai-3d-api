@@ -1,5 +1,8 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayUnique,
+  IsArray,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -9,14 +12,17 @@ import {
   IsUrl,
   MaxLength,
   MinLength,
+  ValidateNested,
   ValidateIf,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { trimStringValue } from '@common/transforms/trim-string.transform';
 import {
   CanalAtendimentoOrcamento,
   StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/enums';
+import { ItemOrcamentoDto, MAXIMO_ITENS_ORCAMENTO } from './item-orcamento.dto';
 
 export class InserirOrcamentoDto {
   @Transform(trimStringValue)
@@ -82,4 +88,23 @@ export class InserirOrcamentoDto {
     message: 'O link STL deve ter no máximo 500 caracteres.',
   })
   linkSTL?: string;
+
+  @ApiPropertyOptional({
+    type: () => [ItemOrcamentoDto],
+    description:
+      'Produtos do catálogo do orçamento. Na alteração, omitir mantém os produtos atuais e uma lista vazia remove todos.',
+  })
+  @IsOptional()
+  @IsArray({
+    message: 'Os produtos do orçamento devem ser enviados em uma lista.',
+  })
+  @ArrayMaxSize(MAXIMO_ITENS_ORCAMENTO, {
+    message: `O orçamento deve possuir no máximo ${MAXIMO_ITENS_ORCAMENTO} produtos.`,
+  })
+  @ArrayUnique((item: ItemOrcamentoDto) => item.idProduto, {
+    message: 'O mesmo produto não pode ser informado mais de uma vez.',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => ItemOrcamentoDto)
+  itens?: ItemOrcamentoDto[];
 }

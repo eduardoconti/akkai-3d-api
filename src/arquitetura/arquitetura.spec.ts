@@ -23,6 +23,7 @@ const ORCAMENTO_DEPENDENCIAS_CONTEXTO: Record<string, number> = {
   'financeiro->auth': 6,
   'financeiro->venda': 2,
   'orcamento->auth': 2,
+  'orcamento->produto': 1,
   'orcamento->venda': 1,
   'produto->auth': 4,
   'produto->venda': 2,

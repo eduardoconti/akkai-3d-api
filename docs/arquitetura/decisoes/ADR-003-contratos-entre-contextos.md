@@ -42,3 +42,16 @@ mudanças nesses consumidores.
 Ainda permanecem relações TypeORM cruzadas usadas por consultas e fluxos
 existentes, além de dependências concretas com Produto e Orçamento. Elas serão
 tratadas por fatias verticais posteriores, sem ampliar o baseline automatizado.
+
+## Adendo: produtos do catálogo em orçamentos
+
+O orçamento passou a guardar produtos do catálogo (`ItemOrcamento`). Para isso:
+
+- `OrcamentoModule` importa `ProdutoModule` e consome apenas o contrato
+  `ConsultaProduto`. Essa composição acrescenta uma dependência de módulo
+  (`orcamento->produto`) ao baseline automatizado, aumentado de 0 para 1.
+- `ItemOrcamento` guarda `idProduto` como coluna simples, sem relação TypeORM com
+  a entidade `Produto`; a chave estrangeira existe apenas na migration. Assim a
+  fronteira de entidades não cresce.
+- O item guarda só produto, nome (para exibição) e quantidade. O preço é o do
+  catálogo (ou da feira) no momento da venda.

@@ -5,24 +5,32 @@ import {
   StatusOrcamento,
   TipoOrcamento,
 } from '@orcamento/entities';
-import { OrcamentoService } from '@orcamento/services';
+import {
+  OrcamentoService,
+  PrepararItensOrcamentoService,
+} from '@orcamento/services';
 import { AtualizarOrcamentoUseCase } from './atualizar-orcamento.use-case';
 
 describe('AtualizarOrcamentoUseCase', () => {
   let useCase: AtualizarOrcamentoUseCase;
   let orcamentoService: {
-    buscarPorId: jest.Mock;
+    buscarComItens: jest.Mock;
     atualizarOrcamento: jest.Mock;
+    atualizarOrcamentoSubstituindoItens: jest.Mock;
   };
+  let prepararItens: { preparar: jest.Mock };
 
   beforeEach(() => {
     orcamentoService = {
-      buscarPorId: jest.fn(),
+      buscarComItens: jest.fn(),
       atualizarOrcamento: jest.fn(),
+      atualizarOrcamentoSubstituindoItens: jest.fn(),
     };
+    prepararItens = { preparar: jest.fn() };
 
     useCase = new AtualizarOrcamentoUseCase(
       orcamentoService as unknown as OrcamentoService,
+      prepararItens as unknown as PrepararItensOrcamentoService,
     );
   });
 
@@ -32,7 +40,7 @@ describe('AtualizarOrcamentoUseCase', () => {
       tipo: TipoOrcamento.ONLINE,
       canalAtendimento: CanalAtendimentoOrcamento.WPP,
     });
-    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+    orcamentoService.buscarComItens.mockResolvedValue(orcamento);
     orcamentoService.atualizarOrcamento.mockResolvedValue(orcamento);
 
     const result = await useCase.execute(1, {
@@ -49,7 +57,7 @@ describe('AtualizarOrcamentoUseCase', () => {
       tipo: TipoOrcamento.ONLINE,
       canalAtendimento: CanalAtendimentoOrcamento.WPP,
     });
-    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+    orcamentoService.buscarComItens.mockResolvedValue(orcamento);
     orcamentoService.atualizarOrcamento.mockResolvedValue(orcamento);
 
     await useCase.execute(1, { tipo: TipoOrcamento.LOJA });
@@ -62,7 +70,7 @@ describe('AtualizarOrcamentoUseCase', () => {
       id: 1,
       tipo: TipoOrcamento.LOJA,
     });
-    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+    orcamentoService.buscarComItens.mockResolvedValue(orcamento);
 
     await expect(
       useCase.execute(1, { tipo: TipoOrcamento.ONLINE }),
@@ -76,7 +84,7 @@ describe('AtualizarOrcamentoUseCase', () => {
       tipo: TipoOrcamento.LOJA,
       status: StatusOrcamento.APROVADO,
     });
-    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+    orcamentoService.buscarComItens.mockResolvedValue(orcamento);
 
     await useCase.execute(1, { status: StatusOrcamento.FINALIZADO });
 
@@ -90,7 +98,7 @@ describe('AtualizarOrcamentoUseCase', () => {
       tipo: TipoOrcamento.LOJA,
       status: StatusOrcamento.FINALIZADO,
     });
-    orcamentoService.buscarPorId.mockResolvedValue(orcamento);
+    orcamentoService.buscarComItens.mockResolvedValue(orcamento);
 
     await expect(
       useCase.execute(1, { status: StatusOrcamento.CANCELADO }),
@@ -99,8 +107,117 @@ describe('AtualizarOrcamentoUseCase', () => {
   });
 
   it('deve lançar NotFoundException quando orçamento não existir', async () => {
-    orcamentoService.buscarPorId.mockResolvedValue(null);
+    orcamentoService.buscarComItens.mockResolvedValue(null);
 
     await expect(useCase.execute(99, {})).rejects.toThrow(NotFoundException);
+  });
+
+  describe('produtos do orçamento', () => {
+    const itensPreparados = [
+      { idProduto: 10, nomeProduto: 'Chaveiro', quantidade: 2 },
+    ];
+
+    it('deve manter os produtos quando "itens" não é informado', async () => {
+      const orcamento = Object.assign(new Orcamento(), {
+        id: 1,
+        tipo: TipoOrcamento.LOJA,
+        status: StatusOrcamento.PENDENTE,
+      });
+      orcamentoService.buscarComItens.mockResolvedValue(orcamento);
+      orcamentoService.atualizarOrcamento.mockResolvedValue(orcamento);
+
+      await useCase.execute(1, { descricao: 'novo texto' });
+
+      expect(prepararItens.preparar).not.toHaveBeenCalled();
+      expect(
+        orcamentoService.atualizarOrcamentoSubstituindoItens,
+      ).not.toHaveBeenCalled();
+      expect(orcamentoService.atualizarOrcamento).toHaveBeenCalledWith(
+        orcamento,
+      );
+    });
+
+    it('deve substituir os produtos quando "itens" é informado', async () => {
+      const orcamento = Object.assign(new Orcamento(), {
+        id: 1,
+        tipo: TipoOrcamento.LOJA,
+        status: StatusOrcamento.PENDENTE,
+      });
+      orcamentoService.buscarComItens.mockResolvedValue(orcamento);
+      orcamentoService.atualizarOrcamentoSubstituindoItens.mockResolvedValue(
+        orcamento,
+      );
+      prepararItens.preparar.mockResolvedValue(itensPreparados);
+
+      await useCase.execute(1, { itens: [{ idProduto: 10, quantidade: 2 }] });
+
+      expect(prepararItens.preparar).toHaveBeenCalledWith([
+        { idProduto: 10, quantidade: 2 },
+      ]);
+      expect(orcamento.itens).toEqual([
+        expect.objectContaining({ idProduto: 10, quantidade: 2 }),
+      ]);
+      expect(
+        orcamentoService.atualizarOrcamentoSubstituindoItens,
+      ).toHaveBeenCalledWith(orcamento);
+      expect(orcamentoService.atualizarOrcamento).not.toHaveBeenCalled();
+    });
+
+    it('deve remover todos os produtos quando "itens" é uma lista vazia', async () => {
+      const orcamento = Object.assign(new Orcamento(), {
+        id: 1,
+        tipo: TipoOrcamento.LOJA,
+        status: StatusOrcamento.PENDENTE,
+        itens: [{ idProduto: 10 }],
+      });
+      orcamentoService.buscarComItens.mockResolvedValue(orcamento);
+      orcamentoService.atualizarOrcamentoSubstituindoItens.mockResolvedValue(
+        orcamento,
+      );
+      prepararItens.preparar.mockResolvedValue([]);
+
+      await useCase.execute(1, { itens: [] });
+
+      expect(orcamento.itens).toEqual([]);
+      expect(
+        orcamentoService.atualizarOrcamentoSubstituindoItens,
+      ).toHaveBeenCalled();
+    });
+
+    it('não deve alterar os produtos de orçamento finalizado', async () => {
+      const orcamento = Object.assign(new Orcamento(), {
+        id: 1,
+        tipo: TipoOrcamento.LOJA,
+        status: StatusOrcamento.FINALIZADO,
+      });
+      orcamentoService.buscarComItens.mockResolvedValue(orcamento);
+      prepararItens.preparar.mockResolvedValue(itensPreparados);
+
+      await expect(
+        useCase.execute(1, { itens: [{ idProduto: 10, quantidade: 2 }] }),
+      ).rejects.toThrow(BadRequestException);
+      expect(
+        orcamentoService.atualizarOrcamentoSubstituindoItens,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('deve propagar o erro quando um produto não existe', async () => {
+      const orcamento = Object.assign(new Orcamento(), {
+        id: 1,
+        tipo: TipoOrcamento.LOJA,
+        status: StatusOrcamento.PENDENTE,
+      });
+      orcamentoService.buscarComItens.mockResolvedValue(orcamento);
+      prepararItens.preparar.mockRejectedValue(
+        new NotFoundException('Produto com ID 99 não encontrado'),
+      );
+
+      await expect(
+        useCase.execute(1, { itens: [{ idProduto: 99, quantidade: 1 }] }),
+      ).rejects.toThrow(NotFoundException);
+      expect(
+        orcamentoService.atualizarOrcamentoSubstituindoItens,
+      ).not.toHaveBeenCalled();
+    });
   });
 });

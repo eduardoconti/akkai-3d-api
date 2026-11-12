@@ -2,6 +2,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
   CanalAtendimentoOrcamento,
+  ItemOrcamento,
   Orcamento,
   StatusOrcamento,
   TipoOrcamento,
@@ -16,6 +17,7 @@ describe('OrcamentoService', () => {
     findOne: jest.Mock;
     createQueryBuilder: jest.Mock;
     delete: jest.Mock;
+    manager: { transaction: jest.Mock };
   };
 
   beforeEach(async () => {
@@ -24,6 +26,7 @@ describe('OrcamentoService', () => {
       findOne: jest.fn(),
       createQueryBuilder: jest.fn(),
       delete: jest.fn(),
+      manager: { transaction: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -82,6 +85,52 @@ describe('OrcamentoService', () => {
     ).rejects.toThrow('Orçamento #99 não encontrado.');
   });
 
+  it('deve buscar o orçamento com feira e produtos', async () => {
+    const orcamento = Object.assign(new Orcamento(), { id: 3 });
+    repository.findOne.mockResolvedValue(orcamento);
+
+    const result = await service.buscarComItens(3);
+
+    expect(repository.findOne).toHaveBeenCalledWith({
+      where: { id: 3 },
+      relations: ['feira', 'itens'],
+    });
+    expect(result).toBe(orcamento);
+  });
+
+  it('deve substituir os produtos do orçamento em uma transação', async () => {
+    const orcamento = Object.assign(new Orcamento(), { id: 3 });
+    const manager = {
+      delete: jest.fn().mockResolvedValue(undefined),
+      save: jest.fn().mockResolvedValue(orcamento),
+    };
+    repository.manager.transaction.mockImplementation(
+      (acao: (m: typeof manager) => Promise<Orcamento>) => acao(manager),
+    );
+
+    const result = await service.atualizarOrcamentoSubstituindoItens(orcamento);
+
+    expect(manager.delete).toHaveBeenCalledWith(ItemOrcamento, {
+      idOrcamento: 3,
+    });
+    expect(manager.save).toHaveBeenCalledWith(orcamento);
+    expect(result).toBe(orcamento);
+  });
+
+  it('deve lançar erro ao falhar a troca de produtos do orçamento', async () => {
+    repository.manager.transaction.mockRejectedValue(new Error('falha'));
+
+    await expect(
+      service.atualizarOrcamentoSubstituindoItens(
+        Object.assign(new Orcamento(), { id: 3 }),
+      ),
+    ).rejects.toThrow(
+      new InternalServerErrorException(
+        'Erro ao atualizar produtos do orçamento',
+      ),
+    );
+  });
+
   it('deve lançar erro ao falhar inserção de orçamento', async () => {
     repository.save.mockRejectedValue(new Error('falha'));
 
@@ -113,6 +162,10 @@ describe('OrcamentoService', () => {
     expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
       'orcamento.feira',
       'feira',
+    );
+    expect(qb.leftJoinAndSelect).toHaveBeenCalledWith(
+      'orcamento.itens',
+      'item',
     );
     expect(qb.orderBy).toHaveBeenCalledWith('orcamento.dataInclusao', 'DESC');
     expect(qb.addOrderBy).toHaveBeenCalledWith('orcamento.id', 'DESC');

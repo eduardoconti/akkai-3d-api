@@ -6,17 +6,31 @@ import {
 import { StatusOrcamento, TipoOrcamento } from '@orcamento/enums';
 import { AtualizarOrcamentoDto } from '@orcamento/dto';
 import { Orcamento } from '@orcamento/entities';
-import { OrcamentoService } from '@orcamento/services';
+import {
+  OrcamentoService,
+  PrepararItensOrcamentoService,
+} from '@orcamento/services';
 
 @Injectable()
 export class AtualizarOrcamentoUseCase {
-  constructor(private readonly orcamentoService: OrcamentoService) {}
+  constructor(
+    private readonly orcamentoService: OrcamentoService,
+    private readonly prepararItensOrcamentoService: PrepararItensOrcamentoService,
+  ) {}
 
   async execute(id: number, input: AtualizarOrcamentoDto): Promise<Orcamento> {
-    const orcamento = await this.orcamentoService.buscarPorId(id);
+    const orcamento = await this.orcamentoService.buscarComItens(id);
 
     if (!orcamento) {
       throw new NotFoundException(`Orçamento #${id} não encontrado.`);
+    }
+
+    // Antes de qualquer alteração: a regra de orçamento finalizado vale para o
+    // status que ele tinha ao chegar a requisição.
+    if (input.itens !== undefined) {
+      orcamento.definirItens(
+        await this.prepararItensOrcamentoService.preparar(input.itens),
+      );
     }
 
     if (input.nomeCliente !== undefined) {
@@ -82,6 +96,8 @@ export class AtualizarOrcamentoUseCase {
       orcamento.valor = input.valor;
     }
 
-    return this.orcamentoService.atualizarOrcamento(orcamento);
+    return input.itens !== undefined
+      ? this.orcamentoService.atualizarOrcamentoSubstituindoItens(orcamento)
+      : this.orcamentoService.atualizarOrcamento(orcamento);
   }
 }
