@@ -13,6 +13,7 @@ import {
   Role,
   RolePermission,
   User,
+  UserPermission,
 } from '@auth/entities';
 import {
   AjusteCarteira,
@@ -84,6 +85,7 @@ const entities = [
   Role,
   Permission,
   RolePermission,
+  UserPermission,
   RefreshSession,
   PlanoAssinatura,
   Assinante,

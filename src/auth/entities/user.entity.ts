@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { RefreshSession } from './refresh-session.entity';
 import { Role } from './role.entity';
+import { UserPermission } from './user-permission.entity';
 
 @Entity('users')
 @Check('ck_users_login_letters_only', `"login" ~ '^[A-Za-z]+$'`)
@@ -65,6 +66,10 @@ export class User {
 
   @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
   refreshSessions!: RefreshSession[];
+
+  /** Ajustes de permissão do usuário em relação às do seu papel. */
+  @OneToMany(() => UserPermission, (userPermission) => userPermission.user)
+  permissoesPersonalizadas?: UserPermission[];
 
   @CreateDateColumn({
     type: 'timestamp',

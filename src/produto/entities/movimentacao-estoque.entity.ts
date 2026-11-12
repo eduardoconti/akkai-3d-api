@@ -28,6 +28,12 @@ export interface CriarMovimentacaoEstoqueInput {
 @Index('idx_movimentacao_estoque_id_produto', ['idProduto'])
 @Index('idx_movimentacao_estoque_id_produto_tipo', ['idProduto', 'tipo'])
 @Index('idx_movimentacao_estoque_id_item_venda', ['idItemVenda'])
+@Index('idx_movimentacao_estoque_data_inclusao', ['dataInclusao', 'id'])
+@Index('idx_movimentacao_estoque_origem_tipo_data_inclusao', [
+  'origem',
+  'tipo',
+  'dataInclusao',
+])
 export class MovimentacaoEstoque {
   @PrimaryGeneratedColumn({
     primaryKeyConstraintName: 'pk_movimentacao_estoque',

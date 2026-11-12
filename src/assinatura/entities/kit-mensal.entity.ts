@@ -31,6 +31,7 @@ export interface KitMensalInput {
   'anoReferencia',
 ])
 @Index('idx_kit_mensal_id_plano', ['idPlano'])
+@Index('idx_kit_mensal_ativo', ['ativo'])
 export class KitMensal {
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_kit_mensal' })
   id!: number;

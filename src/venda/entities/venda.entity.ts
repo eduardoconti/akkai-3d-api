@@ -33,6 +33,7 @@ export interface InserirVendaInput {
 @Check('ck_venda_valor_total_nao_negativo', '"valor_total" >= 0')
 @Index('idx_venda_id_feira', ['idFeira'])
 @Index('idx_venda_id_caixa', ['idCaixa'])
+@Index('idx_venda_id_consignacao', ['idConsignacao'])
 @Index('idx_venda_data_inclusao', ['dataInclusao'])
 @Index('idx_venda_data_inclusao_tipo', ['dataInclusao', 'tipo'])
 @Index('idx_venda_data_venda', ['dataVenda'])

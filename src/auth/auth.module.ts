@@ -4,16 +4,25 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthController } from '@auth/controllers';
+import {
+  AuthController,
+  PapelAdministracaoController,
+  UsuarioPermissaoController,
+} from '@auth/controllers';
 import {
   Permission,
   RefreshSession,
   Role,
   RolePermission,
   User,
+  UserPermission,
 } from '@auth/entities';
 import { JwtAuthGuard, PermissionsGuard } from '@auth/guards';
-import { AuthService } from '@auth/services';
+import {
+  AuthService,
+  PapelService,
+  PermissaoUsuarioService,
+} from '@auth/services';
 import { JwtStrategy } from '@auth/strategies';
 
 @Module({
@@ -33,12 +42,19 @@ import { JwtStrategy } from '@auth/strategies';
       Role,
       Permission,
       RolePermission,
+      UserPermission,
       RefreshSession,
     ]),
   ],
-  controllers: [AuthController],
+  controllers: [
+    AuthController,
+    UsuarioPermissaoController,
+    PapelAdministracaoController,
+  ],
   providers: [
     AuthService,
+    PermissaoUsuarioService,
+    PapelService,
     JwtStrategy,
     {
       provide: APP_GUARD,

@@ -10,6 +10,10 @@ import { ConferenciaCarteiraCaixa } from './conferencia-carteira-caixa.entity';
 
 @Entity('caixa')
 @Index('idx_caixa_id_feira_status', ['idFeira', 'status'])
+@Index('uk_caixa_aberto_feira', ['idFeira'], {
+  unique: true,
+  where: `"status" = 'ABERTO'`,
+})
 export class Caixa {
   @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'pk_caixa' }) id!: number;
   @Column({ type: 'integer', name: 'id_feira' }) idFeira!: number;

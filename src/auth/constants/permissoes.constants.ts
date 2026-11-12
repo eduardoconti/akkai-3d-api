@@ -9,9 +9,11 @@ export const PERMISSOES = {
     ALTERAR_PAPEL: 'usuario.alterar-papel',
     ALTERAR_STATUS: 'usuario.alterar-status',
     ALTERAR_SENHA: 'usuario.alterar-senha',
+    ADMINISTRAR_PERMISSOES: 'usuario.administrar-permissoes',
   },
   PAPEL: {
     LER: 'papel.ler',
+    ADMINISTRAR: 'papel.administrar',
   },
   VENDA: {
     LER: 'venda.ler',

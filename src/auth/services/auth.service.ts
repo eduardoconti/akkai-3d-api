@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsNull, Repository } from 'typeorm';
+import { PAPEL_PADRAO } from '@auth/constants/papeis.constants';
 import { PERMISSOES } from '@auth/constants/permissoes.constants';
 import {
   AlterarCadastroDto,
@@ -20,14 +21,12 @@ import {
   RegisterDto,
   UsuarioAutenticadoDto,
 } from '@auth/dto';
-import {
-  Permission,
-  RefreshSession,
-  Role,
-  RolePermission,
-  User,
-} from '@auth/entities';
+import { RefreshSession, Role, User } from '@auth/entities';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import {
+  calcularPermissoesEfetivas,
+  RELACOES_USUARIO_COM_PERMISSOES,
+} from '@auth/utils/permissoes-efetivas';
 
 const PERMISSAO_ALTERAR_PAPEL_USUARIO = PERMISSOES.USUARIO.ALTERAR_PAPEL;
 const PERMISSAO_ALTERAR_STATUS_USUARIO = PERMISSOES.USUARIO.ALTERAR_STATUS;
@@ -111,15 +110,7 @@ export class AuthService {
     const payload = await this.verifyRefreshToken(refreshToken);
     const session = await this.refreshSessionRepository.findOne({
       where: { id: payload.sessionId, userId: payload.sub },
-      relations: {
-        user: {
-          role: {
-            rolePermissions: {
-              permission: true,
-            },
-          },
-        },
-      },
+      relations: { user: RELACOES_USUARIO_COM_PERMISSOES },
     });
 
     if (!session || session.revokedAt || session.expiresAt < new Date()) {
@@ -293,26 +284,14 @@ export class AuthService {
   async findActiveUserById(userId: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id: userId, isActive: true },
-      relations: {
-        role: {
-          rolePermissions: {
-            permission: true,
-          },
-        },
-      },
+      relations: RELACOES_USUARIO_COM_PERMISSOES,
     });
   }
 
   private async findUserByIdWithRole(userId: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id: userId },
-      relations: {
-        role: {
-          rolePermissions: {
-            permission: true,
-          },
-        },
-      },
+      relations: RELACOES_USUARIO_COM_PERMISSOES,
     });
   }
 
@@ -322,19 +301,13 @@ export class AuthService {
         login: login.toLowerCase().trim(),
         isActive: true,
       },
-      relations: {
-        role: {
-          rolePermissions: {
-            permission: true,
-          },
-        },
-      },
+      relations: RELACOES_USUARIO_COM_PERMISSOES,
     });
   }
 
   private async getOrCreateDefaultRole(): Promise<Role> {
     const existingRole = await this.roleRepository.findOne({
-      where: { name: 'user' },
+      where: { name: PAPEL_PADRAO },
     });
 
     if (existingRole) {
@@ -342,7 +315,7 @@ export class AuthService {
     }
 
     const role = this.roleRepository.create({
-      name: 'user',
+      name: PAPEL_PADRAO,
       description: 'Papel padrão para usuários autenticados.',
     });
 
@@ -388,9 +361,7 @@ export class AuthService {
   }
 
   private buildJwtPayload(user: User, sessionId?: string): JwtPayload {
-    const permissions = user.role.rolePermissions.map(
-      (rolePermission: RolePermission) => rolePermission.permission.name,
-    );
+    const permissions = calcularPermissoesEfetivas(user);
 
     return {
       sub: user.id,
@@ -444,9 +415,7 @@ export class AuthService {
     dto.isActive = user.isActive;
     dto.roleId = user.roleId;
     dto.role = user.role.name;
-    dto.permissions = user.role.rolePermissions.map(
-      (rp: { permission: Permission }) => rp.permission.name,
-    );
+    dto.permissions = calcularPermissoesEfetivas(user);
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;
     dto.accessToken = accessToken;
@@ -455,10 +424,7 @@ export class AuthService {
   }
 
   private toAuthMeDto(user: User): UsuarioAutenticadoDto {
-    const permissions = user.role.rolePermissions.map(
-      (rolePermission: { permission: Permission }) =>
-        rolePermission.permission.name,
-    );
+    const permissions = calcularPermissoesEfetivas(user);
 
     return {
       id: user.id,

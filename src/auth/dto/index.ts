@@ -6,3 +6,4 @@ export * from './alterar-senha.dto';
 export * from './alterar-cadastro.dto';
 export * from './auth-response.dto';
 export * from './refresh-token.dto';
+export * from './administracao-permissoes.dto';

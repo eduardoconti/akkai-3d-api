@@ -263,6 +263,57 @@ describe('AuthService', () => {
     });
   });
 
+  it('deve emitir o login com as permissões do papel ajustadas individualmente', async () => {
+    const authenticatedUser = {
+      id: 1,
+      name: 'Eduardo',
+      login: 'eduardo',
+      passwordHash: 'hash',
+      isActive: true,
+      roleId: 1,
+      createdAt: new Date('2026-04-13T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-13T10:00:00.000Z'),
+      role: {
+        id: 1,
+        name: 'user',
+        rolePermissions: [
+          { permission: { name: 'venda.ler' } },
+          { permission: { name: 'venda.excluir' } },
+        ],
+      },
+      permissoesPersonalizadas: [
+        { granted: false, permission: { name: 'venda.excluir' } },
+        { granted: true, permission: { name: 'produto.excluir' } },
+      ],
+    } as unknown as User;
+    const savedSession = {
+      id: 'session-id',
+      userId: 1,
+      tokenHash: '',
+      expiresAt: new Date(),
+    } as RefreshSession;
+
+    userRepository.findOne.mockResolvedValue(authenticatedUser);
+    jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+    jest.spyOn(bcrypt, 'hash').mockResolvedValue('refresh-hash' as never);
+    refreshSessionRepository.create.mockReturnValue(savedSession);
+    refreshSessionRepository.save.mockResolvedValue(savedSession);
+    jwtService.signAsync.mockResolvedValue('token');
+
+    const result = await service.login({
+      login: 'eduardo',
+      password: '123456',
+    });
+
+    expect(result.permissions.sort()).toEqual(['produto.excluir', 'venda.ler']);
+    expect(jwtService.signAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        permissions: expect.arrayContaining(['produto.excluir']) as string[],
+      }),
+      expect.anything(),
+    );
+  });
+
   it('deve lançar erro no refresh com token inválido', async () => {
     jwtService.verifyAsync.mockRejectedValue(new Error('invalid'));
 
