@@ -27,4 +27,14 @@ export class CurrentUserContext implements ContextoUsuario {
 
     return this.request.user.sub;
   }
+
+  get permissoes(): string[] {
+    const permissoes = this.request.user?.['permissions'];
+
+    return Array.isArray(permissoes)
+      ? permissoes.filter(
+          (permissao): permissao is string => typeof permissao === 'string',
+        )
+      : [];
+  }
 }

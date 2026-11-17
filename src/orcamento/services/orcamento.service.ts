@@ -13,10 +13,17 @@ import {
   calcularOffset,
   criarResultadoPaginado,
 } from '@common/utils/paginacao.util';
-import { FinalizacaoOrcamento } from '@orcamento/contracts';
+import {
+  ConsultaOrcamentosPendentes,
+  FinalizacaoOrcamento,
+  OrcamentosPendentes,
+} from '@orcamento/contracts';
+import { StatusOrcamento } from '@orcamento/enums';
 
 @Injectable()
-export class OrcamentoService implements FinalizacaoOrcamento {
+export class OrcamentoService
+  implements FinalizacaoOrcamento, ConsultaOrcamentosPendentes
+{
   private readonly logger = new Logger(OrcamentoService.name);
 
   constructor(
@@ -139,6 +146,32 @@ export class OrcamentoService implements FinalizacaoOrcamento {
       pesquisa.tamanhoPagina,
       totalItens,
     );
+  }
+
+  async listarPendentes(limite: number): Promise<OrcamentosPendentes> {
+    const [itens, total] = await this.orcamentoRepository
+      .createQueryBuilder('orcamento')
+      .select([
+        'orcamento.id',
+        'orcamento.nomeCliente',
+        'orcamento.dataInclusao',
+      ])
+      .where('orcamento.status = :status', {
+        status: StatusOrcamento.PENDENTE,
+      })
+      .orderBy('orcamento.dataInclusao', 'ASC')
+      .addOrderBy('orcamento.id', 'ASC')
+      .take(limite)
+      .getManyAndCount();
+
+    return {
+      total,
+      itens: itens.map((orcamento) => ({
+        id: orcamento.id,
+        nomeCliente: orcamento.nomeCliente,
+        dataInclusao: orcamento.dataInclusao,
+      })),
+    };
   }
 
   async excluirOrcamento(id: number): Promise<void> {

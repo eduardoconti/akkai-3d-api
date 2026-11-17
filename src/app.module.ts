@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProdutoModule } from '@produto/produto.module';
 import { OrcamentoModule } from '@orcamento/orcamento.module';
+import { NotificacaoModule } from '@notificacao/notificacao.module';
 import { RelatorioModule } from '@relatorio/relatorio.module';
 import { VendaModule } from '@venda/venda.module';
 import { AssinaturaModule } from '@assinatura/assinatura.module';
@@ -30,6 +31,7 @@ import { getDatabaseConfigFromConfigService } from './config/database.config';
     ConsignacaoModule,
     FinanceiroModule,
     OrcamentoModule,
+    NotificacaoModule,
     ProdutoModule,
     RelatorioModule,
     VendaModule,

@@ -11,7 +11,10 @@ import {
   AtualizarOrcamentoUseCase,
   InserirOrcamentoUseCase,
 } from '@orcamento/use-cases';
-import { FinalizacaoOrcamento } from '@orcamento/contracts';
+import {
+  ConsultaOrcamentosPendentes,
+  FinalizacaoOrcamento,
+} from '@orcamento/contracts';
 
 @Module({
   imports: [
@@ -23,9 +26,10 @@ import { FinalizacaoOrcamento } from '@orcamento/contracts';
     OrcamentoService,
     PrepararItensOrcamentoService,
     { provide: FinalizacaoOrcamento, useExisting: OrcamentoService },
+    { provide: ConsultaOrcamentosPendentes, useExisting: OrcamentoService },
     InserirOrcamentoUseCase,
     AtualizarOrcamentoUseCase,
   ],
-  exports: [FinalizacaoOrcamento],
+  exports: [FinalizacaoOrcamento, ConsultaOrcamentosPendentes],
 })
 export class OrcamentoModule {}

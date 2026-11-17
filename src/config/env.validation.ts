@@ -47,4 +47,5 @@ export const envValidationSchema = Joi.object({
     .min(1)
     .max(1000)
     .default(100),
+  ALERTA_CAIXA_ABERTO_HORAS: Joi.number().integer().min(1).default(24),
 }).unknown(true);

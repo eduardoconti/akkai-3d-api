@@ -22,7 +22,7 @@ import {
   InserirProdutoUseCase,
   SaidaEstoqueUseCase,
 } from '@produto/use-cases';
-import { ConsultaProduto } from '@produto/contracts';
+import { ConsultaEstoqueNegativo, ConsultaProduto } from '@produto/contracts';
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import { ConsultaProduto } from '@produto/contracts';
   providers: [
     ProdutoService,
     { provide: ConsultaProduto, useExisting: ProdutoService },
+    { provide: ConsultaEstoqueNegativo, useExisting: ProdutoService },
     CategoriaProdutoService,
     EstoqueService,
     AlterarCategoriaProdutoUseCase,
@@ -44,6 +45,6 @@ import { ConsultaProduto } from '@produto/contracts';
     InserirCategoriaProdutoUseCase,
     SaidaEstoqueUseCase,
   ],
-  exports: [ConsultaProduto],
+  exports: [ConsultaProduto, ConsultaEstoqueNegativo],
 })
 export class ProdutoModule {}

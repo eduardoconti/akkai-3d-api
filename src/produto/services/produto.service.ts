@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Produto } from '@produto/entities';
 import { StatusProduto } from '@produto/enums';
-import { ConsultaProduto } from '@produto/contracts';
+import {
+  ConsultaEstoqueNegativo,
+  ConsultaProduto,
+  ProdutosEstoqueNegativo,
+} from '@produto/contracts';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
@@ -46,7 +50,9 @@ interface ProdutoListagemRow {
 }
 
 @Injectable()
-export class ProdutoService implements ConsultaProduto {
+export class ProdutoService
+  implements ConsultaProduto, ConsultaEstoqueNegativo
+{
   private readonly logger = new Logger(ProdutoService.name);
 
   constructor(
@@ -212,6 +218,53 @@ export class ProdutoService implements ConsultaProduto {
     `);
 
     return produtos.map((produto) => this.mapearProdutoListagem(produto));
+  }
+
+  async listarComEstoqueNegativo(
+    limite: number,
+  ): Promise<ProdutosEstoqueNegativo> {
+    const linhas = await this.dataSource.query<
+      Array<{
+        id: string;
+        codigo: string | number;
+        nome: string;
+        quantidade_estoque: string;
+        total: string;
+      }>
+    >(
+      `
+        WITH estoque AS (
+          SELECT
+            me.id_produto,
+            ${SQL_SALDO_ESTOQUE} AS quantidade_estoque
+          FROM movimentacao_estoque me
+          GROUP BY me.id_produto
+        )
+        SELECT
+          p.id,
+          p.codigo,
+          p.nome,
+          e.quantidade_estoque,
+          COUNT(*) OVER () AS total
+        FROM produto p
+        INNER JOIN estoque e ON e.id_produto = p.id
+        WHERE p.status = $1
+          AND e.quantidade_estoque < 0
+        ORDER BY e.quantidade_estoque ASC, p.nome ASC
+        LIMIT $2
+      `,
+      [StatusProduto.ATIVO, limite],
+    );
+
+    return {
+      total: Number(linhas[0]?.total ?? 0),
+      itens: linhas.map((linha) => ({
+        id: Number(linha.id),
+        codigo: Number(linha.codigo),
+        nome: linha.nome,
+        quantidadeEstoque: Number(linha.quantidade_estoque),
+      })),
+    };
   }
 
   private mapearProdutoListagem(produto: ProdutoListagemRow): ListarProdutoDto {

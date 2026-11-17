@@ -344,4 +344,35 @@ describe('ProdutoService', () => {
       new InternalServerErrorException('Erro ao excluir produto'),
     );
   });
+
+  it('deve listar produtos ativos com estoque negativo', async () => {
+    dataSource.query.mockResolvedValueOnce([
+      {
+        id: '5',
+        codigo: '101',
+        nome: 'Dragão',
+        quantidade_estoque: '-3',
+        total: '2',
+      },
+    ]);
+
+    const resultado = await service.listarComEstoqueNegativo(5);
+
+    const [sql, parametros] = dataSource.query.mock.calls[0]!;
+    expect(sql).toContain('e.quantidade_estoque < 0');
+    expect(parametros).toEqual([StatusProduto.ATIVO, 5]);
+    expect(resultado).toEqual({
+      total: 2,
+      itens: [{ id: 5, codigo: 101, nome: 'Dragão', quantidadeEstoque: -3 }],
+    });
+  });
+
+  it('deve devolver total zero quando nenhum produto está negativo', async () => {
+    dataSource.query.mockResolvedValueOnce([]);
+
+    await expect(service.listarComEstoqueNegativo(5)).resolves.toEqual({
+      total: 0,
+      itens: [],
+    });
+  });
 });

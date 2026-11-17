@@ -16,6 +16,7 @@
       "@consignacao/*": ["src/consignacao/*"],
       "@financeiro/*": ["src/financeiro/*"],
       "@orcamento/*": ["src/orcamento/*"],
+      "@notificacao/*": ["src/notificacao/*"],
       "@produto/*": ["src/produto/*"],
       "@relatorio/*": ["src/relatorio/*"],
       "@venda/*": ["src/venda/*"],

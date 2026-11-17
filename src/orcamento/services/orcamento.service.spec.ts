@@ -261,4 +261,38 @@ describe('OrcamentoService', () => {
 
     expect(repository.delete).toHaveBeenCalledWith({ id: 1 });
   });
+
+  it('deve listar orçamentos pendentes do mais antigo para o mais novo', async () => {
+    const dataInclusao = new Date('2026-11-01T10:00:00.000Z');
+    const qb = {
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([
+        [
+          Object.assign(new Orcamento(), {
+            id: 4,
+            nomeCliente: 'Maria',
+            dataInclusao,
+          }),
+        ],
+        3,
+      ]),
+    };
+    repository.createQueryBuilder.mockReturnValue(qb);
+
+    const resultado = await service.listarPendentes(5);
+
+    expect(qb.where).toHaveBeenCalledWith('orcamento.status = :status', {
+      status: 'PENDENTE',
+    });
+    expect(qb.orderBy).toHaveBeenCalledWith('orcamento.dataInclusao', 'ASC');
+    expect(qb.take).toHaveBeenCalledWith(5);
+    expect(resultado).toEqual({
+      total: 3,
+      itens: [{ id: 4, nomeCliente: 'Maria', dataInclusao }],
+    });
+  });
 });

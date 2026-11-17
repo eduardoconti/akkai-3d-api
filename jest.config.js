@@ -31,6 +31,7 @@ module.exports = {
     '^@consignacao/(.*)$': '<rootDir>/consignacao/$1',
     '^@financeiro/(.*)$': '<rootDir>/financeiro/$1',
     '^@orcamento/(.*)$': '<rootDir>/orcamento/$1',
+    '^@notificacao/(.*)$': '<rootDir>/notificacao/$1',
     '^@produto/(.*)$': '<rootDir>/produto/$1',
     '^@relatorio/(.*)$': '<rootDir>/relatorio/$1',
     '^@venda/(.*)$': '<rootDir>/venda/$1',

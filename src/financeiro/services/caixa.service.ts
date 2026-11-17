@@ -5,7 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConsultaCaixa, DadosCaixaParaVenda } from '@financeiro/contracts';
+import {
+  CaixasAbertos,
+  ConsultaCaixa,
+  ConsultaCaixasAbertos,
+  DadosCaixaParaVenda,
+} from '@financeiro/contracts';
 import { Caixa, ConferenciaCarteiraCaixa } from '@financeiro/entities';
 import { StatusCaixa } from '@financeiro/enums';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
@@ -42,7 +47,7 @@ interface TotalCarteiraCaixaRow {
 }
 
 @Injectable()
-export class CaixaService implements ConsultaCaixa {
+export class CaixaService implements ConsultaCaixa, ConsultaCaixasAbertos {
   constructor(
     @InjectRepository(Caixa)
     private readonly caixaRepository: Repository<Caixa>,
@@ -147,6 +152,39 @@ export class CaixaService implements ConsultaCaixa {
       where: { idFeira, status: StatusCaixa.ABERTO },
       relations: { conferencias: { carteira: true } },
     });
+  }
+
+  async listarAbertosHaMaisDe(
+    horas: number,
+    limite: number,
+  ): Promise<CaixasAbertos> {
+    const data = new Date(
+      this.dateService.obterDataHoraAtual().getTime() - horas * 60 * 60 * 1000,
+    );
+    const [itens, total] = await this.caixaRepository
+      .createQueryBuilder('caixa')
+      .leftJoinAndMapOne(
+        'caixa.feira',
+        'feira',
+        'feira',
+        'feira.id = caixa.idFeira',
+      )
+      .where('caixa.status = :status', { status: StatusCaixa.ABERTO })
+      .andWhere('caixa.dataAbertura < :data', { data })
+      .orderBy('caixa.dataAbertura', 'ASC')
+      .addOrderBy('caixa.id', 'ASC')
+      .take(limite)
+      .getManyAndCount();
+
+    return {
+      total,
+      itens: itens.map((caixa) => ({
+        id: caixa.id,
+        idFeira: caixa.idFeira,
+        nomeFeira: caixa.feira?.nome,
+        dataAbertura: caixa.dataAbertura,
+      })),
+    };
   }
 
   async pesquisar(

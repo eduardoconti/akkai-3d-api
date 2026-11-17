@@ -14,6 +14,7 @@ import {
 import { FeiraModule } from '@venda/feira.module';
 import {
   ConsultaCaixa,
+  ConsultaCaixasAbertos,
   ConsultaCarteira,
   ConsultaTaxaPagamento,
 } from '@financeiro/contracts';
@@ -69,6 +70,7 @@ import {
     TransferenciaCarteiraService,
     CaixaService,
     { provide: ConsultaCaixa, useExisting: CaixaService },
+    { provide: ConsultaCaixasAbertos, useExisting: CaixaService },
     {
       provide: ConsultaCarteira,
       useExisting: CarteiraService,
@@ -94,6 +96,11 @@ import {
     AlterarTaxaMeioPagamentoCarteiraUseCase,
     ExcluirTaxaMeioPagamentoCarteiraUseCase,
   ],
-  exports: [ConsultaCarteira, ConsultaTaxaPagamento, ConsultaCaixa],
+  exports: [
+    ConsultaCarteira,
+    ConsultaTaxaPagamento,
+    ConsultaCaixa,
+    ConsultaCaixasAbertos,
+  ],
 })
 export class FinanceiroModule {}

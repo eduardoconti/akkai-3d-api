@@ -384,4 +384,44 @@ describe('CaixaService', () => {
     expect(resultado.status).toBe(StatusCaixa.FECHADO);
     expect(resultado.dataFechamento).toBe(dataHoraAtual);
   });
+
+  it('deve listar caixas abertos há mais de N horas, com o nome da feira', async () => {
+    const queryBuilder = {
+      leftJoinAndMapOne: jest.fn(),
+      where: jest.fn(),
+      andWhere: jest.fn(),
+      orderBy: jest.fn(),
+      addOrderBy: jest.fn(),
+      take: jest.fn(),
+      getManyAndCount: jest.fn(),
+    };
+    Object.values(queryBuilder).forEach((mock) =>
+      mock.mockReturnValue(queryBuilder),
+    );
+    queryBuilder.getManyAndCount.mockResolvedValueOnce([
+      [
+        { id: 3, idFeira: 2, dataAbertura, feira: { nome: 'Feira A' } },
+        { id: 4, idFeira: 5, dataAbertura },
+      ],
+      2,
+    ]);
+    caixaRepository.createQueryBuilder.mockReturnValueOnce(queryBuilder);
+    const resultado = await service.listarAbertosHaMaisDe(24, 5);
+
+    expect(queryBuilder.where).toHaveBeenCalledWith('caixa.status = :status', {
+      status: StatusCaixa.ABERTO,
+    });
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+      'caixa.dataAbertura < :data',
+      { data: new Date('2026-08-24T20:30:00.000Z') },
+    );
+    expect(queryBuilder.take).toHaveBeenCalledWith(5);
+    expect(resultado).toEqual({
+      total: 2,
+      itens: [
+        { id: 3, idFeira: 2, nomeFeira: 'Feira A', dataAbertura },
+        { id: 4, idFeira: 5, nomeFeira: undefined, dataAbertura },
+      ],
+    });
+  });
 });
