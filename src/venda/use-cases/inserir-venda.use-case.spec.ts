@@ -47,6 +47,8 @@ describe('InserirVendaUseCase', () => {
     (idFeira: number | undefined, produto: Produto) => Promise<number>
   >;
   let currentUserContext: { usuarioId: number };
+  let garantirCaixaAbertoParaVendaMock: jest.Mock;
+  let resolverCaixaParaVendaOfflineMock: jest.Mock;
 
   const criarPagamentoInput = (
     valor: number,
@@ -71,6 +73,8 @@ describe('InserirVendaUseCase', () => {
         Promise.resolve(produto.valor),
     );
     currentUserContext = { usuarioId: 7 };
+    garantirCaixaAbertoParaVendaMock = jest.fn();
+    resolverCaixaParaVendaOfflineMock = jest.fn();
 
     const vendaService = {
       inserirVenda: inserirVendaMock,
@@ -121,7 +125,10 @@ describe('InserirVendaUseCase', () => {
       prepararPagamentosVendaService,
       currentUserContext as CurrentUserContext,
       orcamentoService,
-      { garantirCaixaAbertoParaVenda: jest.fn() } as unknown as ConsultaCaixa,
+      {
+        garantirCaixaAbertoParaVenda: garantirCaixaAbertoParaVendaMock,
+        resolverCaixaParaVendaOffline: resolverCaixaParaVendaOfflineMock,
+      } as unknown as ConsultaCaixa,
     );
   });
 
@@ -196,6 +203,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
     expect(
       inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
@@ -253,6 +261,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
     expect(
       inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
@@ -315,6 +324,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
     expect(
       inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
@@ -360,6 +370,7 @@ describe('InserirVendaUseCase', () => {
       expect.objectContaining({
         idFeira: 3,
       }),
+      { caixaOpcional: false },
     );
   });
 
@@ -464,6 +475,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
   });
 
@@ -517,6 +529,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
     expect(
       inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
@@ -573,6 +586,7 @@ describe('InserirVendaUseCase', () => {
         tipo: TipoVenda.LOJA,
         valorTotal: 4500,
       }),
+      { caixaOpcional: false },
     );
     expect(result).toBe(vendaPersistida);
   });
@@ -629,6 +643,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
     expect(
       inserirVendaMock.mock.calls[0]![0].itens[0]!.movimentacaoEstoque,
@@ -679,6 +694,7 @@ describe('InserirVendaUseCase', () => {
           }),
         ],
       }),
+      { caixaOpcional: false },
     );
   });
   describe('idempotência', () => {
@@ -735,6 +751,7 @@ describe('InserirVendaUseCase', () => {
 
       expect(inserirVendaMock).toHaveBeenCalledWith(
         expect.objectContaining({ chaveIdempotencia }),
+        { caixaOpcional: false },
       );
     });
 
@@ -747,6 +764,100 @@ describe('InserirVendaUseCase', () => {
 
       expect(obterVendaPorChaveIdempotenciaMock).not.toHaveBeenCalled();
       expect(inserirVendaMock).toHaveBeenCalled();
+    });
+  });
+
+  describe('caixa da venda de feira', () => {
+    const criarInputFeira = (
+      extra: Partial<ExecutarInserirVendaInput> = {},
+    ): ExecutarInserirVendaInput => ({
+      dataVenda: '2026-04-01T12:00:00.000Z',
+      tipo: TipoVenda.FEIRA,
+      idFeira: 3,
+      idCaixa: 10,
+      itens: [{ quantidade: 1, nomeProduto: 'Avulso', valorUnitario: 1000 }],
+      pagamentos: [criarPagamentoInput(1000, MeioPagamento.PIX, 2)],
+      ...extra,
+    });
+
+    beforeEach(() => {
+      garantirCarteiraAceitaMeioPagamentoMock.mockResolvedValue({
+        id: 2,
+        ativa: true,
+        meiosPagamento: [MeioPagamento.PIX],
+      });
+      obterTaxaAtivaPorCarteiraEMeioPagamentoMock.mockResolvedValue(null);
+      inserirVendaMock.mockResolvedValue(Object.assign(new Venda(), { id: 1 }));
+    });
+
+    it('deve exigir caixa aberto na venda online', async () => {
+      await useCase.execute(criarInputFeira());
+
+      expect(garantirCaixaAbertoParaVendaMock).toHaveBeenCalledWith({
+        idCaixa: 10,
+        idFeira: 3,
+        idsCarteiras: [2],
+      });
+      expect(resolverCaixaParaVendaOfflineMock).not.toHaveBeenCalled();
+      expect(inserirVendaMock).toHaveBeenCalledWith(
+        expect.objectContaining({ idCaixa: 10 }),
+        { caixaOpcional: false },
+      );
+    });
+
+    it('deve propagar a recusa do caixa na venda online', async () => {
+      garantirCaixaAbertoParaVendaMock.mockRejectedValue(
+        new ConflictException('Caixa fechado.'),
+      );
+
+      await expect(useCase.execute(criarInputFeira())).rejects.toThrow(
+        ConflictException,
+      );
+      expect(inserirVendaMock).not.toHaveBeenCalled();
+    });
+
+    it('deve usar o caixa resolvido na venda offline', async () => {
+      resolverCaixaParaVendaOfflineMock.mockResolvedValue(12);
+
+      await useCase.execute(
+        criarInputFeira({ idCaixa: undefined, vendaOffline: true }),
+      );
+
+      expect(garantirCaixaAbertoParaVendaMock).not.toHaveBeenCalled();
+      expect(resolverCaixaParaVendaOfflineMock).toHaveBeenCalledWith({
+        idCaixa: undefined,
+        idFeira: 3,
+        idsCarteiras: [2],
+      });
+      expect(inserirVendaMock).toHaveBeenCalledWith(
+        expect.objectContaining({ idCaixa: 12 }),
+        { caixaOpcional: true },
+      );
+    });
+
+    it('deve registrar a venda offline sem caixa quando nenhum caixa a aceitar', async () => {
+      resolverCaixaParaVendaOfflineMock.mockResolvedValue(undefined);
+
+      await useCase.execute(criarInputFeira({ vendaOffline: true }));
+
+      expect(inserirVendaMock).toHaveBeenCalledWith(
+        expect.objectContaining({ idCaixa: undefined }),
+        { caixaOpcional: true },
+      );
+    });
+
+    it('não deve consultar caixa em venda que não é de feira', async () => {
+      await useCase.execute(
+        criarInputFeira({
+          tipo: TipoVenda.LOJA,
+          idFeira: undefined,
+          idCaixa: undefined,
+          vendaOffline: true,
+        }),
+      );
+
+      expect(garantirCaixaAbertoParaVendaMock).not.toHaveBeenCalled();
+      expect(resolverCaixaParaVendaOfflineMock).not.toHaveBeenCalled();
     });
   });
 });

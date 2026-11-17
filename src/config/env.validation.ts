@@ -22,6 +22,16 @@ export const envValidationSchema = Joi.object({
       }),
     }),
   DATABASE_LOGGING: Joi.boolean().default(false),
+  DATABASE_POOL_MAX: Joi.number().integer().min(1).max(50).default(10),
+  DATABASE_POOL_IDLE_TIMEOUT_MS: Joi.number()
+    .integer()
+    .min(1000)
+    .default(60000),
+  DATABASE_CONNECTION_TIMEOUT_MS: Joi.number()
+    .integer()
+    .min(1000)
+    .default(15000),
+  SWAGGER_ENABLED: Joi.boolean().default(true),
   JWT_ACCESS_SECRET: Joi.string().trim().min(32).required(),
   JWT_REFRESH_SECRET: Joi.string().trim().min(32).required(),
   AUTH_ACCESS_TOKEN_TTL_MINUTES: Joi.number().integer().min(1).default(15),

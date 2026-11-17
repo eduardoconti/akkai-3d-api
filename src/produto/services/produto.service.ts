@@ -21,6 +21,30 @@ import {
   criarResultadoPaginado,
 } from '@common/utils/paginacao.util';
 
+const SQL_SALDO_ESTOQUE = `
+  SUM(
+    CASE
+      WHEN me.tipo = 'E' THEN me.quantidade
+      WHEN me.tipo = 'S' THEN -me.quantidade
+      ELSE 0
+    END
+  )
+`;
+
+interface ProdutoListagemRow {
+  id: string;
+  nome: string;
+  codigo: string | number;
+  descricao: string | null;
+  estoque_minimo: string | null;
+  id_categoria: string;
+  valor: string;
+  status: StatusProduto;
+  categoria_id: string;
+  categoria_nome: string;
+  quantidade_estoque: string | null;
+}
+
 @Injectable()
 export class ProdutoService implements ConsultaProduto {
   private readonly logger = new Logger(ProdutoService.name);
@@ -80,21 +104,7 @@ export class ProdutoService implements ConsultaProduto {
     parametros.push(pesquisa.tamanhoPagina);
     parametros.push(offset);
 
-    const produtos = await this.dataSource.query<
-      Array<{
-        id: string;
-        nome: string;
-        codigo: string | number;
-        descricao: string | null;
-        estoque_minimo: string | null;
-        id_categoria: string;
-        valor: string;
-        status: StatusProduto;
-        categoria_id: string;
-        categoria_nome: string;
-        quantidade_estoque: string | null;
-      }>
-    >(
+    const produtos = await this.dataSource.query<ProdutoListagemRow[]>(
       `
        WITH produtos_base AS (
          SELECT
@@ -115,13 +125,7 @@ export class ProdutoService implements ConsultaProduto {
        estoque AS (
          SELECT
            me.id_produto,
-           SUM(
-             CASE
-               WHEN me.tipo = 'E' THEN me.quantidade
-               WHEN me.tipo = 'S' THEN -me.quantidade
-               ELSE 0
-             END
-           ) AS quantidade_estoque
+           ${SQL_SALDO_ESTOQUE} AS quantidade_estoque
          FROM movimentacao_estoque me
          INNER JOIN produtos_base p ON p.id = me.id_produto
          GROUP BY me.id_produto
@@ -169,28 +173,66 @@ export class ProdutoService implements ConsultaProduto {
     );
 
     return criarResultadoPaginado(
-      produtos.map((produto) => ({
-        id: Number(produto.id),
-        nome: produto.nome,
-        codigo: Number(produto.codigo),
-        descricao: produto.descricao ?? undefined,
-        estoqueMinimo:
-          produto.estoque_minimo === null
-            ? undefined
-            : Number(produto.estoque_minimo),
-        idCategoria: Number(produto.id_categoria),
-        valor: Number(produto.valor),
-        status: produto.status,
-        quantidadeEstoque: Number(produto.quantidade_estoque ?? 0),
-        categoria: {
-          id: Number(produto.categoria_id),
-          nome: produto.categoria_nome,
-        },
-      })),
+      produtos.map((produto) => this.mapearProdutoListagem(produto)),
       pesquisa.pagina,
       pesquisa.tamanhoPagina,
       Number(contagem[0]?.total ?? 0),
     );
+  }
+
+  /**
+   * Catálogo completo em uma única consulta, para o PDV carregar (e guardar
+   * offline) sem paginar em várias idas ao servidor.
+   */
+  async listarCatalogo(): Promise<ListarProdutoDto[]> {
+    const produtos = await this.dataSource.query<ProdutoListagemRow[]>(`
+      WITH estoque AS (
+        SELECT
+          me.id_produto,
+          ${SQL_SALDO_ESTOQUE} AS quantidade_estoque
+        FROM movimentacao_estoque me
+        GROUP BY me.id_produto
+      )
+      SELECT
+        p.id,
+        p.nome,
+        p.codigo,
+        p.descricao,
+        p.estoque_minimo,
+        p.id_categoria,
+        p.valor,
+        p.status,
+        c.id AS categoria_id,
+        c.nome AS categoria_nome,
+        COALESCE(e.quantidade_estoque, 0) AS quantidade_estoque
+      FROM produto p
+      INNER JOIN categoria_produto c ON c.id = p.id_categoria
+      LEFT JOIN estoque e ON e.id_produto = p.id
+      ORDER BY p.nome ASC
+    `);
+
+    return produtos.map((produto) => this.mapearProdutoListagem(produto));
+  }
+
+  private mapearProdutoListagem(produto: ProdutoListagemRow): ListarProdutoDto {
+    return {
+      id: Number(produto.id),
+      nome: produto.nome,
+      codigo: Number(produto.codigo),
+      descricao: produto.descricao ?? undefined,
+      estoqueMinimo:
+        produto.estoque_minimo === null
+          ? undefined
+          : Number(produto.estoque_minimo),
+      idCategoria: Number(produto.id_categoria),
+      valor: Number(produto.valor),
+      status: produto.status,
+      quantidadeEstoque: Number(produto.quantidade_estoque ?? 0),
+      categoria: {
+        id: Number(produto.categoria_id),
+        nome: produto.categoria_nome,
+      },
+    };
   }
 
   async salvar(produto: Produto): Promise<Produto> {

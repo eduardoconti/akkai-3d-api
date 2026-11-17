@@ -28,7 +28,11 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
   app.useGlobalFilters(new ProblemDetailsExceptionFilter());
-  configurarSwagger(app);
+  // Montar o Swagger varre todas as rotas e atrasa o boot; em hospedagem que
+  // hiberna (cold start) pode ser desligado com SWAGGER_ENABLED=false.
+  if (configService.get<boolean>('SWAGGER_ENABLED') !== false) {
+    configurarSwagger(app);
+  }
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

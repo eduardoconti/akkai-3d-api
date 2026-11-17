@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConsultaCaixa } from '@financeiro/contracts';
+import { ConsultaCaixa, DadosCaixaParaVenda } from '@financeiro/contracts';
 import { Caixa, ConferenciaCarteiraCaixa } from '@financeiro/entities';
 import { StatusCaixa } from '@financeiro/enums';
 import { ResultadoPaginado } from '@common/interfaces/resultado-paginado.interface';
@@ -253,33 +253,59 @@ export class CaixaService implements ConsultaCaixa {
     return caixa;
   }
 
-  async garantirCaixaAbertoParaVenda(input: {
-    idCaixa?: number;
-    idFeira?: number;
-    idsCarteiras: number[];
-  }): Promise<void> {
+  async garantirCaixaAbertoParaVenda(
+    input: DadosCaixaParaVenda,
+  ): Promise<void> {
     if (!input.idFeira) return;
     if (!input.idCaixa)
       throw new BadRequestException(
         'É necessário abrir o caixa antes de registrar uma venda de feira.',
       );
     const caixa = await this.obterPorId(input.idCaixa);
+    const motivoRecusa = this.obterMotivoRecusaVenda(caixa, input);
+    if (motivoRecusa) {
+      throw new BadRequestException(motivoRecusa);
+    }
+  }
+
+  async resolverCaixaParaVendaOffline(
+    input: DadosCaixaParaVenda,
+  ): Promise<number | undefined> {
+    if (!input.idFeira) return undefined;
+
+    // Com o caixa visto no aparelho, só ele serve: se já fechou, a venda entra
+    // sem caixa em vez de cair em outro caixa aberto depois.
+    const caixa = input.idCaixa
+      ? await this.caixaRepository.findOne({
+          where: { id: input.idCaixa },
+          relations: { conferencias: true },
+        })
+      : await this.obterAbertoPorFeira(input.idFeira);
+
+    if (!caixa || this.obterMotivoRecusaVenda(caixa, input)) {
+      return undefined;
+    }
+
+    return caixa.id;
+  }
+
+  private obterMotivoRecusaVenda(
+    caixa: Caixa,
+    input: DadosCaixaParaVenda,
+  ): string | null {
     if (
       caixa.status !== StatusCaixa.ABERTO ||
       caixa.idFeira !== input.idFeira
     ) {
-      throw new BadRequestException(
-        'O caixa informado não está aberto para esta feira.',
-      );
+      return 'O caixa informado não está aberto para esta feira.';
     }
     const permitidas = new Set(
       caixa.conferencias.map((item) => item.idCarteira),
     );
     if (input.idsCarteiras.some((id) => !permitidas.has(id))) {
-      throw new BadRequestException(
-        'Uma das carteiras do pagamento não participa deste caixa.',
-      );
+      return 'Uma das carteiras do pagamento não participa deste caixa.';
     }
+    return null;
   }
 
   async fechar(

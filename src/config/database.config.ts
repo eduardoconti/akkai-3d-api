@@ -59,6 +59,15 @@ type DatabaseEnv = {
   DATABASE_SSL: boolean;
   DATABASE_SYNCHRONIZE: boolean;
   DATABASE_LOGGING: boolean;
+  DATABASE_POOL_MAX?: number;
+  DATABASE_POOL_IDLE_TIMEOUT_MS?: number;
+  DATABASE_CONNECTION_TIMEOUT_MS?: number;
+};
+
+const POOL_PADRAO = {
+  max: 10,
+  idleTimeoutMillis: 60_000,
+  connectionTimeoutMillis: 15_000,
 };
 
 const entities = [
@@ -114,6 +123,18 @@ export function getDatabaseConfig(env: DatabaseEnv): DataSourceOptions {
     synchronize:
       env.NODE_ENV === 'production' ? false : env.DATABASE_SYNCHRONIZE,
     logging: env.DATABASE_LOGGING,
+    // Banco serverless (Neon) suspende e derruba conexões ociosas: o pool
+    // descarta conexões paradas antes disso e não espera indefinidamente
+    // pelo banco acordar.
+    extra: {
+      max: env.DATABASE_POOL_MAX ?? POOL_PADRAO.max,
+      idleTimeoutMillis:
+        env.DATABASE_POOL_IDLE_TIMEOUT_MS ?? POOL_PADRAO.idleTimeoutMillis,
+      connectionTimeoutMillis:
+        env.DATABASE_CONNECTION_TIMEOUT_MS ??
+        POOL_PADRAO.connectionTimeoutMillis,
+      keepAlive: true,
+    },
   };
 }
 
@@ -132,5 +153,12 @@ export function getDatabaseConfigFromConfigService(
       'DATABASE_SYNCHRONIZE',
     ),
     DATABASE_LOGGING: configService.getOrThrow<boolean>('DATABASE_LOGGING'),
+    DATABASE_POOL_MAX: configService.get<number>('DATABASE_POOL_MAX'),
+    DATABASE_POOL_IDLE_TIMEOUT_MS: configService.get<number>(
+      'DATABASE_POOL_IDLE_TIMEOUT_MS',
+    ),
+    DATABASE_CONNECTION_TIMEOUT_MS: configService.get<number>(
+      'DATABASE_CONNECTION_TIMEOUT_MS',
+    ),
   });
 }

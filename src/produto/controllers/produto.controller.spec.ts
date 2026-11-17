@@ -41,6 +41,7 @@ describe('ProdutoController', () => {
   let saidaEstoqueUseCase: { execute: jest.Mock };
   let produtoService: {
     listarProdutos: jest.Mock;
+    listarCatalogo: jest.Mock;
     obterDetalheProdutoPorId: jest.Mock;
   };
   let categoriaProdutoService: {
@@ -64,6 +65,7 @@ describe('ProdutoController', () => {
     saidaEstoqueUseCase = { execute: jest.fn() };
     produtoService = {
       listarProdutos: jest.fn(),
+      listarCatalogo: jest.fn(),
       obterDetalheProdutoPorId: jest.fn(),
     };
     categoriaProdutoService = {
@@ -230,6 +232,16 @@ describe('ProdutoController', () => {
       tamanhoPagina: 10,
     });
     expect(result).toBe(resposta);
+  });
+
+  it('deve listar o catálogo completo de produtos', async () => {
+    const catalogo = [{ id: 1, nome: 'Caneca' }];
+    produtoService.listarCatalogo.mockResolvedValue(catalogo);
+
+    const result = await controller.listarCatalogo();
+
+    expect(produtoService.listarCatalogo).toHaveBeenCalledTimes(1);
+    expect(result).toBe(catalogo);
   });
 
   it('deve listar categorias', async () => {

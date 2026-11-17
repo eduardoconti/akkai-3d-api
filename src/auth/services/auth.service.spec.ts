@@ -7,6 +7,7 @@ import {
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 import { AuthService } from '@auth/services';
 import { RefreshSession, Role, User } from '@auth/entities';
 import { JwtService } from '@nestjs/jwt';
@@ -373,6 +374,63 @@ describe('AuthService', () => {
     );
   });
 
+  it('deve guardar o refresh token com SHA-256 sem usar bcrypt', async () => {
+    const authenticatedUser = {
+      id: 1,
+      login: 'eduardo',
+      isActive: true,
+      role: { name: 'user', rolePermissions: [] },
+    } as unknown as User;
+    const savedSession = {
+      id: 'session-id',
+      userId: 1,
+      tokenHash: '',
+      expiresAt: new Date(),
+    } as RefreshSession;
+    userRepository.findOne.mockResolvedValue(authenticatedUser);
+    refreshSessionRepository.create.mockReturnValue(savedSession);
+    refreshSessionRepository.save.mockImplementation((sessao) =>
+      Promise.resolve(sessao),
+    );
+    const hashSpy = jest.spyOn(bcrypt, 'hash');
+    jwtService.signAsync
+      .mockResolvedValueOnce('access-token')
+      .mockResolvedValueOnce('refresh-token');
+
+    await service.issueSession(authenticatedUser);
+
+    expect(hashSpy).not.toHaveBeenCalled();
+    expect(savedSession.tokenHash).toBe(
+      createHash('sha256').update('refresh-token').digest('hex'),
+    );
+  });
+
+  it('deve validar com bcrypt o refresh de sessão antiga', async () => {
+    jwtService.verifyAsync.mockResolvedValue({
+      sub: 1,
+      sessionId: 'session-id',
+    });
+    refreshSessionRepository.findOne.mockResolvedValue({
+      id: 'session-id',
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 100000),
+      tokenHash: '$2b$12$hashlegado',
+      user: { id: 1 },
+    });
+    const compareSpy = jest
+      .spyOn(bcrypt, 'compare')
+      .mockResolvedValue(false as never);
+    refreshSessionRepository.save.mockResolvedValue({});
+
+    await expect(service.refresh('token-valido')).rejects.toThrow(
+      UnauthorizedException,
+    );
+    expect(compareSpy).toHaveBeenCalledWith(
+      'token-valido',
+      '$2b$12$hashlegado',
+    );
+  });
+
   it('deve lançar erro no refresh com sessão não encontrada', async () => {
     jwtService.verifyAsync.mockResolvedValue({
       sub: 1,
@@ -408,7 +466,7 @@ describe('AuthService', () => {
       userId: 1,
       revokedAt: null,
       expiresAt: new Date(Date.now() + 100000),
-      tokenHash: 'hash-valido',
+      tokenHash: createHash('sha256').update('token-valido').digest('hex'),
       user: authenticatedUser,
     };
 

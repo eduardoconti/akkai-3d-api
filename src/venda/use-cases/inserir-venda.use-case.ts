@@ -20,6 +20,8 @@ export interface ExecutarInserirVendaInput {
   idOrcamento?: number;
   desconto?: number;
   chaveIdempotencia?: string;
+  /** Venda feita sem conexão e sincronizada depois pela fila do aparelho. */
+  vendaOffline?: boolean;
   itens: {
     quantidade: number;
     brinde?: boolean;
@@ -64,15 +66,7 @@ export class InserirVendaUseCase {
       await this.feiraService.garantirExisteFeira(inserirVendaInput.idFeira);
     }
 
-    if (inserirVendaInput.tipo === TipoVenda.FEIRA) {
-      await this.consultaCaixa.garantirCaixaAbertoParaVenda({
-        idCaixa: inserirVendaInput.idCaixa,
-        idFeira: inserirVendaInput.idFeira,
-        idsCarteiras: inserirVendaInput.pagamentos.map(
-          (pagamento) => pagamento.idCarteira,
-        ),
-      });
-    }
+    const idCaixa = await this.resolverCaixa(inserirVendaInput);
 
     const itens = await this.prepararItensVendaService.preparar({
       tipo: inserirVendaInput.tipo,
@@ -85,7 +79,7 @@ export class InserirVendaUseCase {
       dataVenda: inserirVendaInput.dataVenda,
       tipo: inserirVendaInput.tipo,
       idFeira: inserirVendaInput.idFeira,
-      idCaixa: inserirVendaInput.idCaixa,
+      idCaixa,
       idOrcamento: inserirVendaInput.idOrcamento,
       desconto: inserirVendaInput.desconto,
       chaveIdempotencia: inserirVendaInput.chaveIdempotencia,
@@ -101,7 +95,36 @@ export class InserirVendaUseCase {
         );
     }
 
-    return this.vendaService.inserirVenda(venda);
+    return this.vendaService.inserirVenda(venda, {
+      caixaOpcional: inserirVendaInput.vendaOffline === true,
+    });
+  }
+
+  /**
+   * Venda online exige o caixa aberto. Venda offline já aconteceu: entra no
+   * caixa aberto que a aceite ou, se não houver, sem caixa.
+   */
+  private async resolverCaixa(
+    inserirVendaInput: ExecutarInserirVendaInput,
+  ): Promise<number | undefined> {
+    if (inserirVendaInput.tipo !== TipoVenda.FEIRA) {
+      return inserirVendaInput.idCaixa;
+    }
+
+    const dadosCaixa = {
+      idCaixa: inserirVendaInput.idCaixa,
+      idFeira: inserirVendaInput.idFeira,
+      idsCarteiras: inserirVendaInput.pagamentos.map(
+        (pagamento) => pagamento.idCarteira,
+      ),
+    };
+
+    if (inserirVendaInput.vendaOffline) {
+      return this.consultaCaixa.resolverCaixaParaVendaOffline(dadosCaixa);
+    }
+
+    await this.consultaCaixa.garantirCaixaAbertoParaVenda(dadosCaixa);
+    return inserirVendaInput.idCaixa;
   }
 
   /**

@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { createHash, timingSafeEqual } from 'crypto';
 import { IsNull, Repository } from 'typeorm';
 import { PAPEL_PADRAO } from '@auth/constants/papeis.constants';
 import { PERMISSOES } from '@auth/constants/permissoes.constants';
@@ -30,6 +31,8 @@ import {
 
 const PERMISSAO_ALTERAR_PAPEL_USUARIO = PERMISSOES.USUARIO.ALTERAR_PAPEL;
 const PERMISSAO_ALTERAR_STATUS_USUARIO = PERMISSOES.USUARIO.ALTERAR_STATUS;
+
+const PREFIXO_HASH_BCRYPT = '$2';
 
 @Injectable()
 export class AuthService {
@@ -117,7 +120,10 @@ export class AuthService {
       throw new UnauthorizedException('Sessão inválida ou expirada.');
     }
 
-    const tokenMatches = await bcrypt.compare(refreshToken, session.tokenHash);
+    const tokenMatches = await this.refreshTokenConfere(
+      refreshToken,
+      session.tokenHash,
+    );
 
     if (!tokenMatches) {
       await this.revokeSession(session);
@@ -351,13 +357,40 @@ export class AuthService {
       expiresIn: `${this.configService.getOrThrow<number>('AUTH_REFRESH_TOKEN_TTL_DAYS')}d`,
     });
 
-    savedSession.tokenHash = await bcrypt.hash(
-      refreshToken,
-      this.configService.getOrThrow<number>('AUTH_BCRYPT_ROUNDS'),
-    );
+    savedSession.tokenHash = this.gerarHashRefreshToken(refreshToken);
     await this.refreshSessionRepository.save(savedSession);
 
     return { user: authenticatedUser, accessToken, refreshToken };
+  }
+
+  /**
+   * O refresh token é um JWT assinado e aleatório (alta entropia), então um
+   * SHA-256 basta para guardá-lo; bcrypt fica para senhas. Evita gastar CPU a
+   * cada renovação de sessão, que é a primeira requisição depois do servidor
+   * acordar.
+   */
+  private gerarHashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex');
+  }
+
+  private async refreshTokenConfere(
+    refreshToken: string,
+    tokenHash: string,
+  ): Promise<boolean> {
+    // Sessões criadas antes da troca guardam hash bcrypt.
+    if (tokenHash.startsWith(PREFIXO_HASH_BCRYPT)) {
+      return bcrypt.compare(refreshToken, tokenHash);
+    }
+
+    const esperado = Buffer.from(tokenHash, 'hex');
+    const recebido = Buffer.from(
+      this.gerarHashRefreshToken(refreshToken),
+      'hex',
+    );
+
+    return (
+      esperado.length === recebido.length && timingSafeEqual(esperado, recebido)
+    );
   }
 
   private buildJwtPayload(user: User, sessionId?: string): JwtPayload {

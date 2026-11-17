@@ -146,6 +146,46 @@ describe('ProdutoService', () => {
     );
   });
 
+  it('deve listar o catálogo completo em uma única consulta', async () => {
+    dataSource.query.mockResolvedValueOnce([
+      {
+        id: '1',
+        nome: 'Caneca',
+        codigo: '1001',
+        descricao: null,
+        estoque_minimo: null,
+        id_categoria: '2',
+        valor: '2500',
+        status: StatusProduto.INATIVO,
+        categoria_id: '2',
+        categoria_nome: 'Canecas',
+        quantidade_estoque: null,
+      },
+    ]);
+
+    const result = await service.listarCatalogo();
+
+    expect(dataSource.query).toHaveBeenCalledTimes(1);
+    expect(dataSource.query.mock.calls[0]?.[0]).toContain(
+      'GROUP BY me.id_produto',
+    );
+    expect(dataSource.query.mock.calls[0]?.[0]).not.toContain('LIMIT');
+    expect(result).toEqual([
+      {
+        id: 1,
+        nome: 'Caneca',
+        codigo: 1001,
+        descricao: undefined,
+        estoqueMinimo: undefined,
+        idCategoria: 2,
+        valor: 2500,
+        status: StatusProduto.INATIVO,
+        quantidadeEstoque: 0,
+        categoria: { id: 2, nome: 'Canecas' },
+      },
+    ] satisfies ListarProdutoDto[]);
+  });
+
   it('deve listar produtos filtrando por termo', async () => {
     dataSource.query
       .mockResolvedValueOnce([{ total: '1' }])

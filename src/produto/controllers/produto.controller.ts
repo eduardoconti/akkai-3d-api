@@ -59,6 +59,7 @@ import {
   ApiListarMovimentacoesEstoqueDocs,
   ApiListarMovimentacoesEstoqueProdutosDocs,
   ApiObterCategoriaPorIdDocs,
+  ApiListarCatalogoProdutosDocs,
   ApiListarCategoriasDocs,
   ApiListarProdutosDocs,
   ApiObterProdutoPorIdDocs,
@@ -125,6 +126,13 @@ export class ProdutoController {
     @Query() pesquisa: PesquisarProdutosDto,
   ): Promise<ResultadoPaginado<ListarProdutoDto>> {
     return this.produtoService.listarProdutos(pesquisa);
+  }
+
+  @ApiListarCatalogoProdutosDocs()
+  @Get('catalogo')
+  @Permissions(PERMISSOES.PRODUTO.LER)
+  listarCatalogo(): Promise<ListarProdutoDto[]> {
+    return this.produtoService.listarCatalogo();
   }
 
   @ApiListarCategoriasDocs()

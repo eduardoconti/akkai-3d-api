@@ -50,6 +50,86 @@ describe('CaixaService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  describe('resolverCaixaParaVendaOffline', () => {
+    const caixaAberto = {
+      id: 3,
+      idFeira: 1,
+      status: StatusCaixa.ABERTO,
+      conferencias: [{ idCarteira: 2 }],
+    };
+
+    it('deve manter o caixa informado quando ainda estiver aberto', async () => {
+      caixaRepository.findOne.mockResolvedValueOnce(caixaAberto);
+
+      await expect(
+        service.resolverCaixaParaVendaOffline({
+          idCaixa: 3,
+          idFeira: 1,
+          idsCarteiras: [2],
+        }),
+      ).resolves.toBe(3);
+      expect(caixaRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 3 },
+        relations: { conferencias: true },
+      });
+    });
+
+    it('deve devolver undefined quando o caixa informado já fechou', async () => {
+      caixaRepository.findOne.mockResolvedValueOnce({
+        ...caixaAberto,
+        status: StatusCaixa.FECHADO,
+      });
+
+      await expect(
+        service.resolverCaixaParaVendaOffline({
+          idCaixa: 3,
+          idFeira: 1,
+          idsCarteiras: [2],
+        }),
+      ).resolves.toBeUndefined();
+    });
+
+    it('deve usar o caixa aberto da feira quando o aparelho não tinha caixa', async () => {
+      caixaRepository.findOne.mockResolvedValueOnce(caixaAberto);
+
+      await expect(
+        service.resolverCaixaParaVendaOffline({
+          idFeira: 1,
+          idsCarteiras: [2],
+        }),
+      ).resolves.toBe(3);
+      expect(caixaRepository.findOne).toHaveBeenCalledWith({
+        where: { idFeira: 1, status: StatusCaixa.ABERTO },
+        relations: { conferencias: { carteira: true } },
+      });
+    });
+
+    it('deve devolver undefined quando a carteira não participa do caixa aberto', async () => {
+      caixaRepository.findOne.mockResolvedValueOnce(caixaAberto);
+
+      await expect(
+        service.resolverCaixaParaVendaOffline({
+          idFeira: 1,
+          idsCarteiras: [9],
+        }),
+      ).resolves.toBeUndefined();
+    });
+
+    it('deve devolver undefined quando não houver caixa aberto ou feira', async () => {
+      caixaRepository.findOne.mockResolvedValueOnce(null);
+
+      await expect(
+        service.resolverCaixaParaVendaOffline({
+          idFeira: 1,
+          idsCarteiras: [2],
+        }),
+      ).resolves.toBeUndefined();
+      await expect(
+        service.resolverCaixaParaVendaOffline({ idsCarteiras: [2] }),
+      ).resolves.toBeUndefined();
+    });
+  });
+
   it('deve pesquisar caixas com período, feira e paginação', async () => {
     const queryBuilder = {
       leftJoinAndMapOne: jest.fn(),

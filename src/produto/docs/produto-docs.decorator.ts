@@ -178,6 +178,21 @@ export function ApiAlterarProdutoDocs() {
   );
 }
 
+export function ApiListarCatalogoProdutosDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Lista o catálogo completo de produtos.',
+      description:
+        'Retorna todos os produtos ordenados por nome, com categoria e estoque atual, em uma única resposta. Usado pelo PDV para carregar e guardar o catálogo offline.',
+    }),
+    ApiOkResponse({
+      description: 'Catálogo retornado com sucesso.',
+      type: ListarProdutoDto,
+      isArray: true,
+    }),
+  );
+}
+
 export function ApiListarProdutosDocs() {
   return applyDecorators(
     ApiOperation({

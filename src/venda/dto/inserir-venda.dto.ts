@@ -74,6 +74,12 @@ export class InserirVendaDto {
   })
   chaveIdempotencia?: string;
 
+  @IsOptional()
+  @IsBoolean({
+    message: 'O indicador de venda offline deve ser verdadeiro ou falso.',
+  })
+  vendaOffline?: boolean;
+
   @IsArray({ message: 'Os itens da venda devem ser enviados em uma lista.' })
   @ArrayMinSize(1, {
     message: 'A venda deve possuir ao menos 1 item.',

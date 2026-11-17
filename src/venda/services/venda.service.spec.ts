@@ -206,6 +206,74 @@ describe('VendaService', () => {
     expect(segundaMovimentacao.itemVenda).toBeUndefined();
   });
 
+  describe('caixa da venda', () => {
+    const criarVendaComCaixa = () =>
+      Object.assign(new Venda(), {
+        id: 1,
+        idFeira: 3,
+        idCaixa: 10,
+        itens: [],
+      });
+
+    it('deve travar e aceitar o caixa aberto da feira', async () => {
+      const venda = criarVendaComCaixa();
+      queryRunner.manager.query.mockResolvedValueOnce([
+        { idFeira: 3, status: 'ABERTO' },
+      ]);
+      queryRunner.manager.save
+        .mockResolvedValueOnce(venda)
+        .mockResolvedValueOnce([]);
+
+      await service.inserirVenda(venda);
+
+      expect(queryRunner.manager.query).toHaveBeenCalledWith(
+        expect.stringContaining('FOR UPDATE'),
+        [10],
+      );
+      expect(venda.idCaixa).toBe(10);
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    });
+
+    it('deve recusar venda online quando o caixa fechou', async () => {
+      const venda = criarVendaComCaixa();
+      queryRunner.manager.query.mockResolvedValueOnce([
+        { idFeira: 3, status: 'FECHADO' },
+      ]);
+
+      await expect(service.inserirVenda(venda)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('deve gravar venda offline sem caixa quando o caixa fechou', async () => {
+      const venda = criarVendaComCaixa();
+      queryRunner.manager.query.mockResolvedValueOnce([
+        { idFeira: 3, status: 'FECHADO' },
+      ]);
+      queryRunner.manager.save
+        .mockResolvedValueOnce(venda)
+        .mockResolvedValueOnce([]);
+
+      await service.inserirVenda(venda, { caixaOpcional: true });
+
+      expect(venda.idCaixa).toBeUndefined();
+      expect(queryRunner.manager.save).toHaveBeenNthCalledWith(1, venda);
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+    });
+
+    it('não deve consultar caixa quando a venda não tiver caixa', async () => {
+      const venda = Object.assign(new Venda(), { id: 1, itens: [] });
+      queryRunner.manager.save
+        .mockResolvedValueOnce(venda)
+        .mockResolvedValueOnce([]);
+
+      await service.inserirVenda(venda);
+
+      expect(queryRunner.manager.query).not.toHaveBeenCalled();
+    });
+  });
+
   it('deve inserir venda e salvar orçamento opcional na mesma transação', async () => {
     const orcamento = Object.assign(new Orcamento(), {
       id: 5,

@@ -21,6 +21,15 @@ import {
 import { DateService } from '@common/services/date.service';
 import { SelectQueryBuilder } from 'typeorm';
 
+export interface InserirVendaOpcoes {
+  /** Venda offline: se o caixa fechou, grava sem caixa em vez de recusar. */
+  caixaOpcional?: boolean;
+}
+
+interface ValidacaoEstadoTransacionalOpcoes extends InserirVendaOpcoes {
+  validarOrcamento?: boolean;
+}
+
 @Injectable()
 export class VendaService {
   private readonly logger = new Logger(VendaService.name);
@@ -72,12 +81,18 @@ export class VendaService {
     return venda;
   }
 
-  async inserirVenda(venda: Venda): Promise<Venda> {
+  async inserirVenda(
+    venda: Venda,
+    opcoes: InserirVendaOpcoes = {},
+  ): Promise<Venda> {
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      await this.validarEstadoTransacional(queryRunner.manager, venda, true);
+      await this.validarEstadoTransacional(queryRunner.manager, venda, {
+        validarOrcamento: true,
+        caixaOpcional: opcoes.caixaOpcional,
+      });
 
       const vendaSalva = await queryRunner.manager.save(venda);
       const movimentacoesEstoque = this.extrairMovimentacoesEstoque(vendaSalva);
@@ -395,35 +410,69 @@ export class VendaService {
   private async validarEstadoTransacional(
     manager: EntityManager,
     venda: Venda,
-    validarOrcamento = false,
+    opcoes: ValidacaoEstadoTransacionalOpcoes = {},
   ): Promise<void> {
-    if (venda.idCaixa !== undefined) {
-      const caixas = await manager.query<
-        Array<{ idFeira: number; status: string }>
-      >(
-        'SELECT id_feira AS "idFeira", status FROM caixa WHERE id = $1 FOR UPDATE',
-        [venda.idCaixa],
-      );
-      const caixa = caixas[0];
-      if (
-        !caixa ||
-        caixa.status !== 'ABERTO' ||
-        caixa.idFeira !== venda.idFeira
-      ) {
-        throw new ConflictException(
-          'O caixa informado não está mais aberto para esta feira.',
-        );
-      }
+    await this.validarCaixaTransacional(
+      manager,
+      venda,
+      opcoes.caixaOpcional ?? false,
+    );
+
+    if (opcoes.validarOrcamento) {
+      await this.validarOrcamentoTransacional(manager, venda);
+    }
+  }
+
+  private async validarCaixaTransacional(
+    manager: EntityManager,
+    venda: Venda,
+    caixaOpcional: boolean,
+  ): Promise<void> {
+    if (venda.idCaixa === undefined || venda.idCaixa === null) {
+      return;
     }
 
-    if (validarOrcamento && venda.idOrcamento !== undefined) {
-      const orcamentos = await manager.query<Array<{ status: string }>>(
-        'SELECT status FROM orcamento WHERE id = $1 FOR UPDATE',
-        [venda.idOrcamento],
+    const caixas = await manager.query<
+      Array<{ idFeira: number; status: string }>
+    >(
+      'SELECT id_feira AS "idFeira", status FROM caixa WHERE id = $1 FOR UPDATE',
+      [venda.idCaixa],
+    );
+    const caixa = caixas[0];
+    const caixaAceitaVenda =
+      caixa?.status === 'ABERTO' && caixa.idFeira === venda.idFeira;
+
+    if (caixaAceitaVenda) {
+      return;
+    }
+
+    if (!caixaOpcional) {
+      throw new ConflictException(
+        'O caixa informado não está mais aberto para esta feira.',
       );
-      if (!orcamentos[0] || orcamentos[0].status === 'FINALIZADO') {
-        throw new ConflictException('Orçamento já finalizado ou inexistente.');
-      }
+    }
+
+    // Venda offline: o caixa fechou enquanto a sincronização chegava.
+    this.logger.warn(
+      `Venda offline registrada sem caixa: caixa ${venda.idCaixa} não está mais aberto.`,
+    );
+    venda.idCaixa = undefined;
+  }
+
+  private async validarOrcamentoTransacional(
+    manager: EntityManager,
+    venda: Venda,
+  ): Promise<void> {
+    if (venda.idOrcamento === undefined) {
+      return;
+    }
+
+    const orcamentos = await manager.query<Array<{ status: string }>>(
+      'SELECT status FROM orcamento WHERE id = $1 FOR UPDATE',
+      [venda.idOrcamento],
+    );
+    if (!orcamentos[0] || orcamentos[0].status === 'FINALIZADO') {
+      throw new ConflictException('Orçamento já finalizado ou inexistente.');
     }
   }
 
