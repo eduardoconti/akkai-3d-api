@@ -59,6 +59,11 @@ describe('DateService', () => {
     expect(result).toBe('2026-05-31');
   });
 
+  it('deve obter o offset do timezone em horas', () => {
+    expect(buildService(-3).obterOffsetHoras()).toBe(-3);
+    expect(buildService(0).obterOffsetHoras()).toBe(0);
+  });
+
   it('deve subtrair dias de uma data local', () => {
     const service = buildService(-3);
 

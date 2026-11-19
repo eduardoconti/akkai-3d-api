@@ -1,0 +1,11 @@
+{
+  "goal": "health check",
+  "skip_paths": [],
+  "known_issues": [],
+  "ground_truth": ["CLAUDE.md", ".clauderules", "AGENTS.md", "docs/arquitetura/contextos-delimitados.md", "docs/arquitetura/decisoes/"],
+  "style_standard": "Portuguese identifiers, camelCase, path aliases, class-validator DTOs, TypeORM repositories (no raw queries), typed NestJS exceptions",
+  "sensitive_paths": [],
+  "test_posture": "review",
+  "budget_hint": "medium",
+  "segmentation": "by domain module (regrouped manually; auto-segmentation produced jest-named components)"
+}

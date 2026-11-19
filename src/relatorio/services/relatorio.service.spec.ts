@@ -2,7 +2,8 @@ import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { RelatorioService } from '@relatorio/services';
-import { TipoVenda } from '@venda/enums';
+import { StatusProduto } from '@produto/enums';
+import { TipoItemTrocaDevolucao, TipoVenda } from '@venda/enums';
 import { DateService } from '@common/services/date.service';
 
 describe('RelatorioService', () => {
@@ -14,6 +15,7 @@ describe('RelatorioService', () => {
     obterIntervaloUtcMes: jest.Mock;
     obterDataAtualLocal: jest.Mock;
     subtrairDiasDataLocal: jest.Mock;
+    obterOffsetHoras: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -39,6 +41,7 @@ describe('RelatorioService', () => {
         };
       }),
       obterDataAtualLocal: jest.fn().mockReturnValue('2026-04-28'),
+      obterOffsetHoras: jest.fn().mockReturnValue(-3),
       subtrairDiasDataLocal: jest
         .fn()
         .mockImplementation((data: string, dias: number) => {
@@ -387,10 +390,49 @@ describe('RelatorioService', () => {
     });
   });
 
-  it('deve retornar a sugestão de produção baseada em vendas e estoque', async () => {
-    dataSource.query
-      .mockResolvedValueOnce([
+  describe('obterSugestaoProducao', () => {
+    const filtroBase = {
+      pagina: 1,
+      tamanhoPagina: 10,
+      feirasHistorico: 8,
+      feirasPlanejamento: 2,
+      feirasEstoqueSeguranca: 1,
+      apenasCoberturaInsuficiente: false,
+    };
+    const totalizadores = {
+      dataInicio: '2026-04-04',
+      dataFim: '2026-04-26',
+      feirasConsideradas: '8',
+      totalItens: '1',
+      totalQuantidadeSugerida: '24',
+    };
+    const itemVazio = {
+      idProduto: null,
+      codigo: null,
+      nome: null,
+      idCategoria: null,
+      nomeCategoria: null,
+      estoqueAtual: null,
+      estoqueMinimo: null,
+      quantidadeVendida: null,
+      feirasConsideradasProduto: null,
+      feirasSemEstoque: null,
+      mediaVendaPorFeira: null,
+      demandaPlanejada: null,
+      estoqueSeguranca: null,
+      estoqueAlvo: null,
+      feirasCobertura: null,
+      sugestaoProducao: null,
+      prioridade: null,
+    };
+
+    const obterConsulta = (): string =>
+      (dataSource.query.mock.calls[0] as [string])[0];
+
+    it('deve retornar a sugestão de produção baseada em vendas e estoque', async () => {
+      dataSource.query.mockResolvedValueOnce([
         {
+          ...totalizadores,
           idProduto: '1',
           codigo: '3001',
           nome: 'Cubo Infinito',
@@ -399,6 +441,8 @@ describe('RelatorioService', () => {
           estoqueAtual: '8',
           estoqueMinimo: '10',
           quantidadeVendida: '84',
+          feirasConsideradasProduto: '8',
+          feirasSemEstoque: '0',
           mediaVendaPorFeira: '10.5',
           demandaPlanejada: '21',
           estoqueSeguranca: '10.5',
@@ -407,106 +451,294 @@ describe('RelatorioService', () => {
           sugestaoProducao: '24',
           prioridade: 'CRITICO',
         },
-      ])
-      .mockResolvedValueOnce([
+      ]);
+
+      const result = await service.obterSugestaoProducao(filtroBase);
+
+      expect(dataSource.query).toHaveBeenCalledTimes(1);
+      expect(dataSource.query).toHaveBeenCalledWith(expect.any(String), [
+        '2026-04-27 23:59:59.999',
+        TipoVenda.FEIRA,
+        8,
+        2,
+        1,
+        StatusProduto.ATIVO,
+        10,
+        0,
+        false,
+        -3,
+        TipoItemTrocaDevolucao.ENTREGUE,
+      ]);
+      const consulta = obterConsulta();
+      expect(consulta).toContain('v.tipo = $2');
+      expect(consulta).toContain('INNER JOIN feiras_historico feira');
+      expect(consulta).toContain('LEFT JOIN pagina ON true');
+      expect(result).toEqual({
+        dataInicio: '2026-04-04',
+        dataFim: '2026-04-26',
+        feirasHistorico: 8,
+        feirasConsideradas: 8,
+        feirasPlanejamento: 2,
+        feirasEstoqueSeguranca: 1,
+        apenasCoberturaInsuficiente: false,
+        pagina: 1,
+        tamanhoPagina: 10,
+        totalItens: 1,
+        totalPaginas: 1,
+        totalQuantidadeSugerida: 24,
+        itens: [
+          {
+            idProduto: 1,
+            codigo: 3001,
+            nome: 'Cubo Infinito',
+            categoria: { id: 2, nome: 'IMPRESSAO 3D' },
+            estoqueAtual: 8,
+            estoqueMinimo: 10,
+            quantidadeVendida: 84,
+            feirasConsideradas: 8,
+            feirasSemEstoque: 0,
+            mediaVendaPorFeira: 10.5,
+            demandaPlanejada: 21,
+            estoqueSeguranca: 10.5,
+            estoqueAlvo: 31.5,
+            feirasCobertura: 0.76,
+            sugestaoProducao: 24,
+            prioridade: 'CRITICO',
+          },
+        ],
+      });
+    });
+
+    it('deve considerar apenas produtos ativos, com venda ou estoque mínimo', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      await service.obterSugestaoProducao(filtroBase);
+
+      const consulta = obterConsulta();
+      expect(consulta).toContain('WHERE p.status = $6');
+      expect(consulta).toContain('COALESCE(p.estoque_minimo, 0) > 0');
+      expect(consulta).toContain(
+        'OR COALESCE(vendas.quantidade_vendida, 0) > 0',
+      );
+    });
+
+    it('deve calcular a média só nas feiras em que o produto estava disponível', async () => {
+      dataSource.query.mockResolvedValueOnce([
         {
-          dataInicio: '2026-04-04',
-          dataFim: '2026-04-26',
-          feirasConsideradas: '8',
-          totalItens: '1',
-          totalQuantidadeSugerida: '24',
+          ...totalizadores,
+          idProduto: '5',
+          codigo: '3005',
+          nome: 'Dragão Articulado',
+          idCategoria: null,
+          nomeCategoria: null,
+          estoqueAtual: '0',
+          estoqueMinimo: '0',
+          quantidadeVendida: '20',
+          feirasConsideradasProduto: '2',
+          feirasSemEstoque: '3',
+          mediaVendaPorFeira: '10',
+          demandaPlanejada: '20',
+          estoqueSeguranca: '10',
+          estoqueAlvo: '30',
+          feirasCobertura: '0',
+          sugestaoProducao: '30',
+          prioridade: 'CRITICO',
         },
       ]);
 
-    const result = await service.obterSugestaoProducao({
-      pagina: 1,
-      tamanhoPagina: 10,
-      feirasHistorico: 8,
-      feirasPlanejamento: 2,
-      feirasEstoqueSeguranca: 1,
+      const result = await service.obterSugestaoProducao(filtroBase);
+
+      const consulta = obterConsulta();
+      expect(consulta).toContain('estoque_inicio_feira AS');
+      expect(consulta).toContain(
+        'INNER JOIN movimentacao_estoque mov ON mov.data_inclusao < feira.inicio_feira',
+      );
+      expect(consulta).toContain(
+        'WHERE COALESCE(vf.quantidade, 0) > 0 OR ef.estoque > 0',
+      );
+      expect(consulta).toContain(
+        'WHERE COALESCE(vf.quantidade, 0) = 0 AND ef.estoque <= 0',
+      );
+      expect(consulta).toContain(
+        'NULLIF(disponibilidade.feiras_disponiveis, 0)',
+      );
+      expect(result.feirasConsideradas).toBe(8);
+      expect(result.itens[0]).toMatchObject({
+        categoria: null,
+        feirasConsideradas: 2,
+        feirasSemEstoque: 3,
+        mediaVendaPorFeira: 10,
+        sugestaoProducao: 30,
+      });
     });
 
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('WHERE COALESCE(p.estoque_minimo, 0) > 0'),
-      ['2026-04-28 23:59:59.999', TipoVenda.FEIRA, 8, 2, 1, 10, 0],
-    );
-    const [consultaSugestao] = dataSource.query.mock.calls[0] as [string];
-    expect(consultaSugestao).toContain('v.tipo = $2');
-    expect(consultaSugestao).toContain('INNER JOIN feiras_historico feira');
-    expect(dataSource.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('totalQuantidadeSugerida'),
-      ['2026-04-28 23:59:59.999', TipoVenda.FEIRA, 8, 2, 1],
-    );
-    expect(result).toEqual({
-      dataInicio: '2026-04-04',
-      dataFim: '2026-04-26',
-      feirasHistorico: 8,
-      feirasConsideradas: 8,
-      feirasPlanejamento: 2,
-      feirasEstoqueSeguranca: 1,
-      pagina: 1,
-      tamanhoPagina: 10,
-      totalItens: 1,
-      totalPaginas: 1,
-      totalQuantidadeSugerida: 24,
-      itens: [
+    it('deve retornar período e totais quando a página estiver vazia', async () => {
+      dataSource.query.mockResolvedValueOnce([
         {
-          idProduto: 1,
-          codigo: 3001,
-          nome: 'Cubo Infinito',
-          categoria: { id: 2, nome: 'IMPRESSAO 3D' },
-          estoqueAtual: 8,
-          estoqueMinimo: 10,
-          quantidadeVendida: 84,
-          mediaVendaPorFeira: 10.5,
-          demandaPlanejada: 21,
-          estoqueSeguranca: 10.5,
-          estoqueAlvo: 31.5,
-          feirasCobertura: 0.76,
-          sugestaoProducao: 24,
-          prioridade: 'CRITICO',
+          ...itemVazio,
+          dataInicio: '2026-04-05',
+          dataFim: '2026-04-26',
+          feirasConsideradas: '6',
+          totalItens: '0',
+          totalQuantidadeSugerida: '0',
         },
-      ],
-    });
-  });
+      ]);
 
-  it('deve usar as últimas feiras de histórico na sugestão de produção', async () => {
-    dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([
-      {
-        dataInicio: '2026-04-05',
-        dataFim: '2026-04-26',
-        feirasConsideradas: '6',
-        totalItens: '0',
-        totalQuantidadeSugerida: '0',
-      },
-    ]);
+      const result = await service.obterSugestaoProducao(filtroBase);
 
-    const result = await service.obterSugestaoProducao({
-      pagina: 1,
-      tamanhoPagina: 10,
-      feirasHistorico: 8,
-      feirasPlanejamento: 2,
-      feirasEstoqueSeguranca: 1,
+      expect(dateServiceMock.obterDataAtualLocal).toHaveBeenCalled();
+      expect(dateServiceMock.subtrairDiasDataLocal).toHaveBeenCalledWith(
+        '2026-04-28',
+        1,
+      );
+      expect(result.dataInicio).toBe('2026-04-05');
+      expect(result.dataFim).toBe('2026-04-26');
+      expect(result.feirasConsideradas).toBe(6);
+      expect(result.totalItens).toBe(0);
+      expect(result.totalPaginas).toBe(1);
+      expect(result.totalQuantidadeSugerida).toBe(0);
+      expect(result.itens).toEqual([]);
     });
 
-    expect(dateServiceMock.obterDataAtualLocal).toHaveBeenCalled();
-    expect(dateServiceMock.subtrairDiasDataLocal).not.toHaveBeenCalled();
-    expect(dataSource.query).toHaveBeenNthCalledWith(1, expect.any(String), [
-      '2026-04-28 23:59:59.999',
-      TipoVenda.FEIRA,
-      8,
-      2,
-      1,
-      10,
-      0,
-    ]);
-    expect(result.dataInicio).toBe('2026-04-05');
-    expect(result.dataFim).toBe('2026-04-26');
-    expect(result.feirasConsideradas).toBe(6);
-    expect(result.totalPaginas).toBe(1);
-    expect(result.totalQuantidadeSugerida).toBe(0);
+    it('deve manter os totais quando a página solicitada passar do fim', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        {
+          ...totalizadores,
+          ...itemVazio,
+          totalItens: '5',
+          totalQuantidadeSugerida: '40',
+        },
+      ]);
+
+      const result = await service.obterSugestaoProducao({
+        ...filtroBase,
+        pagina: 3,
+        tamanhoPagina: 2,
+      });
+
+      expect(dataSource.query).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.arrayContaining([2, 4]),
+      );
+      expect(result.totalItens).toBe(5);
+      expect(result.totalPaginas).toBe(3);
+      expect(result.totalQuantidadeSugerida).toBe(40);
+      expect(result.itens).toEqual([]);
+    });
+
+    it('deve usar a data de referência (ontem) quando não houver resultado', async () => {
+      dataSource.query.mockResolvedValueOnce([]);
+
+      const result = await service.obterSugestaoProducao(filtroBase);
+
+      expect(result.dataInicio).toBe('2026-04-27');
+      expect(result.dataFim).toBe('2026-04-27');
+      expect(result.feirasConsideradas).toBe(0);
+      expect(result.totalItens).toBe(0);
+      expect(result.itens).toEqual([]);
+    });
+
+    it('deve identificar a feira pela data local e pelo id da feira, até ontem', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      await service.obterSugestaoProducao(filtroBase);
+
+      const [consulta, parametros] = dataSource.query.mock.calls[0] as [
+        string,
+        unknown[],
+      ];
+      expect(consulta).toContain(
+        "DATE(v.data_venda + $10::int * INTERVAL '1 hour') AS data_feira",
+      );
+      expect(consulta).toContain(
+        "GROUP BY DATE(v.data_venda + $10::int * INTERVAL '1 hour'), v.id_feira",
+      );
+      expect(consulta).toContain(
+        'AND feira.id_feira IS NOT DISTINCT FROM v.id_feira',
+      );
+      expect(consulta).toContain('AND v.data_venda <= $1');
+      expect(dateServiceMock.toUtcDateRange).toHaveBeenCalledWith('2026-04-27');
+      expect(parametros[0]).toBe('2026-04-27 23:59:59.999');
+      expect(parametros[9]).toBe(-3);
+    });
+
+    it('deve ajustar a demanda com trocas e devoluções feitas em dias de feira', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      await service.obterSugestaoProducao(filtroBase);
+
+      const [consulta, parametros] = dataSource.query.mock.calls[0] as [
+        string,
+        unknown[],
+      ];
+      expect(consulta).toContain('FROM item_troca_devolucao item');
+      expect(consulta).toContain('WHEN item.tipo = $11 THEN item.quantidade');
+      expect(consulta).toContain('SELECT data_feira FROM feiras_historico');
+      expect(consulta).toContain(
+        'COALESCE(vendido.quantidade, 0) + COALESCE(trocas.quantidade, 0)',
+      );
+      expect(parametros[10]).toBe(TipoItemTrocaDevolucao.ENTREGUE);
+    });
+
+    it('deve filtrar apenas cobertura menor que as feiras de planejamento', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      const result = await service.obterSugestaoProducao({
+        ...filtroBase,
+        apenasCoberturaInsuficiente: true,
+      });
+
+      const [consulta, parametros] = dataSource.query.mock.calls[0] as [
+        string,
+        unknown[],
+      ];
+      expect(consulta).toContain(
+        '($9::boolean = false OR feiras_cobertura < $4::numeric)',
+      );
+      expect(parametros[3]).toBe(2);
+      expect(parametros[8]).toBe(true);
+      expect(result.apenasCoberturaInsuficiente).toBe(true);
+    });
+
+    it('deve ordenar pela coluna solicitada', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      await service.obterSugestaoProducao({
+        ...filtroBase,
+        ordenarPor: 'feirasCobertura',
+        direcao: 'asc',
+      });
+
+      expect(obterConsulta()).toContain(
+        'ORDER BY feiras_cobertura ASC NULLS LAST, codigo ASC',
+      );
+    });
+
+    it('deve usar ordenação padrão por sugestão decrescente', async () => {
+      dataSource.query.mockResolvedValueOnce([
+        { ...totalizadores, ...itemVazio, totalItens: '0' },
+      ]);
+
+      await service.obterSugestaoProducao({
+        ...filtroBase,
+        ordenarPor: undefined,
+        direcao: undefined,
+      });
+
+      expect(obterConsulta()).toContain(
+        'ORDER BY sugestao_producao DESC NULLS LAST, codigo ASC',
+      );
+    });
   });
 
   it('deve lançar erro quando a data final for menor que a data inicial no relatório de produção', async () => {

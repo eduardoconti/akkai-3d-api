@@ -14,6 +14,8 @@ export class SugestaoProducaoProdutoDto {
   estoqueAtual!: number;
   estoqueMinimo!: number;
   quantidadeVendida!: number;
+  feirasConsideradas!: number;
+  feirasSemEstoque!: number;
   mediaVendaPorFeira!: number;
   demandaPlanejada!: number;
   estoqueSeguranca!: number;

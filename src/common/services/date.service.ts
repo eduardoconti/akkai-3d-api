@@ -14,6 +14,14 @@ export class DateService {
     return toUtcDateRange(dateStr, this.tzOffset);
   }
 
+  /**
+   * Offset (em horas) do timezone da aplicação em relação ao UTC, usado para
+   * converter timestamps UTC do banco para a data local em consultas SQL.
+   */
+  obterOffsetHoras(): number {
+    return Number(this.tzOffset);
+  }
+
   obterDataHoraAtual(): Date {
     return new Date();
   }

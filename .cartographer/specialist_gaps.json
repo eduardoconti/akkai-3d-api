@@ -1,0 +1,129 @@
+{
+  "gaps": [
+    {
+      "segment": "src/consignacao/dto",
+      "file_count": 6,
+      "integrations": [],
+      "directory_prefix": "src/consignacao/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 60,
+      "reason": "low score (60) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/financeiro/dto",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "segment_5",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/financeiro/contracts",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/venda/dto",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/venda/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/relatorio/dto",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/relatorio/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/financeiro/contracts",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/financeiro/dto",
+      "file_count": 19,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 190,
+      "reason": "low score (190) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/assinatura/dto",
+      "file_count": 13,
+      "integrations": [],
+      "directory_prefix": "src/assinatura/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 130,
+      "reason": "low score (130) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/venda/dto",
+      "file_count": 9,
+      "integrations": [],
+      "directory_prefix": "src/venda/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 90,
+      "reason": "low score (90) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/produto/contracts/consulta-estoque-negativo.contract.ts",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/produto/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    }
+  ],
+  "threshold": 1500,
+  "stats": {
+    "count": 12,
+    "total_segments": 47
+  }
+}

@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { TransformarBooleano } from '@common/decorators/transformar-booleano.decorator';
 import { PesquisaPaginadaDto } from '@common/dto/pesquisa-paginada.dto';
 
 export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
@@ -33,6 +34,13 @@ export class ObterSugestaoProducaoDto extends PesquisaPaginadaDto {
     message: 'As feiras de estoque de segurança devem ser de no máximo 30.',
   })
   feirasEstoqueSeguranca = 1;
+
+  @IsOptional()
+  @TransformarBooleano()
+  @IsBoolean({
+    message: 'O filtro de cobertura insuficiente deve ser verdadeiro ou falso.',
+  })
+  apenasCoberturaInsuficiente?: boolean = false;
 
   @IsOptional()
   @IsIn(

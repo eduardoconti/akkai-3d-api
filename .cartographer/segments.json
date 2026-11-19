@@ -1,0 +1,1224 @@
+{
+  "segments": [
+    {
+      "name": "src/database/migrations/1774751442308-add_feira_to_venda.ts",
+      "files": [
+        "src/database/indices-entidades.spec.ts",
+        "src/database/migrations/1774747635841-init_schema.ts",
+        "src/database/migrations/1774751442308-add_feira_to_venda.ts",
+        "src/database/migrations/1774922382464-allow_custom_sale_items.ts",
+        "src/database/migrations/1775000000000-add_auth_module.ts",
+        "src/database/migrations/1775100000000-add_financeiro_module.ts",
+        "src/database/migrations/1775185541381-add_indexes.ts",
+        "src/database/migrations/1775200000000-add_brinde_to_item_venda.ts",
+        "src/database/migrations/1775300000000-remove_item_venda_desconto.ts",
+        "src/database/migrations/1775400000000-add_item_venda_to_movimentacao_estoque.ts",
+        "src/database/migrations/1775500000000-add_categoria_despesa.ts",
+        "src/database/migrations/1775600000000-add_orcamento.ts",
+        "src/database/migrations/1775700000000-add_meios_pagamento_to_carteira.ts",
+        "src/database/migrations/1775800000000-rename-email-to-login.ts",
+        "src/database/migrations/1775900000000-add-user-inclusion-columns.ts",
+        "src/database/migrations/1776000000000-add_feira_to_despesa.ts",
+        "src/database/migrations/1776100000000-add_taxa_meio_pagamento_carteira.ts",
+        "src/database/migrations/1776200000000-add_ajuste_carteira.ts",
+        "src/database/migrations/1776200000000-add_taxa_fields_to_venda.ts",
+        "src/database/migrations/1776300000000-add_imposto_venda_fields.ts",
+        "src/database/migrations/1776400000000-add_status_tipo_campos_orcamento.ts",
+        "src/database/migrations/1776500000000-create_assinatura.ts",
+        "src/database/migrations/1776600000000-add_kit_mensal.ts",
+        "src/database/migrations/1776796445000-link_assinatura_items_to_produto.ts",
+        "src/database/migrations/1776900000000-change_produto_codigo_to_integer.ts",
+        "src/database/migrations/1777000000000-add_vitrine_to_assinatura.ts",
+        "src/database/migrations/1777100000000-create_preco_produto_feira.ts",
+        "src/database/migrations/1777200000000-create_pagamento_venda.ts",
+        "src/database/migrations/1777300000000-create_consignacao.ts",
+        "src/database/migrations/1777400000000-link_consignacao_to_venda.ts",
+        "src/database/migrations/1777500000000-add_data_venda_to_venda.ts",
+        "src/database/migrations/1777600000000-add_percentual_desconto_revendedor.ts",
+        "src/database/migrations/1777700000000-add_percentual_desconto_consignacao.ts",
+        "src/database/migrations/1777800000000-add_permissoes_endpoints.ts",
+        "src/database/migrations/1777900000000-set_data_venda_from_data_inclusao.ts",
+        "src/database/migrations/1778000000000-add_permissoes_item_consignacao.ts",
+        "src/database/migrations/1778100000000-add_transferencia_carteira.ts",
+        "src/database/migrations/1778200000000-add_permissoes_alterar_excluir_transferencia_carteira.ts",
+        "src/database/migrations/1778300000000-add_status_atendimento_canal_atendimento_orcamento.ts",
+        "src/database/migrations/1778400000000-add_id_orcamento_venda.ts",
+        "src/database/migrations/1778500000000-add_status_cancelado_orcamento.ts",
+        "src/database/migrations/1778600000000-add_unique_orcamento_to_venda.ts",
+        "src/database/migrations/1778700000000-create_troca_devolucao.ts",
+        "src/database/migrations/1778900000000-remove_quantidade_from_orcamento.ts",
+        "src/database/migrations/1779000000000-add_status_produto.ts",
+        "src/database/migrations/1787500000000-create_caixa.ts",
+        "src/database/migrations/1787600000000-add_permissao_alterar_caixa.ts",
+        "src/database/migrations/1787700000000-add_chave_idempotencia_venda.ts",
+        "src/database/migrations/1787800000000-add_indices_movimentacao_estoque.ts",
+        "src/database/migrations/1787900000000-create_user_permissions.ts",
+        "src/database/migrations/1788000000000-add_permissao_administrar_papel.ts",
+        "src/database/migrations/1788100000000-create_item_orcamento.ts"
+      ],
+      "file_count": 52,
+      "loc": 3472,
+      "symbol_count": 53,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/database",
+      "complexity_score": 65
+    },
+    {
+      "name": "jest/src/financeiro/use-cases",
+      "files": [
+        "src/financeiro/docs/financeiro-docs.decorator.ts",
+        "src/financeiro/enums/financeiro.enums.ts",
+        "src/financeiro/enums/index.ts",
+        "src/financeiro/financeiro.module.ts",
+        "src/financeiro/use-cases/alterar-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/alterar-carteira.use-case.ts",
+        "src/financeiro/use-cases/alterar-categoria-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/alterar-categoria-despesa.use-case.ts",
+        "src/financeiro/use-cases/alterar-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/alterar-despesa.use-case.ts",
+        "src/financeiro/use-cases/alterar-taxa-meio-pagamento-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/alterar-taxa-meio-pagamento-carteira.use-case.ts",
+        "src/financeiro/use-cases/alterar-transferencia-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/alterar-transferencia-carteira.use-case.ts",
+        "src/financeiro/use-cases/excluir-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/excluir-carteira.use-case.ts",
+        "src/financeiro/use-cases/excluir-categoria-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/excluir-categoria-despesa.use-case.ts",
+        "src/financeiro/use-cases/excluir-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/excluir-despesa.use-case.ts",
+        "src/financeiro/use-cases/excluir-taxa-meio-pagamento-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/excluir-taxa-meio-pagamento-carteira.use-case.ts",
+        "src/financeiro/use-cases/excluir-transferencia-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/excluir-transferencia-carteira.use-case.ts",
+        "src/financeiro/use-cases/index.ts",
+        "src/financeiro/use-cases/inserir-ajuste-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-ajuste-carteira.use-case.ts",
+        "src/financeiro/use-cases/inserir-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-carteira.use-case.ts",
+        "src/financeiro/use-cases/inserir-categoria-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-categoria-despesa.use-case.ts",
+        "src/financeiro/use-cases/inserir-despesa.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-despesa.use-case.ts",
+        "src/financeiro/use-cases/inserir-taxa-meio-pagamento-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-taxa-meio-pagamento-carteira.use-case.ts",
+        "src/financeiro/use-cases/inserir-transferencia-carteira.use-case.spec.ts",
+        "src/financeiro/use-cases/inserir-transferencia-carteira.use-case.ts"
+      ],
+      "file_count": 37,
+      "loc": 2864,
+      "symbol_count": 42,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro",
+      "complexity_score": 48
+    },
+    {
+      "name": "jest/src/common",
+      "files": [
+        "src/common/common.module.ts",
+        "src/common/constants/paginacao.constants.ts",
+        "src/common/contracts/contexto-usuario.contract.ts",
+        "src/common/contracts/index.ts",
+        "src/common/database/lancar-excecao-conflito.ts",
+        "src/common/decorators/transformar-lista.decorator.ts",
+        "src/common/decorators/transformar-percentual.decorator.ts",
+        "src/common/decorators/validar-tamanho-pagina.decorator.ts",
+        "src/common/docs/decorators/api-controller-docs.decorator.ts",
+        "src/common/docs/decorators/api-cookie-auth.decorator.ts",
+        "src/common/docs/decorators/api-default-problem-responses.decorator.ts",
+        "src/common/docs/decorators/api-problem-responses.decorator.ts",
+        "src/common/docs/decorators/api-query-docs.decorator.ts",
+        "src/common/docs/dto/problem-details.dto.ts",
+        "src/common/docs/swagger.config.ts",
+        "src/common/dto/pesquisa-paginada.dto.ts",
+        "src/common/enums/meio-pagamento.enum.ts",
+        "src/common/filters/problem-details-exception.filter.spec.ts",
+        "src/common/filters/problem-details-exception.filter.ts",
+        "src/common/interfaces/resultado-paginado.interface.ts",
+        "src/common/services/current-user-context.service.spec.ts",
+        "src/common/services/current-user-context.service.ts",
+        "src/common/services/date.service.spec.ts",
+        "src/common/services/date.service.ts",
+        "src/common/transforms/trim-string.transform.spec.ts",
+        "src/common/transforms/trim-string.transform.ts",
+        "src/common/utils/date.util.spec.ts",
+        "src/common/utils/date.util.ts",
+        "src/common/utils/paginacao.util.ts",
+        "src/common/validation.exception-factory.spec.ts",
+        "src/common/validation.exception-factory.ts"
+      ],
+      "file_count": 31,
+      "loc": 1354,
+      "symbol_count": 40,
+      "integrations": [
+        "jest",
+        "express"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/common",
+      "complexity_score": 45
+    },
+    {
+      "name": "jest@src/consignacao",
+      "files": [
+        "src/consignacao/consignacao.module.ts",
+        "src/consignacao/contracts/fechamento-consignacao.contract.ts",
+        "src/consignacao/contracts/index.ts",
+        "src/consignacao/docs/consignacao-docs.decorator.ts",
+        "src/consignacao/entities/consignacao.entity.ts",
+        "src/consignacao/entities/index.ts",
+        "src/consignacao/entities/item-consignacao.entity.ts",
+        "src/consignacao/entities/revendedor.entity.spec.ts",
+        "src/consignacao/entities/revendedor.entity.ts",
+        "src/consignacao/enums/consignacao.enums.ts",
+        "src/consignacao/enums/index.ts",
+        "src/consignacao/services/consignacao-pdf.service.spec.ts",
+        "src/consignacao/services/consignacao-pdf.service.ts",
+        "src/consignacao/services/consignacao.service.spec.ts",
+        "src/consignacao/services/consignacao.service.ts",
+        "src/consignacao/services/index.ts",
+        "src/consignacao/services/revendedor.service.ts",
+        "src/consignacao/use-cases/adicionar-item-consignacao.use-case.spec.ts",
+        "src/consignacao/use-cases/adicionar-item-consignacao.use-case.ts",
+        "src/consignacao/use-cases/alterar-item-consignacao.use-case.spec.ts",
+        "src/consignacao/use-cases/alterar-item-consignacao.use-case.ts",
+        "src/consignacao/use-cases/alterar-revendedor.use-case.ts",
+        "src/consignacao/use-cases/excluir-item-consignacao.use-case.spec.ts",
+        "src/consignacao/use-cases/excluir-item-consignacao.use-case.ts",
+        "src/consignacao/use-cases/fechar-consignacao.use-case.spec.ts",
+        "src/consignacao/use-cases/fechar-consignacao.use-case.ts",
+        "src/consignacao/use-cases/index.ts",
+        "src/consignacao/use-cases/inserir-consignacao.use-case.spec.ts",
+        "src/consignacao/use-cases/inserir-consignacao.use-case.ts",
+        "src/consignacao/use-cases/inserir-revendedor.use-case.ts",
+        "src/consignacao/use-cases/registrar-devolucao-consignada.use-case.spec.ts",
+        "src/consignacao/use-cases/registrar-devolucao-consignada.use-case.ts",
+        "src/consignacao/use-cases/registrar-vendas-revendedor-consignado.use-case.spec.ts",
+        "src/consignacao/use-cases/registrar-vendas-revendedor-consignado.use-case.ts"
+      ],
+      "file_count": 34,
+      "loc": 3610,
+      "symbol_count": 36,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/consignacao",
+      "complexity_score": 44
+    },
+    {
+      "name": "jest/src/assinatura/use-cases",
+      "files": [
+        "src/assinatura/assinatura.module.ts",
+        "src/assinatura/docs/assinatura-docs.decorator.ts",
+        "src/assinatura/enums/assinatura.enums.ts",
+        "src/assinatura/enums/index.ts",
+        "src/assinatura/use-cases/alterar-assinante.use-case.spec.ts",
+        "src/assinatura/use-cases/alterar-assinante.use-case.ts",
+        "src/assinatura/use-cases/alterar-ciclo.use-case.spec.ts",
+        "src/assinatura/use-cases/alterar-ciclo.use-case.ts",
+        "src/assinatura/use-cases/alterar-kit-mensal.use-case.spec.ts",
+        "src/assinatura/use-cases/alterar-kit-mensal.use-case.ts",
+        "src/assinatura/use-cases/alterar-plano.use-case.spec.ts",
+        "src/assinatura/use-cases/alterar-plano.use-case.ts",
+        "src/assinatura/use-cases/excluir-assinante.use-case.spec.ts",
+        "src/assinatura/use-cases/excluir-assinante.use-case.ts",
+        "src/assinatura/use-cases/excluir-ciclo.use-case.spec.ts",
+        "src/assinatura/use-cases/excluir-ciclo.use-case.ts",
+        "src/assinatura/use-cases/excluir-kit-mensal.use-case.spec.ts",
+        "src/assinatura/use-cases/excluir-kit-mensal.use-case.ts",
+        "src/assinatura/use-cases/excluir-plano.use-case.spec.ts",
+        "src/assinatura/use-cases/excluir-plano.use-case.ts",
+        "src/assinatura/use-cases/gerar-ciclos-mensais.use-case.spec.ts",
+        "src/assinatura/use-cases/gerar-ciclos-mensais.use-case.ts",
+        "src/assinatura/use-cases/index.ts",
+        "src/assinatura/use-cases/inserir-assinante.use-case.spec.ts",
+        "src/assinatura/use-cases/inserir-assinante.use-case.ts",
+        "src/assinatura/use-cases/inserir-ciclo.use-case.spec.ts",
+        "src/assinatura/use-cases/inserir-ciclo.use-case.ts",
+        "src/assinatura/use-cases/inserir-kit-mensal.use-case.spec.ts",
+        "src/assinatura/use-cases/inserir-kit-mensal.use-case.ts",
+        "src/assinatura/use-cases/inserir-plano.use-case.spec.ts",
+        "src/assinatura/use-cases/inserir-plano.use-case.ts"
+      ],
+      "file_count": 31,
+      "loc": 2073,
+      "symbol_count": 38,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura",
+      "complexity_score": 41
+    },
+    {
+      "name": "jest/src/orcamento",
+      "files": [
+        "src/orcamento/contracts/consulta-orcamentos-pendentes.contract.ts",
+        "src/orcamento/contracts/finalizacao-orcamento.contract.ts",
+        "src/orcamento/contracts/index.ts",
+        "src/orcamento/controllers/index.ts",
+        "src/orcamento/controllers/orcamento.controller.spec.ts",
+        "src/orcamento/controllers/orcamento.controller.ts",
+        "src/orcamento/docs/orcamento-docs.decorator.ts",
+        "src/orcamento/dto/atualizar-orcamento.dto.ts",
+        "src/orcamento/dto/index.ts",
+        "src/orcamento/dto/inserir-orcamento.dto.ts",
+        "src/orcamento/dto/item-orcamento.dto.spec.ts",
+        "src/orcamento/dto/item-orcamento.dto.ts",
+        "src/orcamento/dto/pesquisar-orcamentos.dto.spec.ts",
+        "src/orcamento/dto/pesquisar-orcamentos.dto.ts",
+        "src/orcamento/entities/index.ts",
+        "src/orcamento/entities/item-orcamento.entity.spec.ts",
+        "src/orcamento/entities/item-orcamento.entity.ts",
+        "src/orcamento/entities/orcamento.entity.spec.ts",
+        "src/orcamento/entities/orcamento.entity.ts",
+        "src/orcamento/enums/index.ts",
+        "src/orcamento/enums/orcamento.enums.ts",
+        "src/orcamento/orcamento.module.ts",
+        "src/orcamento/services/index.ts",
+        "src/orcamento/services/orcamento.service.spec.ts",
+        "src/orcamento/services/orcamento.service.ts",
+        "src/orcamento/services/preparar-itens-orcamento.service.spec.ts",
+        "src/orcamento/services/preparar-itens-orcamento.service.ts",
+        "src/orcamento/use-cases/atualizar-orcamento.use-case.spec.ts",
+        "src/orcamento/use-cases/atualizar-orcamento.use-case.ts",
+        "src/orcamento/use-cases/index.ts",
+        "src/orcamento/use-cases/inserir-orcamento.use-case.spec.ts",
+        "src/orcamento/use-cases/inserir-orcamento.use-case.ts"
+      ],
+      "file_count": 32,
+      "loc": 2279,
+      "symbol_count": 18,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/orcamento",
+      "complexity_score": 38
+    },
+    {
+      "name": "jest@src/auth",
+      "files": [
+        "src/auth/auth.module.ts",
+        "src/auth/constants/papeis.constants.ts",
+        "src/auth/constants/permissoes.constants.ts",
+        "src/auth/controllers/auth.controller.spec.ts",
+        "src/auth/controllers/auth.controller.ts",
+        "src/auth/controllers/index.ts",
+        "src/auth/controllers/papel-administracao.controller.spec.ts",
+        "src/auth/controllers/papel-administracao.controller.ts",
+        "src/auth/controllers/usuario-permissao.controller.spec.ts",
+        "src/auth/controllers/usuario-permissao.controller.ts",
+        "src/auth/decorators/permissions.decorator.ts",
+        "src/auth/decorators/public.decorator.ts",
+        "src/auth/guards/index.ts",
+        "src/auth/guards/jwt-auth.guard.spec.ts",
+        "src/auth/guards/jwt-auth.guard.ts",
+        "src/auth/guards/permissions.guard.spec.ts",
+        "src/auth/guards/permissions.guard.ts",
+        "src/auth/interfaces/administracao-permissoes.interface.ts",
+        "src/auth/interfaces/jwt-payload.interface.ts",
+        "src/auth/services/auth.service.spec.ts",
+        "src/auth/services/auth.service.ts",
+        "src/auth/services/index.ts",
+        "src/auth/services/papel.service.spec.ts",
+        "src/auth/services/papel.service.ts",
+        "src/auth/services/permissao-usuario.service.spec.ts",
+        "src/auth/services/permissao-usuario.service.ts",
+        "src/auth/strategies/index.ts",
+        "src/auth/strategies/jwt.strategy.spec.ts",
+        "src/auth/strategies/jwt.strategy.ts",
+        "src/auth/utils/permissoes-efetivas.spec.ts",
+        "src/auth/utils/permissoes-efetivas.ts"
+      ],
+      "file_count": 31,
+      "loc": 3964,
+      "symbol_count": 19,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/auth",
+      "complexity_score": 37
+    },
+    {
+      "name": "jest/src/venda/use-cases",
+      "files": [
+        "src/venda/contracts/consulta-feira.contract.ts",
+        "src/venda/contracts/index.ts",
+        "src/venda/docs/venda-docs.decorator.ts",
+        "src/venda/enums/index.ts",
+        "src/venda/enums/venda.enums.ts",
+        "src/venda/feira.module.ts",
+        "src/venda/use-cases/alterar-feira.use-case.spec.ts",
+        "src/venda/use-cases/alterar-feira.use-case.ts",
+        "src/venda/use-cases/alterar-venda.use-case.spec.ts",
+        "src/venda/use-cases/alterar-venda.use-case.ts",
+        "src/venda/use-cases/excluir-feira.use-case.spec.ts",
+        "src/venda/use-cases/excluir-feira.use-case.ts",
+        "src/venda/use-cases/excluir-venda.use-case.spec.ts",
+        "src/venda/use-cases/excluir-venda.use-case.ts",
+        "src/venda/use-cases/index.ts",
+        "src/venda/use-cases/inserir-feira.use-case.spec.ts",
+        "src/venda/use-cases/inserir-feira.use-case.ts",
+        "src/venda/use-cases/inserir-troca-devolucao.use-case.spec.ts",
+        "src/venda/use-cases/inserir-troca-devolucao.use-case.ts",
+        "src/venda/use-cases/inserir-venda.use-case.spec.ts",
+        "src/venda/use-cases/inserir-venda.use-case.ts",
+        "src/venda/venda.module.ts"
+      ],
+      "file_count": 22,
+      "loc": 2565,
+      "symbol_count": 24,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/venda",
+      "complexity_score": 29
+    },
+    {
+      "name": "jest/src/notificacao",
+      "files": [
+        "src/notificacao/contracts/index.ts",
+        "src/notificacao/contracts/provedor-alerta.contract.ts",
+        "src/notificacao/controllers/index.ts",
+        "src/notificacao/controllers/notificacao.controller.spec.ts",
+        "src/notificacao/controllers/notificacao.controller.ts",
+        "src/notificacao/docs/notificacao-docs.decorator.ts",
+        "src/notificacao/dto/index.ts",
+        "src/notificacao/dto/lista-alertas.dto.ts",
+        "src/notificacao/enums/index.ts",
+        "src/notificacao/enums/notificacao.enums.ts",
+        "src/notificacao/notificacao.module.ts",
+        "src/notificacao/services/index.ts",
+        "src/notificacao/services/provedores/caixas-abertos.provedor.spec.ts",
+        "src/notificacao/services/provedores/caixas-abertos.provedor.ts",
+        "src/notificacao/services/provedores/estoque-negativo.provedor.spec.ts",
+        "src/notificacao/services/provedores/estoque-negativo.provedor.ts",
+        "src/notificacao/services/provedores/index.ts",
+        "src/notificacao/services/provedores/orcamentos-pendentes.provedor.spec.ts",
+        "src/notificacao/services/provedores/orcamentos-pendentes.provedor.ts",
+        "src/notificacao/use-cases/consultar-alertas.use-case.spec.ts",
+        "src/notificacao/use-cases/consultar-alertas.use-case.ts",
+        "src/notificacao/use-cases/index.ts"
+      ],
+      "file_count": 22,
+      "loc": 797,
+      "symbol_count": 15,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/notificacao",
+      "complexity_score": 28
+    },
+    {
+      "name": "jest/src/produto/use-cases",
+      "files": [
+        "src/produto/enums/index.ts",
+        "src/produto/enums/produto.enums.ts",
+        "src/produto/produto.module.ts",
+        "src/produto/use-cases/alterar-categoria-produto.use-case.spec.ts",
+        "src/produto/use-cases/alterar-categoria-produto.use-case.ts",
+        "src/produto/use-cases/alterar-produto.use-case.spec.ts",
+        "src/produto/use-cases/alterar-produto.use-case.ts",
+        "src/produto/use-cases/alterar-status-produto.use-case.spec.ts",
+        "src/produto/use-cases/alterar-status-produto.use-case.ts",
+        "src/produto/use-cases/entrada-estoque.use-case.spec.ts",
+        "src/produto/use-cases/entrada-estoque.use-case.ts",
+        "src/produto/use-cases/excluir-categoria-produto.use-case.spec.ts",
+        "src/produto/use-cases/excluir-categoria-produto.use-case.ts",
+        "src/produto/use-cases/excluir-produto.use-case.spec.ts",
+        "src/produto/use-cases/excluir-produto.use-case.ts",
+        "src/produto/use-cases/index.ts",
+        "src/produto/use-cases/inserir-categoria-produto.use-case.spec.ts",
+        "src/produto/use-cases/inserir-categoria-produto.use-case.ts",
+        "src/produto/use-cases/inserir-produto.use-case.spec.ts",
+        "src/produto/use-cases/inserir-produto.use-case.ts",
+        "src/produto/use-cases/saida-estoque.use-case.spec.ts",
+        "src/produto/use-cases/saida-estoque.use-case.ts"
+      ],
+      "file_count": 22,
+      "loc": 988,
+      "symbol_count": 10,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/produto",
+      "complexity_score": 27
+    },
+    {
+      "name": "jest/src/financeiro/dto",
+      "files": [
+        "src/financeiro/dto/abrir-caixa.dto.ts",
+        "src/financeiro/dto/alterar-caixa.dto.ts",
+        "src/financeiro/dto/alterar-carteira.dto.ts",
+        "src/financeiro/dto/alterar-categoria-despesa.dto.ts",
+        "src/financeiro/dto/alterar-despesa.dto.ts",
+        "src/financeiro/dto/alterar-taxa-meio-pagamento-carteira.dto.ts",
+        "src/financeiro/dto/alterar-transferencia-carteira.dto.ts",
+        "src/financeiro/dto/index.ts",
+        "src/financeiro/dto/inserir-ajuste-carteira.dto.ts",
+        "src/financeiro/dto/inserir-carteira.dto.ts",
+        "src/financeiro/dto/inserir-categoria-despesa.dto.ts",
+        "src/financeiro/dto/inserir-despesa.dto.ts",
+        "src/financeiro/dto/inserir-taxa-meio-pagamento-carteira.dto.ts",
+        "src/financeiro/dto/inserir-transferencia-carteira.dto.ts",
+        "src/financeiro/dto/listar-carteira.dto.ts",
+        "src/financeiro/dto/listar-taxa-meio-pagamento-carteira.dto.ts",
+        "src/financeiro/dto/pesquisar-caixas.dto.ts",
+        "src/financeiro/dto/pesquisar-despesas.dto.ts",
+        "src/financeiro/dto/pesquisar-transferencias-carteira.dto.ts"
+      ],
+      "file_count": 19,
+      "loc": 755,
+      "symbol_count": 19,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/dto",
+      "complexity_score": 22
+    },
+    {
+      "name": "jest/src/produto/dto",
+      "files": [
+        "src/produto/dto/alterar-categoria-produto.dto.ts",
+        "src/produto/dto/alterar-produto.dto.ts",
+        "src/produto/dto/alterar-status-produto.dto.ts",
+        "src/produto/dto/detalhe-produto.dto.ts",
+        "src/produto/dto/entrada-estoque.dto.ts",
+        "src/produto/dto/index.ts",
+        "src/produto/dto/inserir-categoria-produto.dto.ts",
+        "src/produto/dto/inserir-produto.dto.ts",
+        "src/produto/dto/listar-movimentacao-estoque.dto.ts",
+        "src/produto/dto/listar-produto.dto.ts",
+        "src/produto/dto/pesquisar-categorias.dto.ts",
+        "src/produto/dto/pesquisar-movimentacoes-estoque.dto.ts",
+        "src/produto/dto/pesquisar-produtos.dto.ts",
+        "src/produto/dto/produto.dto.spec.ts",
+        "src/produto/dto/saida-estoque.dto.ts"
+      ],
+      "file_count": 15,
+      "loc": 558,
+      "symbol_count": 16,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/produto/dto",
+      "complexity_score": 21
+    },
+    {
+      "name": "jest/src/relatorio",
+      "files": [
+        "src/relatorio/controllers/index.ts",
+        "src/relatorio/controllers/relatorio.controller.spec.ts",
+        "src/relatorio/controllers/relatorio.controller.ts",
+        "src/relatorio/docs/relatorio-docs.decorator.ts",
+        "src/relatorio/dto/obter-produtos-mais-vendidos.dto.ts",
+        "src/relatorio/dto/obter-relatorio-producao.dto.ts",
+        "src/relatorio/dto/obter-resumo-vendas-periodo.dto.ts",
+        "src/relatorio/dto/obter-sugestao-producao.dto.ts",
+        "src/relatorio/dto/obter-valor-produtos-estoque.dto.ts",
+        "src/relatorio/relatorio.module.ts",
+        "src/relatorio/services/index.ts",
+        "src/relatorio/services/relatorio.service.spec.ts",
+        "src/relatorio/services/relatorio.service.ts"
+      ],
+      "file_count": 13,
+      "loc": 3051,
+      "symbol_count": 16,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/relatorio",
+      "complexity_score": 19
+    },
+    {
+      "name": "jest/src/financeiro/services",
+      "files": [
+        "src/financeiro/services/ajuste-carteira.service.spec.ts",
+        "src/financeiro/services/ajuste-carteira.service.ts",
+        "src/financeiro/services/caixa.service.spec.ts",
+        "src/financeiro/services/caixa.service.ts",
+        "src/financeiro/services/carteira.service.spec.ts",
+        "src/financeiro/services/carteira.service.ts",
+        "src/financeiro/services/categoria-despesa.service.spec.ts",
+        "src/financeiro/services/categoria-despesa.service.ts",
+        "src/financeiro/services/despesa.service.spec.ts",
+        "src/financeiro/services/despesa.service.ts",
+        "src/financeiro/services/index.ts",
+        "src/financeiro/services/taxa-meio-pagamento-carteira.service.spec.ts",
+        "src/financeiro/services/taxa-meio-pagamento-carteira.service.ts",
+        "src/financeiro/services/transferencia-carteira.service.spec.ts",
+        "src/financeiro/services/transferencia-carteira.service.ts"
+      ],
+      "file_count": 15,
+      "loc": 2783,
+      "symbol_count": 8,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/services",
+      "complexity_score": 19
+    },
+    {
+      "name": "jest/src/venda/services",
+      "files": [
+        "src/venda/services/feira.service.spec.ts",
+        "src/venda/services/feira.service.ts",
+        "src/venda/services/index.ts",
+        "src/venda/services/preco-produto-feira.service.spec.ts",
+        "src/venda/services/preco-produto-feira.service.ts",
+        "src/venda/services/preparar-itens-venda.service.spec.ts",
+        "src/venda/services/preparar-itens-venda.service.ts",
+        "src/venda/services/preparar-pagamentos-venda.service.spec.ts",
+        "src/venda/services/preparar-pagamentos-venda.service.ts",
+        "src/venda/services/troca-devolucao.service.spec.ts",
+        "src/venda/services/troca-devolucao.service.ts",
+        "src/venda/services/venda.service.spec.ts",
+        "src/venda/services/venda.service.ts"
+      ],
+      "file_count": 13,
+      "loc": 2556,
+      "symbol_count": 11,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/venda/services",
+      "complexity_score": 18
+    },
+    {
+      "name": "jest/src/financeiro/entities",
+      "files": [
+        "src/financeiro/entities/ajuste-carteira.entity.spec.ts",
+        "src/financeiro/entities/ajuste-carteira.entity.ts",
+        "src/financeiro/entities/caixa.entity.ts",
+        "src/financeiro/entities/carteira.entity.spec.ts",
+        "src/financeiro/entities/carteira.entity.ts",
+        "src/financeiro/entities/categoria-despesa.entity.ts",
+        "src/financeiro/entities/conferencia-carteira-caixa.entity.ts",
+        "src/financeiro/entities/despesa.entity.spec.ts",
+        "src/financeiro/entities/despesa.entity.ts",
+        "src/financeiro/entities/index.ts",
+        "src/financeiro/entities/taxa-meio-pagamento-carteira.entity.ts",
+        "src/financeiro/entities/transferencia-carteira.entity.spec.ts",
+        "src/financeiro/entities/transferencia-carteira.entity.ts"
+      ],
+      "file_count": 13,
+      "loc": 865,
+      "symbol_count": 8,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/entities",
+      "complexity_score": 17
+    },
+    {
+      "name": "jest/src/assinatura/dto",
+      "files": [
+        "src/assinatura/dto/alterar-assinante.dto.ts",
+        "src/assinatura/dto/alterar-ciclo.dto.ts",
+        "src/assinatura/dto/alterar-kit-mensal.dto.ts",
+        "src/assinatura/dto/alterar-plano.dto.ts",
+        "src/assinatura/dto/index.ts",
+        "src/assinatura/dto/inserir-assinante.dto.ts",
+        "src/assinatura/dto/inserir-ciclo.dto.ts",
+        "src/assinatura/dto/inserir-kit-mensal.dto.ts",
+        "src/assinatura/dto/inserir-plano.dto.ts",
+        "src/assinatura/dto/pesquisar-assinantes.dto.ts",
+        "src/assinatura/dto/pesquisar-ciclos.dto.ts",
+        "src/assinatura/dto/pesquisar-kits.dto.ts",
+        "src/assinatura/dto/pesquisar-planos.dto.ts"
+      ],
+      "file_count": 13,
+      "loc": 671,
+      "symbol_count": 16,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura/dto",
+      "complexity_score": 16
+    },
+    {
+      "name": "jest/src/consignacao/dto",
+      "files": [
+        "src/consignacao/controllers/consignacao.controller.ts",
+        "src/consignacao/controllers/index.ts",
+        "src/consignacao/dto/alterar-revendedor.dto.ts",
+        "src/consignacao/dto/fechar-consignacao.dto.ts",
+        "src/consignacao/dto/index.ts",
+        "src/consignacao/dto/inserir-revendedor.dto.ts",
+        "src/consignacao/dto/listar-consignacao.dto.ts",
+        "src/consignacao/dto/pesquisar-consignacoes.dto.ts",
+        "src/consignacao/dto/pesquisar-revendedores.dto.ts",
+        "src/consignacao/dto/registrar-vendas-consignadas.dto.ts"
+      ],
+      "file_count": 10,
+      "loc": 584,
+      "symbol_count": 13,
+      "integrations": [
+        "express"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/consignacao",
+      "complexity_score": 15
+    },
+    {
+      "name": "jest/src/assinatura/services",
+      "files": [
+        "src/assinatura/services/assinante.service.spec.ts",
+        "src/assinatura/services/assinante.service.ts",
+        "src/assinatura/services/ciclo.service.spec.ts",
+        "src/assinatura/services/ciclo.service.ts",
+        "src/assinatura/services/index.ts",
+        "src/assinatura/services/kit-mensal.service.spec.ts",
+        "src/assinatura/services/kit-mensal.service.ts",
+        "src/assinatura/services/plano.service.spec.ts",
+        "src/assinatura/services/plano.service.ts",
+        "src/assinatura/services/vitrine.service.ts"
+      ],
+      "file_count": 10,
+      "loc": 1788,
+      "symbol_count": 14,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura/services",
+      "complexity_score": 15
+    },
+    {
+      "name": "src/relatorio/dto",
+      "files": [
+        "src/relatorio/dto/despesa-categoria-mes-dashboard-item.dto.ts",
+        "src/relatorio/dto/despesas-categorias-mes-dashboard.dto.ts",
+        "src/relatorio/dto/index.ts",
+        "src/relatorio/dto/producao-produto.dto.ts",
+        "src/relatorio/dto/relatorio-producao.dto.ts",
+        "src/relatorio/dto/relatorio-sugestao-producao.dto.ts",
+        "src/relatorio/dto/resumo-mensal-dashboard-item.dto.ts",
+        "src/relatorio/dto/resumo-mensal-dashboard.dto.ts",
+        "src/relatorio/dto/resumo-vendas-periodo.dto.ts",
+        "src/relatorio/dto/sugestao-producao-produto.dto.ts",
+        "src/relatorio/dto/valor-produto-estoque.dto.ts",
+        "src/relatorio/dto/valor-produtos-estoque.dto.ts"
+      ],
+      "file_count": 12,
+      "loc": 179,
+      "symbol_count": 12,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/relatorio/dto",
+      "complexity_score": 14
+    },
+    {
+      "name": "jest/src/assinatura/entities",
+      "files": [
+        "src/assinatura/entities/assinante.entity.ts",
+        "src/assinatura/entities/ciclo-assinatura.entity.ts",
+        "src/assinatura/entities/index.ts",
+        "src/assinatura/entities/item-ciclo-assinatura.entity.ts",
+        "src/assinatura/entities/item-kit-mensal.entity.spec.ts",
+        "src/assinatura/entities/item-kit-mensal.entity.ts",
+        "src/assinatura/entities/kit-mensal.entity.spec.ts",
+        "src/assinatura/entities/kit-mensal.entity.ts",
+        "src/assinatura/entities/plano-assinatura.entity.spec.ts",
+        "src/assinatura/entities/plano-assinatura.entity.ts"
+      ],
+      "file_count": 10,
+      "loc": 744,
+      "symbol_count": 6,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura/entities",
+      "complexity_score": 14
+    },
+    {
+      "name": "jest/src/venda/entities",
+      "files": [
+        "src/venda/entities/feira.entity.ts",
+        "src/venda/entities/index.ts",
+        "src/venda/entities/item-troca-devolucao.entity.ts",
+        "src/venda/entities/item-venda.entity.ts",
+        "src/venda/entities/pagamento-venda.entity.ts",
+        "src/venda/entities/preco-produto-feira.entity.ts",
+        "src/venda/entities/troca-devolucao.entity.spec.ts",
+        "src/venda/entities/troca-devolucao.entity.ts",
+        "src/venda/entities/venda.entity.ts"
+      ],
+      "file_count": 9,
+      "loc": 981,
+      "symbol_count": 9,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/venda/entities",
+      "complexity_score": 13
+    },
+    {
+      "name": "src-misc",
+      "files": [
+        "src/app.controller.spec.ts",
+        "src/app.controller.ts",
+        "src/app.module.ts",
+        "src/app.service.ts",
+        "src/app/docs/app-docs.decorator.ts",
+        "src/arquitetura/arquitetura.spec.ts",
+        "src/main.ts"
+      ],
+      "file_count": 7,
+      "directory_prefix": "src",
+      "loc": 419,
+      "symbol_count": 11,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "complexity_score": 12
+    },
+    {
+      "name": "jest/src/venda/dto",
+      "files": [
+        "src/venda/dto/alterar-feira.dto.ts",
+        "src/venda/dto/alterar-venda.dto.ts",
+        "src/venda/dto/index.ts",
+        "src/venda/dto/inserir-feira.dto.ts",
+        "src/venda/dto/inserir-troca-devolucao.dto.ts",
+        "src/venda/dto/inserir-venda.dto.ts",
+        "src/venda/dto/pesquisar-feiras.dto.ts",
+        "src/venda/dto/pesquisar-precos-produtos-feira.dto.ts",
+        "src/venda/dto/pesquisar-vendas.dto.ts"
+      ],
+      "file_count": 9,
+      "loc": 458,
+      "symbol_count": 11,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/venda/dto",
+      "complexity_score": 11
+    },
+    {
+      "name": "jest/src/produto/services",
+      "files": [
+        "src/produto/services/categoria-produto.service.spec.ts",
+        "src/produto/services/categoria-produto.service.ts",
+        "src/produto/services/estoque.service.spec.ts",
+        "src/produto/services/estoque.service.ts",
+        "src/produto/services/index.ts",
+        "src/produto/services/produto.service.spec.ts",
+        "src/produto/services/produto.service.ts"
+      ],
+      "file_count": 7,
+      "loc": 1558,
+      "symbol_count": 3,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/produto/services",
+      "complexity_score": 10
+    },
+    {
+      "name": "jest@src/assinatura/entities",
+      "files": [
+        "src/assinatura/entities/assinante.entity.spec.ts",
+        "src/assinatura/entities/assinante.entity.spec.ts",
+        "src/assinatura/entities/ciclo-assinatura.entity.spec.ts",
+        "src/assinatura/entities/ciclo-assinatura.entity.spec.ts",
+        "src/assinatura/entities/item-ciclo-assinatura.entity.spec.ts",
+        "src/assinatura/entities/item-ciclo-assinatura.entity.spec.ts"
+      ],
+      "file_count": 6,
+      "loc": 380,
+      "symbol_count": 0,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura/entities",
+      "complexity_score": 9
+    },
+    {
+      "name": "jest/src/produto/entities",
+      "files": [
+        "src/produto/entities/categoria-produto.entity.ts",
+        "src/produto/entities/index.ts",
+        "src/produto/entities/movimentacao-estoque.entity.spec.ts",
+        "src/produto/entities/movimentacao-estoque.entity.ts",
+        "src/produto/entities/produto.entity.spec.ts",
+        "src/produto/entities/produto.entity.ts"
+      ],
+      "file_count": 6,
+      "loc": 421,
+      "symbol_count": 3,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/produto/entities",
+      "complexity_score": 9
+    },
+    {
+      "name": "jest/src/auth/entities",
+      "files": [
+        "src/auth/entities/index.ts",
+        "src/auth/entities/permission.entity.ts",
+        "src/auth/entities/refresh-session.entity.ts",
+        "src/auth/entities/role-permission.entity.ts",
+        "src/auth/entities/role.entity.ts",
+        "src/auth/entities/user-permission.entity.ts",
+        "src/auth/entities/user.entity.ts"
+      ],
+      "file_count": 7,
+      "loc": 304,
+      "symbol_count": 6,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/auth/entities",
+      "complexity_score": 8
+    },
+    {
+      "name": "src/auth/dto",
+      "files": [
+        "src/auth/dto/alterar-senha.dto.ts",
+        "src/auth/dto/auth-response.dto.ts",
+        "src/auth/dto/login.dto.ts",
+        "src/auth/dto/papel-usuario.dto.ts",
+        "src/auth/dto/refresh-token.dto.ts",
+        "src/auth/dto/register.dto.ts",
+        "src/auth/dto/usuario-autenticado.dto.ts"
+      ],
+      "file_count": 7,
+      "loc": 109,
+      "symbol_count": 8,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/auth/dto",
+      "complexity_score": 8
+    },
+    {
+      "name": "jest/src/assinatura/controllers",
+      "files": [
+        "src/assinatura/controllers/assinatura.controller.spec.ts",
+        "src/assinatura/controllers/assinatura.controller.ts",
+        "src/assinatura/controllers/index.ts",
+        "src/assinatura/controllers/public-assinatura.controller.spec.ts",
+        "src/assinatura/controllers/public-assinatura.controller.ts"
+      ],
+      "file_count": 5,
+      "loc": 979,
+      "symbol_count": 2,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/assinatura/controllers",
+      "complexity_score": 8
+    },
+    {
+      "name": "jest/src/config",
+      "files": [
+        "src/config/database.config.spec.ts",
+        "src/config/database.config.ts",
+        "src/config/env.validation.ts",
+        "src/config/typeorm.datasource.ts"
+      ],
+      "file_count": 4,
+      "loc": 352,
+      "symbol_count": 2,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/config",
+      "complexity_score": 7
+    },
+    {
+      "name": "src/consignacao/dto",
+      "files": [
+        "src/consignacao/dto/alterar-item-consignacao.dto.ts",
+        "src/consignacao/dto/alterar-item-consignacao.dto.ts",
+        "src/consignacao/dto/inserir-consignacao.dto.ts",
+        "src/consignacao/dto/inserir-consignacao.dto.ts",
+        "src/consignacao/dto/registrar-movimento-consignacao.dto.ts",
+        "src/consignacao/dto/registrar-movimento-consignacao.dto.ts"
+      ],
+      "file_count": 6,
+      "loc": 230,
+      "symbol_count": 8,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/consignacao/dto",
+      "complexity_score": 7
+    },
+    {
+      "name": "jest@src/venda/entities",
+      "files": [
+        "src/venda/entities/meio-pagamento.enum.ts",
+        "src/venda/entities/meio-pagamento.enum.ts",
+        "src/venda/entities/venda.entity.spec.ts",
+        "src/venda/entities/venda.entity.spec.ts"
+      ],
+      "file_count": 4,
+      "loc": 636,
+      "symbol_count": 2,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/venda/entities",
+      "complexity_score": 7
+    },
+    {
+      "name": "src",
+      "files": [
+        "src/common/docs/decorators/api-paginated-ok-response.decorator.ts",
+        "src/common/docs/dto/resultado-paginado.dto.ts",
+        "src/produto/docs/produto-docs.decorator.ts"
+      ],
+      "file_count": 3,
+      "loc": 744,
+      "symbol_count": 18,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src",
+      "complexity_score": 6
+    },
+    {
+      "name": "src/auth/docs/usuario-permissao-docs.decorator.ts",
+      "files": [
+        "src/auth/docs/auth-docs.decorator.ts",
+        "src/auth/docs/papel-administracao-docs.decorator.ts",
+        "src/auth/docs/usuario-permissao-docs.decorator.ts"
+      ],
+      "file_count": 3,
+      "loc": 447,
+      "symbol_count": 16,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/auth/docs",
+      "complexity_score": 6
+    },
+    {
+      "name": "jest/src/financeiro/controllers",
+      "files": [
+        "src/financeiro/controllers/financeiro.controller.spec.ts",
+        "src/financeiro/controllers/financeiro.controller.ts",
+        "src/financeiro/controllers/index.ts"
+      ],
+      "file_count": 3,
+      "loc": 1050,
+      "symbol_count": 1,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/controllers",
+      "complexity_score": 6
+    },
+    {
+      "name": "jest/src/produto/controllers",
+      "files": [
+        "src/produto/controllers/index.ts",
+        "src/produto/controllers/produto.controller.spec.ts",
+        "src/produto/controllers/produto.controller.ts"
+      ],
+      "file_count": 3,
+      "loc": 680,
+      "symbol_count": 1,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/produto/controllers",
+      "complexity_score": 6
+    },
+    {
+      "name": "jest/src/venda/controllers",
+      "files": [
+        "src/venda/controllers/index.ts",
+        "src/venda/controllers/venda.controller.spec.ts",
+        "src/venda/controllers/venda.controller.ts"
+      ],
+      "file_count": 3,
+      "loc": 568,
+      "symbol_count": 1,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/venda/controllers",
+      "complexity_score": 6
+    },
+    {
+      "name": "jest@src/common",
+      "files": [
+        "src/common/transforms/normalizar-lista.transform.spec.ts",
+        "src/common/transforms/normalizar-lista.transform.ts",
+        "src/common/utils/paginacao.util.spec.ts"
+      ],
+      "file_count": 3,
+      "loc": 186,
+      "symbol_count": 4,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "src/common",
+      "complexity_score": 6
+    },
+    {
+      "name": "src/financeiro/dto",
+      "files": [
+        "src/financeiro/dto/fechar-caixa.dto.ts",
+        "src/financeiro/dto/fechar-caixa.dto.ts",
+        "src/financeiro/dto/totalizadores-despesas.dto.ts",
+        "src/financeiro/dto/totalizadores-despesas.dto.ts"
+      ],
+      "file_count": 4,
+      "loc": 52,
+      "symbol_count": 6,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/dto",
+      "complexity_score": 5
+    },
+    {
+      "name": "jest/src/auth/dto",
+      "files": [
+        "src/auth/dto/administracao-permissoes.dto.ts",
+        "src/auth/dto/alterar-cadastro.dto.ts",
+        "src/auth/dto/index.ts"
+      ],
+      "file_count": 3,
+      "loc": 141,
+      "symbol_count": 7,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/auth/dto",
+      "complexity_score": 4
+    },
+    {
+      "name": "segment_5",
+      "files": [
+        "eslint.config.mjs",
+        "eslint.config.mjs",
+        "jest.config.js",
+        "jest.config.js"
+      ],
+      "file_count": 4,
+      "loc": 192,
+      "symbol_count": 0,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "",
+      "complexity_score": 4
+    },
+    {
+      "name": "src/financeiro/contracts",
+      "files": [
+        "src/financeiro/contracts/consulta-caixa.contract.ts",
+        "src/financeiro/contracts/consulta-caixa.contract.ts",
+        "src/financeiro/contracts/consulta-caixas-abertos.contract.ts",
+        "src/financeiro/contracts/consulta-caixas-abertos.contract.ts"
+      ],
+      "file_count": 4,
+      "loc": 80,
+      "symbol_count": 0,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "complexity_score": 4
+    },
+    {
+      "name": "src/venda/dto",
+      "files": [
+        "src/venda/dto/salvar-preco-produto-feira.dto.ts",
+        "src/venda/dto/salvar-preco-produto-feira.dto.ts",
+        "src/venda/dto/totalizadores-vendas.dto.ts",
+        "src/venda/dto/totalizadores-vendas.dto.ts"
+      ],
+      "file_count": 4,
+      "loc": 92,
+      "symbol_count": 4,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/venda/dto",
+      "complexity_score": 4
+    },
+    {
+      "name": "jest/test",
+      "files": [
+        "test/app.e2e-spec.ts"
+      ],
+      "file_count": 1,
+      "loc": 26,
+      "symbol_count": 0,
+      "integrations": [
+        "jest"
+      ],
+      "endpoints": [],
+      "directory_prefix": "test",
+      "complexity_score": 4
+    },
+    {
+      "name": "jest/src/financeiro/contracts",
+      "files": [
+        "src/financeiro/contracts/consulta-carteira.contract.ts",
+        "src/financeiro/contracts/consulta-taxa-pagamento.contract.ts",
+        "src/financeiro/contracts/index.ts"
+      ],
+      "file_count": 3,
+      "loc": 35,
+      "symbol_count": 0,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "complexity_score": 3
+    },
+    {
+      "name": "src/relatorio/dto",
+      "files": [
+        "src/relatorio/dto/produto-mais-vendido.dto.ts",
+        "src/relatorio/dto/produtos-mais-vendidos-periodo.dto.ts",
+        "src/relatorio/dto/top-produtos-mes-dashboard.dto.ts"
+      ],
+      "file_count": 3,
+      "loc": 31,
+      "symbol_count": 3,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/relatorio/dto",
+      "complexity_score": 3
+    },
+    {
+      "name": "src/produto/contracts/consulta-estoque-negativo.contract.ts",
+      "files": [
+        "src/produto/contracts/consulta-estoque-negativo.contract.ts",
+        "src/produto/contracts/consulta-produto.contract.ts",
+        "src/produto/contracts/index.ts"
+      ],
+      "file_count": 3,
+      "loc": 28,
+      "symbol_count": 0,
+      "integrations": [],
+      "endpoints": [],
+      "directory_prefix": "src/produto/contracts",
+      "complexity_score": 3
+    }
+  ]
+}

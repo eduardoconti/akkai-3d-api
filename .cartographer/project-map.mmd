@@ -1,0 +1,1372 @@
+graph LR
+  n_test_app_e2e_spec_ts["test/app.e2e-spec.ts"]
+  n_src_app_module_ts["src/app.module.ts"]
+  n_test_app_e2e_spec_ts --> n_src_app_module_ts
+  n_src_app_controller_ts["src/app.controller.ts"]
+  n_src_auth_decorators_public_decorator_ts["src/auth/decorators/public.decorator.ts"]
+  n_src_app_controller_ts --> n_src_auth_decorators_public_decorator_ts
+  n_src_app_service_ts["src/app.service.ts"]
+  n_src_app_controller_ts --> n_src_app_service_ts
+  n_src_app_docs_app_docs_decorator_ts["src/app/docs/app-docs.decorator.ts"]
+  n_src_app_controller_ts --> n_src_app_docs_app_docs_decorator_ts
+  n_src_auth_auth_module_ts["src/auth/auth.module.ts"]
+  n_src_app_module_ts --> n_src_auth_auth_module_ts
+  n_src_common_common_module_ts["src/common/common.module.ts"]
+  n_src_app_module_ts --> n_src_common_common_module_ts
+  n_src_consignacao_consignacao_module_ts["src/consignacao/consignacao.module.ts"]
+  n_src_app_module_ts --> n_src_consignacao_consignacao_module_ts
+  n_src_financeiro_financeiro_module_ts["src/financeiro/financeiro.module.ts"]
+  n_src_app_module_ts --> n_src_financeiro_financeiro_module_ts
+  n_src_app_module_ts --> n_src_app_controller_ts
+  n_src_app_module_ts --> n_src_app_service_ts
+  n_src_produto_produto_module_ts["src/produto/produto.module.ts"]
+  n_src_app_module_ts --> n_src_produto_produto_module_ts
+  n_src_orcamento_orcamento_module_ts["src/orcamento/orcamento.module.ts"]
+  n_src_app_module_ts --> n_src_orcamento_orcamento_module_ts
+  n_src_notificacao_notificacao_module_ts["src/notificacao/notificacao.module.ts"]
+  n_src_app_module_ts --> n_src_notificacao_notificacao_module_ts
+  n_src_relatorio_relatorio_module_ts["src/relatorio/relatorio.module.ts"]
+  n_src_app_module_ts --> n_src_relatorio_relatorio_module_ts
+  n_src_venda_venda_module_ts["src/venda/venda.module.ts"]
+  n_src_app_module_ts --> n_src_venda_venda_module_ts
+  n_src_assinatura_assinatura_module_ts["src/assinatura/assinatura.module.ts"]
+  n_src_app_module_ts --> n_src_assinatura_assinatura_module_ts
+  n_src_config_env_validation_ts["src/config/env.validation.ts"]
+  n_src_app_module_ts --> n_src_config_env_validation_ts
+  n_src_config_database_config_ts["src/config/database.config.ts"]
+  n_src_app_module_ts --> n_src_config_database_config_ts
+  n_src_app_controller_spec_ts["src/app.controller.spec.ts"]
+  n_src_app_controller_spec_ts --> n_src_app_controller_ts
+  n_src_app_controller_spec_ts --> n_src_app_service_ts
+  n_src_main_ts["src/main.ts"]
+  n_src_common_docs_swagger_config_ts["src/common/docs/swagger.config.ts"]
+  n_src_main_ts --> n_src_common_docs_swagger_config_ts
+  n_src_common_filters_problem_details_exception_filter_ts["src/common/filters/problem-details-exception.filter.ts"]
+  n_src_main_ts --> n_src_common_filters_problem_details_exception_filter_ts
+  n_src_common_validation_exception_factory_ts["src/common/validation.exception-factory.ts"]
+  n_src_main_ts --> n_src_common_validation_exception_factory_ts
+  n_src_main_ts --> n_src_app_module_ts
+  n_src_produto_controllers_index_ts["src/produto/controllers/index.ts"]
+  n_src_produto_produto_module_ts --> n_src_produto_controllers_index_ts
+  n_src_produto_contracts_index_ts["src/produto/contracts/index.ts"]
+  n_src_produto_produto_module_ts --> n_src_produto_contracts_index_ts
+  n_src_produto_services_categoria_produto_service_ts["src/produto/services/categoria-produto.service.ts"]
+  n_src_produto_entities_index_ts["src/produto/entities/index.ts"]
+  n_src_produto_services_categoria_produto_service_ts --> n_src_produto_entities_index_ts
+  n_src_produto_dto_index_ts["src/produto/dto/index.ts"]
+  n_src_produto_services_categoria_produto_service_ts --> n_src_produto_dto_index_ts
+  n_src_common_interfaces_resultado_paginado_interface_ts["src/common/interfaces/resultado-paginado.interface.ts"]
+  n_src_produto_services_categoria_produto_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_produto_services_estoque_service_spec_ts["src/produto/services/estoque.service.spec.ts"]
+  n_src_auth_entities_user_entity_ts["src/auth/entities/user.entity.ts"]
+  n_src_produto_services_estoque_service_spec_ts --> n_src_auth_entities_user_entity_ts
+  n_src_common_services_date_service_ts["src/common/services/date.service.ts"]
+  n_src_produto_services_estoque_service_spec_ts --> n_src_common_services_date_service_ts
+  n_src_produto_services_index_ts["src/produto/services/index.ts"]
+  n_src_produto_services_estoque_service_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_services_estoque_service_ts["src/produto/services/estoque.service.ts"]
+  n_src_produto_services_produto_service_ts["src/produto/services/produto.service.ts"]
+  n_src_produto_services_estoque_service_ts --> n_src_produto_services_produto_service_ts
+  n_src_produto_services_estoque_service_ts --> n_src_common_services_date_service_ts
+  n_src_produto_services_estoque_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_produto_services_categoria_produto_service_spec_ts["src/produto/services/categoria-produto.service.spec.ts"]
+  n_src_produto_services_categoria_produto_service_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_services_categoria_produto_service_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_services_produto_service_spec_ts["src/produto/services/produto.service.spec.ts"]
+  n_src_produto_services_produto_service_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_services_produto_service_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_services_produto_service_spec_ts --> n_src_produto_dto_index_ts
+  n_src_produto_services_produto_service_ts --> n_src_produto_entities_index_ts
+  n_src_produto_enums_index_ts["src/produto/enums/index.ts"]
+  n_src_produto_services_produto_service_ts --> n_src_produto_enums_index_ts
+  n_src_produto_services_produto_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_common_database_lancar_excecao_conflito_ts["src/common/database/lancar-excecao-conflito.ts"]
+  n_src_produto_services_produto_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_produto_docs_produto_docs_decorator_ts["src/produto/docs/produto-docs.decorator.ts"]
+  n_src_common_docs_decorators_api_paginated_ok_response_decorat["src/common/docs/decorators/api-paginated-ok-response.decorator.ts"]
+  n_src_produto_docs_produto_docs_decorator_ts --> n_src_common_docs_decorators_api_paginated_ok_response_decorat
+  n_src_produto_contracts_consulta_produto_contract_ts["src/produto/contracts/consulta-produto.contract.ts"]
+  n_src_produto_contracts_consulta_produto_contract_ts --> n_src_produto_entities_index_ts
+  n_src_produto_entities_produto_entity_spec_ts["src/produto/entities/produto.entity.spec.ts"]
+  n_src_produto_entities_produto_entity_spec_ts --> n_src_produto_enums_index_ts
+  n_src_produto_entities_produto_entity_ts["src/produto/entities/produto.entity.ts"]
+  n_src_produto_entities_produto_entity_spec_ts --> n_src_produto_entities_produto_entity_ts
+  n_src_produto_entities_categoria_produto_entity_ts["src/produto/entities/categoria-produto.entity.ts"]
+  n_src_produto_entities_categoria_produto_entity_ts --> n_src_produto_entities_index_ts
+  n_src_venda_entities_index_ts["src/venda/entities/index.ts"]
+  n_src_produto_entities_produto_entity_ts --> n_src_venda_entities_index_ts
+  n_src_produto_entities_produto_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_produto_entities_produto_entity_ts --> n_src_produto_entities_index_ts
+  n_src_produto_entities_produto_entity_ts --> n_src_produto_enums_index_ts
+  n_src_produto_entities_movimentacao_estoque_entity_ts["src/produto/entities/movimentacao-estoque.entity.ts"]
+  n_src_produto_entities_movimentacao_estoque_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_produto_entities_movimentacao_estoque_entity_ts --> n_src_produto_entities_index_ts
+  n_src_produto_entities_movimentacao_estoque_entity_ts --> n_src_venda_entities_index_ts
+  n_src_produto_use_cases_excluir_produto_use_case_spec_ts["src/produto/use-cases/excluir-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_excluir_produto_use_case_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_excluir_produto_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_excluir_produto_use_case_ts["src/produto/use-cases/excluir-produto.use-case.ts"]
+  n_src_produto_use_cases_excluir_produto_use_case_spec_ts --> n_src_produto_use_cases_excluir_produto_use_case_ts
+  n_src_produto_use_cases_excluir_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_alterar_status_produto_use_case_ts["src/produto/use-cases/alterar-status-produto.use-case.ts"]
+  n_src_produto_use_cases_alterar_status_produto_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_status_produto_use_case_ts --> n_src_produto_enums_index_ts
+  n_src_produto_use_cases_alterar_status_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_alterar_status_produto_use_case_spec_t["src/produto/use-cases/alterar-status-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_alterar_status_produto_use_case_spec_t --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_status_produto_use_case_spec_t --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_inserir_produto_use_case_spec_ts["src/produto/use-cases/inserir-produto.use-case.spec.ts"]
+  n_src_common_services_current_user_context_service_ts["src/common/services/current-user-context.service.ts"]
+  n_src_produto_use_cases_inserir_produto_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_inserir_produto_use_case_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_inserir_produto_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_index_ts["src/produto/use-cases/index.ts"]
+  n_src_produto_use_cases_inserir_produto_use_case_spec_ts --> n_src_produto_use_cases_index_ts
+  n_src_produto_use_cases_alterar_produto_use_case_spec_ts["src/produto/use-cases/alterar-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_alterar_produto_use_case_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_produto_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_alterar_produto_use_case_spec_ts --> n_src_produto_use_cases_index_ts
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_spe["src/produto/use-cases/alterar-categoria-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_spe --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_spe --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_ts["src/produto/use-cases/alterar-categoria-produto.use-case.ts"]
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_spe --> n_src_produto_use_cases_alterar_categoria_produto_use_case_ts
+  n_src_produto_use_cases_inserir_produto_use_case_ts["src/produto/use-cases/inserir-produto.use-case.ts"]
+  n_src_produto_use_cases_inserir_produto_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_inserir_produto_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_inserir_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_spec_ts["src/produto/use-cases/entrada-estoque.use-case.spec.ts"]
+  n_src_produto_use_cases_entrada_estoque_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_spec_ts --> n_src_produto_use_cases_index_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_ts["src/produto/use-cases/entrada-estoque.use-case.ts"]
+  n_src_produto_use_cases_entrada_estoque_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_entrada_estoque_use_case_ts --> n_src_produto_enums_index_ts
+  n_src_produto_use_cases_alterar_produto_use_case_ts["src/produto/use-cases/alterar-produto.use-case.ts"]
+  n_src_produto_use_cases_alterar_produto_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_saida_estoque_use_case_spec_ts["src/produto/use-cases/saida-estoque.use-case.spec.ts"]
+  n_src_produto_use_cases_saida_estoque_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_saida_estoque_use_case_spec_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_saida_estoque_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_saida_estoque_use_case_spec_ts --> n_src_produto_use_cases_index_ts
+  n_src_produto_use_cases_saida_estoque_use_case_ts["src/produto/use-cases/saida-estoque.use-case.ts"]
+  n_src_produto_use_cases_saida_estoque_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_produto_use_cases_saida_estoque_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_saida_estoque_use_case_ts --> n_src_produto_enums_index_ts
+  n_src_produto_use_cases_excluir_categoria_produto_use_case_ts["src/produto/use-cases/excluir-categoria-produto.use-case.ts"]
+  n_src_produto_use_cases_excluir_categoria_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_excluir_categoria_produto_use_case_spe["src/produto/use-cases/excluir-categoria-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_excluir_categoria_produto_use_case_spe --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_excluir_categoria_produto_use_case_spe --> n_src_produto_use_cases_excluir_categoria_produto_use_case_ts
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_spe["src/produto/use-cases/inserir-categoria-produto.use-case.spec.ts"]
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_spe --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_spe --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_alterar_categoria_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_ts["src/produto/use-cases/inserir-categoria-produto.use-case.ts"]
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_produto_use_cases_inserir_categoria_produto_use_case_ts --> n_src_produto_services_index_ts
+  n_src_produto_dto_entrada_estoque_dto_ts["src/produto/dto/entrada-estoque.dto.ts"]
+  n_src_produto_dto_entrada_estoque_dto_ts --> n_src_produto_enums_index_ts
+  n_src_produto_dto_pesquisar_categorias_dto_ts["src/produto/dto/pesquisar-categorias.dto.ts"]
+  n_src_common_dto_pesquisa_paginada_dto_ts["src/common/dto/pesquisa-paginada.dto.ts"]
+  n_src_produto_dto_pesquisar_categorias_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_produto_dto_listar_produto_dto_ts["src/produto/dto/listar-produto.dto.ts"]
+  n_src_produto_dto_listar_produto_dto_ts --> n_src_produto_enums_index_ts
+  n_src_produto_dto_alterar_categoria_produto_dto_ts["src/produto/dto/alterar-categoria-produto.dto.ts"]
+  n_src_produto_dto_inserir_categoria_produto_dto_ts["src/produto/dto/inserir-categoria-produto.dto.ts"]
+  n_src_produto_dto_alterar_categoria_produto_dto_ts --> n_src_produto_dto_inserir_categoria_produto_dto_ts
+  n_src_produto_dto_produto_dto_spec_ts["src/produto/dto/produto.dto.spec.ts"]
+  n_src_produto_dto_alterar_produto_dto_ts["src/produto/dto/alterar-produto.dto.ts"]
+  n_src_produto_dto_produto_dto_spec_ts --> n_src_produto_dto_alterar_produto_dto_ts
+  n_src_produto_dto_alterar_status_produto_dto_ts["src/produto/dto/alterar-status-produto.dto.ts"]
+  n_src_produto_dto_produto_dto_spec_ts --> n_src_produto_dto_alterar_status_produto_dto_ts
+  n_src_produto_dto_inserir_produto_dto_ts["src/produto/dto/inserir-produto.dto.ts"]
+  n_src_produto_dto_produto_dto_spec_ts --> n_src_produto_dto_inserir_produto_dto_ts
+  n_src_produto_dto_pesquisar_movimentacoes_estoque_dto_ts["src/produto/dto/pesquisar-movimentacoes-estoque.dto.ts"]
+  n_src_produto_dto_produto_dto_spec_ts --> n_src_produto_dto_pesquisar_movimentacoes_estoque_dto_ts
+  n_src_produto_dto_alterar_status_produto_dto_ts --> n_src_produto_enums_index_ts
+  n_src_produto_dto_pesquisar_produtos_dto_ts["src/produto/dto/pesquisar-produtos.dto.ts"]
+  n_src_common_decorators_transformar_lista_decorator_ts["src/common/decorators/transformar-lista.decorator.ts"]
+  n_src_produto_dto_pesquisar_produtos_dto_ts --> n_src_common_decorators_transformar_lista_decorator_ts
+  n_src_produto_dto_pesquisar_produtos_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_produto_dto_detalhe_produto_dto_ts["src/produto/dto/detalhe-produto.dto.ts"]
+  n_src_produto_dto_detalhe_produto_dto_ts --> n_src_produto_enums_index_ts
+  n_src_common_transforms_trim_string_transform_ts["src/common/transforms/trim-string.transform.ts"]
+  n_src_produto_dto_inserir_categoria_produto_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_produto_dto_pesquisar_movimentacoes_estoque_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_produto_dto_pesquisar_movimentacoes_estoque_dto_ts --> n_src_common_decorators_transformar_lista_decorator_ts
+  n_src_produto_dto_saida_estoque_dto_ts["src/produto/dto/saida-estoque.dto.ts"]
+  n_src_produto_dto_saida_estoque_dto_ts --> n_src_produto_enums_index_ts
+  n_src_produto_dto_alterar_produto_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_produto_dto_inserir_produto_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_produto_controllers_produto_controller_ts["src/produto/controllers/produto.controller.ts"]
+  n_src_auth_constants_permissoes_constants_ts["src/auth/constants/permissoes.constants.ts"]
+  n_src_produto_controllers_produto_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_decorators_permissions_decorator_ts["src/auth/decorators/permissions.decorator.ts"]
+  n_src_produto_controllers_produto_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_produto_controllers_produto_controller_ts --> n_src_produto_entities_index_ts
+  n_src_produto_controllers_produto_controller_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_common_docs_decorators_api_controller_docs_decorator_ts["src/common/docs/decorators/api-controller-docs.decorator.ts"]
+  n_src_produto_controllers_produto_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_produto_controllers_produto_controller_spec_ts["src/produto/controllers/produto.controller.spec.ts"]
+  n_src_produto_controllers_produto_controller_spec_ts --> n_src_produto_controllers_index_ts
+  n_src_assinatura_assinatura_module_ts --> n_src_produto_produto_module_ts
+  n_src_assinatura_services_assinante_service_spec_ts["src/assinatura/services/assinante.service.spec.ts"]
+  n_src_assinatura_entities_index_ts["src/assinatura/entities/index.ts"]
+  n_src_assinatura_services_assinante_service_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_index_ts["src/assinatura/services/index.ts"]
+  n_src_assinatura_services_assinante_service_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_services_plano_service_ts["src/assinatura/services/plano.service.ts"]
+  n_src_assinatura_services_plano_service_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_dto_index_ts["src/assinatura/dto/index.ts"]
+  n_src_assinatura_services_plano_service_ts --> n_src_assinatura_dto_index_ts
+  n_src_assinatura_services_plano_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_assinatura_services_plano_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_assinatura_services_ciclo_service_spec_ts["src/assinatura/services/ciclo.service.spec.ts"]
+  n_src_assinatura_services_ciclo_service_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_ciclo_service_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_services_plano_service_spec_ts["src/assinatura/services/plano.service.spec.ts"]
+  n_src_assinatura_services_plano_service_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_plano_service_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_services_vitrine_service_ts["src/assinatura/services/vitrine.service.ts"]
+  n_src_assinatura_services_vitrine_service_ts --> n_src_assinatura_services_plano_service_ts
+  n_src_assinatura_services_kit_mensal_service_ts["src/assinatura/services/kit-mensal.service.ts"]
+  n_src_assinatura_services_vitrine_service_ts --> n_src_assinatura_services_kit_mensal_service_ts
+  n_src_assinatura_services_assinante_service_ts["src/assinatura/services/assinante.service.ts"]
+  n_src_assinatura_services_assinante_service_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_enums_index_ts["src/assinatura/enums/index.ts"]
+  n_src_assinatura_services_assinante_service_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_services_assinante_service_ts --> n_src_assinatura_dto_index_ts
+  n_src_assinatura_services_assinante_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_assinatura_services_assinante_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_assinatura_services_kit_mensal_service_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_kit_mensal_service_ts --> n_src_assinatura_dto_index_ts
+  n_src_assinatura_services_kit_mensal_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_assinatura_services_kit_mensal_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_assinatura_services_kit_mensal_service_spec_ts["src/assinatura/services/kit-mensal.service.spec.ts"]
+  n_src_assinatura_services_kit_mensal_service_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_kit_mensal_service_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_services_ciclo_service_ts["src/assinatura/services/ciclo.service.ts"]
+  n_src_assinatura_services_ciclo_service_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_services_ciclo_service_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_services_ciclo_service_ts --> n_src_assinatura_dto_index_ts
+  n_src_assinatura_services_ciclo_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_assinatura_services_ciclo_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_assinatura_entities_item_ciclo_assinatura_entity_ts["src/assinatura/entities/item-ciclo-assinatura.entity.ts"]
+  n_src_assinatura_entities_ciclo_assinatura_entity_ts["src/assinatura/entities/ciclo-assinatura.entity.ts"]
+  n_src_assinatura_entities_item_ciclo_assinatura_entity_ts --> n_src_assinatura_entities_ciclo_assinatura_entity_ts
+  n_src_assinatura_entities_item_ciclo_assinatura_entity_ts --> n_src_produto_entities_index_ts
+  n_src_assinatura_entities_item_kit_mensal_entity_ts["src/assinatura/entities/item-kit-mensal.entity.ts"]
+  n_src_assinatura_entities_kit_mensal_entity_ts["src/assinatura/entities/kit-mensal.entity.ts"]
+  n_src_assinatura_entities_item_kit_mensal_entity_ts --> n_src_assinatura_entities_kit_mensal_entity_ts
+  n_src_assinatura_entities_item_kit_mensal_entity_ts --> n_src_produto_entities_index_ts
+  n_src_assinatura_entities_item_kit_mensal_entity_spec_ts["src/assinatura/entities/item-kit-mensal.entity.spec.ts"]
+  n_src_assinatura_entities_item_kit_mensal_entity_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_entities_kit_mensal_entity_spec_ts["src/assinatura/entities/kit-mensal.entity.spec.ts"]
+  n_src_assinatura_entities_kit_mensal_entity_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_entities_plano_assinatura_entity_spec_ts["src/assinatura/entities/plano-assinatura.entity.spec.ts"]
+  n_src_assinatura_entities_plano_assinatura_entity_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_entities_assinante_entity_ts["src/assinatura/entities/assinante.entity.ts"]
+  n_src_assinatura_entities_ciclo_assinatura_entity_ts --> n_src_assinatura_entities_assinante_entity_ts
+  n_src_assinatura_entities_ciclo_assinatura_entity_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_entities_plano_assinatura_entity_ts["src/assinatura/entities/plano-assinatura.entity.ts"]
+  n_src_assinatura_entities_assinante_entity_ts --> n_src_assinatura_entities_plano_assinatura_entity_ts
+  n_src_assinatura_entities_assinante_entity_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_entities_kit_mensal_entity_ts --> n_src_assinatura_entities_plano_assinatura_entity_ts
+  n_src_assinatura_entities_kit_mensal_entity_ts --> n_src_assinatura_entities_item_kit_mensal_entity_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_ts["src/assinatura/use-cases/inserir-kit-mensal.use-case.ts"]
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_assinatura_use_cases_alterar_assinante_use_case_ts["src/assinatura/use-cases/alterar-assinante.use-case.ts"]
+  n_src_assinatura_use_cases_alterar_assinante_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_alterar_assinante_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_spec_ts["src/assinatura/use-cases/alterar-ciclo.use-case.spec.ts"]
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_index_ts["src/assinatura/use-cases/index.ts"]
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_assinatura_use_cases_gerar_ciclos_mensais_use_case_spec_["src/assinatura/use-cases/gerar-ciclos-mensais.use-case.spec.ts"]
+  n_src_assinatura_use_cases_gerar_ciclos_mensais_use_case_spec_ --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_gerar_ciclos_mensais_use_case_spec_ --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_gerar_ciclos_mensais_use_case_spec_ --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_gerar_ciclos_mensais_use_case_spec_ --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_spec_ts["src/assinatura/use-cases/alterar-kit-mensal.use-case.spec.ts"]
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_assinatura_use_cases_inserir_assinante_use_case_spec_ts["src/assinatura/use-cases/inserir-assinante.use-case.spec.ts"]
+  n_src_assinatura_use_cases_inserir_assinante_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_assinante_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_excluir_plano_use_case_ts["src/assinatura/use-cases/excluir-plano.use-case.ts"]
+  n_src_assinatura_use_cases_excluir_plano_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_plano_use_case_ts["src/assinatura/use-cases/inserir-plano.use-case.ts"]
+  n_src_assinatura_use_cases_inserir_plano_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_inserir_plano_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_ts["src/assinatura/use-cases/alterar-kit-mensal.use-case.ts"]
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_kit_mensal_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_assinatura_use_cases_inserir_assinante_use_case_ts["src/assinatura/use-cases/inserir-assinante.use-case.ts"]
+  n_src_assinatura_use_cases_inserir_assinante_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_inserir_assinante_use_case_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_use_cases_inserir_assinante_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_assinante_use_case_spec_ts["src/assinatura/use-cases/excluir-assinante.use-case.spec.ts"]
+  n_src_assinatura_use_cases_excluir_assinante_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_excluir_assinante_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_assinante_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_spec_ts["src/assinatura/use-cases/excluir-ciclo.use-case.spec.ts"]
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_spec_ts["src/assinatura/use-cases/excluir-kit-mensal.use-case.spec.ts"]
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_inserir_plano_use_case_spec_ts["src/assinatura/use-cases/inserir-plano.use-case.spec.ts"]
+  n_src_assinatura_use_cases_inserir_plano_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_inserir_plano_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_plano_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_spec_ts["src/assinatura/use-cases/inserir-kit-mensal.use-case.spec.ts"]
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_inserir_kit_mensal_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_assinatura_use_cases_alterar_plano_use_case_spec_ts["src/assinatura/use-cases/alterar-plano.use-case.spec.ts"]
+  n_src_assinatura_use_cases_alterar_plano_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_alterar_plano_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_plano_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_alterar_plano_use_case_ts["src/assinatura/use-cases/alterar-plano.use-case.ts"]
+  n_src_assinatura_use_cases_alterar_plano_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_alterar_plano_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_plano_use_case_spec_ts["src/assinatura/use-cases/excluir-plano.use-case.spec.ts"]
+  n_src_assinatura_use_cases_excluir_plano_use_case_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_excluir_plano_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_plano_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_ts["src/assinatura/use-cases/alterar-ciclo.use-case.ts"]
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_alterar_ciclo_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_assinatura_use_cases_excluir_assinante_use_case_ts["src/assinatura/use-cases/excluir-assinante.use-case.ts"]
+  n_src_assinatura_use_cases_excluir_assinante_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_ts["src/assinatura/use-cases/inserir-ciclo.use-case.ts"]
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_assinatura_use_cases_alterar_assinante_use_case_spec_ts["src/assinatura/use-cases/alterar-assinante.use-case.spec.ts"]
+  n_src_assinatura_use_cases_alterar_assinante_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_ts["src/assinatura/use-cases/excluir-kit-mensal.use-case.ts"]
+  n_src_assinatura_use_cases_excluir_kit_mensal_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_spec_ts["src/assinatura/use-cases/inserir-ciclo.use-case.spec.ts"]
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_spec_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_spec_ts --> n_src_assinatura_use_cases_index_ts
+  n_src_assinatura_use_cases_inserir_ciclo_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_ts["src/assinatura/use-cases/excluir-ciclo.use-case.ts"]
+  n_src_assinatura_use_cases_excluir_ciclo_use_case_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_dto_pesquisar_ciclos_dto_ts["src/assinatura/dto/pesquisar-ciclos.dto.ts"]
+  n_src_assinatura_dto_pesquisar_ciclos_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_assinatura_dto_pesquisar_ciclos_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_inserir_kit_mensal_dto_ts["src/assinatura/dto/inserir-kit-mensal.dto.ts"]
+  n_src_assinatura_dto_inserir_kit_mensal_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_inserir_ciclo_dto_ts["src/assinatura/dto/inserir-ciclo.dto.ts"]
+  n_src_assinatura_dto_inserir_ciclo_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_inserir_ciclo_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_pesquisar_kits_dto_ts["src/assinatura/dto/pesquisar-kits.dto.ts"]
+  n_src_assinatura_dto_pesquisar_kits_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_assinatura_dto_pesquisar_planos_dto_ts["src/assinatura/dto/pesquisar-planos.dto.ts"]
+  n_src_assinatura_dto_pesquisar_planos_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_assinatura_dto_alterar_plano_dto_ts["src/assinatura/dto/alterar-plano.dto.ts"]
+  n_src_assinatura_dto_alterar_plano_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_alterar_assinante_dto_ts["src/assinatura/dto/alterar-assinante.dto.ts"]
+  n_src_assinatura_dto_alterar_assinante_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_alterar_assinante_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_inserir_assinante_dto_ts["src/assinatura/dto/inserir-assinante.dto.ts"]
+  n_src_assinatura_dto_inserir_assinante_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_inserir_assinante_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_pesquisar_assinantes_dto_ts["src/assinatura/dto/pesquisar-assinantes.dto.ts"]
+  n_src_assinatura_dto_pesquisar_assinantes_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_assinatura_dto_pesquisar_assinantes_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_inserir_plano_dto_ts["src/assinatura/dto/inserir-plano.dto.ts"]
+  n_src_assinatura_dto_inserir_plano_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_alterar_ciclo_dto_ts["src/assinatura/dto/alterar-ciclo.dto.ts"]
+  n_src_assinatura_dto_alterar_ciclo_dto_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_dto_alterar_ciclo_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_dto_alterar_kit_mensal_dto_ts["src/assinatura/dto/alterar-kit-mensal.dto.ts"]
+  n_src_assinatura_dto_alterar_kit_mensal_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_assinatura_controllers_assinatura_controller_spec_ts["src/assinatura/controllers/assinatura.controller.spec.ts"]
+  n_src_assinatura_controllers_index_ts["src/assinatura/controllers/index.ts"]
+  n_src_assinatura_controllers_assinatura_controller_spec_ts --> n_src_assinatura_controllers_index_ts
+  n_src_assinatura_controllers_assinatura_controller_ts["src/assinatura/controllers/assinatura.controller.ts"]
+  n_src_assinatura_controllers_assinatura_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_assinatura_controllers_assinatura_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_assinatura_controllers_assinatura_controller_ts --> n_src_assinatura_enums_index_ts
+  n_src_assinatura_controllers_assinatura_controller_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_assinatura_controllers_assinatura_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_assinatura_controllers_public_assinatura_controller_ts["src/assinatura/controllers/public-assinatura.controller.ts"]
+  n_src_assinatura_controllers_public_assinatura_controller_ts --> n_src_auth_decorators_public_decorator_ts
+  n_src_assinatura_controllers_public_assinatura_controller_ts --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_controllers_public_assinatura_controller_ts --> n_src_assinatura_services_index_ts
+  n_src_assinatura_controllers_public_assinatura_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_assinatura_controllers_public_assinatura_controller_spec["src/assinatura/controllers/public-assinatura.controller.spec.ts"]
+  n_src_assinatura_controllers_public_assinatura_controller_spec --> n_src_assinatura_entities_index_ts
+  n_src_assinatura_controllers_public_assinatura_controller_spec --> n_src_assinatura_controllers_index_ts
+  n_src_assinatura_controllers_public_assinatura_controller_spec --> n_src_assinatura_services_index_ts
+  n_src_notificacao_notificacao_module_ts --> n_src_financeiro_financeiro_module_ts
+  n_src_notificacao_notificacao_module_ts --> n_src_orcamento_orcamento_module_ts
+  n_src_notificacao_notificacao_module_ts --> n_src_produto_produto_module_ts
+  n_src_notificacao_controllers_index_ts["src/notificacao/controllers/index.ts"]
+  n_src_notificacao_notificacao_module_ts --> n_src_notificacao_controllers_index_ts
+  n_src_notificacao_contracts_index_ts["src/notificacao/contracts/index.ts"]
+  n_src_notificacao_notificacao_module_ts --> n_src_notificacao_contracts_index_ts
+  n_src_notificacao_use_cases_index_ts["src/notificacao/use-cases/index.ts"]
+  n_src_notificacao_notificacao_module_ts --> n_src_notificacao_use_cases_index_ts
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro["src/notificacao/services/provedores/orcamentos-pendentes.provedor.ts"]
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro --> n_src_auth_constants_permissoes_constants_ts
+  n_src_orcamento_contracts_index_ts["src/orcamento/contracts/index.ts"]
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro --> n_src_orcamento_contracts_index_ts
+  n_src_notificacao_enums_index_ts["src/notificacao/enums/index.ts"]
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_["src/notificacao/services/provedores/caixas-abertos.provedor.ts"]
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_ --> n_src_auth_constants_permissoes_constants_ts
+  n_src_financeiro_contracts_index_ts["src/financeiro/contracts/index.ts"]
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_ --> n_src_financeiro_contracts_index_ts
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_ --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_estoque_negativo_provedo["src/notificacao/services/provedores/estoque-negativo.provedor.spec.ts"]
+  n_src_notificacao_services_provedores_estoque_negativo_provedo --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_estoque_negativo_provedo --> n_src_notificacao_services_provedores_estoque_negativo_provedo
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_ --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_caixas_abertos_provedor_ --> n_src_notificacao_services_provedores_caixas_abertos_provedor_
+  n_src_notificacao_services_provedores_estoque_negativo_provedo --> n_src_auth_constants_permissoes_constants_ts
+  n_src_notificacao_services_provedores_estoque_negativo_provedo --> n_src_produto_contracts_index_ts
+  n_src_notificacao_services_provedores_estoque_negativo_provedo --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_services_provedores_orcamentos_pendentes_pro --> n_src_notificacao_services_provedores_orcamentos_pendentes_pro
+  n_src_notificacao_docs_notificacao_docs_decorator_ts["src/notificacao/docs/notificacao-docs.decorator.ts"]
+  n_src_common_docs_decorators_api_default_problem_responses_dec["src/common/docs/decorators/api-default-problem-responses.decorator.ts"]
+  n_src_notificacao_docs_notificacao_docs_decorator_ts --> n_src_common_docs_decorators_api_default_problem_responses_dec
+  n_src_notificacao_dto_index_ts["src/notificacao/dto/index.ts"]
+  n_src_notificacao_docs_notificacao_docs_decorator_ts --> n_src_notificacao_dto_index_ts
+  n_src_notificacao_contracts_provedor_alerta_contract_ts["src/notificacao/contracts/provedor-alerta.contract.ts"]
+  n_src_notificacao_contracts_provedor_alerta_contract_ts --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_use_cases_consultar_alertas_use_case_ts["src/notificacao/use-cases/consultar-alertas.use-case.ts"]
+  n_src_common_contracts_index_ts["src/common/contracts/index.ts"]
+  n_src_notificacao_use_cases_consultar_alertas_use_case_ts --> n_src_common_contracts_index_ts
+  n_src_notificacao_use_cases_consultar_alertas_use_case_ts --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_use_cases_consultar_alertas_use_case_spec_ts["src/notificacao/use-cases/consultar-alertas.use-case.spec.ts"]
+  n_src_notificacao_use_cases_consultar_alertas_use_case_spec_ts --> n_src_notificacao_contracts_index_ts
+  n_src_notificacao_use_cases_consultar_alertas_use_case_spec_ts --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_use_cases_consultar_alertas_use_case_spec_ts --> n_src_notificacao_use_cases_consultar_alertas_use_case_ts
+  n_src_notificacao_dto_lista_alertas_dto_ts["src/notificacao/dto/lista-alertas.dto.ts"]
+  n_src_notificacao_dto_lista_alertas_dto_ts --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_controllers_notificacao_controller_ts["src/notificacao/controllers/notificacao.controller.ts"]
+  n_src_notificacao_controllers_notificacao_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_notificacao_controllers_notificacao_controller_ts --> n_src_notificacao_docs_notificacao_docs_decorator_ts
+  n_src_notificacao_controllers_notificacao_controller_ts --> n_src_notificacao_dto_index_ts
+  n_src_notificacao_controllers_notificacao_controller_ts --> n_src_notificacao_use_cases_index_ts
+  n_src_notificacao_controllers_notificacao_controller_spec_ts["src/notificacao/controllers/notificacao.controller.spec.ts"]
+  n_src_notificacao_controllers_notificacao_controller_spec_ts --> n_src_notificacao_enums_index_ts
+  n_src_notificacao_controllers_notificacao_controller_spec_ts --> n_src_notificacao_use_cases_index_ts
+  n_src_notificacao_controllers_notificacao_controller_spec_ts --> n_src_notificacao_controllers_notificacao_controller_ts
+  n_src_orcamento_controllers_index_ts["src/orcamento/controllers/index.ts"]
+  n_src_orcamento_orcamento_module_ts --> n_src_orcamento_controllers_index_ts
+  n_src_orcamento_entities_index_ts["src/orcamento/entities/index.ts"]
+  n_src_orcamento_orcamento_module_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_orcamento_module_ts --> n_src_produto_produto_module_ts
+  n_src_orcamento_services_preparar_itens_orcamento_service_ts["src/orcamento/services/preparar-itens-orcamento.service.ts"]
+  n_src_orcamento_services_preparar_itens_orcamento_service_ts --> n_src_produto_contracts_index_ts
+  n_src_orcamento_services_preparar_itens_orcamento_service_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_services_preparar_itens_orcamento_service_spec["src/orcamento/services/preparar-itens-orcamento.service.spec.ts"]
+  n_src_orcamento_services_preparar_itens_orcamento_service_spec --> n_src_produto_contracts_index_ts
+  n_src_orcamento_services_index_ts["src/orcamento/services/index.ts"]
+  n_src_orcamento_services_preparar_itens_orcamento_service_spec --> n_src_orcamento_services_index_ts
+  n_src_orcamento_services_orcamento_service_ts["src/orcamento/services/orcamento.service.ts"]
+  n_src_orcamento_services_orcamento_service_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_dto_index_ts["src/orcamento/dto/index.ts"]
+  n_src_orcamento_services_orcamento_service_ts --> n_src_orcamento_dto_index_ts
+  n_src_orcamento_services_orcamento_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_orcamento_enums_index_ts["src/orcamento/enums/index.ts"]
+  n_src_orcamento_services_orcamento_service_ts --> n_src_orcamento_enums_index_ts
+  n_src_orcamento_services_orcamento_service_spec_ts["src/orcamento/services/orcamento.service.spec.ts"]
+  n_src_orcamento_services_orcamento_service_spec_ts --> n_src_orcamento_services_index_ts
+  n_src_orcamento_docs_orcamento_docs_decorator_ts["src/orcamento/docs/orcamento-docs.decorator.ts"]
+  n_src_orcamento_docs_orcamento_docs_decorator_ts --> n_src_orcamento_dto_index_ts
+  n_src_orcamento_contracts_finalizacao_orcamento_contract_ts["src/orcamento/contracts/finalizacao-orcamento.contract.ts"]
+  n_src_orcamento_contracts_finalizacao_orcamento_contract_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_entities_item_orcamento_entity_ts["src/orcamento/entities/item-orcamento.entity.ts"]
+  n_src_orcamento_entities_orcamento_entity_ts["src/orcamento/entities/orcamento.entity.ts"]
+  n_src_orcamento_entities_item_orcamento_entity_ts --> n_src_orcamento_entities_orcamento_entity_ts
+  n_src_venda_entities_feira_entity_ts["src/venda/entities/feira.entity.ts"]
+  n_src_orcamento_entities_orcamento_entity_ts --> n_src_venda_entities_feira_entity_ts
+  n_src_orcamento_entities_orcamento_entity_ts --> n_src_orcamento_entities_item_orcamento_entity_ts
+  n_src_orcamento_entities_item_orcamento_entity_spec_ts["src/orcamento/entities/item-orcamento.entity.spec.ts"]
+  n_src_orcamento_entities_item_orcamento_entity_spec_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_use_cases_inserir_orcamento_use_case_ts["src/orcamento/use-cases/inserir-orcamento.use-case.ts"]
+  n_src_orcamento_use_cases_inserir_orcamento_use_case_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_spec_ts["src/orcamento/use-cases/atualizar-orcamento.use-case.spec.ts"]
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_ts["src/orcamento/use-cases/atualizar-orcamento.use-case.ts"]
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_spec_ts --> n_src_orcamento_use_cases_atualizar_orcamento_use_case_ts
+  n_src_orcamento_use_cases_inserir_orcamento_use_case_spec_ts["src/orcamento/use-cases/inserir-orcamento.use-case.spec.ts"]
+  n_src_orcamento_use_cases_inserir_orcamento_use_case_spec_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_use_cases_index_ts["src/orcamento/use-cases/index.ts"]
+  n_src_orcamento_use_cases_inserir_orcamento_use_case_spec_ts --> n_src_orcamento_use_cases_index_ts
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_ts --> n_src_orcamento_enums_index_ts
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_ts --> n_src_orcamento_dto_index_ts
+  n_src_orcamento_use_cases_atualizar_orcamento_use_case_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_dto_pesquisar_orcamentos_dto_spec_ts["src/orcamento/dto/pesquisar-orcamentos.dto.spec.ts"]
+  n_src_orcamento_dto_pesquisar_orcamentos_dto_ts["src/orcamento/dto/pesquisar-orcamentos.dto.ts"]
+  n_src_orcamento_dto_pesquisar_orcamentos_dto_spec_ts --> n_src_orcamento_dto_pesquisar_orcamentos_dto_ts
+  n_src_orcamento_dto_pesquisar_orcamentos_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_orcamento_dto_pesquisar_orcamentos_dto_ts --> n_src_common_decorators_transformar_lista_decorator_ts
+  n_src_orcamento_dto_inserir_orcamento_dto_ts["src/orcamento/dto/inserir-orcamento.dto.ts"]
+  n_src_orcamento_dto_inserir_orcamento_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_orcamento_dto_item_orcamento_dto_ts["src/orcamento/dto/item-orcamento.dto.ts"]
+  n_src_orcamento_dto_inserir_orcamento_dto_ts --> n_src_orcamento_dto_item_orcamento_dto_ts
+  n_src_orcamento_dto_atualizar_orcamento_dto_ts["src/orcamento/dto/atualizar-orcamento.dto.ts"]
+  n_src_orcamento_dto_atualizar_orcamento_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_orcamento_dto_atualizar_orcamento_dto_ts --> n_src_orcamento_dto_item_orcamento_dto_ts
+  n_src_orcamento_dto_item_orcamento_dto_spec_ts["src/orcamento/dto/item-orcamento.dto.spec.ts"]
+  n_src_orcamento_dto_item_orcamento_dto_spec_ts --> n_src_orcamento_dto_inserir_orcamento_dto_ts
+  n_src_orcamento_dto_item_orcamento_dto_spec_ts --> n_src_orcamento_dto_atualizar_orcamento_dto_ts
+  n_src_orcamento_dto_item_orcamento_dto_spec_ts --> n_src_orcamento_dto_item_orcamento_dto_ts
+  n_src_orcamento_controllers_orcamento_controller_spec_ts["src/orcamento/controllers/orcamento.controller.spec.ts"]
+  n_src_orcamento_controllers_orcamento_controller_spec_ts --> n_src_orcamento_controllers_index_ts
+  n_src_orcamento_controllers_orcamento_controller_spec_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_controllers_orcamento_controller_spec_ts --> n_src_orcamento_services_index_ts
+  n_src_orcamento_controllers_orcamento_controller_ts["src/orcamento/controllers/orcamento.controller.ts"]
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_orcamento_entities_index_ts
+  n_src_orcamento_controllers_orcamento_controller_ts --> n_src_orcamento_services_index_ts
+  n_src_relatorio_controllers_index_ts["src/relatorio/controllers/index.ts"]
+  n_src_relatorio_relatorio_module_ts --> n_src_relatorio_controllers_index_ts
+  n_src_relatorio_services_index_ts["src/relatorio/services/index.ts"]
+  n_src_relatorio_relatorio_module_ts --> n_src_relatorio_services_index_ts
+  n_src_relatorio_services_relatorio_service_ts["src/relatorio/services/relatorio.service.ts"]
+  n_src_relatorio_services_relatorio_service_ts --> n_src_common_services_date_service_ts
+  n_src_venda_enums_index_ts["src/venda/enums/index.ts"]
+  n_src_relatorio_services_relatorio_service_ts --> n_src_venda_enums_index_ts
+  n_src_relatorio_services_relatorio_service_spec_ts["src/relatorio/services/relatorio.service.spec.ts"]
+  n_src_relatorio_services_relatorio_service_spec_ts --> n_src_relatorio_services_index_ts
+  n_src_relatorio_services_relatorio_service_spec_ts --> n_src_venda_enums_index_ts
+  n_src_relatorio_services_relatorio_service_spec_ts --> n_src_common_services_date_service_ts
+  n_src_relatorio_dto_obter_sugestao_producao_dto_ts["src/relatorio/dto/obter-sugestao-producao.dto.ts"]
+  n_src_relatorio_dto_obter_sugestao_producao_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_relatorio_dto_valor_produtos_estoque_dto_ts["src/relatorio/dto/valor-produtos-estoque.dto.ts"]
+  n_src_relatorio_dto_valor_produto_estoque_dto_ts["src/relatorio/dto/valor-produto-estoque.dto.ts"]
+  n_src_relatorio_dto_valor_produtos_estoque_dto_ts --> n_src_relatorio_dto_valor_produto_estoque_dto_ts
+  n_src_relatorio_dto_relatorio_sugestao_producao_dto_ts["src/relatorio/dto/relatorio-sugestao-producao.dto.ts"]
+  n_src_relatorio_dto_sugestao_producao_produto_dto_ts["src/relatorio/dto/sugestao-producao-produto.dto.ts"]
+  n_src_relatorio_dto_relatorio_sugestao_producao_dto_ts --> n_src_relatorio_dto_sugestao_producao_produto_dto_ts
+  n_src_relatorio_dto_produtos_mais_vendidos_periodo_dto_ts["src/relatorio/dto/produtos-mais-vendidos-periodo.dto.ts"]
+  n_src_relatorio_dto_produto_mais_vendido_dto_ts["src/relatorio/dto/produto-mais-vendido.dto.ts"]
+  n_src_relatorio_dto_produtos_mais_vendidos_periodo_dto_ts --> n_src_relatorio_dto_produto_mais_vendido_dto_ts
+  n_src_relatorio_dto_despesas_categorias_mes_dashboard_dto_ts["src/relatorio/dto/despesas-categorias-mes-dashboard.dto.ts"]
+  n_src_relatorio_dto_despesa_categoria_mes_dashboard_item_dto_t["src/relatorio/dto/despesa-categoria-mes-dashboard-item.dto.ts"]
+  n_src_relatorio_dto_despesas_categorias_mes_dashboard_dto_ts --> n_src_relatorio_dto_despesa_categoria_mes_dashboard_item_dto_t
+  n_src_relatorio_dto_obter_relatorio_producao_dto_ts["src/relatorio/dto/obter-relatorio-producao.dto.ts"]
+  n_src_common_constants_paginacao_constants_ts["src/common/constants/paginacao.constants.ts"]
+  n_src_relatorio_dto_obter_relatorio_producao_dto_ts --> n_src_common_constants_paginacao_constants_ts
+  n_src_common_decorators_validar_tamanho_pagina_decorator_ts["src/common/decorators/validar-tamanho-pagina.decorator.ts"]
+  n_src_relatorio_dto_obter_relatorio_producao_dto_ts --> n_src_common_decorators_validar_tamanho_pagina_decorator_ts
+  n_src_relatorio_dto_obter_resumo_vendas_periodo_dto_ts["src/relatorio/dto/obter-resumo-vendas-periodo.dto.ts"]
+  n_src_relatorio_dto_obter_resumo_vendas_periodo_dto_ts --> n_src_venda_enums_index_ts
+  n_src_relatorio_dto_obter_produtos_mais_vendidos_dto_ts["src/relatorio/dto/obter-produtos-mais-vendidos.dto.ts"]
+  n_src_relatorio_dto_obter_produtos_mais_vendidos_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_relatorio_dto_obter_produtos_mais_vendidos_dto_ts --> n_src_common_decorators_transformar_lista_decorator_ts
+  n_src_relatorio_dto_obter_produtos_mais_vendidos_dto_ts --> n_src_venda_enums_index_ts
+  n_src_relatorio_dto_top_produtos_mes_dashboard_dto_ts["src/relatorio/dto/top-produtos-mes-dashboard.dto.ts"]
+  n_src_relatorio_dto_top_produtos_mes_dashboard_dto_ts --> n_src_relatorio_dto_produto_mais_vendido_dto_ts
+  n_src_relatorio_dto_resumo_mensal_dashboard_dto_ts["src/relatorio/dto/resumo-mensal-dashboard.dto.ts"]
+  n_src_relatorio_dto_resumo_mensal_dashboard_item_dto_ts["src/relatorio/dto/resumo-mensal-dashboard-item.dto.ts"]
+  n_src_relatorio_dto_resumo_mensal_dashboard_dto_ts --> n_src_relatorio_dto_resumo_mensal_dashboard_item_dto_ts
+  n_src_relatorio_dto_relatorio_producao_dto_ts["src/relatorio/dto/relatorio-producao.dto.ts"]
+  n_src_relatorio_dto_producao_produto_dto_ts["src/relatorio/dto/producao-produto.dto.ts"]
+  n_src_relatorio_dto_relatorio_producao_dto_ts --> n_src_relatorio_dto_producao_produto_dto_ts
+  n_src_relatorio_dto_obter_valor_produtos_estoque_dto_ts["src/relatorio/dto/obter-valor-produtos-estoque.dto.ts"]
+  n_src_relatorio_dto_obter_valor_produtos_estoque_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_relatorio_controllers_relatorio_controller_ts["src/relatorio/controllers/relatorio.controller.ts"]
+  n_src_relatorio_controllers_relatorio_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_relatorio_controllers_relatorio_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_relatorio_controllers_relatorio_controller_ts --> n_src_relatorio_services_index_ts
+  n_src_relatorio_controllers_relatorio_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_relatorio_controllers_relatorio_controller_spec_ts["src/relatorio/controllers/relatorio.controller.spec.ts"]
+  n_src_relatorio_controllers_relatorio_controller_spec_ts --> n_src_relatorio_controllers_index_ts
+  n_src_relatorio_controllers_relatorio_controller_spec_ts --> n_src_relatorio_services_index_ts
+  n_src_relatorio_controllers_relatorio_controller_spec_ts --> n_src_venda_enums_index_ts
+  n_src_database_indices_entidades_spec_ts["src/database/indices-entidades.spec.ts"]
+  n_src_database_indices_entidades_spec_ts --> n_src_assinatura_entities_index_ts
+  n_src_financeiro_entities_index_ts["src/financeiro/entities/index.ts"]
+  n_src_database_indices_entidades_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_database_indices_entidades_spec_ts --> n_src_produto_entities_index_ts
+  n_src_database_indices_entidades_spec_ts --> n_src_venda_entities_index_ts
+  n_src_consignacao_controllers_index_ts["src/consignacao/controllers/index.ts"]
+  n_src_consignacao_consignacao_module_ts --> n_src_consignacao_controllers_index_ts
+  n_src_consignacao_consignacao_module_ts --> n_src_produto_produto_module_ts
+  n_src_consignacao_consignacao_module_ts --> n_src_produto_entities_index_ts
+  n_src_consignacao_consignacao_module_ts --> n_src_financeiro_financeiro_module_ts
+  n_src_consignacao_contracts_index_ts["src/consignacao/contracts/index.ts"]
+  n_src_consignacao_consignacao_module_ts --> n_src_consignacao_contracts_index_ts
+  n_src_consignacao_services_consignacao_service_spec_ts["src/consignacao/services/consignacao.service.spec.ts"]
+  n_src_consignacao_services_consignacao_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_consignacao_services_consignacao_service_ts["src/consignacao/services/consignacao.service.ts"]
+  n_src_consignacao_services_consignacao_service_spec_ts --> n_src_consignacao_services_consignacao_service_ts
+  n_src_consignacao_services_revendedor_service_ts["src/consignacao/services/revendedor.service.ts"]
+  n_src_consignacao_services_revendedor_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_consignacao_dto_index_ts["src/consignacao/dto/index.ts"]
+  n_src_consignacao_services_revendedor_service_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_entities_index_ts["src/consignacao/entities/index.ts"]
+  n_src_consignacao_services_revendedor_service_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_enums_index_ts["src/consignacao/enums/index.ts"]
+  n_src_consignacao_services_revendedor_service_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_services_consignacao_pdf_service_spec_ts["src/consignacao/services/consignacao-pdf.service.spec.ts"]
+  n_src_consignacao_services_consignacao_pdf_service_spec_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_services_consignacao_pdf_service_spec_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_services_consignacao_pdf_service_ts["src/consignacao/services/consignacao-pdf.service.ts"]
+  n_src_consignacao_services_consignacao_pdf_service_spec_ts --> n_src_consignacao_services_consignacao_pdf_service_ts
+  n_src_consignacao_services_consignacao_pdf_service_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_services_consignacao_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_consignacao_services_consignacao_service_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_services_consignacao_service_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_services_consignacao_service_ts --> n_src_venda_entities_index_ts
+  n_src_common_enums_meio_pagamento_enum_ts["src/common/enums/meio-pagamento.enum.ts"]
+  n_src_consignacao_services_consignacao_service_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_services_consignacao_service_ts --> n_src_venda_enums_index_ts
+  n_src_consignacao_contracts_fechamento_consignacao_contract_ts["src/consignacao/contracts/fechamento-consignacao.contract.ts"]
+  n_src_consignacao_contracts_fechamento_consignacao_contract_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_entities_revendedor_entity_ts["src/consignacao/entities/revendedor.entity.ts"]
+  n_src_consignacao_entities_consignacao_entity_ts["src/consignacao/entities/consignacao.entity.ts"]
+  n_src_consignacao_entities_revendedor_entity_ts --> n_src_consignacao_entities_consignacao_entity_ts
+  n_src_consignacao_entities_revendedor_entity_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_entities_consignacao_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_consignacao_entities_consignacao_entity_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_entities_item_consignacao_entity_ts["src/consignacao/entities/item-consignacao.entity.ts"]
+  n_src_consignacao_entities_consignacao_entity_ts --> n_src_consignacao_entities_item_consignacao_entity_ts
+  n_src_consignacao_entities_consignacao_entity_ts --> n_src_consignacao_entities_revendedor_entity_ts
+  n_src_consignacao_entities_revendedor_entity_spec_ts["src/consignacao/entities/revendedor.entity.spec.ts"]
+  n_src_consignacao_entities_revendedor_entity_spec_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_entities_revendedor_entity_spec_ts --> n_src_consignacao_entities_revendedor_entity_ts
+  n_src_consignacao_entities_item_consignacao_entity_ts --> n_src_produto_entities_index_ts
+  n_src_consignacao_entities_item_consignacao_entity_ts --> n_src_consignacao_entities_consignacao_entity_ts
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_["src/consignacao/use-cases/excluir-item-consignacao.use-case.spec.ts"]
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_services_index_ts["src/consignacao/services/index.ts"]
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_produto_entities_index_ts
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_consignacao_use_cases_excluir_item_consignacao_use_case_
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_consignacao_services_index_ts
+  n_src_consignacao_dto_listar_consignacao_dto_ts["src/consignacao/dto/listar-consignacao.dto.ts"]
+  n_src_consignacao_use_cases_excluir_item_consignacao_use_case_ --> n_src_consignacao_dto_listar_consignacao_dto_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig["src/consignacao/use-cases/registrar-vendas-revendedor-consignado.use-case.ts"]
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_financeiro_contracts_index_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_["src/consignacao/use-cases/alterar-item-consignacao.use-case.ts"]
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_dto_listar_consignacao_dto_ts
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use["src/consignacao/use-cases/registrar-devolucao-consignada.use-case.spec.ts"]
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_consignacao_use_cases_registrar_devolucao_consignada_use
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_venda_entities_index_ts
+  n_src_consignacao_use_cases_registrar_vendas_revendedor_consig --> n_src_consignacao_use_cases_registrar_vendas_revendedor_consig
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas["src/consignacao/use-cases/adicionar-item-consignacao.use-case.ts"]
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_produto_contracts_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_dto_listar_consignacao_dto_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_produto_entities_index_ts
+  n_src_consignacao_use_cases_alterar_item_consignacao_use_case_ --> n_src_consignacao_use_cases_alterar_item_consignacao_use_case_
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_registrar_devolucao_consignada_use --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_alterar_revendedor_use_case_ts["src/consignacao/use-cases/alterar-revendedor.use-case.ts"]
+  n_src_consignacao_use_cases_alterar_revendedor_use_case_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_alterar_revendedor_use_case_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_alterar_revendedor_use_case_ts --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_spec_t["src/consignacao/use-cases/fechar-consignacao.use-case.spec.ts"]
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_spec_t --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_spec_t --> n_src_consignacao_contracts_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_spec_t --> n_src_financeiro_contracts_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_ts["src/consignacao/use-cases/fechar-consignacao.use-case.ts"]
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_spec_t --> n_src_consignacao_use_cases_fechar_consignacao_use_case_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_produto_services_index_ts
+  n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas --> n_src_consignacao_use_cases_adicionar_item_consignacao_use_cas
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_["src/consignacao/use-cases/inserir-consignacao.use-case.spec.ts"]
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_ --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_ --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_ --> n_src_produto_services_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_ --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts["src/consignacao/use-cases/inserir-consignacao.use-case.ts"]
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_spec_ --> n_src_consignacao_use_cases_inserir_consignacao_use_case_ts
+  n_src_consignacao_use_cases_inserir_revendedor_use_case_ts["src/consignacao/use-cases/inserir-revendedor.use-case.ts"]
+  n_src_consignacao_use_cases_inserir_revendedor_use_case_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_inserir_revendedor_use_case_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_inserir_revendedor_use_case_ts --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_ts --> n_src_common_contracts_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_fechar_consignacao_use_case_ts --> n_src_financeiro_contracts_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_consignacao_dto_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_consignacao_entities_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_consignacao_services_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_consignacao_use_cases_inserir_consignacao_use_case_ts --> n_src_consignacao_dto_listar_consignacao_dto_ts
+  n_src_consignacao_dto_listar_consignacao_dto_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_dto_inserir_revendedor_dto_ts["src/consignacao/dto/inserir-revendedor.dto.ts"]
+  n_src_consignacao_dto_inserir_revendedor_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_consignacao_dto_inserir_revendedor_dto_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_dto_pesquisar_revendedores_dto_ts["src/consignacao/dto/pesquisar-revendedores.dto.ts"]
+  n_src_consignacao_dto_pesquisar_revendedores_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_consignacao_dto_pesquisar_revendedores_dto_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_dto_fechar_consignacao_dto_ts["src/consignacao/dto/fechar-consignacao.dto.ts"]
+  n_src_consignacao_dto_fechar_consignacao_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_dto_pesquisar_consignacoes_dto_ts["src/consignacao/dto/pesquisar-consignacoes.dto.ts"]
+  n_src_consignacao_dto_pesquisar_consignacoes_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_consignacao_dto_pesquisar_consignacoes_dto_ts --> n_src_consignacao_enums_index_ts
+  n_src_consignacao_dto_registrar_vendas_consignadas_dto_ts["src/consignacao/dto/registrar-vendas-consignadas.dto.ts"]
+  n_src_consignacao_dto_registrar_vendas_consignadas_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_consignacao_dto_alterar_revendedor_dto_ts["src/consignacao/dto/alterar-revendedor.dto.ts"]
+  n_src_consignacao_dto_alterar_revendedor_dto_ts --> n_src_consignacao_dto_inserir_revendedor_dto_ts
+  n_src_consignacao_controllers_consignacao_controller_ts["src/consignacao/controllers/consignacao.controller.ts"]
+  n_src_consignacao_controllers_consignacao_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_consignacao_controllers_consignacao_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_consignacao_controllers_consignacao_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_consignacao_controllers_consignacao_controller_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_consignacao_controllers_consignacao_controller_ts --> n_src_consignacao_entities_index_ts
+  n_src_config_typeorm_datasource_ts["src/config/typeorm.datasource.ts"]
+  n_src_config_typeorm_datasource_ts --> n_src_config_env_validation_ts
+  n_src_config_typeorm_datasource_ts --> n_src_config_database_config_ts
+  n_src_config_database_config_ts --> n_src_orcamento_entities_index_ts
+  n_src_config_database_config_spec_ts["src/config/database.config.spec.ts"]
+  n_src_config_database_config_spec_ts --> n_src_config_database_config_ts
+  n_src_config_database_config_spec_ts --> n_src_config_env_validation_ts
+  n_src_financeiro_controllers_index_ts["src/financeiro/controllers/index.ts"]
+  n_src_financeiro_financeiro_module_ts --> n_src_financeiro_controllers_index_ts
+  n_src_venda_feira_module_ts["src/venda/feira.module.ts"]
+  n_src_financeiro_financeiro_module_ts --> n_src_venda_feira_module_ts
+  n_src_financeiro_services_despesa_service_ts["src/financeiro/services/despesa.service.ts"]
+  n_src_financeiro_services_despesa_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_despesa_service_ts --> n_src_common_services_date_service_ts
+  n_src_financeiro_services_despesa_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_financeiro_services_caixa_service_ts["src/financeiro/services/caixa.service.ts"]
+  n_src_financeiro_services_caixa_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_enums_index_ts["src/financeiro/enums/index.ts"]
+  n_src_financeiro_services_caixa_service_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_services_caixa_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_financeiro_services_caixa_service_ts --> n_src_common_services_date_service_ts
+  n_src_financeiro_services_caixa_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_financeiro_services_carteira_service_ts["src/financeiro/services/carteira.service.ts"]
+  n_src_financeiro_services_caixa_service_ts --> n_src_financeiro_services_carteira_service_ts
+  n_src_financeiro_services_ajuste_carteira_service_ts["src/financeiro/services/ajuste-carteira.service.ts"]
+  n_src_financeiro_services_ajuste_carteira_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_categoria_despesa_service_spec_ts["src/financeiro/services/categoria-despesa.service.spec.ts"]
+  n_src_financeiro_services_categoria_despesa_service_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_categoria_despesa_service_ts["src/financeiro/services/categoria-despesa.service.ts"]
+  n_src_financeiro_services_categoria_despesa_service_spec_ts --> n_src_financeiro_services_categoria_despesa_service_ts
+  n_src_financeiro_services_ajuste_carteira_service_spec_ts["src/financeiro/services/ajuste-carteira.service.spec.ts"]
+  n_src_financeiro_services_ajuste_carteira_service_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_ajuste_carteira_service_spec_ts --> n_src_financeiro_services_ajuste_carteira_service_ts
+  n_src_financeiro_services_carteira_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_carteira_service_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_services_carteira_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_financeiro_services_carteira_service_ts --> n_src_financeiro_contracts_index_ts
+  n_src_financeiro_services_transferencia_carteira_service_spec_["src/financeiro/services/transferencia-carteira.service.spec.ts"]
+  n_src_financeiro_services_transferencia_carteira_service_spec_ --> n_src_common_services_date_service_ts
+  n_src_financeiro_services_transferencia_carteira_service_spec_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_transferencia_carteira_service_ts["src/financeiro/services/transferencia-carteira.service.ts"]
+  n_src_financeiro_services_transferencia_carteira_service_spec_ --> n_src_financeiro_services_transferencia_carteira_service_ts
+  n_src_financeiro_services_caixa_service_spec_ts["src/financeiro/services/caixa.service.spec.ts"]
+  n_src_financeiro_services_caixa_service_spec_ts --> n_src_financeiro_services_caixa_service_ts
+  n_src_financeiro_services_caixa_service_spec_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service["src/financeiro/services/taxa-meio-pagamento-carteira.service.spec.ts"]
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_financeiro_services_taxa_meio_pagamento_carteira_service
+  n_src_financeiro_services_despesa_service_spec_ts["src/financeiro/services/despesa.service.spec.ts"]
+  n_src_financeiro_services_despesa_service_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_despesa_service_spec_ts --> n_src_financeiro_services_despesa_service_ts
+  n_src_financeiro_services_despesa_service_spec_ts --> n_src_common_services_date_service_ts
+  n_src_financeiro_services_despesa_service_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_services_categoria_despesa_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_categoria_despesa_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_taxa_meio_pagamento_carteira_service --> n_src_financeiro_contracts_index_ts
+  n_src_financeiro_services_carteira_service_spec_ts["src/financeiro/services/carteira.service.spec.ts"]
+  n_src_financeiro_services_carteira_service_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_carteira_service_spec_ts --> n_src_financeiro_services_carteira_service_ts
+  n_src_financeiro_services_carteira_service_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_index_ts["src/financeiro/dto/index.ts"]
+  n_src_financeiro_services_transferencia_carteira_service_ts --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_services_transferencia_carteira_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_transferencia_carteira_service_ts --> n_src_common_services_date_service_ts
+  n_src_financeiro_services_transferencia_carteira_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_financeiro_contracts_consulta_carteira_contract_ts["src/financeiro/contracts/consulta-carteira.contract.ts"]
+  n_src_financeiro_contracts_consulta_carteira_contract_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_contracts_consulta_taxa_pagamento_contract_ts["src/financeiro/contracts/consulta-taxa-pagamento.contract.ts"]
+  n_src_financeiro_contracts_consulta_taxa_pagamento_contract_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_transferencia_carteira_entity_ts["src/financeiro/entities/transferencia-carteira.entity.ts"]
+  n_src_financeiro_entities_transferencia_carteira_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_financeiro_entities_carteira_entity_ts["src/financeiro/entities/carteira.entity.ts"]
+  n_src_financeiro_entities_transferencia_carteira_entity_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_despesa_entity_spec_ts["src/financeiro/entities/despesa.entity.spec.ts"]
+  n_src_financeiro_entities_despesa_entity_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_despesa_entity_ts["src/financeiro/entities/despesa.entity.ts"]
+  n_src_financeiro_entities_despesa_entity_spec_ts --> n_src_financeiro_entities_despesa_entity_ts
+  n_src_financeiro_entities_transferencia_carteira_entity_spec_t["src/financeiro/entities/transferencia-carteira.entity.spec.ts"]
+  n_src_financeiro_entities_transferencia_carteira_entity_spec_t --> n_src_financeiro_entities_transferencia_carteira_entity_ts
+  n_src_financeiro_entities_ajuste_carteira_entity_spec_ts["src/financeiro/entities/ajuste-carteira.entity.spec.ts"]
+  n_src_financeiro_entities_ajuste_carteira_entity_spec_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_entities_caixa_entity_ts["src/financeiro/entities/caixa.entity.ts"]
+  n_src_financeiro_entities_caixa_entity_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_entities_conferencia_carteira_caixa_entity_ts["src/financeiro/entities/conferencia-carteira-caixa.entity.ts"]
+  n_src_financeiro_entities_caixa_entity_ts --> n_src_financeiro_entities_conferencia_carteira_caixa_entity_ts
+  n_src_financeiro_entities_ajuste_carteira_entity_ts["src/financeiro/entities/ajuste-carteira.entity.ts"]
+  n_src_financeiro_entities_ajuste_carteira_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_financeiro_entities_ajuste_carteira_entity_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_entities_ajuste_carteira_entity_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_conferencia_carteira_caixa_entity_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_conferencia_carteira_caixa_entity_ts --> n_src_financeiro_entities_caixa_entity_ts
+  n_src_financeiro_entities_categoria_despesa_entity_ts["src/financeiro/entities/categoria-despesa.entity.ts"]
+  n_src_financeiro_entities_categoria_despesa_entity_ts --> n_src_financeiro_entities_despesa_entity_ts
+  n_src_financeiro_entities_carteira_entity_spec_ts["src/financeiro/entities/carteira.entity.spec.ts"]
+  n_src_financeiro_entities_carteira_entity_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_carteira_entity_spec_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_carteira_entity_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_carteira_entity_ts --> n_src_financeiro_entities_ajuste_carteira_entity_ts
+  n_src_financeiro_entities_carteira_entity_ts --> n_src_financeiro_entities_despesa_entity_ts
+  n_src_financeiro_entities_taxa_meio_pagamento_carteira_entity_["src/financeiro/entities/taxa-meio-pagamento-carteira.entity.ts"]
+  n_src_financeiro_entities_carteira_entity_ts --> n_src_financeiro_entities_taxa_meio_pagamento_carteira_entity_
+  n_src_financeiro_entities_carteira_entity_ts --> n_src_financeiro_entities_transferencia_carteira_entity_ts
+  n_src_financeiro_entities_taxa_meio_pagamento_carteira_entity_ --> n_src_auth_entities_user_entity_ts
+  n_src_financeiro_entities_taxa_meio_pagamento_carteira_entity_ --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_taxa_meio_pagamento_carteira_entity_ --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_despesa_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_financeiro_entities_despesa_entity_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_entities_despesa_entity_ts --> n_src_venda_entities_index_ts
+  n_src_financeiro_entities_despesa_entity_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_financeiro_entities_despesa_entity_ts --> n_src_financeiro_entities_categoria_despesa_entity_ts
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_["src/financeiro/use-cases/alterar-categoria-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_services_index_ts["src/financeiro/services/index.ts"]
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_index_ts["src/financeiro/use-cases/index.ts"]
+  n_src_financeiro_use_cases_alterar_categoria_despesa_use_case_ --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_alterar_transferencia_carteira_use_["src/financeiro/use-cases/alterar-transferencia-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_alterar_transferencia_carteira_use_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_transferencia_carteira_use_ --> n_src_financeiro_use_cases_alterar_transferencia_carteira_use_
+  n_src_financeiro_use_cases_excluir_transferencia_carteira_use_["src/financeiro/use-cases/excluir-transferencia-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_excluir_transferencia_carteira_use_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_alterar_despesa_use_case_spec_ts["src/financeiro/use-cases/alterar-despesa.use-case.spec.ts"]
+  n_src_financeiro_use_cases_alterar_despesa_use_case_ts["src/financeiro/use-cases/alterar-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_alterar_despesa_use_case_spec_ts --> n_src_financeiro_use_cases_alterar_despesa_use_case_ts
+  n_src_financeiro_use_cases_alterar_despesa_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_despesa_use_case_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_services_index_ts["src/venda/services/index.ts"]
+  n_src_financeiro_use_cases_alterar_despesa_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_financeiro_use_cases_excluir_carteira_use_case_ts["src/financeiro/use-cases/excluir-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_excluir_carteira_use_case_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_["src/financeiro/use-cases/inserir-categoria-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_spec_ts["src/financeiro/use-cases/alterar-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_alterar_carteira_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_spec_ts --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_spec_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir["src/financeiro/use-cases/inserir-taxa-meio-pagamento-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_excluir_taxa_meio_pagamento_carteir["src/financeiro/use-cases/excluir-taxa-meio-pagamento-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_excluir_taxa_meio_pagamento_carteir --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_taxa_meio_pagamento_carteir --> n_src_financeiro_use_cases_excluir_taxa_meio_pagamento_carteir
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_ --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_inserir_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_sp["src/financeiro/use-cases/inserir-ajuste-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_sp --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_sp --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_sp --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_sp --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_["src/financeiro/use-cases/inserir-transferencia-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_financeiro_use_cases_inserir_transferencia_carteira_use_
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_inserir_transferencia_carteira_use_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_excluir_transferencia_carteira_use_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_excluir_transferencia_carteira_use_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_transferencia_carteira_use_ --> n_src_financeiro_use_cases_excluir_transferencia_carteira_use_
+  n_src_financeiro_use_cases_excluir_carteira_use_case_spec_ts["src/financeiro/use-cases/excluir-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_excluir_carteira_use_case_spec_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_carteira_use_case_spec_ts --> n_src_financeiro_use_cases_excluir_carteira_use_case_ts
+  n_src_financeiro_use_cases_alterar_despesa_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_despesa_use_case_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_contracts_index_ts["src/venda/contracts/index.ts"]
+  n_src_financeiro_use_cases_alterar_despesa_use_case_ts --> n_src_venda_contracts_index_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir --> n_src_financeiro_use_cases_inserir_taxa_meio_pagamento_carteir
+  n_src_financeiro_use_cases_alterar_carteira_use_case_ts["src/financeiro/use-cases/alterar-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_alterar_carteira_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_alterar_carteira_use_case_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts["src/financeiro/use-cases/inserir-despesa.use-case.spec.ts"]
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_financeiro_use_cases_excluir_despesa_use_case_spec_ts["src/financeiro/use-cases/excluir-despesa.use-case.spec.ts"]
+  n_src_financeiro_use_cases_excluir_despesa_use_case_ts["src/financeiro/use-cases/excluir-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_excluir_despesa_use_case_spec_ts --> n_src_financeiro_use_cases_excluir_despesa_use_case_ts
+  n_src_financeiro_use_cases_excluir_despesa_use_case_spec_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_despesa_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir["src/financeiro/use-cases/alterar-taxa-meio-pagamento-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir --> n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_alterar_taxa_meio_pagamento_carteir --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_spec_ts["src/financeiro/use-cases/inserir-carteira.use-case.spec.ts"]
+  n_src_financeiro_use_cases_inserir_carteira_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_spec_ts --> n_src_financeiro_use_cases_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_spec_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_ts["src/financeiro/use-cases/inserir-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_inserir_carteira_use_case_ts --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_carteira_use_case_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_ts["src/financeiro/use-cases/inserir-ajuste-carteira.use-case.ts"]
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_ts --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_ajuste_carteira_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_excluir_categoria_despesa_use_case_["src/financeiro/use-cases/excluir-categoria-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_excluir_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_ts["src/financeiro/use-cases/inserir-despesa.use-case.ts"]
+  n_src_financeiro_use_cases_inserir_despesa_use_case_ts --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_financeiro_use_cases_inserir_despesa_use_case_ts --> n_src_venda_contracts_index_ts
+  n_src_financeiro_use_cases_excluir_despesa_use_case_ts --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_taxa_meio_pagamento_carteir --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_categoria_despesa_use_case_ --> n_src_financeiro_services_index_ts
+  n_src_financeiro_use_cases_excluir_categoria_despesa_use_case_ --> n_src_financeiro_use_cases_excluir_categoria_despesa_use_case_
+  n_src_financeiro_use_cases_alterar_transferencia_carteira_use_ --> n_src_financeiro_dto_index_ts
+  n_src_financeiro_use_cases_alterar_transferencia_carteira_use_ --> n_src_financeiro_entities_index_ts
+  n_src_financeiro_dto_inserir_taxa_meio_pagamento_carteira_dto_["src/financeiro/dto/inserir-taxa-meio-pagamento-carteira.dto.ts"]
+  n_src_financeiro_dto_inserir_taxa_meio_pagamento_carteira_dto_ --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_listar_carteira_dto_ts["src/financeiro/dto/listar-carteira.dto.ts"]
+  n_src_financeiro_dto_listar_carteira_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_pesquisar_caixas_dto_ts["src/financeiro/dto/pesquisar-caixas.dto.ts"]
+  n_src_financeiro_dto_pesquisar_caixas_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_financeiro_dto_alterar_categoria_despesa_dto_ts["src/financeiro/dto/alterar-categoria-despesa.dto.ts"]
+  n_src_financeiro_dto_inserir_categoria_despesa_dto_ts["src/financeiro/dto/inserir-categoria-despesa.dto.ts"]
+  n_src_financeiro_dto_alterar_categoria_despesa_dto_ts --> n_src_financeiro_dto_inserir_categoria_despesa_dto_ts
+  n_src_financeiro_dto_inserir_carteira_dto_ts["src/financeiro/dto/inserir-carteira.dto.ts"]
+  n_src_common_decorators_transformar_percentual_decorator_ts["src/common/decorators/transformar-percentual.decorator.ts"]
+  n_src_financeiro_dto_inserir_carteira_dto_ts --> n_src_common_decorators_transformar_percentual_decorator_ts
+  n_src_financeiro_dto_inserir_carteira_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_pesquisar_transferencias_carteira_dto_ts["src/financeiro/dto/pesquisar-transferencias-carteira.dto.ts"]
+  n_src_financeiro_dto_pesquisar_transferencias_carteira_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_financeiro_dto_inserir_ajuste_carteira_dto_ts["src/financeiro/dto/inserir-ajuste-carteira.dto.ts"]
+  n_src_financeiro_dto_inserir_ajuste_carteira_dto_ts --> n_src_financeiro_enums_index_ts
+  n_src_financeiro_dto_inserir_ajuste_carteira_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_financeiro_dto_pesquisar_despesas_dto_ts["src/financeiro/dto/pesquisar-despesas.dto.ts"]
+  n_src_financeiro_dto_pesquisar_despesas_dto_ts --> n_src_common_decorators_transformar_lista_decorator_ts
+  n_src_financeiro_dto_pesquisar_despesas_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_financeiro_dto_alterar_transferencia_carteira_dto_ts["src/financeiro/dto/alterar-transferencia-carteira.dto.ts"]
+  n_src_financeiro_dto_inserir_transferencia_carteira_dto_ts["src/financeiro/dto/inserir-transferencia-carteira.dto.ts"]
+  n_src_financeiro_dto_alterar_transferencia_carteira_dto_ts --> n_src_financeiro_dto_inserir_transferencia_carteira_dto_ts
+  n_src_financeiro_dto_alterar_taxa_meio_pagamento_carteira_dto_["src/financeiro/dto/alterar-taxa-meio-pagamento-carteira.dto.ts"]
+  n_src_financeiro_dto_alterar_taxa_meio_pagamento_carteira_dto_ --> n_src_financeiro_dto_inserir_taxa_meio_pagamento_carteira_dto_
+  n_src_financeiro_dto_inserir_categoria_despesa_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_financeiro_dto_alterar_carteira_dto_ts["src/financeiro/dto/alterar-carteira.dto.ts"]
+  n_src_financeiro_dto_alterar_carteira_dto_ts --> n_src_common_decorators_transformar_percentual_decorator_ts
+  n_src_financeiro_dto_alterar_carteira_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_listar_taxa_meio_pagamento_carteira_dto_t["src/financeiro/dto/listar-taxa-meio-pagamento-carteira.dto.ts"]
+  n_src_financeiro_dto_listar_taxa_meio_pagamento_carteira_dto_t --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_inserir_despesa_dto_ts["src/financeiro/dto/inserir-despesa.dto.ts"]
+  n_src_financeiro_dto_inserir_despesa_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_inserir_despesa_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_financeiro_dto_alterar_despesa_dto_ts["src/financeiro/dto/alterar-despesa.dto.ts"]
+  n_src_financeiro_dto_alterar_despesa_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_financeiro_dto_alterar_despesa_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_financeiro_dto_alterar_caixa_dto_ts["src/financeiro/dto/alterar-caixa.dto.ts"]
+  n_src_financeiro_dto_abrir_caixa_dto_ts["src/financeiro/dto/abrir-caixa.dto.ts"]
+  n_src_financeiro_dto_alterar_caixa_dto_ts --> n_src_financeiro_dto_abrir_caixa_dto_ts
+  n_src_financeiro_controllers_financeiro_controller_spec_ts["src/financeiro/controllers/financeiro.controller.spec.ts"]
+  n_src_financeiro_controllers_financeiro_controller_spec_ts --> n_src_common_contracts_index_ts
+  n_src_financeiro_controllers_financeiro_controller_spec_ts --> n_src_financeiro_controllers_index_ts
+  n_src_financeiro_controllers_financeiro_controller_ts["src/financeiro/controllers/financeiro.controller.ts"]
+  n_src_financeiro_controllers_financeiro_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_financeiro_controllers_financeiro_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_financeiro_controllers_financeiro_controller_ts --> n_src_common_contracts_index_ts
+  n_src_financeiro_controllers_financeiro_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_auth_guards_index_ts["src/auth/guards/index.ts"]
+  n_src_auth_auth_module_ts --> n_src_auth_guards_index_ts
+  n_src_auth_strategies_index_ts["src/auth/strategies/index.ts"]
+  n_src_auth_auth_module_ts --> n_src_auth_strategies_index_ts
+  n_src_auth_services_auth_service_ts["src/auth/services/auth.service.ts"]
+  n_src_auth_constants_papeis_constants_ts["src/auth/constants/papeis.constants.ts"]
+  n_src_auth_services_auth_service_ts --> n_src_auth_constants_papeis_constants_ts
+  n_src_auth_services_auth_service_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_entities_index_ts["src/auth/entities/index.ts"]
+  n_src_auth_services_auth_service_ts --> n_src_auth_entities_index_ts
+  n_src_auth_interfaces_jwt_payload_interface_ts["src/auth/interfaces/jwt-payload.interface.ts"]
+  n_src_auth_services_auth_service_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_services_auth_service_spec_ts["src/auth/services/auth.service.spec.ts"]
+  n_src_auth_services_index_ts["src/auth/services/index.ts"]
+  n_src_auth_services_auth_service_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_services_auth_service_spec_ts --> n_src_auth_entities_index_ts
+  n_src_auth_services_permissao_usuario_service_spec_ts["src/auth/services/permissao-usuario.service.spec.ts"]
+  n_src_auth_services_permissao_usuario_service_spec_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_services_permissao_usuario_service_spec_ts --> n_src_auth_entities_index_ts
+  n_src_auth_services_permissao_usuario_service_spec_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_services_permissao_usuario_service_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_services_papel_service_ts["src/auth/services/papel.service.ts"]
+  n_src_auth_services_papel_service_ts --> n_src_auth_constants_papeis_constants_ts
+  n_src_auth_services_papel_service_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_services_papel_service_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_services_papel_service_spec_ts["src/auth/services/papel.service.spec.ts"]
+  n_src_auth_services_papel_service_spec_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_services_papel_service_spec_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_services_papel_service_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_services_permissao_usuario_service_ts["src/auth/services/permissao-usuario.service.ts"]
+  n_src_auth_services_permissao_usuario_service_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_services_permissao_usuario_service_ts --> n_src_auth_entities_index_ts
+  n_src_auth_services_permissao_usuario_service_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_docs_papel_administracao_docs_decorator_ts["src/auth/docs/papel-administracao-docs.decorator.ts"]
+  n_src_auth_dto_index_ts["src/auth/dto/index.ts"]
+  n_src_auth_docs_papel_administracao_docs_decorator_ts --> n_src_auth_dto_index_ts
+  n_src_auth_docs_auth_docs_decorator_ts["src/auth/docs/auth-docs.decorator.ts"]
+  n_src_common_docs_decorators_api_problem_responses_decorator_t["src/common/docs/decorators/api-problem-responses.decorator.ts"]
+  n_src_auth_docs_auth_docs_decorator_ts --> n_src_common_docs_decorators_api_problem_responses_decorator_t
+  n_src_auth_strategies_jwt_strategy_ts["src/auth/strategies/jwt.strategy.ts"]
+  n_src_auth_strategies_jwt_strategy_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_strategies_jwt_strategy_spec_ts["src/auth/strategies/jwt.strategy.spec.ts"]
+  n_src_auth_strategies_jwt_strategy_spec_ts --> n_src_auth_strategies_index_ts
+  n_src_auth_entities_permission_entity_ts["src/auth/entities/permission.entity.ts"]
+  n_src_auth_entities_role_permission_entity_ts["src/auth/entities/role-permission.entity.ts"]
+  n_src_auth_entities_permission_entity_ts --> n_src_auth_entities_role_permission_entity_ts
+  n_src_auth_entities_refresh_session_entity_ts["src/auth/entities/refresh-session.entity.ts"]
+  n_src_auth_entities_refresh_session_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_auth_entities_role_entity_ts["src/auth/entities/role.entity.ts"]
+  n_src_auth_entities_role_entity_ts --> n_src_auth_entities_role_permission_entity_ts
+  n_src_auth_entities_role_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_auth_entities_user_permission_entity_ts["src/auth/entities/user-permission.entity.ts"]
+  n_src_auth_entities_user_permission_entity_ts --> n_src_auth_entities_permission_entity_ts
+  n_src_auth_entities_user_permission_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_auth_entities_user_entity_ts --> n_src_auth_entities_refresh_session_entity_ts
+  n_src_auth_entities_user_entity_ts --> n_src_auth_entities_role_entity_ts
+  n_src_auth_entities_user_entity_ts --> n_src_auth_entities_user_permission_entity_ts
+  n_src_auth_entities_role_permission_entity_ts --> n_src_auth_entities_permission_entity_ts
+  n_src_auth_entities_role_permission_entity_ts --> n_src_auth_entities_role_entity_ts
+  n_src_auth_dto_auth_response_dto_ts["src/auth/dto/auth-response.dto.ts"]
+  n_src_auth_dto_usuario_autenticado_dto_ts["src/auth/dto/usuario-autenticado.dto.ts"]
+  n_src_auth_dto_auth_response_dto_ts --> n_src_auth_dto_usuario_autenticado_dto_ts
+  n_src_auth_dto_alterar_cadastro_dto_ts["src/auth/dto/alterar-cadastro.dto.ts"]
+  n_src_auth_dto_alterar_cadastro_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_auth_dto_administracao_permissoes_dto_ts["src/auth/dto/administracao-permissoes.dto.ts"]
+  n_src_auth_dto_administracao_permissoes_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_auth_controllers_usuario_permissao_controller_spec_ts["src/auth/controllers/usuario-permissao.controller.spec.ts"]
+  n_src_auth_controllers_usuario_permissao_controller_spec_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_controllers_index_ts["src/auth/controllers/index.ts"]
+  n_src_auth_controllers_usuario_permissao_controller_spec_ts --> n_src_auth_controllers_index_ts
+  n_src_auth_controllers_usuario_permissao_controller_spec_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_controllers_usuario_permissao_controller_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_controllers_papel_administracao_controller_spec_ts["src/auth/controllers/papel-administracao.controller.spec.ts"]
+  n_src_auth_controllers_papel_administracao_controller_spec_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_controllers_papel_administracao_controller_spec_ts --> n_src_auth_controllers_index_ts
+  n_src_auth_controllers_papel_administracao_controller_spec_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_controllers_papel_administracao_controller_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_controllers_papel_administracao_controller_ts["src/auth/controllers/papel-administracao.controller.ts"]
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_auth_dto_index_ts
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_auth_services_index_ts
+  n_src_auth_controllers_papel_administracao_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_auth_controllers_auth_controller_spec_ts["src/auth/controllers/auth.controller.spec.ts"]
+  n_src_auth_controllers_auth_controller_spec_ts --> n_src_auth_controllers_index_ts
+  n_src_auth_controllers_auth_controller_spec_ts --> n_src_auth_services_index_ts
+  n_src_auth_controllers_auth_controller_ts["src/auth/controllers/auth.controller.ts"]
+  n_src_auth_controllers_auth_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_controllers_auth_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_controllers_auth_controller_ts --> n_src_auth_decorators_public_decorator_ts
+  n_src_auth_controllers_auth_controller_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_controllers_auth_controller_ts --> n_src_auth_services_index_ts
+  n_src_common_docs_decorators_api_cookie_auth_decorator_ts["src/common/docs/decorators/api-cookie-auth.decorator.ts"]
+  n_src_auth_controllers_auth_controller_ts --> n_src_common_docs_decorators_api_cookie_auth_decorator_ts
+  n_src_auth_controllers_auth_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_auth_controllers_usuario_permissao_controller_ts["src/auth/controllers/usuario-permissao.controller.ts"]
+  n_src_auth_controllers_usuario_permissao_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_auth_controllers_usuario_permissao_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_controllers_usuario_permissao_controller_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_controllers_usuario_permissao_controller_ts --> n_src_auth_services_index_ts
+  n_src_auth_controllers_usuario_permissao_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_auth_guards_permissions_guard_ts["src/auth/guards/permissions.guard.ts"]
+  n_src_auth_guards_permissions_guard_ts --> n_src_auth_decorators_public_decorator_ts
+  n_src_auth_guards_permissions_guard_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_auth_guards_permissions_guard_ts --> n_src_auth_interfaces_jwt_payload_interface_ts
+  n_src_auth_guards_jwt_auth_guard_spec_ts["src/auth/guards/jwt-auth.guard.spec.ts"]
+  n_src_auth_guards_jwt_auth_guard_spec_ts --> n_src_auth_guards_index_ts
+  n_src_auth_guards_permissions_guard_spec_ts["src/auth/guards/permissions.guard.spec.ts"]
+  n_src_auth_guards_permissions_guard_spec_ts --> n_src_auth_guards_index_ts
+  n_src_auth_guards_jwt_auth_guard_ts["src/auth/guards/jwt-auth.guard.ts"]
+  n_src_auth_guards_jwt_auth_guard_ts --> n_src_auth_decorators_public_decorator_ts
+  n_src_auth_utils_permissoes_efetivas_ts["src/auth/utils/permissoes-efetivas.ts"]
+  n_src_auth_utils_permissoes_efetivas_ts --> n_src_auth_entities_index_ts
+  n_src_auth_utils_permissoes_efetivas_spec_ts["src/auth/utils/permissoes-efetivas.spec.ts"]
+  n_src_auth_utils_permissoes_efetivas_spec_ts --> n_src_auth_utils_permissoes_efetivas_ts
+  n_src_auth_utils_permissoes_efetivas_spec_ts --> n_src_auth_entities_index_ts
+  n_src_venda_feira_module_ts --> n_src_venda_contracts_index_ts
+  n_src_venda_feira_module_ts --> n_src_venda_entities_index_ts
+  n_src_venda_feira_module_ts --> n_src_venda_services_index_ts
+  n_src_venda_venda_module_ts --> n_src_financeiro_financeiro_module_ts
+  n_src_venda_venda_module_ts --> n_src_orcamento_orcamento_module_ts
+  n_src_venda_controllers_index_ts["src/venda/controllers/index.ts"]
+  n_src_venda_venda_module_ts --> n_src_venda_controllers_index_ts
+  n_src_venda_venda_module_ts --> n_src_produto_produto_module_ts
+  n_src_venda_venda_module_ts --> n_src_venda_feira_module_ts
+  n_src_venda_services_preparar_pagamentos_venda_service_spec_ts["src/venda/services/preparar-pagamentos-venda.service.spec.ts"]
+  n_src_venda_services_preparar_pagamentos_venda_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_preparar_pagamentos_venda_service_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_services_troca_devolucao_service_ts["src/venda/services/troca-devolucao.service.ts"]
+  n_src_venda_services_troca_devolucao_service_ts --> n_src_financeiro_entities_index_ts
+  n_src_venda_services_troca_devolucao_service_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_troca_devolucao_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_preco_produto_feira_service_ts["src/venda/services/preco-produto-feira.service.ts"]
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_produto_contracts_index_ts
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_feira_service_ts["src/venda/services/feira.service.ts"]
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_venda_services_feira_service_ts
+  n_src_venda_services_preco_produto_feira_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_venda_services_preco_produto_feira_service_spec_ts["src/venda/services/preco-produto-feira.service.spec.ts"]
+  n_src_venda_services_preco_produto_feira_service_spec_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_preco_produto_feira_service_spec_ts --> n_src_produto_contracts_index_ts
+  n_src_venda_services_preco_produto_feira_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_preco_produto_feira_service_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_services_venda_service_ts["src/venda/services/venda.service.ts"]
+  n_src_venda_services_venda_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_venda_service_ts --> n_src_venda_enums_index_ts
+  n_src_venda_services_venda_service_ts --> n_src_produto_entities_index_ts
+  n_src_venda_dto_index_ts["src/venda/dto/index.ts"]
+  n_src_venda_services_venda_service_ts --> n_src_venda_dto_index_ts
+  n_src_venda_services_venda_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_venda_services_venda_service_ts --> n_src_common_services_date_service_ts
+  n_src_venda_services_venda_service_spec_ts["src/venda/services/venda.service.spec.ts"]
+  n_src_venda_services_venda_service_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_services_venda_service_spec_ts --> n_src_orcamento_entities_index_ts
+  n_src_venda_services_venda_service_spec_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_venda_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_venda_service_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_services_venda_service_spec_ts --> n_src_common_services_date_service_ts
+  n_src_venda_services_preparar_itens_venda_service_spec_ts["src/venda/services/preparar-itens-venda.service.spec.ts"]
+  n_src_venda_services_preparar_itens_venda_service_spec_ts --> n_src_produto_services_index_ts
+  n_src_venda_services_preparar_itens_venda_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_troca_devolucao_service_spec_ts["src/venda/services/troca-devolucao.service.spec.ts"]
+  n_src_venda_services_troca_devolucao_service_spec_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_troca_devolucao_service_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_services_preparar_pagamentos_venda_service_ts["src/venda/services/preparar-pagamentos-venda.service.ts"]
+  n_src_venda_services_preparar_pagamentos_venda_service_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_services_preparar_pagamentos_venda_service_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_services_preparar_pagamentos_venda_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_feira_service_spec_ts["src/venda/services/feira.service.spec.ts"]
+  n_src_venda_services_feira_service_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_feira_service_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_services_preparar_itens_venda_service_ts["src/venda/services/preparar-itens-venda.service.ts"]
+  n_src_venda_services_preparar_itens_venda_service_ts --> n_src_produto_entities_index_ts
+  n_src_venda_services_preparar_itens_venda_service_ts --> n_src_produto_contracts_index_ts
+  n_src_venda_services_preparar_itens_venda_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_preparar_itens_venda_service_ts --> n_src_venda_enums_index_ts
+  n_src_venda_services_preparar_itens_venda_service_ts --> n_src_venda_services_preco_produto_feira_service_ts
+  n_src_venda_services_feira_service_ts --> n_src_venda_contracts_index_ts
+  n_src_venda_services_feira_service_ts --> n_src_venda_dto_index_ts
+  n_src_venda_services_feira_service_ts --> n_src_venda_entities_index_ts
+  n_src_venda_services_feira_service_ts --> n_src_common_database_lancar_excecao_conflito_ts
+  n_src_venda_services_feira_service_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_venda_entities_item_troca_devolucao_entity_ts["src/venda/entities/item-troca-devolucao.entity.ts"]
+  n_src_venda_entities_item_troca_devolucao_entity_ts --> n_src_produto_entities_index_ts
+  n_src_venda_entities_item_troca_devolucao_entity_ts --> n_src_venda_enums_index_ts
+  n_src_venda_entities_troca_devolucao_entity_ts["src/venda/entities/troca-devolucao.entity.ts"]
+  n_src_venda_entities_item_troca_devolucao_entity_ts --> n_src_venda_entities_troca_devolucao_entity_ts
+  n_src_venda_entities_item_venda_entity_ts["src/venda/entities/item-venda.entity.ts"]
+  n_src_venda_entities_item_venda_entity_ts --> n_src_produto_entities_index_ts
+  n_src_venda_entities_item_venda_entity_ts --> n_src_venda_entities_index_ts
+  n_src_venda_entities_troca_devolucao_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_venda_entities_troca_devolucao_entity_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_entities_troca_devolucao_entity_ts --> n_src_venda_enums_index_ts
+  n_src_venda_entities_venda_entity_ts["src/venda/entities/venda.entity.ts"]
+  n_src_venda_entities_venda_entity_ts --> n_src_auth_entities_user_entity_ts
+  n_src_venda_entities_venda_entity_ts --> n_src_orcamento_entities_index_ts
+  n_src_venda_entities_venda_entity_ts --> n_src_venda_enums_index_ts
+  n_src_venda_entities_venda_entity_ts --> n_src_venda_entities_feira_entity_ts
+  n_src_venda_entities_venda_entity_ts --> n_src_venda_entities_item_venda_entity_ts
+  n_src_venda_entities_pagamento_venda_entity_ts["src/venda/entities/pagamento-venda.entity.ts"]
+  n_src_venda_entities_venda_entity_ts --> n_src_venda_entities_pagamento_venda_entity_ts
+  n_src_venda_entities_preco_produto_feira_entity_ts["src/venda/entities/preco-produto-feira.entity.ts"]
+  n_src_venda_entities_preco_produto_feira_entity_ts --> n_src_produto_entities_index_ts
+  n_src_venda_entities_preco_produto_feira_entity_ts --> n_src_venda_entities_feira_entity_ts
+  n_src_venda_entities_troca_devolucao_entity_spec_ts["src/venda/entities/troca-devolucao.entity.spec.ts"]
+  n_src_venda_entities_troca_devolucao_entity_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_entities_pagamento_venda_entity_ts --> n_src_financeiro_entities_carteira_entity_ts
+  n_src_venda_entities_pagamento_venda_entity_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_entities_pagamento_venda_entity_ts --> n_src_venda_entities_venda_entity_ts
+  n_src_venda_entities_feira_entity_ts --> n_src_venda_entities_preco_produto_feira_entity_ts
+  n_src_venda_entities_feira_entity_ts --> n_src_venda_entities_venda_entity_ts
+  n_src_venda_use_cases_excluir_feira_use_case_ts["src/venda/use-cases/excluir-feira.use-case.ts"]
+  n_src_venda_use_cases_excluir_feira_use_case_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_alterar_feira_use_case_ts["src/venda/use-cases/alterar-feira.use-case.ts"]
+  n_src_venda_use_cases_alterar_feira_use_case_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_alterar_feira_use_case_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts["src/venda/use-cases/inserir-troca-devolucao.use-case.ts"]
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_financeiro_entities_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_financeiro_enums_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_produto_entities_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_produto_contracts_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_inserir_feira_use_case_spec_ts["src/venda/use-cases/inserir-feira.use-case.spec.ts"]
+  n_src_venda_use_cases_inserir_feira_use_case_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_inserir_feira_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_index_ts["src/venda/use-cases/index.ts"]
+  n_src_venda_use_cases_inserir_feira_use_case_spec_ts --> n_src_venda_use_cases_index_ts
+  n_src_venda_use_cases_inserir_feira_use_case_ts["src/venda/use-cases/inserir-feira.use-case.ts"]
+  n_src_venda_use_cases_inserir_feira_use_case_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_inserir_feira_use_case_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts["src/venda/use-cases/inserir-troca-devolucao.use-case.spec.ts"]
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_financeiro_entities_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_financeiro_services_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_inserir_troca_devolucao_use_case_spec_ts --> n_src_venda_use_cases_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_ts["src/venda/use-cases/alterar-venda.use-case.ts"]
+  n_src_venda_use_cases_alterar_venda_use_case_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_use_cases_alterar_venda_use_case_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_ts --> n_src_venda_enums_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_alterar_venda_use_case_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_use_cases_excluir_venda_use_case_spec_ts["src/venda/use-cases/excluir-venda.use-case.spec.ts"]
+  n_src_venda_use_cases_excluir_venda_use_case_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_excluir_venda_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_excluir_venda_use_case_spec_ts --> n_src_venda_use_cases_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_spec_ts["src/venda/use-cases/alterar-venda.use-case.spec.ts"]
+  n_src_venda_use_cases_alterar_venda_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_alterar_venda_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_alterar_venda_use_case_spec_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_use_cases_excluir_feira_use_case_spec_ts["src/venda/use-cases/excluir-feira.use-case.spec.ts"]
+  n_src_venda_use_cases_excluir_feira_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_excluir_feira_use_case_spec_ts --> n_src_venda_use_cases_excluir_feira_use_case_ts
+  n_src_venda_use_cases_excluir_venda_use_case_ts["src/venda/use-cases/excluir-venda.use-case.ts"]
+  n_src_venda_use_cases_excluir_venda_use_case_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts["src/venda/use-cases/inserir-venda.use-case.ts"]
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_orcamento_contracts_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_venda_enums_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_inserir_venda_use_case_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_use_cases_alterar_feira_use_case_spec_ts["src/venda/use-cases/alterar-feira.use-case.spec.ts"]
+  n_src_venda_use_cases_alterar_feira_use_case_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_use_cases_alterar_feira_use_case_spec_ts --> n_src_venda_services_index_ts
+  n_src_venda_use_cases_alterar_feira_use_case_spec_ts --> n_src_venda_use_cases_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts["src/venda/use-cases/inserir-venda.use-case.spec.ts"]
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_financeiro_contracts_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_orcamento_entities_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_orcamento_services_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_produto_services_index_ts
+  n_src_venda_use_cases_inserir_venda_use_case_spec_ts --> n_src_venda_entities_index_ts
+  n_src_venda_dto_inserir_feira_dto_ts["src/venda/dto/inserir-feira.dto.ts"]
+  n_src_venda_dto_inserir_feira_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_venda_dto_pesquisar_vendas_dto_ts["src/venda/dto/pesquisar-vendas.dto.ts"]
+  n_src_venda_dto_pesquisar_vendas_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_venda_dto_pesquisar_vendas_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_dto_pesquisar_vendas_dto_ts --> n_src_venda_enums_index_ts
+  n_src_venda_dto_alterar_feira_dto_ts["src/venda/dto/alterar-feira.dto.ts"]
+  n_src_venda_dto_alterar_feira_dto_ts --> n_src_venda_dto_inserir_feira_dto_ts
+  n_src_venda_dto_inserir_troca_devolucao_dto_ts["src/venda/dto/inserir-troca-devolucao.dto.ts"]
+  n_src_venda_dto_inserir_troca_devolucao_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_dto_inserir_troca_devolucao_dto_ts --> n_src_venda_enums_index_ts
+  n_src_venda_dto_pesquisar_feiras_dto_ts["src/venda/dto/pesquisar-feiras.dto.ts"]
+  n_src_venda_dto_pesquisar_feiras_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_venda_dto_inserir_venda_dto_ts["src/venda/dto/inserir-venda.dto.ts"]
+  n_src_venda_dto_inserir_venda_dto_ts --> n_src_common_enums_meio_pagamento_enum_ts
+  n_src_venda_dto_inserir_venda_dto_ts --> n_src_venda_enums_index_ts
+  n_src_venda_dto_inserir_venda_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_venda_dto_pesquisar_precos_produtos_feira_dto_ts["src/venda/dto/pesquisar-precos-produtos-feira.dto.ts"]
+  n_src_venda_dto_pesquisar_precos_produtos_feira_dto_ts --> n_src_common_dto_pesquisa_paginada_dto_ts
+  n_src_venda_dto_alterar_venda_dto_ts["src/venda/dto/alterar-venda.dto.ts"]
+  n_src_venda_dto_alterar_venda_dto_ts --> n_src_venda_dto_inserir_venda_dto_ts
+  n_src_venda_controllers_venda_controller_ts["src/venda/controllers/venda.controller.ts"]
+  n_src_venda_controllers_venda_controller_ts --> n_src_auth_constants_permissoes_constants_ts
+  n_src_venda_controllers_venda_controller_ts --> n_src_auth_decorators_permissions_decorator_ts
+  n_src_venda_controllers_venda_controller_ts --> n_src_common_docs_decorators_api_controller_docs_decorator_ts
+  n_src_venda_controllers_venda_controller_spec_ts["src/venda/controllers/venda.controller.spec.ts"]
+  n_src_venda_controllers_venda_controller_spec_ts --> n_src_venda_controllers_index_ts
+  n_src_venda_controllers_venda_controller_spec_ts --> n_src_venda_entities_index_ts
+  n_src_common_common_module_ts --> n_src_common_contracts_index_ts
+  n_src_common_common_module_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_common_common_module_ts --> n_src_common_services_date_service_ts
+  n_src_common_validation_exception_factory_spec_ts["src/common/validation.exception-factory.spec.ts"]
+  n_src_common_validation_exception_factory_spec_ts --> n_src_common_validation_exception_factory_ts
+  n_src_common_services_current_user_context_service_ts --> n_src_common_contracts_index_ts
+  n_src_common_services_current_user_context_service_spec_ts["src/common/services/current-user-context.service.spec.ts"]
+  n_src_common_services_current_user_context_service_spec_ts --> n_src_common_services_current_user_context_service_ts
+  n_src_common_services_date_service_spec_ts["src/common/services/date.service.spec.ts"]
+  n_src_common_services_date_service_spec_ts --> n_src_common_services_date_service_ts
+  n_src_common_utils_date_util_ts["src/common/utils/date.util.ts"]
+  n_src_common_services_date_service_ts --> n_src_common_utils_date_util_ts
+  n_src_common_filters_problem_details_exception_filter_spec_ts["src/common/filters/problem-details-exception.filter.spec.ts"]
+  n_src_common_filters_problem_details_exception_filter_spec_ts --> n_src_common_filters_problem_details_exception_filter_ts
+  n_src_common_decorators_validar_tamanho_pagina_decorator_ts --> n_src_common_constants_paginacao_constants_ts
+  n_src_common_docs_decorators_api_controller_docs_decorator_ts --> n_src_common_docs_decorators_api_cookie_auth_decorator_ts
+  n_src_common_docs_dto_problem_details_dto_ts["src/common/docs/dto/problem-details.dto.ts"]
+  n_src_common_docs_decorators_api_problem_responses_decorator_t --> n_src_common_docs_dto_problem_details_dto_ts
+  n_src_common_docs_dto_resultado_paginado_dto_ts["src/common/docs/dto/resultado-paginado.dto.ts"]
+  n_src_common_docs_decorators_api_paginated_ok_response_decorat --> n_src_common_docs_dto_resultado_paginado_dto_ts
+  n_src_common_docs_decorators_api_default_problem_responses_dec --> n_src_common_docs_decorators_api_problem_responses_decorator_t
+  n_src_common_transforms_trim_string_transform_spec_ts["src/common/transforms/trim-string.transform.spec.ts"]
+  n_src_common_transforms_trim_string_transform_spec_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_common_dto_pesquisa_paginada_dto_ts --> n_src_common_decorators_validar_tamanho_pagina_decorator_ts
+  n_src_common_dto_pesquisa_paginada_dto_ts --> n_src_common_transforms_trim_string_transform_ts
+  n_src_common_utils_paginacao_util_ts["src/common/utils/paginacao.util.ts"]
+  n_src_common_utils_paginacao_util_ts --> n_src_common_interfaces_resultado_paginado_interface_ts
+  n_src_common_utils_date_util_spec_ts["src/common/utils/date.util.spec.ts"]
+  n_src_common_utils_date_util_spec_ts --> n_src_common_utils_date_util_ts

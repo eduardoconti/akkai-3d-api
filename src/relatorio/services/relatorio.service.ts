@@ -23,7 +23,8 @@ import {
   TopProdutosMesDashboardDto,
   ValorProdutosEstoqueDto,
 } from '@relatorio/dto';
-import { TipoVenda } from '@venda/enums';
+import { StatusProduto } from '@produto/enums';
+import { TipoItemTrocaDevolucao, TipoVenda } from '@venda/enums';
 
 type ResumoVendasPeriodoRow = {
   quantidadeItens: string | number;
@@ -79,6 +80,8 @@ type SugestaoProducaoRow = {
   estoqueAtual: string | number;
   estoqueMinimo: string | number;
   quantidadeVendida: string | number;
+  feirasConsideradasProduto: string | number;
+  feirasSemEstoque: string | number;
   mediaVendaPorFeira: string | number;
   demandaPlanejada: string | number;
   estoqueSeguranca: string | number;
@@ -95,6 +98,13 @@ type TotalizadoresSugestaoProducaoRow = {
   totalItens: string | number;
   totalQuantidadeSugerida: string | number | null;
 };
+
+/**
+ * Linha retornada pela consulta da sugestão de produção: sempre traz o período
+ * e os totalizadores; os campos do item ficam nulos quando a página está vazia.
+ */
+type SugestaoProducaoConsultaRow = TotalizadoresSugestaoProducaoRow &
+  (SugestaoProducaoRow | { [K in keyof SugestaoProducaoRow]: null });
 
 type DespesaCategoriaMesDashboardRow = {
   idCategoria: string | number | null;
@@ -130,81 +140,104 @@ export class RelatorioService {
   async obterSugestaoProducao(
     filtro: ObterSugestaoProducaoDto,
   ): Promise<RelatorioSugestaoProducaoDto> {
-    const dataFim = this.dateService.obterDataAtualLocal(new Date());
-    const rangeFim = this.dateService.toUtcDateRange(dataFim);
+    // A feira do dia corrente ainda está acontecendo; o histórico vai até ontem.
+    const dataReferencia = this.dateService.subtrairDiasDataLocal(
+      this.dateService.obterDataAtualLocal(new Date()),
+      1,
+    );
+    const rangeReferencia = this.dateService.toUtcDateRange(dataReferencia);
     const offset = calcularOffset(filtro.pagina, filtro.tamanhoPagina);
     const orderByMap = {
       codigo: 'codigo',
       nome: 'nome',
-      estoqueAtual: '"estoqueAtual"',
-      quantidadeVendida: '"quantidadeVendida"',
-      mediaVendaPorFeira: '"mediaVendaPorFeira"',
-      feirasCobertura: '"feirasCobertura"',
-      sugestaoProducao: '"sugestaoProducao"',
+      estoqueAtual: 'estoque_atual',
+      quantidadeVendida: 'quantidade_vendida',
+      mediaVendaPorFeira: 'media_venda_por_feira',
+      feirasCobertura: 'feiras_cobertura',
+      sugestaoProducao: 'sugestao_producao',
     } as const;
     const orderBy = orderByMap[filtro.ordenarPor ?? 'sugestaoProducao'];
     const orderDirection = filtro.direcao === 'asc' ? 'ASC' : 'DESC';
-    const parametrosBase = [
-      rangeFim.end,
-      TipoVenda.FEIRA,
-      filtro.feirasHistorico,
-      filtro.feirasPlanejamento,
-      filtro.feirasEstoqueSeguranca,
-    ];
-    const consultaBase = this.criarConsultaBaseSugestaoProducao();
+    const apenasCoberturaInsuficiente =
+      filtro.apenasCoberturaInsuficiente ?? false;
 
-    const rows: SugestaoProducaoRow[] = await this.dataSource.query(
+    const rows: SugestaoProducaoConsultaRow[] = await this.dataSource.query(
       `
-        ${consultaBase}
+        ${this.criarConsultaBaseSugestaoProducao()},
+        filtradas AS (
+          SELECT *
+          FROM sugestoes
+          WHERE sugestao_producao > 0
+            AND ($9::boolean = false OR feiras_cobertura < $4::numeric)
+        ),
+        totais AS (
+          SELECT
+            COUNT(*)::int AS total_itens,
+            COALESCE(SUM(sugestao_producao), 0) AS total_quantidade_sugerida
+          FROM filtradas
+        ),
+        pagina AS (
+          SELECT
+            *,
+            ROW_NUMBER() OVER (
+              ORDER BY ${orderBy} ${orderDirection} NULLS LAST, codigo ASC
+            ) AS ordem
+          FROM filtradas
+          ORDER BY ordem
+          LIMIT $7
+          OFFSET $8
+        )
         SELECT
-          id_produto AS "idProduto",
-          codigo,
-          nome,
-          id_categoria AS "idCategoria",
-          nome_categoria AS "nomeCategoria",
-          estoque_atual AS "estoqueAtual",
-          estoque_minimo AS "estoqueMinimo",
-          quantidade_vendida AS "quantidadeVendida",
-          media_venda_por_feira AS "mediaVendaPorFeira",
-          demanda_planejada AS "demandaPlanejada",
-          estoque_seguranca AS "estoqueSeguranca",
-          estoque_alvo AS "estoqueAlvo",
-          feiras_cobertura AS "feirasCobertura",
-          sugestao_producao AS "sugestaoProducao",
-          prioridade
-        FROM sugestoes
-        WHERE sugestao_producao > 0
-        ORDER BY ${orderBy} ${orderDirection} NULLS LAST, codigo ASC
-        LIMIT $6
-        OFFSET $7
+          TO_CHAR(periodo.data_inicio, 'YYYY-MM-DD') AS "dataInicio",
+          TO_CHAR(periodo.data_fim, 'YYYY-MM-DD') AS "dataFim",
+          periodo.feiras_consideradas AS "feirasConsideradas",
+          totais.total_itens AS "totalItens",
+          totais.total_quantidade_sugerida AS "totalQuantidadeSugerida",
+          pagina.id_produto AS "idProduto",
+          pagina.codigo,
+          pagina.nome,
+          pagina.id_categoria AS "idCategoria",
+          pagina.nome_categoria AS "nomeCategoria",
+          pagina.estoque_atual AS "estoqueAtual",
+          pagina.estoque_minimo AS "estoqueMinimo",
+          pagina.quantidade_vendida AS "quantidadeVendida",
+          pagina.feiras_consideradas_produto AS "feirasConsideradasProduto",
+          pagina.feiras_sem_estoque AS "feirasSemEstoque",
+          pagina.media_venda_por_feira AS "mediaVendaPorFeira",
+          pagina.demanda_planejada AS "demandaPlanejada",
+          pagina.estoque_seguranca AS "estoqueSeguranca",
+          pagina.estoque_alvo AS "estoqueAlvo",
+          pagina.feiras_cobertura AS "feirasCobertura",
+          pagina.sugestao_producao AS "sugestaoProducao",
+          pagina.prioridade
+        FROM periodo
+        CROSS JOIN totais
+        LEFT JOIN pagina ON true
+        ORDER BY pagina.ordem
       `,
-      [...parametrosBase, filtro.tamanhoPagina, offset],
+      [
+        rangeReferencia.end,
+        TipoVenda.FEIRA,
+        filtro.feirasHistorico,
+        filtro.feirasPlanejamento,
+        filtro.feirasEstoqueSeguranca,
+        StatusProduto.ATIVO,
+        filtro.tamanhoPagina,
+        offset,
+        apenasCoberturaInsuficiente,
+        this.dateService.obterOffsetHoras(),
+        TipoItemTrocaDevolucao.ENTREGUE,
+      ],
     );
 
-    const totalizadores: TotalizadoresSugestaoProducaoRow[] =
-      await this.dataSource.query(
-        `
-          ${consultaBase}
-          SELECT
-            COALESCE(TO_CHAR(periodo.data_inicio, 'YYYY-MM-DD'), TO_CHAR($1::timestamp, 'YYYY-MM-DD')) AS "dataInicio",
-            COALESCE(TO_CHAR(periodo.data_fim, 'YYYY-MM-DD'), TO_CHAR($1::timestamp, 'YYYY-MM-DD')) AS "dataFim",
-            COALESCE(periodo.feiras_consideradas, 0)::int AS "feirasConsideradas",
-            totais."totalItens",
-            totais."totalQuantidadeSugerida"
-          FROM periodo
-          CROSS JOIN (
-            SELECT
-              COUNT(*)::int AS "totalItens",
-              COALESCE(SUM(sugestao_producao), 0) AS "totalQuantidadeSugerida"
-            FROM sugestoes
-            WHERE sugestao_producao > 0
-          ) totais
-        `,
-        parametrosBase,
-      );
-
-    const totais = totalizadores[0];
+    const totais = rows[0];
     const totalItens = Number(totais?.totalItens ?? 0);
+    const itens = rows
+      .filter(
+        (row): row is TotalizadoresSugestaoProducaoRow & SugestaoProducaoRow =>
+          row.idProduto !== null,
+      )
+      .map((row) => this.mapearSugestaoProducao(row));
 
     return {
       ...criarMetadadosPaginacao(
@@ -212,14 +245,15 @@ export class RelatorioService {
         filtro.tamanhoPagina,
         totalItens,
       ),
-      dataInicio: totais?.dataInicio ?? dataFim,
-      dataFim: totais?.dataFim ?? dataFim,
+      dataInicio: totais?.dataInicio ?? dataReferencia,
+      dataFim: totais?.dataFim ?? dataReferencia,
       feirasHistorico: filtro.feirasHistorico,
       feirasConsideradas: Number(totais?.feirasConsideradas ?? 0),
       feirasPlanejamento: filtro.feirasPlanejamento,
       feirasEstoqueSeguranca: filtro.feirasEstoqueSeguranca,
+      apenasCoberturaInsuficiente,
       totalQuantidadeSugerida: Number(totais?.totalQuantidadeSugerida ?? 0),
-      itens: rows.map((row) => this.mapearSugestaoProducao(row)),
+      itens,
     };
   }
 
@@ -340,20 +374,30 @@ export class RelatorioService {
 
   private criarConsultaBaseSugestaoProducao(): string {
     return `
+      -- Uma feira é a combinação (data local, id_feira) com vendas do tipo FEIRA.
+      -- A data local aplica o offset do timezone ($10) para que feiras noturnas
+      -- não sejam divididas em dois dias UTC. $1 é o fim do dia anterior, para
+      -- não contar a feira do dia corrente, ainda parcial.
       WITH feiras_historico AS (
-        SELECT DATE(v.data_venda) AS data_feira
+        SELECT
+          ROW_NUMBER() OVER (
+            ORDER BY DATE(v.data_venda + $10::int * INTERVAL '1 hour') DESC, v.id_feira
+          ) AS ordem_feira,
+          DATE(v.data_venda + $10::int * INTERVAL '1 hour') AS data_feira,
+          v.id_feira,
+          MIN(v.data_venda) AS inicio_feira
         FROM venda v
         WHERE v.tipo = $2
           AND v.data_venda <= $1
-        GROUP BY DATE(v.data_venda)
-        ORDER BY data_feira DESC
+        GROUP BY DATE(v.data_venda + $10::int * INTERVAL '1 hour'), v.id_feira
+        ORDER BY ordem_feira
         LIMIT $3
       ),
       periodo AS (
         SELECT
           MIN(data_feira) AS data_inicio,
           MAX(data_feira) AS data_fim,
-          COUNT(*)::numeric AS feiras_consideradas
+          COUNT(*)::int AS feiras_consideradas
         FROM feiras_historico
       ),
       estoque AS (
@@ -369,17 +413,88 @@ export class RelatorioService {
         FROM movimentacao_estoque
         GROUP BY id_produto
       ),
-      vendas AS (
+      vendas_feira AS (
         SELECT
           item.id_produto,
-          SUM(item.quantidade) AS quantidade_vendida
+          feira.ordem_feira,
+          SUM(item.quantidade) AS quantidade
         FROM item_venda item
         INNER JOIN venda v ON v.id = item.id_venda
-        INNER JOIN feiras_historico feira ON feira.data_feira = DATE(v.data_venda)
+        INNER JOIN feiras_historico feira
+          ON feira.data_feira = DATE(v.data_venda + $10::int * INTERVAL '1 hour')
+          AND feira.id_feira IS NOT DISTINCT FROM v.id_feira
         WHERE v.tipo = $2
           AND item.brinde = false
           AND item.id_produto IS NOT NULL
+        GROUP BY item.id_produto, feira.ordem_feira
+      ),
+      -- Saldo de estoque de cada produto no início de cada feira. Só existe
+      -- linha para produtos com movimentação anterior à feira.
+      estoque_inicio_feira AS (
+        SELECT
+          mov.id_produto,
+          feira.ordem_feira,
+          SUM(
+            CASE
+              WHEN mov.tipo = 'E' THEN mov.quantidade
+              WHEN mov.tipo = 'S' THEN -mov.quantidade
+              ELSE 0
+            END
+          ) AS estoque
+        FROM feiras_historico feira
+        INNER JOIN movimentacao_estoque mov ON mov.data_inclusao < feira.inicio_feira
+        GROUP BY mov.id_produto, feira.ordem_feira
+      ),
+      -- Uma feira conta na média do produto quando ele vendeu nela ou tinha
+      -- estoque no início dela. Feiras antes do produto existir e feiras em que
+      -- ele estava em falta (sem estoque e sem venda) ficam fora, para não
+      -- diluir a média de produtos novos nem subestimar a demanda na ruptura.
+      disponibilidade AS (
+        SELECT
+          COALESCE(vf.id_produto, ef.id_produto) AS id_produto,
+          COUNT(*) FILTER (
+            WHERE COALESCE(vf.quantidade, 0) > 0 OR ef.estoque > 0
+          ) AS feiras_disponiveis,
+          COUNT(*) FILTER (
+            WHERE COALESCE(vf.quantidade, 0) = 0 AND ef.estoque <= 0
+          ) AS feiras_sem_estoque
+        FROM estoque_inicio_feira ef
+        FULL JOIN vendas_feira vf
+          ON vf.id_produto = ef.id_produto
+          AND vf.ordem_feira = ef.ordem_feira
+        GROUP BY COALESCE(vf.id_produto, ef.id_produto)
+      ),
+      -- Trocas/devoluções feitas em dias de feira ajustam a demanda: o item
+      -- devolvido sai e o item entregue entra.
+      trocas AS (
+        SELECT
+          item.id_produto,
+          SUM(
+            CASE
+              WHEN item.tipo = $11 THEN item.quantidade
+              ELSE -item.quantidade
+            END
+          ) AS quantidade
+        FROM item_troca_devolucao item
+        INNER JOIN troca_devolucao troca ON troca.id = item.id_troca_devolucao
+        WHERE DATE(troca.data_troca_devolucao + $10::int * INTERVAL '1 hour') IN (
+          SELECT data_feira FROM feiras_historico
+        )
         GROUP BY item.id_produto
+      ),
+      vendas AS (
+        SELECT
+          COALESCE(vendido.id_produto, trocas.id_produto) AS id_produto,
+          GREATEST(
+            COALESCE(vendido.quantidade, 0) + COALESCE(trocas.quantidade, 0),
+            0
+          ) AS quantidade_vendida
+        FROM (
+          SELECT id_produto, SUM(quantidade) AS quantidade
+          FROM vendas_feira
+          GROUP BY id_produto
+        ) vendido
+        FULL JOIN trocas ON trocas.id_produto = vendido.id_produto
       ),
       indicadores AS (
         SELECT
@@ -391,17 +506,23 @@ export class RelatorioService {
           COALESCE(estoque.estoque_atual, 0) AS estoque_atual,
           COALESCE(p.estoque_minimo, 0) AS estoque_minimo,
           COALESCE(vendas.quantidade_vendida, 0) AS quantidade_vendida,
-          CASE
-            WHEN periodo.feiras_consideradas > 0
-              THEN COALESCE(vendas.quantidade_vendida, 0) / periodo.feiras_consideradas
-            ELSE 0
-          END AS media_venda_por_feira
+          COALESCE(disponibilidade.feiras_disponiveis, 0)::int AS feiras_consideradas_produto,
+          COALESCE(disponibilidade.feiras_sem_estoque, 0)::int AS feiras_sem_estoque,
+          COALESCE(
+            COALESCE(vendas.quantidade_vendida, 0)::numeric
+              / NULLIF(disponibilidade.feiras_disponiveis, 0),
+            0
+          ) AS media_venda_por_feira
         FROM produto p
-        CROSS JOIN periodo
         LEFT JOIN categoria_produto categoria ON categoria.id = p.id_categoria
         LEFT JOIN estoque ON estoque.id_produto = p.id
         LEFT JOIN vendas ON vendas.id_produto = p.id
-        WHERE COALESCE(p.estoque_minimo, 0) > 0
+        LEFT JOIN disponibilidade ON disponibilidade.id_produto = p.id
+        WHERE p.status = $6
+          AND (
+            COALESCE(p.estoque_minimo, 0) > 0
+            OR COALESCE(vendas.quantidade_vendida, 0) > 0
+          )
       ),
       calculos AS (
         SELECT
@@ -429,7 +550,6 @@ export class RelatorioService {
             ELSE 'PRODUZIR'
           END AS prioridade
         FROM calculos
-        WHERE quantidade_vendida > 0 OR estoque_minimo > estoque_atual
       )
     `;
   }
@@ -451,6 +571,8 @@ export class RelatorioService {
       estoqueAtual: Number(row.estoqueAtual ?? 0),
       estoqueMinimo: Number(row.estoqueMinimo ?? 0),
       quantidadeVendida: Number(row.quantidadeVendida ?? 0),
+      feirasConsideradas: Number(row.feirasConsideradasProduto ?? 0),
+      feirasSemEstoque: Number(row.feirasSemEstoque ?? 0),
       mediaVendaPorFeira: this.arredondarNumero(row.mediaVendaPorFeira),
       demandaPlanejada: this.arredondarNumero(row.demandaPlanejada),
       estoqueSeguranca: this.arredondarNumero(row.estoqueSeguranca),

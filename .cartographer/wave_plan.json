@@ -1,0 +1,949 @@
+{
+  "wave_size": 5,
+  "total_segments": 48,
+  "total_waves": 35,
+  "waves": [
+    [
+      "jest/src/common",
+      "jest@src/assinatura/entities",
+      "jest/src/auth/entities",
+      "src/auth/dto",
+      "src/consignacao/dto"
+    ],
+    [
+      "jest@src/venda/entities",
+      "src",
+      "jest@src/common",
+      "src/financeiro/dto",
+      "segment_5"
+    ],
+    [
+      "src/financeiro/contracts",
+      "src/venda/dto",
+      "src/relatorio/dto"
+    ],
+    [
+      "jest/src/auth/dto",
+      "jest/src/financeiro/contracts"
+    ],
+    [
+      "jest@src/auth",
+      "src/auth/docs/usuario-permissao-docs.decorator.ts"
+    ],
+    [
+      "jest/src/financeiro/controllers"
+    ],
+    [
+      "jest/src/financeiro/dto"
+    ],
+    [
+      "jest/src/produto/dto"
+    ],
+    [
+      "jest/src/relatorio"
+    ],
+    [
+      "jest/src/assinatura/dto"
+    ],
+    [
+      "jest/src/consignacao/dto"
+    ],
+    [
+      "jest/src/venda/dto"
+    ],
+    [
+      "jest/src/config"
+    ],
+    [
+      "jest/src/produto/controllers"
+    ],
+    [
+      "jest/src/venda/controllers"
+    ],
+    [
+      "jest/test"
+    ],
+    [
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    [
+      "jest/src/orcamento"
+    ],
+    [
+      "jest/src/notificacao"
+    ],
+    [
+      "jest/src/produto/use-cases"
+    ],
+    [
+      "jest/src/produto/services"
+    ],
+    [
+      "jest/src/produto/entities"
+    ],
+    [
+      "jest/src/assinatura/entities"
+    ],
+    [
+      "jest/src/assinatura/use-cases"
+    ],
+    [
+      "jest/src/assinatura/services"
+    ],
+    [
+      "jest/src/assinatura/controllers"
+    ],
+    [
+      "src/database/migrations/1774751442308-add_feira_to_venda.ts"
+    ],
+    [
+      "jest/src/financeiro/services"
+    ],
+    [
+      "jest/src/financeiro/entities"
+    ],
+    [
+      "jest/src/venda/entities"
+    ],
+    [
+      "jest/src/venda/services"
+    ],
+    [
+      "jest/src/financeiro/use-cases"
+    ],
+    [
+      "jest/src/venda/use-cases"
+    ],
+    [
+      "jest@src/consignacao"
+    ],
+    [
+      "src-misc"
+    ]
+  ],
+  "segment_dependencies": {
+    "jest/test": [
+      "src-misc"
+    ],
+    "src-misc": [
+      "jest/src/assinatura/use-cases",
+      "jest/src/common",
+      "jest/src/config",
+      "jest/src/financeiro/use-cases",
+      "jest/src/notificacao",
+      "jest/src/orcamento",
+      "jest/src/produto/use-cases",
+      "jest/src/relatorio",
+      "jest/src/venda/use-cases",
+      "jest@src/auth",
+      "jest@src/consignacao"
+    ],
+    "jest/src/produto/use-cases": [
+      "jest/src/common",
+      "jest/src/produto/controllers",
+      "jest/src/produto/entities",
+      "jest/src/produto/services",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/produto/services": [
+      "jest/src/auth/entities",
+      "jest/src/common",
+      "jest/src/produto/dto",
+      "jest/src/produto/entities",
+      "jest/src/produto/use-cases"
+    ],
+    "src/produto/contracts/consulta-estoque-negativo.contract.ts": [
+      "jest/src/produto/entities"
+    ],
+    "jest/src/produto/entities": [
+      "jest/src/auth/entities",
+      "jest/src/produto/use-cases",
+      "jest/src/venda/entities"
+    ],
+    "jest/src/produto/dto": [
+      "jest/src/common",
+      "jest/src/produto/use-cases"
+    ],
+    "jest/src/produto/controllers": [
+      "jest/src/common",
+      "jest/src/produto/entities",
+      "jest@src/auth"
+    ],
+    "jest/src/assinatura/use-cases": [
+      "jest/src/assinatura/entities",
+      "jest/src/assinatura/services",
+      "jest/src/produto/services",
+      "jest/src/produto/use-cases",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/assinatura/services": [
+      "jest/src/assinatura/dto",
+      "jest/src/assinatura/entities",
+      "jest/src/assinatura/use-cases",
+      "jest/src/common"
+    ],
+    "jest/src/assinatura/entities": [
+      "jest/src/assinatura/use-cases",
+      "jest/src/produto/entities"
+    ],
+    "jest/src/assinatura/dto": [
+      "jest/src/assinatura/use-cases",
+      "jest/src/common"
+    ],
+    "jest/src/assinatura/controllers": [
+      "jest/src/assinatura/entities",
+      "jest/src/assinatura/services",
+      "jest/src/assinatura/use-cases",
+      "jest/src/common",
+      "jest@src/auth"
+    ],
+    "jest/src/notificacao": [
+      "jest/src/common",
+      "jest/src/financeiro/contracts",
+      "jest/src/financeiro/use-cases",
+      "jest/src/orcamento",
+      "jest/src/produto/use-cases",
+      "jest@src/auth",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/orcamento": [
+      "jest/src/common",
+      "jest/src/produto/use-cases",
+      "jest/src/venda/entities",
+      "jest@src/auth",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/relatorio": [
+      "jest/src/common",
+      "jest/src/venda/use-cases",
+      "jest@src/auth"
+    ],
+    "src/database/migrations/1774751442308-add_feira_to_venda.ts": [
+      "jest/src/assinatura/entities",
+      "jest/src/financeiro/entities",
+      "jest/src/produto/entities",
+      "jest/src/venda/entities"
+    ],
+    "jest@src/consignacao": [
+      "jest/src/auth/entities",
+      "jest/src/common",
+      "jest/src/consignacao/dto",
+      "jest/src/financeiro/contracts",
+      "jest/src/financeiro/use-cases",
+      "jest/src/produto/entities",
+      "jest/src/produto/services",
+      "jest/src/produto/use-cases",
+      "jest/src/venda/entities",
+      "jest/src/venda/use-cases",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/consignacao/dto": [
+      "jest/src/common",
+      "jest@src/auth",
+      "jest@src/consignacao"
+    ],
+    "jest/src/config": [
+      "jest/src/orcamento"
+    ],
+    "jest/src/financeiro/use-cases": [
+      "jest/src/common",
+      "jest/src/financeiro/controllers",
+      "jest/src/financeiro/dto",
+      "jest/src/financeiro/entities",
+      "jest/src/financeiro/services",
+      "jest/src/venda/services",
+      "jest/src/venda/use-cases"
+    ],
+    "jest/src/financeiro/services": [
+      "jest/src/common",
+      "jest/src/financeiro/contracts",
+      "jest/src/financeiro/dto",
+      "jest/src/financeiro/entities",
+      "jest/src/financeiro/use-cases"
+    ],
+    "jest/src/financeiro/contracts": [
+      "jest/src/common"
+    ],
+    "jest/src/financeiro/entities": [
+      "jest/src/auth/entities",
+      "jest/src/common",
+      "jest/src/financeiro/use-cases",
+      "jest/src/venda/entities"
+    ],
+    "jest/src/financeiro/dto": [
+      "jest/src/common",
+      "jest/src/financeiro/use-cases"
+    ],
+    "jest/src/financeiro/controllers": [
+      "jest/src/common",
+      "jest@src/auth"
+    ],
+    "jest@src/auth": [
+      "jest/src/auth/dto",
+      "jest/src/auth/entities",
+      "jest/src/common"
+    ],
+    "src/auth/docs/usuario-permissao-docs.decorator.ts": [
+      "jest/src/auth/dto",
+      "jest/src/common"
+    ],
+    "jest/src/auth/dto": [
+      "jest/src/common"
+    ],
+    "jest/src/venda/use-cases": [
+      "jest/src/common",
+      "jest/src/financeiro/contracts",
+      "jest/src/financeiro/entities",
+      "jest/src/financeiro/services",
+      "jest/src/financeiro/use-cases",
+      "jest/src/orcamento",
+      "jest/src/produto/entities",
+      "jest/src/produto/services",
+      "jest/src/produto/use-cases",
+      "jest/src/venda/controllers",
+      "jest/src/venda/entities",
+      "jest/src/venda/services",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/venda/services": [
+      "jest/src/common",
+      "jest/src/financeiro/contracts",
+      "jest/src/financeiro/entities",
+      "jest/src/orcamento",
+      "jest/src/produto/entities",
+      "jest/src/produto/services",
+      "jest/src/venda/dto",
+      "jest/src/venda/entities",
+      "jest/src/venda/use-cases",
+      "src/produto/contracts/consulta-estoque-negativo.contract.ts"
+    ],
+    "jest/src/venda/entities": [
+      "jest/src/auth/entities",
+      "jest/src/common",
+      "jest/src/financeiro/entities",
+      "jest/src/orcamento",
+      "jest/src/produto/entities",
+      "jest/src/venda/use-cases"
+    ],
+    "jest/src/venda/dto": [
+      "jest/src/common",
+      "jest/src/venda/use-cases"
+    ],
+    "jest/src/venda/controllers": [
+      "jest/src/common",
+      "jest/src/venda/entities",
+      "jest@src/auth"
+    ]
+  },
+  "specialist_assignments": {
+    "jest/src/common": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 7920,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 4000
+        },
+        {
+          "name": "db-schema-reviewer",
+          "score": 850
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 310
+        }
+      ]
+    },
+    "jest@src/assinatura/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 7920,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 60
+        }
+      ]
+    },
+    "jest/src/auth/entities": {
+      "assigned_agent": "auth-security-reviewer",
+      "score": 6650,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 70
+        }
+      ]
+    },
+    "src/auth/dto": {
+      "assigned_agent": "auth-security-reviewer",
+      "score": 6650,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 70
+        }
+      ]
+    },
+    "src/consignacao/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 60,
+      "runners_up": []
+    },
+    "jest@src/venda/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 40
+        }
+      ]
+    },
+    "src": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "runners_up": []
+    },
+    "jest@src/common": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "src/financeiro/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "runners_up": []
+    },
+    "segment_5": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "runners_up": []
+    },
+    "src/financeiro/contracts": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "runners_up": []
+    },
+    "src/venda/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "runners_up": []
+    },
+    "src/relatorio/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "runners_up": []
+    },
+    "jest/src/auth/dto": {
+      "assigned_agent": "auth-security-reviewer",
+      "score": 2850,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "jest/src/financeiro/contracts": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "runners_up": []
+    },
+    "jest@src/auth": {
+      "assigned_agent": "auth-security-reviewer",
+      "score": 29450,
+      "runners_up": [
+        {
+          "name": "test-suite-reviewer",
+          "score": 10800
+        },
+        {
+          "name": "backend-api-reviewer",
+          "score": 5600
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 310
+        }
+      ]
+    },
+    "src/auth/docs/usuario-permissao-docs.decorator.ts": {
+      "assigned_agent": "auth-security-reviewer",
+      "score": 2850,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "jest/src/financeiro/controllers": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "jest/src/financeiro/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 190,
+      "runners_up": []
+    },
+    "jest/src/produto/dto": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 150
+        }
+      ]
+    },
+    "jest/src/relatorio": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 130
+        }
+      ]
+    },
+    "jest/src/assinatura/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 130,
+      "runners_up": []
+    },
+    "jest/src/consignacao/dto": {
+      "assigned_agent": "backend-api-reviewer",
+      "score": 5600,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 100
+        }
+      ]
+    },
+    "jest/src/venda/dto": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 90,
+      "runners_up": []
+    },
+    "jest/src/config": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 40
+        }
+      ]
+    },
+    "jest/src/produto/controllers": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "jest/src/venda/controllers": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 30
+        }
+      ]
+    },
+    "jest/test": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 10
+        }
+      ]
+    },
+    "src/produto/contracts/consulta-estoque-negativo.contract.ts": {
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "runners_up": []
+    },
+    "jest/src/orcamento": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 10080,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 320
+        }
+      ]
+    },
+    "jest/src/notificacao": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 7200,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 2400
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 220
+        }
+      ]
+    },
+    "jest/src/produto/use-cases": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 10080,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 220
+        }
+      ]
+    },
+    "jest/src/produto/services": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5760,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 70
+        }
+      ]
+    },
+    "jest/src/produto/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 60
+        }
+      ]
+    },
+    "jest/src/assinatura/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5760,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 100
+        }
+      ]
+    },
+    "jest/src/assinatura/use-cases": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 12960,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 310
+        }
+      ]
+    },
+    "jest/src/assinatura/services": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 6480,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 100
+        }
+      ]
+    },
+    "jest/src/assinatura/controllers": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "backend-api-reviewer",
+          "score": 4000
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 50
+        }
+      ]
+    },
+    "src/database/migrations/1774751442308-add_feira_to_venda.ts": {
+      "assigned_agent": "db-schema-reviewer",
+      "score": 44200,
+      "runners_up": [
+        {
+          "name": "test-suite-reviewer",
+          "score": 4320
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 520
+        }
+      ]
+    },
+    "jest/src/financeiro/services": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 8640,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 150
+        }
+      ]
+    },
+    "jest/src/financeiro/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 6480,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 130
+        }
+      ]
+    },
+    "jest/src/venda/entities": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 4320,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 90
+        }
+      ]
+    },
+    "jest/src/venda/services": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 7920,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 130
+        }
+      ]
+    },
+    "jest/src/financeiro/use-cases": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 15120,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 370
+        }
+      ]
+    },
+    "jest/src/venda/use-cases": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 8640,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 220
+        }
+      ]
+    },
+    "jest@src/consignacao": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 10800,
+      "runners_up": [
+        {
+          "name": "generalist-reviewer",
+          "score": 340
+        }
+      ]
+    },
+    "src-misc": {
+      "assigned_agent": "test-suite-reviewer",
+      "score": 5040,
+      "runners_up": [
+        {
+          "name": "frontend-designer-reviewer",
+          "score": 780
+        },
+        {
+          "name": "frontend-ui-reviewer",
+          "score": 750
+        },
+        {
+          "name": "generalist-reviewer",
+          "score": 70
+        }
+      ]
+    }
+  },
+  "specialist_index": {
+    "ai-pipeline-reviewer": "ai-pipeline-reviewer.md",
+    "auth-security-reviewer": "auth-security-reviewer.md",
+    "backend-api-reviewer": "backend-api-reviewer.md",
+    "caching-reviewer": "caching-reviewer.md",
+    "cli-tool-reviewer": "cli-tool-reviewer.md",
+    "data-pipeline-reviewer": "data-pipeline-reviewer.md",
+    "db-schema-reviewer": "db-schema-reviewer.md",
+    "devops-config-reviewer": "devops-config-reviewer.md",
+    "file-storage-reviewer": "file-storage-reviewer.md",
+    "frontend-designer-reviewer": "frontend-designer-reviewer.md",
+    "frontend-ui-reviewer": "frontend-ui-reviewer.md",
+    "generalist-reviewer": "generalist-reviewer.md",
+    "mobile-reviewer": "mobile-reviewer.md",
+    "queue-worker-reviewer": "queue-worker-reviewer.md",
+    "realtime-streaming-reviewer": "realtime-streaming-reviewer.md",
+    "supabase-reviewer": "supabase-reviewer.md",
+    "telegram-bot-reviewer": "telegram-bot-reviewer.md",
+    "test-suite-reviewer": "test-suite-reviewer.md",
+    "webhook-integration-reviewer": "webhook-integration-reviewer.md"
+  },
+  "specialist_gaps": [
+    {
+      "segment": "src/consignacao/dto",
+      "file_count": 6,
+      "integrations": [],
+      "directory_prefix": "src/consignacao/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 60,
+      "reason": "low score (60) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/financeiro/dto",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "segment_5",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/financeiro/contracts",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/venda/dto",
+      "file_count": 4,
+      "integrations": [],
+      "directory_prefix": "src/venda/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 40,
+      "reason": "low score (40) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/relatorio/dto",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/relatorio/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/financeiro/contracts",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/financeiro/dto",
+      "file_count": 19,
+      "integrations": [],
+      "directory_prefix": "src/financeiro/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 190,
+      "reason": "low score (190) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/assinatura/dto",
+      "file_count": 13,
+      "integrations": [],
+      "directory_prefix": "src/assinatura/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 130,
+      "reason": "low score (130) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "jest/src/venda/dto",
+      "file_count": 9,
+      "integrations": [],
+      "directory_prefix": "src/venda/dto",
+      "assigned_agent": "generalist-reviewer",
+      "score": 90,
+      "reason": "low score (90) \u2014 no specialist matched well",
+      "runners_up": []
+    },
+    {
+      "segment": "src/produto/contracts/consulta-estoque-negativo.contract.ts",
+      "file_count": 3,
+      "integrations": [],
+      "directory_prefix": "src/produto/contracts",
+      "assigned_agent": "generalist-reviewer",
+      "score": 30,
+      "reason": "low score (30) \u2014 no specialist matched well",
+      "runners_up": []
+    }
+  ]
+}

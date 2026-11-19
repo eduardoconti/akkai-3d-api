@@ -7,6 +7,7 @@ export class RelatorioSugestaoProducaoDto {
   feirasConsideradas!: number;
   feirasPlanejamento!: number;
   feirasEstoqueSeguranca!: number;
+  apenasCoberturaInsuficiente!: boolean;
   pagina!: number;
   tamanhoPagina!: number;
   totalItens!: number;

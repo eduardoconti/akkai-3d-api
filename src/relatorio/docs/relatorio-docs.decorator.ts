@@ -413,7 +413,7 @@ export function ApiSugestaoProducaoDocs() {
     ApiOperation({
       summary: 'Obtém a sugestão de produção para feiras.',
       description:
-        'Compara vendas recentes de feira, estoque atual e estoque mínimo para sugerir quais produtos produzir. Usa as últimas feiras com venda registrada, planeja a demanda dos próximos eventos e adiciona estoque de segurança.',
+        'Compara vendas recentes de feira, estoque atual e estoque mínimo para sugerir quais produtos ativos produzir. Uma feira é cada combinação de data local e feira com vendas do tipo FEIRA, até o dia anterior (a feira do dia corrente ainda está em andamento). Considera produtos ativos com venda no histórico ou com estoque mínimo cadastrado (o estoque mínimo atua como piso do estoque alvo). A média por feira de cada produto usa apenas as feiras em que ele estava disponível (vendeu ou tinha estoque no início), desconsiderando feiras anteriores ao produto e feiras em falta. Trocas e devoluções feitas em dias de feira ajustam a quantidade vendida. Planeja a demanda dos próximos eventos e adiciona estoque de segurança.',
     }),
     ApiQuery({
       name: 'pagina',
@@ -435,7 +435,7 @@ export function ApiSugestaoProducaoDocs() {
       type: Number,
       example: 8,
       description:
-        'Quantidade de últimas feiras com venda registrada usada no histórico.',
+        'Quantidade de últimas feiras (data local + feira) com venda registrada usada no histórico, até o dia anterior.',
     }),
     ApiQuery({
       name: 'feirasPlanejamento',
@@ -451,6 +451,14 @@ export function ApiSugestaoProducaoDocs() {
       example: 1,
       description:
         'Quantidade adicional de feiras de venda média usada como estoque de segurança.',
+    }),
+    ApiQuery({
+      name: 'apenasCoberturaInsuficiente',
+      required: false,
+      type: Boolean,
+      example: false,
+      description:
+        'Quando verdadeiro, lista apenas produtos cuja cobertura atual (em feiras) é menor que a quantidade de feiras de planejamento. Produtos sem venda no histórico são desconsiderados.',
     }),
     ApiQuery({
       name: 'ordenarPor',
@@ -482,6 +490,7 @@ export function ApiSugestaoProducaoDocs() {
           feirasConsideradas: 8,
           feirasPlanejamento: 2,
           feirasEstoqueSeguranca: 1,
+          apenasCoberturaInsuficiente: false,
           pagina: 1,
           tamanhoPagina: 10,
           totalItens: 1,
@@ -496,6 +505,8 @@ export function ApiSugestaoProducaoDocs() {
               estoqueAtual: 8,
               estoqueMinimo: 10,
               quantidadeVendida: 84,
+              feirasConsideradas: 8,
+              feirasSemEstoque: 0,
               mediaVendaPorFeira: 10.5,
               demandaPlanejada: 21,
               estoqueSeguranca: 10.5,
